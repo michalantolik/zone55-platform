@@ -57,6 +57,8 @@ a {
     width: min(var(--shell-width), calc(100% - 36px));
     max-width: none;
     margin: 0 auto;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .top-nav {
@@ -268,15 +270,17 @@ a {
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr);
     gap: 0;
+    align-items: stretch;
     border-radius: 0 0 30px 30px;
     overflow: hidden;
     box-shadow: var(--shadow-soft);
     border: 1px solid rgba(255,255,255,.08);
     border-top: none;
-    background: #f3f5f7;
+    background: transparent;
 }
 
 .sidebar {
+    align-self: stretch;
     background: #06122f;
     padding: 38px 28px;
     color: white;
@@ -692,6 +696,8 @@ a {
 
     .container-xl {
         width: min(var(--shell-width), calc(100% - 24px));
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .top-nav {
