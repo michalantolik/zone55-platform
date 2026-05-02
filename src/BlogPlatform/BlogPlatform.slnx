@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="BlogPlatform.Api/BlogPlatform.Api.csproj" />
+  <Project Path="BlogPlatform.Application/BlogPlatform.Application.csproj" />
+  <Project Path="BlogPlatform.Domain/BlogPlatform.Domain.csproj" />
+  <Project Path="BlogPlatform.Infrastructure/BlogPlatform.Infrastructure.csproj" />
 </Solution>
