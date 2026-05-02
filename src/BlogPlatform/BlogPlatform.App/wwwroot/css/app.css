@@ -722,3 +722,46 @@ a {
         gap: 16px;
     }
 }
+
+/* ===== REMOVE UNWANTED TEXT FRAME / OUTLINE ===== */
+
+/* Kill any accidental borders/shadows on hero title */
+.hero h1,
+.hero-title,
+.hero-heading {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+    /* Remove focus outline ONLY for this visual element */
+    .hero h1:focus,
+    .hero-title:focus,
+    .hero-heading:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Prevent browser selection artifacts looking like frames */
+    .hero h1::selection,
+    .hero-title::selection {
+        background: rgba(100, 150, 255, 0.2);
+        color: inherit;
+    }
+
+    /* Remove any pseudo-element frames if present */
+    .hero h1::before,
+    .hero h1::after,
+    .hero-title::before,
+    .hero-title::after {
+        content: none !important;
+        display: none !important;
+    }
+
+/* Ensure no parent container is drawing a frame */
+.hero,
+.hero-content {
+    border: none !important;
+    box-shadow: none !important;
+}
