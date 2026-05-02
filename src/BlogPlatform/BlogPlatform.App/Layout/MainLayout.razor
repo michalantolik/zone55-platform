@@ -1,3 +1,27 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<div class="site-shell">
+    <header class="top-nav container-xl">
+        <a class="brand" href="/">
+            <span class="brand-icon">&lt;/&gt;</span>
+            <span>
+                <strong>AI Powered Python Blog</strong>
+                <small>software developer notes</small>
+            </span>
+        </a>
+
+        <nav class="main-menu">
+            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink href="/articles">Articles</NavLink>
+            <NavLink href="/?category=dotnet-ecosystem">.NET Ecosystem</NavLink>
+            <NavLink href="/?category=python-ecosystem">Python Ecosystem</NavLink>
+            <NavLink href="/?category=apis-integration">APIs & Integration</NavLink>
+            <NavLink href="/?category=cloud-azure-aws">Cloud (Azure & AWS)</NavLink>
+            <NavLink href="/about">About</NavLink>
+        </nav>
+    </header>
+
+    <main>
+        @Body
+    </main>
+</div>

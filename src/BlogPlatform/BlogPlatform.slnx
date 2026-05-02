@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="BlogPlatform.Api/BlogPlatform.Api.csproj" />
+  <Project Path="BlogPlatform.App/BlogPlatform.App.csproj" Id="c06c1de6-2f0e-488f-8be9-a43faefd2448" />
   <Project Path="BlogPlatform.Application/BlogPlatform.Application.csproj" />
   <Project Path="BlogPlatform.Domain/BlogPlatform.Domain.csproj" />
   <Project Path="BlogPlatform.Infrastructure/BlogPlatform.Infrastructure.csproj" />

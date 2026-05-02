@@ -1,0 +1,46 @@
+﻿<div class="sidebar-inner">
+    <h4>Categories</h4>
+    <p>Click a category to filter post previews.</p>
+
+    <a class="category-pill @(string.IsNullOrWhiteSpace(ActiveSlug) ? "active" : null)" href="/">
+        <span class="category-icon"></span>
+        <strong>All posts</strong>
+    </a>
+
+    @foreach (var category in Categories)
+    {
+        <a class="category-pill @(ActiveSlug == category.Slug ? "active" : null)" href="/?category=@category.Slug">
+            <span class="category-icon"></span>
+            <strong>@category.Name</strong>
+            <em>@category.Count</em>
+        </a>
+    }
+
+    <div class="author-card">
+        <small>About the author</small>
+        <h5>Michał</h5>
+        <p>
+            Software developer writing practical notes about .NET, Python, cloud,
+            DevOps, containers, architecture, and clean software design.
+        </p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? ActiveSlug { get; set; }
+
+    private static readonly CategoryItem[] Categories =
+    [
+        new("dotnet-ecosystem", ".NET Ecosystem", 7),
+        new("python-ecosystem", "Python Ecosystem", 10),
+        new("apis-integration", "APIs & Integration", 8),
+        new("cloud-azure-aws", "Cloud (Azure & AWS)", 7),
+        new("devops-automation", "DevOps & Automation", 7),
+        new("containers-kubernetes", "Containers & Kubernetes", 5),
+        new("infrastructure-as-code", "Infrastructure as Code", 10),
+        new("architecture-patterns", "Architecture & Patterns", 6)
+    ];
+
+    private sealed record CategoryItem(string Slug, string Name, int Count);
+}

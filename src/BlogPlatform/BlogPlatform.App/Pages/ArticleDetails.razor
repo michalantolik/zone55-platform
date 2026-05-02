@@ -1,0 +1,107 @@
+﻿@page "/articles/{Slug}"
+
+<PageTitle>@Article.Title | AI Powered Python Blog</PageTitle>
+
+<section class="article-shell container-xl">
+    <div class="article-top">
+        <div class="breadcrumbs">
+            <a href="/">← All Posts</a>
+            <span>›</span>
+            <a href="/?category=@Article.CategorySlug">@Article.Category</a>
+            <span>›</span>
+            <strong>@Article.Title</strong>
+        </div>
+
+        <a class="browse-button" href="/">Browse all posts</a>
+    </div>
+
+    <article class="article-card">
+        <div class="tag-row">
+            @foreach (var tag in Article.Tags)
+            {
+                <span>@tag</span>
+            }
+        </div>
+
+        <h1>@Article.Title</h1>
+
+        <div class="article-meta">
+            <strong>Published</strong>
+            <span>Apr 16, 2026</span>
+            <span>·</span>
+            <span>Michał Antolik</span>
+        </div>
+
+        <div class="article-summary">
+            @Article.Description
+        </div>
+
+        <h2>What is Configuration in ASP.NET Core?</h2>
+
+        <p>
+            Configuration in ASP.NET Core is the mechanism used to control application behavior
+            without changing code. Instead of hardcoding values, you define them externally and
+            load them at runtime.
+        </p>
+
+        <p>
+            This allows applications to behave differently across environments like development,
+            staging, and production.
+        </p>
+
+        <p>
+            Configuration is built on simple <strong>key-value pairs</strong>, but supports
+            hierarchical structure using sections.
+        </p>
+
+        <h2>Why this matters</h2>
+
+        <p>
+            A clean configuration setup makes applications easier to deploy, test, maintain,
+            and move between environments.
+        </p>
+    </article>
+</section>
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = "";
+
+    private ArticleItem Article =>
+        Articles.FirstOrDefault(x => x.Slug == Slug) ?? Articles[0];
+
+    private static readonly ArticleItem[] Articles =
+    [
+        new(
+            "aspnet-core-configuration-options-explained",
+            ".NET Ecosystem",
+            "dotnet-ecosystem",
+            "Configuration and Options in ASP.NET Core (Complete Guide)",
+            "Learn how configuration works in ASP.NET Core, how to use appsettings.json, the Options pattern, and how to manage secrets and providers in real-world applications.",
+            [".NET Ecosystem", ".NET", "ASP.NET Core", "Configuration", "Wagtail article"]),
+
+        new(
+            "state-pattern-csharp",
+            "Architecture & Patterns",
+            "architecture-patterns",
+            "C# State Pattern Explained: Cleaner State Transitions Without Boolean Spaghetti",
+            "Learn how the State pattern works in C#, why it reduces conditional complexity, and how to model state transitions cleanly.",
+            ["Architecture & Patterns", ".NET", "Architecture", "Patterns"]),
+
+        new(
+            "specification-pattern-csharp",
+            "Architecture & Patterns",
+            "architecture-patterns",
+            "C# Specification Pattern Explained: Reusing Domain Rules for Validation and Queries",
+            "Learn how the Specification Pattern works in C#, why strongly typed specifications matter, and how to combine them.",
+            ["Architecture & Patterns", ".NET", "Architecture", "Specification"])
+    ];
+
+    private sealed record ArticleItem(
+        string Slug,
+        string Category,
+        string CategorySlug,
+        string Title,
+        string Description,
+        string[] Tags);
+}

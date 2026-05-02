@@ -1,7 +1,196 @@
 ﻿@page "/"
+@page "/articles"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Home | AI Powered Python Blog</PageTitle>
 
-<h1>Hello, world!</h1>
+<section class="hero container-xl">
+    <div>
+        <div class="eyebrow">
+            <span></span>
+            Software Developer Blog
+        </div>
 
-Welcome to your new app.
+        <h1>
+            Code Notes<br />
+            <span>for builders and architects</span>
+        </h1>
+
+        <p>
+            A technical blog about .NET, Python, cloud platforms, DevOps, containers,
+            Infrastructure as Code, and architecture.
+        </p>
+
+        <div class="hero-tags">
+            <span>.NET Ecosystem</span>
+            <span>Python Ecosystem</span>
+            <span>APIs & Integration</span>
+            <span>Cloud (Azure & AWS)</span>
+        </div>
+    </div>
+
+    <div class="hero-cards">
+        <div>
+            <small>Theme</small>
+            <strong>Soft developer palette</strong>
+        </div>
+        <div>
+            <small>Style</small>
+            <strong>Structured card layout</strong>
+        </div>
+    </div>
+</section>
+
+<section class="content-frame container-xl">
+    <aside class="sidebar">
+        <CategorySidebar ActiveSlug="@Category" />
+    </aside>
+
+    <section class="posts-area">
+        <div class="section-header">
+            <div>
+                <div class="section-kicker">LATEST CONTENT</div>
+                <h2>@PageTitleText</h2>
+                <p>@Subtitle</p>
+            </div>
+
+            <a href="/articles">Browse all posts</a>
+        </div>
+
+        @foreach (var post in VisiblePosts)
+        {
+            <article class="post-card">
+                <div class="tag-row">
+                    @foreach (var tag in post.Tags)
+                    {
+                        <span>@tag</span>
+                    }
+                </div>
+
+                <div class="post-meta">by Michał Antolik</div>
+
+                <h3>
+                    <a href="/articles/@post.Slug">@post.Title</a>
+                </h3>
+
+                <p>@post.Description</p>
+
+                <div class="post-action">
+                    <a href="/articles/@post.Slug">Read post →</a>
+                </div>
+            </article>
+        }
+
+        <div class="pagination-bar">
+            <span>Page 1 of 10</span>
+
+            <div class="pagination-buttons">
+                <button disabled>← Previous</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <span>...</span>
+                <button>10</button>
+                <button>Next →</button>
+            </div>
+        </div>
+    </section>
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "category")]
+    public string? Category { get; set; }
+
+    private string PageTitleText =>
+        string.IsNullOrWhiteSpace(Category)
+            ? "Recent posts"
+            : Categories.FirstOrDefault(x => x.Slug == Category)?.Name ?? "Recent posts";
+
+    private string Subtitle =>
+        string.IsNullOrWhiteSpace(Category)
+            ? "Short previews in neat cards. Click any card title to open the full article page."
+            : "Homepage posts filtered by category.";
+
+    private IEnumerable<PostItem> VisiblePosts =>
+        string.IsNullOrWhiteSpace(Category)
+            ? Posts
+            : Posts.Where(x => x.CategorySlug == Category);
+
+    private static readonly CategoryItem[] Categories =
+    [
+        new("dotnet-ecosystem", ".NET Ecosystem", 7),
+        new("python-ecosystem", "Python Ecosystem", 10),
+        new("apis-integration", "APIs & Integration", 8),
+        new("cloud-azure-aws", "Cloud (Azure & AWS)", 7),
+        new("devops-automation", "DevOps & Automation", 7),
+        new("containers-kubernetes", "Containers & Kubernetes", 5),
+        new("infrastructure-as-code", "Infrastructure as Code", 10),
+        new("architecture-patterns", "Architecture & Patterns", 6)
+    ];
+
+    private static readonly PostItem[] Posts =
+    [
+        new(
+            "aspnet-core-configuration-options-explained",
+            "dotnet-ecosystem",
+            "Configuration and Options in ASP.NET Core (Complete Guide)",
+            "Learn how configuration works in ASP.NET Core, how to use appsettings.json, the Options pattern, and how to manage secrets and providers in real-world applications.",
+            [".NET Ecosystem", ".NET", "ASP.NET Core", "Configuration"]),
+
+        new(
+            "aspnet-core-authentication-authorization",
+            "dotnet-ecosystem",
+            "Authentication and Authorization in ASP.NET Core",
+            "Secure your application and control access the right way.",
+            [".NET Ecosystem", "Security", "Auth"]),
+
+        new(
+            "state-pattern-csharp",
+            "architecture-patterns",
+            "C# State Pattern Explained: Cleaner State Transitions Without Boolean Spaghetti",
+            "Learn how the State pattern works in C#, why it reduces conditional complexity, and how to model state transitions cleanly using a booking workflow.",
+            ["Architecture & Patterns", ".NET", "Architecture", "Patterns", "Backend", "Design Patterns", "State", "Testing", "C#"]),
+
+        new(
+            "specification-pattern-csharp",
+            "architecture-patterns",
+            "C# Specification Pattern Explained: Reusing Domain Rules for Validation and Queries",
+            "Learn how the Specification Pattern works in C#, why strongly typed specifications matter, how to combine them, and how to use them for validation and efficient database queries.",
+            ["Architecture & Patterns", ".NET", "Architecture", "Patterns", "Backend", "Design Patterns", "Specification", "Database", "Testing", "C#"]),
+
+        new(
+            "null-object-pattern-csharp",
+            "architecture-patterns",
+            "Eliminating Null Checks in C# with the Null Object Pattern",
+            "Learn how to eliminate repetitive null checks in C# using the Null Object pattern. Reduce cyclomatic complexity, improve readability, and make your code safer.",
+            ["Architecture & Patterns", "Design Patterns", "C#", "Clean Code"]),
+
+        new(
+            "command-pattern-csharp",
+            "architecture-patterns",
+            "Command Pattern in C#: Decoupling Actions and Enabling Undo/Redo",
+            "A practical guide to using the Command pattern in C# for clean actions, queues, and undoable workflows.",
+            ["Architecture & Patterns", ".NET", "Architecture", "Backend", "Design Patterns", "Command"]),
+
+        new(
+            "strategy-pattern-csharp",
+            "architecture-patterns",
+            "C# Strategy Pattern Explained: Runtime Behavior Without Conditionals Everywhere",
+            "Learn how the Strategy pattern works in C#, why it improves extensibility and testability, and how to apply it for tax calculation, invoice delivery, and shipping providers.",
+            ["Architecture & Patterns", ".NET", "Architecture", "Patterns", "Backend", "Design Patterns", "Strategy", "Testing", "C#"]),
+
+        new(
+            "design-patterns-overview",
+            "architecture-patterns",
+            "Design Patterns Overview: How to Learn, Apply, and Combine Them",
+            "A practical overview of design patterns: what they are, where they came from, when to use them, and how to build real mastery instead of memorizing names.",
+            ["Architecture & Patterns", "Architecture", "Design Patterns"])
+    ];
+
+    private sealed record CategoryItem(string Slug, string Name, int Count);
+
+    private sealed record PostItem(
+        string Slug,
+        string CategorySlug,
+        string Title,
+        string Description,
+        string[] Tags);
+}
