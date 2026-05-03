@@ -53,6 +53,10 @@ button {
     font: inherit;
 }
 
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
 .site-shell {
     min-height: 100vh;
     padding: 18px 0 36px;
@@ -180,6 +184,7 @@ button {
     line-height: .96;
     letter-spacing: -.055em;
     font-weight: 800;
+    outline: none;
 }
 
     .hero h1 span {
@@ -189,6 +194,7 @@ button {
         background: linear-gradient(90deg, var(--accent-cyan), var(--primary), #a8b6ff);
         -webkit-background-clip: text;
         background-clip: text;
+        outline: none;
     }
 
 .hero p {
@@ -291,11 +297,12 @@ button {
     border-radius: 0 0 30px 30px;
     border: 1px solid rgba(255, 255, 255, .08);
     border-top: 0;
-    background: var(--surface);
+    background: #071228;
     box-shadow: var(--shadow-soft);
 }
 
 .sidebar {
+    min-width: 0;
     background: #071228;
     color: var(--text-main);
 }
@@ -382,8 +389,10 @@ button {
     }
 
 .posts-area {
+    min-width: 0;
     padding: 36px 40px 42px;
     color: var(--text-dark);
+    background: var(--surface);
 }
 
 .section-header {
