@@ -290,6 +290,7 @@ button {
 }
 
 .content-frame {
+    align-items: flex-start;
     display: grid;
     grid-template-columns: 250px minmax(0, 1fr);
     align-items: stretch;
@@ -302,6 +303,8 @@ button {
 }
 
 .sidebar {
+    margin-top: 0;
+    padding-top: 0;
     min-width: 0;
     background: #071228;
     color: var(--text-main);
@@ -309,8 +312,8 @@ button {
 
 .sidebar-inner {
     position: sticky;
-    top: 18px;
-    padding: 28px 24px 34px;
+    top: 0;
+    padding: 0 24px 34px;
 }
 
 .sidebar h4 {
