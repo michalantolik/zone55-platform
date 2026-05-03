@@ -1,0 +1,71 @@
+﻿@page "/projects"
+
+<PageTitle>Projects | .NET Backend & Cloud Engineering Notes</PageTitle>
+
+<section class="hero about-hero container-xl">
+    <div class="hero-main">
+        <div class="eyebrow">
+            <span></span>
+            Portfolio project
+        </div>
+
+        <h1>
+            Projects<br />
+            <span>systems I build and document</span>
+        </h1>
+
+        <p>
+            This section connects the blog content with real implementation: backend structure,
+            cloud deployment, CI/CD, diagrams, and practical engineering decisions.
+        </p>
+    </div>
+</section>
+
+<section class="content-frame container-xl">
+    <aside class="sidebar">
+        <CategorySidebar />
+    </aside>
+
+    <section class="posts-area about-content">
+        <div class="section-kicker">MAIN PROJECT</div>
+
+        <h2>Blog Platform</h2>
+
+        <p>
+            This site is more than a blog. It is a portfolio system used to show how I structure,
+            document, and evolve a .NET backend + cloud-oriented application.
+        </p>
+
+        <div class="project-grid">
+            <div class="project-card">
+                <h3>Backend</h3>
+                <p>ASP.NET Core application structure, API thinking, DTOs, configuration, and maintainable boundaries.</p>
+            </div>
+
+            <div class="project-card">
+                <h3>Cloud</h3>
+                <p>Azure-ready deployment approach with environment-based configuration and secret management.</p>
+            </div>
+
+            <div class="project-card">
+                <h3>DevOps</h3>
+                <p>CI/CD pipeline direction using GitHub Actions or Azure DevOps for build, test, and deployment.</p>
+            </div>
+
+            <div class="project-card">
+                <h3>Architecture</h3>
+                <p>PlantUML diagrams, system documentation, and design notes explaining technical decisions.</p>
+            </div>
+        </div>
+
+        <h3>Planned article series</h3>
+
+        <ul>
+            <li>Architecture of this blog platform</li>
+            <li>How I structure configuration in ASP.NET Core</li>
+            <li>CI/CD pipeline for a .NET application</li>
+            <li>Deploying ASP.NET Core to Azure</li>
+            <li>Using PlantUML to document backend architecture</li>
+        </ul>
+    </section>
+</section>

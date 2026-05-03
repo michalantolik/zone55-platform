@@ -1,0 +1,37 @@
+﻿<article class="post-card">
+    <div class="post-card-top">
+        <span class="badge badge-primary">@Category</span>
+        <span class="badge">@Level</span>
+    </div>
+
+    <h3 class="post-title">
+        <a href="@Url">@Title</a>
+    </h3>
+
+    <p class="post-summary">@Summary</p>
+
+    @if (TechStack?.Any() == true)
+    {
+        <div class="post-tech">
+            @foreach (var tech in TechStack.Take(4))
+            {
+                <span>@tech</span>
+            }
+        </div>
+    }
+
+    <div class="post-footer">
+        <span>@Focus</span>
+        <a href="@Url" class="read-btn">Read →</a>
+    </div>
+</article>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Summary { get; set; } = string.Empty;
+    [Parameter] public string Category { get; set; } = string.Empty;
+    [Parameter] public string Level { get; set; } = "Intermediate";
+    [Parameter] public string Focus { get; set; } = "Practical";
+    [Parameter] public string Url { get; set; } = "#";
+    [Parameter] public IEnumerable<string>? TechStack { get; set; }
+}

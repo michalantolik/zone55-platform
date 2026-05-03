@@ -1,42 +1,64 @@
 ﻿@page "/"
 @page "/articles"
 
-<PageTitle>Home | AI Powered Python Blog</PageTitle>
+<PageTitle>.NET Backend & Cloud Engineering Notes</PageTitle>
 
 <section class="hero container-xl">
-    <div>
+    <div class="hero-main">
         <div class="eyebrow">
             <span></span>
-            Software Developer Blog
+            Portfolio blog · .NET backend · cloud-ready systems
         </div>
 
         <h1>
-            Code Notes<br />
-            <span>for builders and architects</span>
+            .NET Backend Engineer<br />
+            <span>building cloud-ready systems</span>
         </h1>
 
         <p>
-            A technical blog about .NET, Python, cloud platforms, DevOps, containers,
-            Infrastructure as Code, and architecture.
+            I design and build APIs, backend services, and cloud solutions using .NET and Azure.
+            This blog documents practical engineering decisions, patterns, and real-world implementations.
         </p>
 
         <div class="hero-tags">
-            <span>.NET Ecosystem</span>
-            <span>Python Ecosystem</span>
-            <span>APIs & Integration</span>
-            <span>Cloud (Azure & AWS)</span>
+            <span>.NET</span>
+            <span>ASP.NET Core</span>
+            <span>Azure</span>
+            <span>CI/CD</span>
+            <span>Architecture</span>
         </div>
     </div>
 
-    <div class="hero-cards">
-        <div>
-            <small>Theme</small>
-            <strong>Soft developer palette</strong>
+    <div class="hero-side">
+        <div class="signal-card">
+            <small>Primary focus</small>
+            <strong>.NET Backend + Cloud</strong>
         </div>
-        <div>
-            <small>Style</small>
-            <strong>Structured card layout</strong>
+        <div class="signal-card">
+            <small>Engineering signal</small>
+            <strong>APIs · DevOps · Architecture</strong>
         </div>
+    </div>
+</section>
+
+<section class="intro-strip container-xl">
+    <div>
+        <h2>Current focus</h2>
+        <ul>
+            <li>ASP.NET Core backend architecture</li>
+            <li>Azure services: App Service, Storage, Key Vault</li>
+            <li>CI/CD pipelines with GitHub Actions and Azure DevOps</li>
+            <li>Infrastructure as Code basics and environment configuration</li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>This blog is also a working system</h2>
+        <p>
+            I use this platform as a portfolio project to show how I structure, document,
+            build, and deploy backend applications with cloud and automation in mind.
+        </p>
+        <a class="inline-link" href="/projects">See how it is built →</a>
     </div>
 </section>
 
@@ -56,40 +78,26 @@
             <a href="/articles">Browse all posts</a>
         </div>
 
-        @foreach (var post in VisiblePosts)
-        {
-            <article class="post-card">
-                <div class="tag-row">
-                    @foreach (var tag in post.Tags)
-                    {
-                        <span>@tag</span>
-                    }
-                </div>
-
-                <div class="post-meta">by Michał Antolik</div>
-
-                <h3>
-                    <a href="/articles/@post.Slug">@post.Title</a>
-                </h3>
-
-                <p>@post.Description</p>
-
-                <div class="post-action">
-                    <a href="/articles/@post.Slug">Read post →</a>
-                </div>
-            </article>
-        }
+        <div class="post-grid">
+            @foreach (var post in VisiblePosts)
+            {
+                <PostCard Title="@post.Title"
+                          Summary="@post.Description"
+                          Category="@post.Category"
+                          Level="@post.Level"
+                          Focus="@post.Focus"
+                          Url="@($"/articles/{post.Slug}")"
+                          TechStack="@post.TechStack" />
+            }
+        </div>
 
         <div class="pagination-bar">
-            <span>Page 1 of 10</span>
+            <span>Page 1 of 1</span>
 
             <div class="pagination-buttons">
                 <button disabled>← Previous</button>
                 <button class="active">1</button>
-                <button>2</button>
-                <span>...</span>
-                <button>10</button>
-                <button>Next →</button>
+                <button disabled>Next →</button>
             </div>
         </div>
     </section>
@@ -101,13 +109,13 @@
 
     private string PageTitleText =>
         string.IsNullOrWhiteSpace(Category)
-            ? "Recent posts"
-            : Categories.FirstOrDefault(x => x.Slug == Category)?.Name ?? "Recent posts";
+            ? "Recent engineering notes"
+            : Categories.FirstOrDefault(x => x.Slug == Category)?.Name ?? "Recent engineering notes";
 
     private string Subtitle =>
         string.IsNullOrWhiteSpace(Category)
-            ? "Short previews in neat cards. Click any card title to open the full article page."
-            : "Homepage posts filtered by category.";
+            ? "Compact notes focused on backend systems, cloud deployment, and architecture."
+            : "Filtered notes for this engineering area.";
 
     private IEnumerable<PostItem> VisiblePosts =>
         string.IsNullOrWhiteSpace(Category)
@@ -115,82 +123,124 @@
             : Posts.Where(x => x.CategorySlug == Category);
 
     private static readonly CategoryItem[] Categories =
-    [
-        new("dotnet-ecosystem", ".NET Ecosystem", 7),
-        new("python-ecosystem", "Python Ecosystem", 10),
-        new("apis-integration", "APIs & Integration", 8),
-        new("cloud-azure-aws", "Cloud (Azure & AWS)", 7),
-        new("devops-automation", "DevOps & Automation", 7),
-        new("containers-kubernetes", "Containers & Kubernetes", 5),
-        new("infrastructure-as-code", "Infrastructure as Code", 10),
-        new("architecture-patterns", "Architecture & Patterns", 6)
-    ];
+    {
+        new("backend-dotnet", "Backend (.NET)", 4),
+        new("cloud-devops", "Cloud & DevOps", 3),
+        new("architecture", "Architecture", 3)
+    };
 
     private static readonly PostItem[] Posts =
-    [
+    {
         new(
-            "aspnet-core-configuration-options-explained",
-            "dotnet-ecosystem",
-            "Configuration and Options in ASP.NET Core (Complete Guide)",
-            "Learn how configuration works in ASP.NET Core, how to use appsettings.json, the Options pattern, and how to manage secrets and providers in real-world applications.",
-            [".NET Ecosystem", ".NET", "ASP.NET Core", "Configuration"]),
+            "aspnet-core-configuration-cloud-ready",
+            "backend-dotnet",
+            "Backend (.NET)",
+            "Intermediate",
+            "Practical",
+            "How I structure configuration in ASP.NET Core",
+            "A practical approach to appsettings, environments, Options pattern, and cloud-ready configuration.",
+            new[] { ".NET", "ASP.NET Core", "Config", "Azure" }),
 
         new(
             "aspnet-core-authentication-authorization",
-            "dotnet-ecosystem",
-            "Authentication and Authorization in ASP.NET Core",
-            "Secure your application and control access the right way.",
-            [".NET Ecosystem", "Security", "Auth"]),
+            "backend-dotnet",
+            "Backend (.NET)",
+            "Intermediate",
+            "Security",
+            "Authentication and authorization in ASP.NET Core",
+            "How I think about identity, access control, and secure backend endpoints in real projects.",
+            new[] { ".NET", "Security", "Auth", "APIs" }),
 
         new(
-            "state-pattern-csharp",
-            "architecture-patterns",
-            "C# State Pattern Explained: Cleaner State Transitions Without Boolean Spaghetti",
-            "Learn how the State pattern works in C#, why it reduces conditional complexity, and how to model state transitions cleanly using a booking workflow.",
-            ["Architecture & Patterns", ".NET", "Architecture", "Patterns", "Backend", "Design Patterns", "State", "Testing", "C#"]),
+            "api-design-for-business-systems",
+            "backend-dotnet",
+            "Backend (.NET)",
+            "Intermediate",
+            "API Design",
+            "Designing APIs for business applications",
+            "Practical notes on endpoints, DTOs, validation, error responses, and maintainable API contracts.",
+            new[] { ".NET", "REST", "DTOs", "Validation" }),
 
         new(
-            "specification-pattern-csharp",
-            "architecture-patterns",
-            "C# Specification Pattern Explained: Reusing Domain Rules for Validation and Queries",
-            "Learn how the Specification Pattern works in C#, why strongly typed specifications matter, how to combine them, and how to use them for validation and efficient database queries.",
-            ["Architecture & Patterns", ".NET", "Architecture", "Patterns", "Backend", "Design Patterns", "Specification", "Database", "Testing", "C#"]),
+            "clean-architecture-dotnet-api",
+            "backend-dotnet",
+            "Backend (.NET)",
+            "Advanced",
+            "Architecture",
+            "Clean architecture for a .NET backend API",
+            "How I separate domain, application, infrastructure, and UI concerns in a backend project.",
+            new[] { ".NET", "Clean Architecture", "DDD", "Testing" }),
 
         new(
-            "null-object-pattern-csharp",
-            "architecture-patterns",
-            "Eliminating Null Checks in C# with the Null Object Pattern",
-            "Learn how to eliminate repetitive null checks in C# using the Null Object pattern. Reduce cyclomatic complexity, improve readability, and make your code safer.",
-            ["Architecture & Patterns", "Design Patterns", "C#", "Clean Code"]),
+            "github-actions-dotnet-ci-cd",
+            "cloud-devops",
+            "Cloud & DevOps",
+            "Intermediate",
+            "CI/CD",
+            "CI/CD pipeline for a .NET application",
+            "Build, test, and deploy workflow for a backend application using GitHub Actions.",
+            new[] { "GitHub Actions", ".NET", "CI/CD", "Automation" }),
 
         new(
-            "command-pattern-csharp",
-            "architecture-patterns",
-            "Command Pattern in C#: Decoupling Actions and Enabling Undo/Redo",
-            "A practical guide to using the Command pattern in C# for clean actions, queues, and undoable workflows.",
-            ["Architecture & Patterns", ".NET", "Architecture", "Backend", "Design Patterns", "Command"]),
+            "deploy-aspnet-core-to-azure",
+            "cloud-devops",
+            "Cloud & DevOps",
+            "Intermediate",
+            "Cloud",
+            "Deploying ASP.NET Core to Azure",
+            "Practical deployment notes for Azure App Service, configuration, secrets, and environments.",
+            new[] { "Azure", "App Service", ".NET", "Key Vault" }),
 
         new(
-            "strategy-pattern-csharp",
-            "architecture-patterns",
-            "C# Strategy Pattern Explained: Runtime Behavior Without Conditionals Everywhere",
-            "Learn how the Strategy pattern works in C#, why it improves extensibility and testability, and how to apply it for tax calculation, invoice delivery, and shipping providers.",
-            ["Architecture & Patterns", ".NET", "Architecture", "Patterns", "Backend", "Design Patterns", "Strategy", "Testing", "C#"]),
+            "infrastructure-as-code-basics",
+            "cloud-devops",
+            "Cloud & DevOps",
+            "Beginner",
+            "IaC",
+            "Infrastructure as Code basics for backend developers",
+            "How I approach repeatable infrastructure, environment setup, and deployment configuration.",
+            new[] { "IaC", "Azure", "Bicep", "DevOps" }),
 
         new(
-            "design-patterns-overview",
-            "architecture-patterns",
-            "Design Patterns Overview: How to Learn, Apply, and Combine Them",
-            "A practical overview of design patterns: what they are, where they came from, when to use them, and how to build real mastery instead of memorizing names.",
-            ["Architecture & Patterns", "Architecture", "Design Patterns"])
-    ];
+            "system-architecture-blog-platform",
+            "architecture",
+            "Architecture",
+            "Intermediate",
+            "System Design",
+            "Architecture of this blog platform",
+            "How this portfolio system is structured: frontend, backend, deployment, and documentation flow.",
+            new[] { "Architecture", "PlantUML", ".NET", "Cloud" }),
+
+        new(
+            "plantuml-for-software-architecture",
+            "architecture",
+            "Architecture",
+            "Beginner",
+            "Documentation",
+            "Using PlantUML to document software architecture",
+            "Simple diagrams that explain system context, components, deployment, and data flow.",
+            new[] { "PlantUML", "C4", "Diagrams", "Docs" }),
+
+        new(
+            "design-patterns-real-backend-code",
+            "architecture",
+            "Architecture",
+            "Intermediate",
+            "Patterns",
+            "Design patterns in real backend code",
+            "How I use patterns carefully to simplify business logic without over-engineering the system.",
+            new[] { "C#", "Patterns", "Backend", "Testing" })
+    };
 
     private sealed record CategoryItem(string Slug, string Name, int Count);
 
     private sealed record PostItem(
         string Slug,
         string CategorySlug,
+        string Category,
+        string Level,
+        string Focus,
         string Title,
         string Description,
-        string[] Tags);
+        string[] TechStack);
 }
