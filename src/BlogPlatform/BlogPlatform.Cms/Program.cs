@@ -1,3 +1,4 @@
+using BlogPlatform.Cms.Infrastructure.Database;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.CreateUmbracoBuilder()
 
 WebApplication app = builder.Build();
 
+await SqlServerDatabaseInitializer.EnsureDatabaseCreatedAsync(app.Configuration);
 
 await app.BootUmbracoAsync();
 
