@@ -1,33 +1,38 @@
 # .NET Cloud Blog Platform
 
-A cloud-oriented portfolio blog platform built with **.NET**, **Blazor WebAssembly**, and **ASP.NET Core**.
+A cloud-oriented portfolio blog platform built with **.NET**, **Blazor WebAssembly**, **ASP.NET Core Web API**, and **Umbraco CMS**.
 
-The project is designed as a practical engineering portfolio that demonstrates backend structure, clean architecture thinking, API design, documentation, and a future path toward Azure deployment, CI/CD, and Infrastructure as Code.
+The project is designed as a practical engineering portfolio that demonstrates backend structure, clean architecture thinking, API design, CMS integration, documentation, and a future path toward Azure deployment, CI/CD, and Infrastructure as Code.
 
 It is not only a blog application.
 
-It is a technical portfolio system for documenting engineering decisions, architecture, cloud-readiness, and implementation progress.
+It is a technical portfolio system for documenting engineering decisions, architecture, cloud-readiness, content management, and implementation progress.
 
 ---
 
 ## Project Status
 
-Current state: **early-stage portfolio platform / architecture foundation**.
+Current state: **early-stage portfolio platform / architecture foundation with CMS integration started**.
 
 The solution already contains:
 
 - Blazor WebAssembly frontend application
 - ASP.NET Core Web API project
+- Umbraco-based CMS project (`BlogPlatform.Cms`)
 - Application layer with DTOs
 - Domain layer with core entities and enums
 - Infrastructure project prepared for future persistence/cloud integrations
 - Swagger/OpenAPI support in the API
 - Static portfolio content focused on .NET backend, cloud, DevOps, and architecture
+- Local SQL Server / LocalDB setup for Umbraco CMS
+- Umbraco Delivery API enabled for future headless CMS scenarios
 
 Planned evolution:
 
 - Replace static/sample data with real application services
-- Add persistence in the Infrastructure layer
+- Use Umbraco CMS as a managed content source
+- Connect the Blazor frontend and/or API to CMS-managed content
+- Add persistence in the Infrastructure layer where needed
 - Add authentication and authorization
 - Add automated tests
 - Add CI/CD pipeline
@@ -42,26 +47,11 @@ Planned evolution:
 src/
 └── BlogPlatform/
     ├── BlogPlatform.Api/
-    │   ├── Controllers/
-    │   ├── Program.cs
-    │   └── appsettings.json
-    │
     ├── BlogPlatform.App/
-    │   ├── Layout/
-    │   ├── Pages/
-    │   ├── Shared/
-    │   ├── wwwroot/
-    │   └── Program.cs
-    │
     ├── BlogPlatform.Application/
-    │   └── Posts/
-    │
+    ├── BlogPlatform.Cms/
     ├── BlogPlatform.Domain/
-    │   ├── Entities/
-    │   └── Enums/
-    │
     ├── BlogPlatform.Infrastructure/
-    │
     └── BlogPlatform.slnx
 ```
 
@@ -73,6 +63,7 @@ src/
 |---|---|---|---|---|
 | `BlogPlatform.App` | Blazor WebAssembly frontend | Portfolio blog UI, pages, navigation, article cards, category filtering | Home, About, Projects, Article Details, shared components, CSS | Frontend understanding |
 | `BlogPlatform.Api` | ASP.NET Core Web API | HTTP API boundary for backend capabilities | `PostsController`, Swagger/OpenAPI, controller setup | Backend foundation and REST API |
+| `BlogPlatform.Cms` | Umbraco CMS | Content management and editorial system | SQL LocalDB for local Umbraco CMS | Umbraco CMS |
 | `BlogPlatform.Application` | Application layer | DTOs, use cases, application contracts, orchestration | `PostDto` | Clean architecture and separation of concerns |
 | `BlogPlatform.Domain` | Domain layer | Core business model independent from frameworks | `Post`, `Category`, `Tag`, `PostStatus` | Domain modeling and architecture discipline |
 | `BlogPlatform.Infrastructure` | Infrastructure layer | Future persistence, external services, cloud integrations | Project shell with references to Application and Domain | Cloud/platform Engineering |
@@ -88,21 +79,23 @@ The repository follows a layered architecture inspired by **Clean Architecture**
 
 ```mermaid
 flowchart TB
-    User[User / Visitor]
+    Visitor[Visitor]
+    Editor[Editor]
 
-    subgraph Frontend[Frontend]
-        App[BlogPlatform.App<br/>Blazor WebAssembly]
-    end
+    App[Blazor App]
+    Api[ASP.NET API]
+    Cms[Umbraco CMS]
 
-    subgraph Backend[Backend]
-        Api[BlogPlatform.Api<br/>ASP.NET Core Web API]
-        Application[BlogPlatform.Application<br/>DTOs / Use Cases / Contracts]
-        Domain[BlogPlatform.Domain<br/>Entities / Enums]
-        Infrastructure[BlogPlatform.Infrastructure<br/>Persistence / External Services / Cloud Integrations]
-    end
+    Application[Application Layer]
+    Domain[Domain Layer]
+    Infrastructure[Infrastructure Layer]
 
-    User --> App
-    App -. future HTTP calls .-> Api
+    Visitor --> App
+    Editor --> Cms
+
+    App --> Api
+    App --> Cms
+
     Api --> Application
     Application --> Domain
     Infrastructure --> Application
@@ -155,6 +148,8 @@ sequenceDiagram
 |---|---|
 | Frontend | Blazor WebAssembly |
 | Backend | ASP.NET Core Web API |
+| CMS | Umbraco CMS |
+| Database (CMS) | SQL Server LocalDB |
 | Language | C# |
 | Runtime | .NET 10 target framework |
 | API Documentation | Swagger / Swashbuckle |
@@ -270,6 +265,42 @@ Current sample response concept:
 ```
 
 Swagger is enabled in the Development environment.
+
+---
+
+## CMS (BlogPlatform.Cms)
+
+The CMS project is based on **Umbraco** and provides:
+- Backoffice for content editors
+- Website rendering capabilities
+- Delivery API (headless mode support)
+- SQL Server LocalDB integration
+- Automatic database creation
+
+### Configuration snippet
+
+```csharp
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddDeliveryApi()
+    .AddComposers()
+    .Build();
+```
+
+### Local database
+
+```json
+"ConnectionStrings": {
+  "umbracoDbDSN": "Server=(localdb)\\MSSQLLocalDB;Database=BlogPlatformUmbracoDb;Integrated Security=true;"
+}
+```
+
+### Backoffice URL
+
+```
+/umbraco
+```
 
 ---
 
