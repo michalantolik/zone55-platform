@@ -2,6 +2,20 @@ using BlogPlatform.Cms.Infrastructure.Database;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+var hmacKey = builder.Configuration["Umbraco:CMS:Imaging:HMACSecretKey"];
+
+if (string.IsNullOrWhiteSpace(hmacKey))
+{
+    throw new InvalidOperationException(
+        "Umbraco CMS Imaging HMACSecretKey is missing.");
+}
+
+if (hmacKey.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException(
+        "Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
+}
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
@@ -11,7 +25,10 @@ builder.CreateUmbracoBuilder()
 
 WebApplication app = builder.Build();
 
-await SqlServerDatabaseInitializer.EnsureDatabaseCreatedAsync(app.Configuration);
+if (app.Environment.IsDevelopment())
+{
+    await SqlServerDatabaseInitializer.EnsureDatabaseCreatedAsync(app.Configuration);
+}
 
 await app.BootUmbracoAsync();
 
