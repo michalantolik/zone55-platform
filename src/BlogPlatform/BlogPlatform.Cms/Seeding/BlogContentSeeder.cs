@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 
@@ -8,9 +11,15 @@ namespace BlogPlatform.Cms.Seeding;
 
 public sealed class BlogContentSeeder
 {
+    private const string ObsoleteBodyJsonAlias = "bodyJson";
+    private const string BlockListEditorAlias = "Umbraco.BlockList";
+    private const string BlockListLayoutAlias = "Umbraco.BlockList";
+
     private readonly IContentTypeService _contentTypeService;
     private readonly IContentService _contentService;
     private readonly IDataTypeService _dataTypeService;
+    private readonly PropertyEditorCollection _propertyEditors;
+    private readonly IConfigurationEditorJsonSerializer _configurationEditorJsonSerializer;
     private readonly IShortStringHelper _shortStringHelper;
     private readonly ILogger<BlogContentSeeder> _logger;
 
@@ -18,12 +27,16 @@ public sealed class BlogContentSeeder
         IContentTypeService contentTypeService,
         IContentService contentService,
         IDataTypeService dataTypeService,
+        PropertyEditorCollection propertyEditors,
+        IConfigurationEditorJsonSerializer configurationEditorJsonSerializer,
         IShortStringHelper shortStringHelper,
         ILogger<BlogContentSeeder> logger)
     {
         _contentTypeService = contentTypeService;
         _contentService = contentService;
         _dataTypeService = dataTypeService;
+        _propertyEditors = propertyEditors;
+        _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
         _shortStringHelper = shortStringHelper;
         _logger = logger;
     }
@@ -31,6 +44,8 @@ public sealed class BlogContentSeeder
     public async Task SeedAsync()
     {
         await SeedDocumentTypesAsync();
+        await SeedDataTypesAsync();
+
         SeedCategories();
         SeedArticles();
     }
@@ -87,6 +102,11 @@ public sealed class BlogContentSeeder
             });
 
         await CreateBlogCategoryTypeAsync();
+    }
+
+    private async Task SeedDataTypesAsync()
+    {
+        await CreateBlogArticleBodyBlocksDataTypeAsync();
         await CreateBlogArticleTypeAsync();
     }
 
@@ -143,18 +163,23 @@ public sealed class BlogContentSeeder
             };
         }
 
+        await RemovePropertyIfExistsAsync(contentType, ObsoleteBodyJsonAlias);
+
         await AddPropertyAsync(contentType, BlogContentAliases.Title, "Title", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Slug, "Slug", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Summary, "Summary", "Textarea", "Content");
-
-        // Improvement #1:
-        // Category is now a real Umbraco content picker instead of plain text.
         await AddPropertyAsync(contentType, BlogContentAliases.Category, "Category", "Content Picker", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Level, "Level", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Focus, "Focus", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Tags, "Tags", "Tags", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.PublishedDate, "Published Date", "Date Picker", "Content");
-        await AddPropertyAsync(contentType, BlogContentAliases.BodyJson, "Body JSON", "Textarea", "Body");
+
+        await AddPropertyAsync(
+            contentType,
+            BlogContentAliases.BodyBlocks,
+            "Body Blocks",
+            BlogContentAliases.BlogArticleBodyBlocksDataTypeName,
+            "Body");
 
         if (existing is null)
         {
@@ -213,6 +238,92 @@ public sealed class BlogContentSeeder
         }
     }
 
+    private async Task CreateBlogArticleBodyBlocksDataTypeAsync()
+    {
+        var existing = (await _dataTypeService.GetAllAsync())
+            .FirstOrDefault(x =>
+                string.Equals(
+                    x.Name,
+                    BlogContentAliases.BlogArticleBodyBlocksDataTypeName,
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (existing is not null)
+        {
+            _logger.LogInformation("Block List data type already exists: {Name}.", existing.Name);
+            return;
+        }
+
+        var blockEditor = _propertyEditors
+            .FirstOrDefault(x => x.Alias == BlockListEditorAlias);
+
+        if (blockEditor is null)
+        {
+            throw new InvalidOperationException($"Could not find property editor: {BlockListEditorAlias}");
+        }
+
+        var allowedBlocks = CreateAllowedBlockConfiguration();
+
+        var configuration = new Dictionary<string, object>
+        {
+            ["blocks"] = allowedBlocks,
+            ["validationLimit"] = new Dictionary<string, object>
+            {
+                ["min"] = null!,
+                ["max"] = null!
+            },
+            ["useSingleBlockMode"] = false
+        };
+
+        var dataType = new DataType(
+            blockEditor,
+            _configurationEditorJsonSerializer,
+            -1)
+        {
+            Name = BlogContentAliases.BlogArticleBodyBlocksDataTypeName,
+            DatabaseType = ValueStorageType.Ntext,
+            ConfigurationData = configuration,
+            EditorUiAlias = "Umb.PropertyEditorUi.BlockList"
+        };
+
+        await _dataTypeService.CreateAsync(dataType, Constants.Security.SuperUserKey);
+
+        _logger.LogInformation(
+            "Created Block List data type: {DataTypeName}.",
+            BlogContentAliases.BlogArticleBodyBlocksDataTypeName);
+    }
+
+    private List<Dictionary<string, object>> CreateAllowedBlockConfiguration()
+    {
+        return new List<Dictionary<string, object>>
+        {
+            CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
+            CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
+            CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
+            CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "Mermaid diagram"),
+            CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "PlantUML diagram"),
+            CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}")
+        };
+    }
+
+    private Dictionary<string, object> CreateAllowedBlock(
+        string elementTypeAlias,
+        string label)
+    {
+        var elementType = _contentTypeService.Get(elementTypeAlias);
+
+        if (elementType is null)
+        {
+            throw new InvalidOperationException($"Could not find element type: {elementTypeAlias}");
+        }
+
+        return new Dictionary<string, object>
+        {
+            ["contentElementTypeKey"] = elementType.Key,
+            ["settingsElementTypeKey"] = null!,
+            ["label"] = label
+        };
+    }
+
     private async Task AddPropertyAsync(
         ContentType contentType,
         string alias,
@@ -265,6 +376,24 @@ public sealed class BlogContentSeeder
             });
     }
 
+    private async Task RemovePropertyIfExistsAsync(
+        ContentType contentType,
+        string alias)
+    {
+        if (!contentType.PropertyTypeExists(alias))
+        {
+            return;
+        }
+
+        contentType.RemovePropertyType(alias);
+
+        await _contentTypeService.UpdateAsync(
+            contentType,
+            Constants.Security.SuperUserKey);
+
+        _logger.LogInformation("Removed obsolete property: {Alias}.", alias);
+    }
+
     private void SeedCategories()
     {
         CreateCategory("Backend (.NET)", "backend-dotnet");
@@ -300,7 +429,7 @@ public sealed class BlogContentSeeder
 
     private void SeedArticles()
     {
-        CreateArticle(
+        CreateOrUpdateArticle(
             name: "How I Structure Configuration in ASP.NET Core",
             slug: "aspnet-core-configuration-cloud-ready",
             categorySlug: "backend-dotnet",
@@ -308,37 +437,9 @@ public sealed class BlogContentSeeder
             focus: "Practical",
             summary: "A practical approach to appsettings, environments, Options pattern, and cloud-ready configuration.",
             tags: new[] { ".NET", "ASP.NET Core", "Configuration", "Azure" },
-            bodyJson:
-            """
-            [
-              {
-                "type": "heading",
-                "level": 2,
-                "text": "Why configuration matters"
-              },
-              {
-                "type": "text",
-                "text": "Configuration decides how your application behaves across local development, testing, staging and production."
-              },
-              {
-                "type": "code",
-                "language": "csharp",
-                "fileName": "Program.cs",
-                "code": "builder.Services.Configure<MyOptions>(builder.Configuration.GetSection(\"MyOptions\"));"
-              },
-              {
-                "type": "mermaid",
-                "diagram": "flowchart LR\n    A[appsettings.json] --> B[Options]\n    B --> C[Services]\n    C --> D[Controllers]"
-              },
-              {
-                "type": "callout",
-                "kind": "tip",
-                "text": "Keep configuration boring. Boring configuration is easy to deploy and easy to debug."
-              }
-            ]
-            """);
+            bodyBlocks: CreateConfigurationArticleBlocks());
 
-        CreateArticle(
+        CreateOrUpdateArticle(
             name: "Using PlantUML to Document Software Architecture",
             slug: "plantuml-for-software-architecture",
             categorySlug: "architecture",
@@ -346,27 +447,96 @@ public sealed class BlogContentSeeder
             focus: "Documentation",
             summary: "Simple diagrams that explain system context, components, deployment, and data flow.",
             tags: new[] { "PlantUML", "C4", "Diagrams", "Docs" },
-            bodyJson:
-            """
-            [
-              {
-                "type": "heading",
-                "level": 2,
-                "text": "Why diagrams help"
-              },
-              {
-                "type": "text",
-                "text": "Architecture diagrams help explain boundaries, responsibilities and communication between systems."
-              },
-              {
-                "type": "plantuml",
-                "diagram": "@startuml\nactor Reader\nrectangle BlogPlatform.App\nrectangle BlogPlatform.Cms\nReader --> BlogPlatform.App\nBlogPlatform.App --> BlogPlatform.Cms : Delivery API\n@enduml"
-              }
-            ]
-            """);
+            bodyBlocks: CreateArchitectureArticleBlocks());
     }
 
-    private void CreateArticle(
+    private List<SeedBlock> CreateConfigurationArticleBlocks()
+    {
+        return new List<SeedBlock>
+        {
+            HeadingBlock(2, "Why configuration matters"),
+
+            TextBlock(
+                "Configuration decides how your application behaves across local development, testing, staging and production. A good configuration model keeps secrets out of source control and makes deployments predictable."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "Program.cs",
+                code:
+                """
+                builder.Services.Configure<MyOptions>(
+                    builder.Configuration.GetSection("MyOptions"));
+                """),
+
+            MermaidDiagramBlock(
+                """
+                flowchart LR
+                    A[appsettings.json] --> B[Options pattern]
+                    B --> C[Application services]
+                    C --> D[Controllers / UI]
+                """),
+
+            CalloutBlock(
+                kind: "tip",
+                text: "Keep configuration boring. Boring configuration is easier to deploy, debug and automate."),
+
+            TextBlock(
+                "For cloud-hosted applications, the cleanest approach is to treat appsettings.json as defaults and environment variables or managed configuration services as runtime overrides.")
+        };
+    }
+
+    private List<SeedBlock> CreateArchitectureArticleBlocks()
+    {
+        return new List<SeedBlock>
+        {
+            HeadingBlock(2, "Why diagrams help"),
+
+            TextBlock(
+                "Architecture diagrams help explain boundaries, responsibilities and communication between systems. They are especially useful when the system has multiple apps, APIs and infrastructure services."),
+
+            PlantUmlDiagramBlock(
+                """
+                @startuml
+                actor Reader
+                rectangle "BlogPlatform.App" as App
+                rectangle "BlogPlatform.Cms" as Cms
+                rectangle "Umbraco Delivery API" as Api
+
+                Reader --> App
+                App --> Api
+                Api --> Cms
+                @enduml
+                """),
+
+            HeadingBlock(2, "A maintainable documentation flow"),
+
+            MermaidDiagramBlock(
+                """
+                flowchart TD
+                    A[Write architecture note] --> B[Add PlantUML diagram]
+                    B --> C[Review with code changes]
+                    C --> D[Publish article]
+                """),
+
+            CodeSnippetBlock(
+                language: "plantuml",
+                fileName: "context.puml",
+                code:
+                """
+                @startuml
+                actor Reader
+                rectangle BlogPlatform
+                Reader --> BlogPlatform
+                @enduml
+                """),
+
+            CalloutBlock(
+                kind: "note",
+                text: "Store diagrams as text, not screenshots. Text-based diagrams are versionable, searchable and easier to maintain.")
+        };
+    }
+
+    private void CreateOrUpdateArticle(
         string name,
         string slug,
         string categorySlug,
@@ -374,21 +544,20 @@ public sealed class BlogContentSeeder
         string focus,
         string summary,
         string[] tags,
-        string bodyJson)
+        List<SeedBlock> bodyBlocks)
     {
-        var alreadyExists = _contentService
+        var article = _contentService
             .GetRootContent()
-            .Any(x =>
+            .FirstOrDefault(x =>
                 x.ContentType.Alias == BlogContentAliases.BlogArticle &&
                 string.Equals(
                     x.GetValue<string>(BlogContentAliases.Slug),
                     slug,
                     StringComparison.OrdinalIgnoreCase));
 
-        if (alreadyExists)
-        {
-            return;
-        }
+        var isNew = article is null;
+
+        article ??= _contentService.Create(name, -1, BlogContentAliases.BlogArticle);
 
         var category = FindCategoryBySlug(categorySlug);
 
@@ -397,13 +566,11 @@ public sealed class BlogContentSeeder
             throw new InvalidOperationException($"Category not found: {categorySlug}");
         }
 
-        var article = _contentService.Create(name, -1, BlogContentAliases.BlogArticle);
-
+        article.Name = name;
         article.SetValue(BlogContentAliases.Title, name);
         article.SetValue(BlogContentAliases.Slug, slug);
         article.SetValue(BlogContentAliases.Summary, summary);
 
-        // Content Picker stores content reference as UDI.
         article.SetValue(
             BlogContentAliases.Category,
             Udi.Create(Constants.UdiEntityType.Document, category.Key).ToString());
@@ -412,12 +579,67 @@ public sealed class BlogContentSeeder
         article.SetValue(BlogContentAliases.Focus, focus);
         article.SetValue(BlogContentAliases.Tags, string.Join(", ", tags));
         article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
-        article.SetValue(BlogContentAliases.BodyJson, bodyJson);
+
+        article.SetValue(
+            BlogContentAliases.BodyBlocks,
+            CreateBlockListValueJson(bodyBlocks));
 
         _contentService.Save(article);
         _contentService.Publish(article, new[] { "*" });
 
-        _logger.LogInformation("Created test article: {ArticleName}.", name);
+        _logger.LogInformation(
+            "{Action} test article: {ArticleName}.",
+            isNew ? "Created" : "Updated",
+            name);
+    }
+
+    private string CreateBlockListValueJson(IReadOnlyCollection<SeedBlock> blocks)
+    {
+        var layoutItems = new List<Dictionary<string, object?>>();
+        var contentData = new List<Dictionary<string, object?>>();
+
+        foreach (var block in blocks)
+        {
+            var elementType = _contentTypeService.Get(block.ElementTypeAlias);
+
+            if (elementType is null)
+            {
+                throw new InvalidOperationException($"Could not find element type: {block.ElementTypeAlias}");
+            }
+
+            var elementUdi = Udi.Create("element", Guid.NewGuid()).ToString();
+
+            layoutItems.Add(new Dictionary<string, object?>
+            {
+                ["contentUdi"] = elementUdi,
+                ["settingsUdi"] = null
+            });
+
+            var content = new Dictionary<string, object?>
+            {
+                ["contentTypeKey"] = elementType.Key,
+                ["udi"] = elementUdi
+            };
+
+            foreach (var property in block.Properties)
+            {
+                content[property.Key] = property.Value;
+            }
+
+            contentData.Add(content);
+        }
+
+        var blockListValue = new Dictionary<string, object?>
+        {
+            ["layout"] = new Dictionary<string, object?>
+            {
+                [BlockListLayoutAlias] = layoutItems
+            },
+            ["contentData"] = contentData,
+            ["settingsData"] = Array.Empty<object>()
+        };
+
+        return JsonSerializer.Serialize(blockListValue);
     }
 
     private IContent? FindCategoryBySlug(string slug)
@@ -432,10 +654,81 @@ public sealed class BlogContentSeeder
                     StringComparison.OrdinalIgnoreCase));
     }
 
+    private static SeedBlock TextBlock(string text)
+    {
+        return new SeedBlock(
+            BlogContentAliases.TextBlock,
+            new Dictionary<string, object?>
+            {
+                ["text"] = text
+            });
+    }
+
+    private static SeedBlock HeadingBlock(int level, string text)
+    {
+        return new SeedBlock(
+            BlogContentAliases.HeadingBlock,
+            new Dictionary<string, object?>
+            {
+                ["level"] = level,
+                ["text"] = text
+            });
+    }
+
+    private static SeedBlock CodeSnippetBlock(
+        string language,
+        string fileName,
+        string code)
+    {
+        return new SeedBlock(
+            BlogContentAliases.CodeSnippetBlock,
+            new Dictionary<string, object?>
+            {
+                ["language"] = language,
+                ["fileName"] = fileName,
+                ["code"] = code
+            });
+    }
+
+    private static SeedBlock MermaidDiagramBlock(string diagram)
+    {
+        return new SeedBlock(
+            BlogContentAliases.MermaidDiagramBlock,
+            new Dictionary<string, object?>
+            {
+                ["diagram"] = diagram
+            });
+    }
+
+    private static SeedBlock PlantUmlDiagramBlock(string diagram)
+    {
+        return new SeedBlock(
+            BlogContentAliases.PlantUmlDiagramBlock,
+            new Dictionary<string, object?>
+            {
+                ["diagram"] = diagram
+            });
+    }
+
+    private static SeedBlock CalloutBlock(string kind, string text)
+    {
+        return new SeedBlock(
+            BlogContentAliases.CalloutBlock,
+            new Dictionary<string, object?>
+            {
+                ["kind"] = kind,
+                ["text"] = text
+            });
+    }
+
     private static SeedProperty Property(string alias, string name, string dataTypeName)
     {
         return new SeedProperty(alias, name, dataTypeName);
     }
 
     private sealed record SeedProperty(string Alias, string Name, string DataTypeName);
+
+    private sealed record SeedBlock(
+        string ElementTypeAlias,
+        Dictionary<string, object?> Properties);
 }

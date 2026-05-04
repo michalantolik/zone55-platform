@@ -50,12 +50,12 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
-		/// Body JSON
+		/// Body Blocks
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.3.5+1486121")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("bodyJson")]
-		public virtual string BodyJson => this.Value<string>(_publishedValueFallback, "bodyJson");
+		[ImplementPropertyType("bodyBlocks")]
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel BodyBlocks => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(_publishedValueFallback, "bodyBlocks");
 
 		///<summary>
 		/// Category

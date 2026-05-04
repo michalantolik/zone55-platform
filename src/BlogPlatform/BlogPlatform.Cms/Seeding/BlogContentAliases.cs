@@ -20,5 +20,7 @@ public static class BlogContentAliases
     public const string Focus = "focus";
     public const string Tags = "tags";
     public const string PublishedDate = "publishedDate";
-    public const string BodyJson = "bodyJson";
+
+    public const string BodyBlocks = "bodyBlocks";
+    public const string BlogArticleBodyBlocksDataTypeName = "Blog Article Body Blocks";
 }
