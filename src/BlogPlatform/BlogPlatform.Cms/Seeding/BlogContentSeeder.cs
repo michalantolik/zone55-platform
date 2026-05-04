@@ -1,4 +1,5 @@
-﻿using Umbraco.Cms.Core;
+﻿using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
@@ -30,6 +31,7 @@ public sealed class BlogContentSeeder
     public async Task SeedAsync()
     {
         await SeedDocumentTypesAsync();
+        SeedCategories();
         SeedArticles();
     }
 
@@ -39,10 +41,7 @@ public sealed class BlogContentSeeder
             BlogContentAliases.TextBlock,
             "Text Block",
             "icon-document",
-            new[]
-            {
-                Property("text", "Text", "Textarea")
-            });
+            new[] { Property("text", "Text", "Textarea") });
 
         await CreateElementTypeAsync(
             BlogContentAliases.HeadingBlock,
@@ -69,19 +68,13 @@ public sealed class BlogContentSeeder
             BlogContentAliases.MermaidDiagramBlock,
             "Mermaid Diagram Block",
             "icon-sitemap",
-            new[]
-            {
-                Property("diagram", "Diagram", "Textarea")
-            });
+            new[] { Property("diagram", "Diagram", "Textarea") });
 
         await CreateElementTypeAsync(
             BlogContentAliases.PlantUmlDiagramBlock,
             "PlantUML Diagram Block",
             "icon-umb-deploy",
-            new[]
-            {
-                Property("diagram", "Diagram", "Textarea")
-            });
+            new[] { Property("diagram", "Diagram", "Textarea") });
 
         await CreateElementTypeAsync(
             BlogContentAliases.CalloutBlock,
@@ -93,52 +86,86 @@ public sealed class BlogContentSeeder
                 Property("text", "Text", "Textarea")
             });
 
+        await CreateBlogCategoryTypeAsync();
         await CreateBlogArticleTypeAsync();
+    }
+
+    private async Task CreateBlogCategoryTypeAsync()
+    {
+        var existing = _contentTypeService.Get(BlogContentAliases.BlogCategory);
+
+        var contentType = existing as ContentType;
+
+        if (contentType is null)
+        {
+            contentType = new ContentType(_shortStringHelper, -1)
+            {
+                Alias = BlogContentAliases.BlogCategory,
+                Name = "Blog Category",
+                Icon = "icon-folder",
+                Description = "Category used by blog articles.",
+                Variations = ContentVariation.Nothing,
+                AllowedAsRoot = true
+            };
+        }
+
+        await AddPropertyAsync(contentType, BlogContentAliases.Title, "Title", "Textstring", "Content");
+        await AddPropertyAsync(contentType, BlogContentAliases.Slug, "Slug", "Textstring", "Content");
+
+        if (existing is null)
+        {
+            await _contentTypeService.CreateAsync(contentType, Constants.Security.SuperUserKey);
+            _logger.LogInformation("Created document type: Blog Category.");
+        }
+        else
+        {
+            await _contentTypeService.UpdateAsync(contentType, Constants.Security.SuperUserKey);
+            _logger.LogInformation("Updated document type: Blog Category.");
+        }
     }
 
     private async Task CreateBlogArticleTypeAsync()
     {
         var existing = _contentTypeService.Get(BlogContentAliases.BlogArticle);
 
-        if (existing is not null && !existing.PropertyTypeExists(BlogContentAliases.Title))
+        var contentType = existing as ContentType;
+
+        if (contentType is null)
         {
-            _logger.LogWarning("Broken Blog Article document type detected. Deleting and recreating it.");
-
-            await _contentTypeService.DeleteAsync(existing.Key, Constants.Security.SuperUserKey);
-
-            existing = null;
+            contentType = new ContentType(_shortStringHelper, -1)
+            {
+                Alias = BlogContentAliases.BlogArticle,
+                Name = "Blog Article",
+                Icon = "icon-article",
+                Description = "Article managed in Umbraco and rendered by BlogPlatform.App.",
+                Variations = ContentVariation.Nothing,
+                AllowedAsRoot = true
+            };
         }
-
-        if (existing is not null)
-        {
-            _logger.LogInformation("Blog Article document type already exists and looks valid.");
-            return;
-        }
-
-        var contentType = new ContentType(_shortStringHelper, -1)
-        {
-            Alias = BlogContentAliases.BlogArticle,
-            Name = "Blog Article",
-            Icon = "icon-article",
-            Description = "Article managed in Umbraco and rendered by BlogPlatform.App.",
-            Variations = ContentVariation.Nothing,
-            AllowedAsRoot = true
-        };
 
         await AddPropertyAsync(contentType, BlogContentAliases.Title, "Title", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Slug, "Slug", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Summary, "Summary", "Textarea", "Content");
-        await AddPropertyAsync(contentType, BlogContentAliases.Category, "Category", "Textstring", "Content");
-        await AddPropertyAsync(contentType, BlogContentAliases.CategorySlug, "Category Slug", "Textstring", "Content");
+
+        // Improvement #1:
+        // Category is now a real Umbraco content picker instead of plain text.
+        await AddPropertyAsync(contentType, BlogContentAliases.Category, "Category", "Content Picker", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Level, "Level", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Focus, "Focus", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Tags, "Tags", "Tags", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.PublishedDate, "Published Date", "Date Picker", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.BodyJson, "Body JSON", "Textarea", "Body");
 
-        await _contentTypeService.CreateAsync(contentType, Constants.Security.SuperUserKey);
-
-        _logger.LogInformation("Created document type: Blog Article.");
+        if (existing is null)
+        {
+            await _contentTypeService.CreateAsync(contentType, Constants.Security.SuperUserKey);
+            _logger.LogInformation("Created document type: Blog Article.");
+        }
+        else
+        {
+            await _contentTypeService.UpdateAsync(contentType, Constants.Security.SuperUserKey);
+            _logger.LogInformation("Updated document type: Blog Article.");
+        }
     }
 
     private async Task CreateElementTypeAsync(
@@ -238,12 +265,44 @@ public sealed class BlogContentSeeder
             });
     }
 
+    private void SeedCategories()
+    {
+        CreateCategory("Backend (.NET)", "backend-dotnet");
+        CreateCategory("Architecture", "architecture");
+    }
+
+    private void CreateCategory(string name, string slug)
+    {
+        var alreadyExists = _contentService
+            .GetRootContent()
+            .Any(x =>
+                x.ContentType.Alias == BlogContentAliases.BlogCategory &&
+                string.Equals(
+                    x.GetValue<string>(BlogContentAliases.Slug),
+                    slug,
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (alreadyExists)
+        {
+            return;
+        }
+
+        var category = _contentService.Create(name, -1, BlogContentAliases.BlogCategory);
+
+        category.SetValue(BlogContentAliases.Title, name);
+        category.SetValue(BlogContentAliases.Slug, slug);
+
+        _contentService.Save(category);
+        _contentService.Publish(category, new[] { "*" });
+
+        _logger.LogInformation("Created blog category: {CategoryName}.", name);
+    }
+
     private void SeedArticles()
     {
         CreateArticle(
             name: "How I Structure Configuration in ASP.NET Core",
             slug: "aspnet-core-configuration-cloud-ready",
-            category: "Backend (.NET)",
             categorySlug: "backend-dotnet",
             level: "Intermediate",
             focus: "Practical",
@@ -282,7 +341,6 @@ public sealed class BlogContentSeeder
         CreateArticle(
             name: "Using PlantUML to Document Software Architecture",
             slug: "plantuml-for-software-architecture",
-            category: "Architecture",
             categorySlug: "architecture",
             level: "Beginner",
             focus: "Documentation",
@@ -311,7 +369,6 @@ public sealed class BlogContentSeeder
     private void CreateArticle(
         string name,
         string slug,
-        string category,
         string categorySlug,
         string level,
         string focus,
@@ -333,23 +390,46 @@ public sealed class BlogContentSeeder
             return;
         }
 
+        var category = FindCategoryBySlug(categorySlug);
+
+        if (category is null)
+        {
+            throw new InvalidOperationException($"Category not found: {categorySlug}");
+        }
+
         var article = _contentService.Create(name, -1, BlogContentAliases.BlogArticle);
 
         article.SetValue(BlogContentAliases.Title, name);
         article.SetValue(BlogContentAliases.Slug, slug);
         article.SetValue(BlogContentAliases.Summary, summary);
-        article.SetValue(BlogContentAliases.Category, category);
-        article.SetValue(BlogContentAliases.CategorySlug, categorySlug);
+
+        // Content Picker stores content reference as UDI.
+        article.SetValue(
+            BlogContentAliases.Category,
+            Udi.Create(Constants.UdiEntityType.Document, category.Key).ToString());
+
         article.SetValue(BlogContentAliases.Level, level);
         article.SetValue(BlogContentAliases.Focus, focus);
         article.SetValue(BlogContentAliases.Tags, string.Join(", ", tags));
-        article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow.ToString("yyyy-MM-dd"));
+        article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
         article.SetValue(BlogContentAliases.BodyJson, bodyJson);
 
         _contentService.Save(article);
         _contentService.Publish(article, new[] { "*" });
 
         _logger.LogInformation("Created test article: {ArticleName}.", name);
+    }
+
+    private IContent? FindCategoryBySlug(string slug)
+    {
+        return _contentService
+            .GetRootContent()
+            .FirstOrDefault(x =>
+                x.ContentType.Alias == BlogContentAliases.BlogCategory &&
+                string.Equals(
+                    x.GetValue<string>(BlogContentAliases.Slug),
+                    slug,
+                    StringComparison.OrdinalIgnoreCase));
     }
 
     private static SeedProperty Property(string alias, string name, string dataTypeName)

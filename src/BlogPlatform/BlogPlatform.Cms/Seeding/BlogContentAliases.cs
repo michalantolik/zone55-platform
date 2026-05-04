@@ -3,6 +3,7 @@
 public static class BlogContentAliases
 {
     public const string BlogArticle = "blogArticle";
+    public const string BlogCategory = "blogCategory";
 
     public const string TextBlock = "textBlock";
     public const string HeadingBlock = "headingBlock";
@@ -15,7 +16,6 @@ public static class BlogContentAliases
     public const string Slug = "slug";
     public const string Summary = "summary";
     public const string Category = "category";
-    public const string CategorySlug = "categorySlug";
     public const string Level = "level";
     public const string Focus = "focus";
     public const string Tags = "tags";
