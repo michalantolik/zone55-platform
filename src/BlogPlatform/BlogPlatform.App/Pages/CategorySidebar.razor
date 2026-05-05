@@ -1,10 +1,12 @@
-﻿<div class="sidebar-inner">
+﻿@inject IBlogApiClient BlogApi
+
+<div class="sidebar-inner">
     <a class="category-pill @(string.IsNullOrWhiteSpace(ActiveSlug) ? "active" : null)" href="/">
         <span class="category-icon"></span>
         <strong>All notes</strong>
     </a>
 
-    @foreach (var category in Categories)
+    @foreach (var category in _categories)
     {
         <a class="category-pill @(ActiveSlug == category.Slug ? "active" : null)" href="/?category=@category.Slug">
             <span class="category-icon"></span>
@@ -27,12 +29,10 @@
     [Parameter]
     public string? ActiveSlug { get; set; }
 
-    private static readonly CategoryItem[] Categories =
-    {
-        new("backend-dotnet", "Backend (.NET)", 4),
-        new("cloud-devops", "Cloud & DevOps", 3),
-        new("architecture", "Architecture", 3)
-    };
+    private IReadOnlyCollection<CategoryItem> _categories = [];
 
-    private sealed record CategoryItem(string Slug, string Name, int Count);
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await BlogApi.GetCategoriesAsync();
+    }
 }

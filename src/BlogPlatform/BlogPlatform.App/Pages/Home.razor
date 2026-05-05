@@ -1,5 +1,6 @@
 ﻿@page "/"
 @page "/articles"
+@inject IBlogApiClient BlogApi
 
 <PageTitle>.NET Backend & Cloud Engineering Notes</PageTitle>
 
@@ -78,28 +79,29 @@
             <a href="/articles">Browse all posts</a>
         </div>
 
-        <div class="post-grid">
-            @foreach (var post in VisiblePosts)
-            {
-                <PostCard Title="@post.Title"
-                          Summary="@post.Description"
-                          Category="@post.Category"
-                          Level="@post.Level"
-                          Focus="@post.Focus"
-                          Url="@($"/articles/{post.Slug}")"
-                          TechStack="@post.TechStack" />
-            }
-        </div>
-
-        <div class="pagination-bar">
-            <span>Page 1 of 1</span>
-
-            <div class="pagination-buttons">
-                <button disabled>← Previous</button>
-                <button class="active">1</button>
-                <button disabled>Next →</button>
+        @if (_isLoading)
+        {
+            <p>Loading posts from Umbraco CMS...</p>
+        }
+        else if (_posts.Count == 0)
+        {
+            <p>No posts found.</p>
+        }
+        else
+        {
+            <div class="post-grid">
+                @foreach (var post in _posts)
+                {
+                    <PostCard Title="@post.Title"
+                              Summary="@post.Summary"
+                              Category="@post.Category"
+                              Level="@post.Level"
+                              Focus="@post.Focus"
+                              Url="@($"/articles/{post.Slug}")"
+                              TechStack="@post.Tags" />
+                }
             </div>
-        </div>
+        }
     </section>
 </section>
 
@@ -107,140 +109,27 @@
     [SupplyParameterFromQuery(Name = "category")]
     public string? Category { get; set; }
 
+    private IReadOnlyCollection<PostListItem> _posts = [];
+    private IReadOnlyCollection<CategoryItem> _categories = [];
+    private bool _isLoading = true;
+
     private string PageTitleText =>
         string.IsNullOrWhiteSpace(Category)
             ? "Recent engineering notes"
-            : Categories.FirstOrDefault(x => x.Slug == Category)?.Name ?? "Recent engineering notes";
+            : _categories.FirstOrDefault(x => x.Slug == Category)?.Name ?? "Recent engineering notes";
 
     private string Subtitle =>
         string.IsNullOrWhiteSpace(Category)
             ? "Compact notes focused on backend systems, cloud deployment, and architecture."
             : "Filtered notes for this engineering area.";
 
-    private IEnumerable<PostItem> VisiblePosts =>
-        string.IsNullOrWhiteSpace(Category)
-            ? Posts
-            : Posts.Where(x => x.CategorySlug == Category);
-
-    private static readonly CategoryItem[] Categories =
+    protected override async Task OnParametersSetAsync()
     {
-        new("backend-dotnet", "Backend (.NET)", 4),
-        new("cloud-devops", "Cloud & DevOps", 3),
-        new("architecture", "Architecture", 3)
-    };
+        _isLoading = true;
 
-    private static readonly PostItem[] Posts =
-    {
-        new(
-            "aspnet-core-configuration-cloud-ready",
-            "backend-dotnet",
-            "Backend (.NET)",
-            "Intermediate",
-            "Practical",
-            "How I structure configuration in ASP.NET Core",
-            "A practical approach to appsettings, environments, Options pattern, and cloud-ready configuration.",
-            new[] { ".NET", "ASP.NET Core", "Config", "Azure" }),
+        _categories = await BlogApi.GetCategoriesAsync();
+        _posts = await BlogApi.GetPostsAsync(Category);
 
-        new(
-            "aspnet-core-authentication-authorization",
-            "backend-dotnet",
-            "Backend (.NET)",
-            "Intermediate",
-            "Security",
-            "Authentication and authorization in ASP.NET Core",
-            "How I think about identity, access control, and secure backend endpoints in real projects.",
-            new[] { ".NET", "Security", "Auth", "APIs" }),
-
-        new(
-            "api-design-for-business-systems",
-            "backend-dotnet",
-            "Backend (.NET)",
-            "Intermediate",
-            "API Design",
-            "Designing APIs for business applications",
-            "Practical notes on endpoints, DTOs, validation, error responses, and maintainable API contracts.",
-            new[] { ".NET", "REST", "DTOs", "Validation" }),
-
-        new(
-            "clean-architecture-dotnet-api",
-            "backend-dotnet",
-            "Backend (.NET)",
-            "Advanced",
-            "Architecture",
-            "Clean architecture for a .NET backend API",
-            "How I separate domain, application, infrastructure, and UI concerns in a backend project.",
-            new[] { ".NET", "Clean Architecture", "DDD", "Testing" }),
-
-        new(
-            "github-actions-dotnet-ci-cd",
-            "cloud-devops",
-            "Cloud & DevOps",
-            "Intermediate",
-            "CI/CD",
-            "CI/CD pipeline for a .NET application",
-            "Build, test, and deploy workflow for a backend application using GitHub Actions.",
-            new[] { "GitHub Actions", ".NET", "CI/CD", "Automation" }),
-
-        new(
-            "deploy-aspnet-core-to-azure",
-            "cloud-devops",
-            "Cloud & DevOps",
-            "Intermediate",
-            "Cloud",
-            "Deploying ASP.NET Core to Azure",
-            "Practical deployment notes for Azure App Service, configuration, secrets, and environments.",
-            new[] { "Azure", "App Service", ".NET", "Key Vault" }),
-
-        new(
-            "infrastructure-as-code-basics",
-            "cloud-devops",
-            "Cloud & DevOps",
-            "Beginner",
-            "IaC",
-            "Infrastructure as Code basics for backend developers",
-            "How I approach repeatable infrastructure, environment setup, and deployment configuration.",
-            new[] { "IaC", "Azure", "Bicep", "DevOps" }),
-
-        new(
-            "system-architecture-blog-platform",
-            "architecture",
-            "Architecture",
-            "Intermediate",
-            "System Design",
-            "Architecture of this blog platform",
-            "How this portfolio system is structured: frontend, backend, deployment, and documentation flow.",
-            new[] { "Architecture", "PlantUML", ".NET", "Cloud" }),
-
-        new(
-            "plantuml-for-software-architecture",
-            "architecture",
-            "Architecture",
-            "Beginner",
-            "Documentation",
-            "Using PlantUML to document software architecture",
-            "Simple diagrams that explain system context, components, deployment, and data flow.",
-            new[] { "PlantUML", "C4", "Diagrams", "Docs" }),
-
-        new(
-            "design-patterns-real-backend-code",
-            "architecture",
-            "Architecture",
-            "Intermediate",
-            "Patterns",
-            "Design patterns in real backend code",
-            "How I use patterns carefully to simplify business logic without over-engineering the system.",
-            new[] { "C#", "Patterns", "Backend", "Testing" })
-    };
-
-    private sealed record CategoryItem(string Slug, string Name, int Count);
-
-    private sealed record PostItem(
-        string Slug,
-        string CategorySlug,
-        string Category,
-        string Level,
-        string Focus,
-        string Title,
-        string Description,
-        string[] TechStack);
+        _isLoading = false;
+    }
 }

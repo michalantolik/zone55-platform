@@ -1,0 +1,11 @@
+﻿using BlogPlatform.App.Models;
+
+namespace BlogPlatform.App.Services
+{
+    public interface IBlogApiClient
+    {
+        Task<IReadOnlyCollection<CategoryItem>> GetCategoriesAsync(CancellationToken cancellationToken = default);
+        Task<PostDetails?> GetPostBySlugAsync(string slug, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<PostListItem>> GetPostsAsync(string? categorySlug, CancellationToken cancellationToken = default);
+    }
+}
