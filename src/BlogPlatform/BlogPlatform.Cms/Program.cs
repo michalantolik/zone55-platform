@@ -40,6 +40,8 @@ if (hmacKey.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
         "Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
 }
 
+builder.Services.AddControllers();
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
@@ -70,6 +72,8 @@ Log.Information("CMS Umbraco boot completed.");
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.UseUmbraco()
     .WithMiddleware(u =>
