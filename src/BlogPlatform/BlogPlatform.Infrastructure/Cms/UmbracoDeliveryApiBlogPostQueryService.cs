@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using BlogPlatform.Application.Posts;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BlogPlatform.Infrastructure.Cms;
@@ -9,19 +10,24 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
 {
     private readonly HttpClient _httpClient;
     private readonly UmbracoDeliveryApiOptions _options;
+    private readonly ILogger<UmbracoDeliveryApiBlogPostQueryService> _logger;
 
     public UmbracoDeliveryApiBlogPostQueryService(
         HttpClient httpClient,
-        IOptions<UmbracoDeliveryApiOptions> options)
+        IOptions<UmbracoDeliveryApiOptions> options,
+        ILogger<UmbracoDeliveryApiBlogPostQueryService> logger)
     {
         _httpClient = httpClient;
         _options = options.Value;
+        _logger = logger;
     }
 
     public async Task<IReadOnlyCollection<PostListItemDto>> GetPublishedPostsAsync(
         string? categorySlug,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("API loading published posts. Category slug: {CategorySlug}", categorySlug);
+
         var posts = await LoadPostsAsync(cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(categorySlug))
@@ -34,27 +40,42 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 .ToList();
         }
 
-        return posts
+        var result = posts
             .OrderByDescending(post => post.PublishedDate)
             .ToList();
+
+        _logger.LogInformation("API loaded published posts. Count: {Count}", result.Count);
+
+        return result;
     }
 
     public async Task<PostDetailsDto?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("API loading post by slug: {Slug}", slug);
+
         var posts = await LoadPostDetailsAsync(cancellationToken);
 
-        return posts.FirstOrDefault(post =>
+        var post = posts.FirstOrDefault(post =>
             string.Equals(post.Slug, slug, StringComparison.OrdinalIgnoreCase));
+
+        _logger.LogInformation(
+            "API loaded post by slug: {Slug}. Found: {Found}",
+            slug,
+            post is not null);
+
+        return post;
     }
 
     public async Task<IReadOnlyCollection<CategoryDto>> GetCategoriesAsync(
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("API loading categories.");
+
         var posts = await LoadPostsAsync(cancellationToken);
 
-        return posts
+        var categories = posts
             .GroupBy(post => new { post.CategorySlug, post.Category })
             .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
             .Select(group => new CategoryDto(
@@ -63,6 +84,10 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 group.Count()))
             .OrderBy(category => category.Name)
             .ToList();
+
+        _logger.LogInformation("API loaded categories. Count: {Count}", categories.Count);
+
+        return categories;
     }
 
     private async Task<List<PostListItemDto>> LoadPostsAsync(
@@ -87,31 +112,55 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
     private async Task<List<PostDetailsDto>> LoadPostDetailsAsync(
         CancellationToken cancellationToken)
     {
-        using var document = await _httpClient.GetFromJsonAsync<JsonDocument>(
-            _options.PostsEndpoint,
-            cancellationToken);
+        _logger.LogInformation(
+            "API calling CMS Delivery API. Base address: {BaseAddress}. Endpoint: {Endpoint}",
+            _httpClient.BaseAddress,
+            _options.PostsEndpoint);
 
-        if (document is null)
+        try
         {
-            return [];
+            using var document = await _httpClient.GetFromJsonAsync<JsonDocument>(
+                _options.PostsEndpoint,
+                cancellationToken);
+
+            if (document is null)
+            {
+                _logger.LogWarning("CMS Delivery API returned null JSON document.");
+
+                return [];
+            }
+
+            var root = document.RootElement;
+
+            if (!root.TryGetProperty("items", out var items) ||
+                items.ValueKind != JsonValueKind.Array)
+            {
+                _logger.LogWarning("CMS Delivery API response does not contain valid items array.");
+
+                return [];
+            }
+
+            var posts = new List<PostDetailsDto>();
+
+            foreach (var item in items.EnumerateArray())
+            {
+                posts.Add(MapPost(item));
+            }
+
+            _logger.LogInformation("API mapped CMS posts. Count: {Count}", posts.Count);
+
+            return posts;
         }
-
-        var root = document.RootElement;
-
-        if (!root.TryGetProperty("items", out var items) ||
-            items.ValueKind != JsonValueKind.Array)
+        catch (Exception ex)
         {
-            return [];
+            _logger.LogError(
+                ex,
+                "API failed while calling CMS Delivery API. Base address: {BaseAddress}. Endpoint: {Endpoint}",
+                _httpClient.BaseAddress,
+                _options.PostsEndpoint);
+
+            throw;
         }
-
-        var posts = new List<PostDetailsDto>();
-
-        foreach (var item in items.EnumerateArray())
-        {
-            posts.Add(MapPost(item));
-        }
-
-        return posts;
     }
 
     private static PostDetailsDto MapPost(JsonElement item)

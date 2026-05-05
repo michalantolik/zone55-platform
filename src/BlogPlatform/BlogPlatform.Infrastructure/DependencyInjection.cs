@@ -29,6 +29,7 @@ public static class DependencyInjection
                 }
 
                 client.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
+                client.Timeout = TimeSpan.FromSeconds(30);
             });
 
         return services;
