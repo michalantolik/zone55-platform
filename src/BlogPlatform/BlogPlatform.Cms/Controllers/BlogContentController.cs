@@ -1,5 +1,6 @@
 ﻿using BlogPlatform.Cms.Seeding;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 
@@ -9,21 +10,34 @@ namespace BlogPlatform.Cms.Controllers;
 [Route("api/blog-content")]
 public sealed class BlogContentController : ControllerBase
 {
+    private const string ArticlesCacheKey = "cms-blog-articles";
+
     private readonly IContentService _contentService;
     private readonly ILogger<BlogContentController> _logger;
+    private readonly IMemoryCache _cache;
 
     public BlogContentController(
         IContentService contentService,
-        ILogger<BlogContentController> logger)
+        ILogger<BlogContentController> logger,
+        IMemoryCache cache)
     {
         _contentService = contentService;
         _logger = logger;
+        _cache = cache;
     }
 
     [HttpGet("articles")]
     public ActionResult<IReadOnlyCollection<CmsPostDetailsDto>> GetArticles()
     {
-        _logger.LogInformation("CMS loading blog articles.");
+        if (_cache.TryGetValue(ArticlesCacheKey, out IReadOnlyCollection<CmsPostDetailsDto>? cachedArticles) &&
+            cachedArticles is not null)
+        {
+            _logger.LogInformation("CMS blog articles cache hit. Count: {Count}", cachedArticles.Count);
+
+            return Ok(cachedArticles);
+        }
+
+        _logger.LogInformation("CMS blog articles cache miss. Loading blog articles.");
 
         var rootContent = _contentService.GetRootContent().ToList();
 
@@ -40,6 +54,14 @@ public sealed class BlogContentController : ControllerBase
             .Select(content => MapPost(content, categories))
             .OrderByDescending(post => post.PublishedDate)
             .ToList();
+
+        _cache.Set(
+            ArticlesCacheKey,
+            posts,
+            new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            });
 
         _logger.LogInformation("CMS loaded blog articles. Count: {Count}", posts.Count);
 

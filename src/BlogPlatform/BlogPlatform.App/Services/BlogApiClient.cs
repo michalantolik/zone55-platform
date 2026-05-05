@@ -5,8 +5,16 @@ namespace BlogPlatform.App.Services;
 
 public sealed class BlogApiClient : IBlogApiClient
 {
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
+
     private readonly HttpClient _httpClient;
     private readonly ILogger<BlogApiClient> _logger;
+
+    private IReadOnlyCollection<CategoryItem>? _categoriesCache;
+    private DateTimeOffset _categoriesCacheExpiresAt;
+
+    private readonly Dictionary<string, PostsCacheEntry> _postsCache = [];
+    private readonly Dictionary<string, PostDetailsCacheEntry> _postDetailsCache = [];
 
     public BlogApiClient(
         HttpClient httpClient,
@@ -20,11 +28,19 @@ public sealed class BlogApiClient : IBlogApiClient
         string? categorySlug,
         CancellationToken cancellationToken = default)
     {
+        var cacheKey = string.IsNullOrWhiteSpace(categorySlug)
+            ? "__all__"
+            : categorySlug.Trim().ToLowerInvariant();
+
+        if (_postsCache.TryGetValue(cacheKey, out var cachedPosts) &&
+            cachedPosts.ExpiresAt > DateTimeOffset.UtcNow)
+        {
+            return cachedPosts.Posts;
+        }
+
         var url = string.IsNullOrWhiteSpace(categorySlug)
             ? "api/posts"
             : $"api/posts?category={Uri.EscapeDataString(categorySlug)}";
-
-        _logger.LogInformation("APP calling API endpoint: {Url}", url);
 
         try
         {
@@ -32,7 +48,9 @@ public sealed class BlogApiClient : IBlogApiClient
                 url,
                 cancellationToken) ?? [];
 
-            _logger.LogInformation("APP received posts from API. Count: {Count}", posts.Count);
+            _postsCache[cacheKey] = new PostsCacheEntry(
+                posts,
+                DateTimeOffset.UtcNow.Add(CacheDuration));
 
             return posts;
         }
@@ -47,9 +65,15 @@ public sealed class BlogApiClient : IBlogApiClient
         string slug,
         CancellationToken cancellationToken = default)
     {
-        var url = $"api/posts/{Uri.EscapeDataString(slug)}";
+        var cacheKey = slug.Trim().ToLowerInvariant();
 
-        _logger.LogInformation("APP calling API endpoint: {Url}", url);
+        if (_postDetailsCache.TryGetValue(cacheKey, out var cachedPost) &&
+            cachedPost.ExpiresAt > DateTimeOffset.UtcNow)
+        {
+            return cachedPost.Post;
+        }
+
+        var url = $"api/posts/{Uri.EscapeDataString(slug)}";
 
         try
         {
@@ -57,10 +81,9 @@ public sealed class BlogApiClient : IBlogApiClient
                 url,
                 cancellationToken);
 
-            _logger.LogInformation(
-                "APP received post details from API. Slug: {Slug}. Found: {Found}",
-                slug,
-                post is not null);
+            _postDetailsCache[cacheKey] = new PostDetailsCacheEntry(
+                post,
+                DateTimeOffset.UtcNow.Add(CacheDuration));
 
             return post;
         }
@@ -74,9 +97,13 @@ public sealed class BlogApiClient : IBlogApiClient
     public async Task<IReadOnlyCollection<CategoryItem>> GetCategoriesAsync(
         CancellationToken cancellationToken = default)
     {
-        const string url = "api/posts/categories";
+        if (_categoriesCache is not null &&
+            _categoriesCacheExpiresAt > DateTimeOffset.UtcNow)
+        {
+            return _categoriesCache;
+        }
 
-        _logger.LogInformation("APP calling API endpoint: {Url}", url);
+        const string url = "api/posts/categories";
 
         try
         {
@@ -84,7 +111,8 @@ public sealed class BlogApiClient : IBlogApiClient
                 url,
                 cancellationToken) ?? [];
 
-            _logger.LogInformation("APP received categories from API. Count: {Count}", categories.Count);
+            _categoriesCache = categories;
+            _categoriesCacheExpiresAt = DateTimeOffset.UtcNow.Add(CacheDuration);
 
             return categories;
         }
@@ -94,4 +122,12 @@ public sealed class BlogApiClient : IBlogApiClient
             throw;
         }
     }
+
+    private sealed record PostsCacheEntry(
+        IReadOnlyCollection<PostListItem> Posts,
+        DateTimeOffset ExpiresAt);
+
+    private sealed record PostDetailsCacheEntry(
+        PostDetails? Post,
+        DateTimeOffset ExpiresAt);
 }

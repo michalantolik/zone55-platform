@@ -1,12 +1,16 @@
 using BlogPlatform.Infrastructure;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var sharedLogFilePath = GetSharedLogFilePath();
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Information)
     .Enrich.WithProperty("App", "API")
     .Enrich.FromLogContext()
     .WriteTo.Console(

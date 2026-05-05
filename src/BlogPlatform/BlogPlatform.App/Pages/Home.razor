@@ -127,8 +127,13 @@
     {
         _isLoading = true;
 
-        _categories = await BlogApi.GetCategoriesAsync();
-        _posts = await BlogApi.GetPostsAsync(Category);
+        var categoriesTask = BlogApi.GetCategoriesAsync();
+        var postsTask = BlogApi.GetPostsAsync(Category);
+
+        await Task.WhenAll(categoriesTask, postsTask);
+
+        _categories = await categoriesTask;
+        _posts = await postsTask;
 
         _isLoading = false;
     }

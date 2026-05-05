@@ -1,5 +1,7 @@
-﻿using System.Net.Http.Json;
+﻿using System.Diagnostics;
+using System.Net.Http.Json;
 using BlogPlatform.Application.Posts;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -7,18 +9,25 @@ namespace BlogPlatform.Infrastructure.Cms;
 
 internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQueryService
 {
+    private const string PostsCacheKey = "cms-post-details";
+
+    private static readonly SemaphoreSlim PostsLoadLock = new(1, 1);
+
     private readonly HttpClient _httpClient;
     private readonly UmbracoDeliveryApiOptions _options;
     private readonly ILogger<UmbracoDeliveryApiBlogPostQueryService> _logger;
+    private readonly IMemoryCache _cache;
 
     public UmbracoDeliveryApiBlogPostQueryService(
         HttpClient httpClient,
         IOptions<UmbracoDeliveryApiOptions> options,
-        ILogger<UmbracoDeliveryApiBlogPostQueryService> logger)
+        ILogger<UmbracoDeliveryApiBlogPostQueryService> logger,
+        IMemoryCache cache)
     {
         _httpClient = httpClient;
         _options = options.Value;
         _logger = logger;
+        _cache = cache;
     }
 
     public async Task<IReadOnlyCollection<PostListItemDto>> GetPublishedPostsAsync(
@@ -102,24 +111,47 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
     private async Task<List<PostDetailsDto>> LoadPostDetailsAsync(
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "API calling CMS content endpoint. Base address: {BaseAddress}. Endpoint: {Endpoint}",
-            _httpClient.BaseAddress,
-            _options.PostsEndpoint);
+        if (_cache.TryGetValue(PostsCacheKey, out List<PostDetailsDto>? cachedPosts) &&
+            cachedPosts is not null)
+        {
+            _logger.LogInformation("API CMS posts cache hit. Count: {Count}", cachedPosts.Count);
+
+            return cachedPosts;
+        }
+
+        await PostsLoadLock.WaitAsync(cancellationToken);
 
         try
         {
+            if (_cache.TryGetValue(PostsCacheKey, out cachedPosts) &&
+                cachedPosts is not null)
+            {
+                _logger.LogInformation("API CMS posts cache hit after wait. Count: {Count}", cachedPosts.Count);
+
+                return cachedPosts;
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+
+            _logger.LogInformation(
+                "API CMS posts cache miss. Calling CMS. Base address: {BaseAddress}. Endpoint: {Endpoint}",
+                _httpClient.BaseAddress,
+                _options.PostsEndpoint);
+
             using var response = await _httpClient.GetAsync(
                 _options.PostsEndpoint,
                 cancellationToken);
 
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            stopwatch.Stop();
 
             if (!response.IsSuccessStatusCode)
             {
+                var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
                 _logger.LogError(
-                    "CMS content endpoint failed. Status: {StatusCode}. Body: {ResponseBody}",
+                    "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
                     response.StatusCode,
+                    stopwatch.ElapsedMilliseconds,
                     responseBody);
 
                 response.EnsureSuccessStatusCode();
@@ -128,7 +160,18 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
             var posts = await response.Content.ReadFromJsonAsync<List<PostDetailsDto>>(
                 cancellationToken: cancellationToken) ?? [];
 
-            _logger.LogInformation("API received CMS posts. Count: {Count}", posts.Count);
+            _cache.Set(
+                PostsCacheKey,
+                posts,
+                new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                });
+
+            _logger.LogInformation(
+                "API received CMS posts. Count: {Count}. Duration: {ElapsedMs} ms",
+                posts.Count,
+                stopwatch.ElapsedMilliseconds);
 
             return posts;
         }
@@ -141,6 +184,10 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 _options.PostsEndpoint);
 
             throw;
+        }
+        finally
+        {
+            PostsLoadLock.Release();
         }
     }
 }

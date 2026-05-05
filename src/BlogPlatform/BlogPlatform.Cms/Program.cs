@@ -1,12 +1,16 @@
 using BlogPlatform.Cms.Infrastructure.Database;
 using Serilog;
+using Serilog.Events;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 var sharedLogFilePath = GetSharedLogFilePath();
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Umbraco", LogEventLevel.Warning)
     .Enrich.WithProperty("App", "CMS")
     .Enrich.FromLogContext()
     .WriteTo.Console(
@@ -40,6 +44,7 @@ if (hmacKey.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
         "Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
 }
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 
 builder.CreateUmbracoBuilder()

@@ -12,6 +12,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddMemoryCache();
+
         services.Configure<UmbracoDeliveryApiOptions>(
             configuration.GetSection(UmbracoDeliveryApiOptions.SectionName));
 
@@ -29,7 +31,7 @@ public static class DependencyInjection
                 }
 
                 client.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
-                client.Timeout = TimeSpan.FromSeconds(30);
+                client.Timeout = TimeSpan.FromSeconds(10);
             });
 
         return services;

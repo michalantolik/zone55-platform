@@ -7,13 +7,11 @@ public sealed class ApiClientLogger : ILogger
     private readonly HttpClient _httpClient;
     private readonly string _categoryName;
 
-    public ApiClientLogger(string apiBaseUrl, string categoryName)
+    public ApiClientLogger(
+        HttpClient httpClient,
+        string categoryName)
     {
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(apiBaseUrl, UriKind.Absolute)
-        };
-
+        _httpClient = httpClient;
         _categoryName = categoryName;
     }
 
@@ -25,7 +23,7 @@ public sealed class ApiClientLogger : ILogger
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        return logLevel >= LogLevel.Information;
+        return logLevel >= LogLevel.Warning;
     }
 
     public void Log<TState>(
