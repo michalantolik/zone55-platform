@@ -4,7 +4,9 @@ namespace BlogPlatform.Cms.Infrastructure.Database;
 
 public static class SqlServerDatabaseInitializer
 {
-    public static async Task EnsureDatabaseCreatedAsync(IConfiguration configuration)
+    public static async Task EnsureDatabaseCreatedAsync(
+        IConfiguration configuration,
+        CancellationToken cancellationToken = default)
     {
         var connectionString = configuration.GetConnectionString("umbracoDbDSN");
 
@@ -23,18 +25,28 @@ public static class SqlServerDatabaseInitializer
         }
 
         builder.InitialCatalog = "master";
+        builder.ConnectTimeout = 15;
+        builder.Pooling = false;
 
         await using var connection = new SqlConnection(builder.ConnectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(cancellationToken);
+
+        var escapedDatabaseName = databaseName.Replace("'", "''");
+        var bracketedDatabaseName = databaseName.Replace("]", "]]");
 
         var commandText = $"""
-            IF DB_ID(N'{databaseName.Replace("'", "''")}') IS NULL
+            IF DB_ID(N'{escapedDatabaseName}') IS NULL
             BEGIN
-                CREATE DATABASE [{databaseName.Replace("]", "]]")}]
+                CREATE DATABASE [{bracketedDatabaseName}]
             END
             """;
 
-        await using var command = new SqlCommand(commandText, connection);
-        await command.ExecuteNonQueryAsync();
+        await using var command = new SqlCommand(commandText, connection)
+        {
+            CommandTimeout = 120
+        };
+
+        await command.ExecuteNonQueryAsync(cancellationToken);
+
     }
 }

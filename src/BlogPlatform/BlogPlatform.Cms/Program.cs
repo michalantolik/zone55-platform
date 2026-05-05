@@ -10,7 +10,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-    .MinimumLevel.Override("Umbraco", LogEventLevel.Warning)
+    .MinimumLevel.Override("Umbraco", LogEventLevel.Information)
     .Enrich.WithProperty("App", "CMS")
     .Enrich.FromLogContext()
     .WriteTo.Console(
@@ -24,81 +24,87 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-Log.Information("CMS builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
-
-var hmacKey = builder.Configuration["Umbraco:CMS:Imaging:HMACSecretKey"];
-
-if (string.IsNullOrWhiteSpace(hmacKey))
+try
 {
-    Log.Fatal("Umbraco CMS Imaging HMACSecretKey is missing.");
+    Log.Information("CMS builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
 
-    throw new InvalidOperationException(
-        "Umbraco CMS Imaging HMACSecretKey is missing.");
-}
+    var hmacKey = builder.Configuration["Umbraco:CMS:Imaging:HMACSecretKey"];
 
-if (hmacKey.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
-{
-    Log.Fatal("Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
-
-    throw new InvalidOperationException(
-        "Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
-}
-
-builder.Services.AddMemoryCache();
-builder.Services.AddControllers();
-
-builder.CreateUmbracoBuilder()
-    .AddBackOffice()
-    .AddWebsite()
-    .AddDeliveryApi()
-    .AddComposers()
-    .Build();
-
-WebApplication app = builder.Build();
-
-Log.Information("CMS application built.");
-Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);
-
-if (app.Environment.IsDevelopment())
-{
-    Log.Information("CMS development mode detected. Ensuring database exists.");
-
-    await SqlServerDatabaseInitializer.EnsureDatabaseCreatedAsync(app.Configuration);
-
-    Log.Information("CMS database check completed.");
-}
-
-Log.Information("CMS booting Umbraco.");
-
-await app.BootUmbracoAsync();
-
-Log.Information("CMS Umbraco boot completed.");
-
-app.UseSerilogRequestLogging();
-
-app.UseHttpsRedirection();
-
-app.MapControllers();
-
-app.UseUmbraco()
-    .WithMiddleware(u =>
+    if (string.IsNullOrWhiteSpace(hmacKey))
     {
-        Log.Information("CMS configuring Umbraco middleware.");
+        throw new InvalidOperationException("Umbraco CMS Imaging HMACSecretKey is missing.");
+    }
 
-        u.UseBackOffice();
-        u.UseWebsite();
-    })
-    .WithEndpoints(u =>
+    if (hmacKey.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
     {
-        Log.Information("CMS configuring Umbraco endpoints.");
+        throw new InvalidOperationException("Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
+    }
 
-        u.UseBackOfficeEndpoints();
-        u.UseWebsiteEndpoints();
-    });
+    if (builder.Environment.IsDevelopment())
+    {
+        Log.Information("CMS development mode detected. Ensuring database exists.");
 
-Log.Information("CMS starting.");
+        await SqlServerDatabaseInitializer.EnsureDatabaseCreatedAsync(
+            builder.Configuration);
 
-await app.RunAsync();
+        Log.Information("CMS database check completed.");
+    }
+
+    builder.Services.AddMemoryCache();
+    builder.Services.AddControllers();
+
+    builder.CreateUmbracoBuilder()
+        .AddBackOffice()
+        .AddWebsite()
+        .AddDeliveryApi()
+        .AddComposers()
+        .Build();
+
+    WebApplication app = builder.Build();
+
+    Log.Information("CMS application built.");
+    Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);
+    Log.Information("CMS booting Umbraco.");
+
+    await app.BootUmbracoAsync();
+
+    Log.Information("CMS Umbraco boot completed.");
+
+    app.UseSerilogRequestLogging();
+
+    app.UseHttpsRedirection();
+
+    app.MapControllers();
+
+    app.UseUmbraco()
+        .WithMiddleware(u =>
+        {
+            Log.Information("CMS configuring Umbraco middleware.");
+
+            u.UseBackOffice();
+            u.UseWebsite();
+        })
+        .WithEndpoints(u =>
+        {
+            Log.Information("CMS configuring Umbraco endpoints.");
+
+            u.UseBackOfficeEndpoints();
+            u.UseWebsiteEndpoints();
+        });
+
+    Log.Information("CMS starting.");
+
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "CMS terminated unexpectedly.");
+    throw;
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}
 
 static string GetSharedLogFilePath()
 {
