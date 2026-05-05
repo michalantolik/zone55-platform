@@ -12,6 +12,8 @@ public sealed class BlogContentController : ControllerBase
 {
     private const string ArticlesCacheKey = "cms-blog-articles";
 
+    private static readonly SemaphoreSlim ArticlesLoadLock = new(1, 1);
+
     private readonly IContentService _contentService;
     private readonly ILogger<BlogContentController> _logger;
     private readonly IMemoryCache _cache;
@@ -27,45 +29,67 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpGet("articles")]
-    public ActionResult<IReadOnlyCollection<CmsPostDetailsDto>> GetArticles()
+    public async Task<ActionResult<IReadOnlyCollection<CmsPostDetailsDto>>> GetArticles(
+        CancellationToken cancellationToken)
     {
         if (_cache.TryGetValue(ArticlesCacheKey, out IReadOnlyCollection<CmsPostDetailsDto>? cachedArticles) &&
             cachedArticles is not null)
         {
-            _logger.LogInformation("CMS blog articles cache hit. Count: {Count}", cachedArticles.Count);
+            _logger.LogDebug("CMS blog articles cache hit. Count: {Count}", cachedArticles.Count);
 
             return Ok(cachedArticles);
         }
 
-        _logger.LogInformation("CMS blog articles cache miss. Loading blog articles.");
+        await ArticlesLoadLock.WaitAsync(cancellationToken);
 
-        var rootContent = _contentService.GetRootContent().ToList();
-
-        var categories = rootContent
-            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogCategory)
-            .ToDictionary(
-                content => content.Key,
-                content => new CmsCategoryDto(
-                    GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "uncategorized"),
-                    GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Uncategorized"));
-
-        var posts = rootContent
-            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogArticle)
-            .Select(content => MapPost(content, categories))
-            .OrderByDescending(post => post.PublishedDate)
-            .ToList();
-
-        _cache.Set(
-            ArticlesCacheKey,
-            posts,
-            new MemoryCacheEntryOptions
+        try
+        {
+            if (_cache.TryGetValue(ArticlesCacheKey, out cachedArticles) &&
+                cachedArticles is not null)
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-            });
+                _logger.LogDebug(
+                    "CMS blog articles cache hit after wait. Count: {Count}",
+                    cachedArticles.Count);
 
-        _logger.LogInformation("CMS loaded blog articles. Count: {Count}", posts.Count);
+                return Ok(cachedArticles);
+            }
 
-        return Ok(posts);
+            _logger.LogInformation("CMS blog articles cache miss. Loading blog articles.");
+
+            var rootContent = _contentService.GetRootContent().ToList();
+
+            var categories = rootContent
+                .Where(content => content.ContentType.Alias == BlogContentAliases.BlogCategory)
+                .ToDictionary(
+                    content => content.Key,
+                    content => new CmsCategoryDto(
+                        GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "uncategorized"),
+                        GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Uncategorized"));
+
+            var posts = rootContent
+                .Where(content => content.ContentType.Alias == BlogContentAliases.BlogArticle)
+                .Select(content => MapPost(content, categories))
+                .OrderByDescending(post => post.PublishedDate)
+                .ToList();
+
+            _cache.Set(
+                ArticlesCacheKey,
+                posts,
+                new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                    SlidingExpiration = TimeSpan.FromMinutes(3),
+                    Priority = CacheItemPriority.High
+                });
+
+            _logger.LogInformation("CMS loaded blog articles. Count: {Count}", posts.Count);
+
+            return Ok(posts);
+        }
+        finally
+        {
+            ArticlesLoadLock.Release();
+        }
     }
 
     private static CmsPostDetailsDto MapPost(

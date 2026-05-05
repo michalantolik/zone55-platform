@@ -10,10 +10,8 @@ public sealed class BlogApiClient : IBlogApiClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<BlogApiClient> _logger;
 
-    private IReadOnlyCollection<CategoryItem>? _categoriesCache;
-    private DateTimeOffset _categoriesCacheExpiresAt;
-
-    private readonly Dictionary<string, PostsCacheEntry> _postsCache = [];
+    private readonly Dictionary<string, HomeCacheEntry> _homeCache = [];
+    private readonly Dictionary<string, Task<BlogHomeContent>> _homeRequests = [];
     private readonly Dictionary<string, PostDetailsCacheEntry> _postDetailsCache = [];
 
     public BlogApiClient(
@@ -24,41 +22,43 @@ public sealed class BlogApiClient : IBlogApiClient
         _logger = logger;
     }
 
+    public async Task<BlogHomeContent> GetHomeContentAsync(
+        string? categorySlug,
+        CancellationToken cancellationToken = default)
+    {
+        var cacheKey = CreateCategoryCacheKey(categorySlug);
+
+        if (_homeCache.TryGetValue(cacheKey, out var cachedHome) &&
+            cachedHome.ExpiresAt > DateTimeOffset.UtcNow)
+        {
+            return cachedHome.Content;
+        }
+
+        if (_homeRequests.TryGetValue(cacheKey, out var existingRequest))
+        {
+            return await existingRequest;
+        }
+
+        var request = LoadHomeContentAsync(categorySlug, cacheKey, cancellationToken);
+        _homeRequests[cacheKey] = request;
+
+        try
+        {
+            return await request;
+        }
+        finally
+        {
+            _homeRequests.Remove(cacheKey);
+        }
+    }
+
     public async Task<IReadOnlyCollection<PostListItem>> GetPostsAsync(
         string? categorySlug,
         CancellationToken cancellationToken = default)
     {
-        var cacheKey = string.IsNullOrWhiteSpace(categorySlug)
-            ? "__all__"
-            : categorySlug.Trim().ToLowerInvariant();
+        var homeContent = await GetHomeContentAsync(categorySlug, cancellationToken);
 
-        if (_postsCache.TryGetValue(cacheKey, out var cachedPosts) &&
-            cachedPosts.ExpiresAt > DateTimeOffset.UtcNow)
-        {
-            return cachedPosts.Posts;
-        }
-
-        var url = string.IsNullOrWhiteSpace(categorySlug)
-            ? "api/posts"
-            : $"api/posts?category={Uri.EscapeDataString(categorySlug)}";
-
-        try
-        {
-            var posts = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<PostListItem>>(
-                url,
-                cancellationToken) ?? [];
-
-            _postsCache[cacheKey] = new PostsCacheEntry(
-                posts,
-                DateTimeOffset.UtcNow.Add(CacheDuration));
-
-            return posts;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "APP failed to get posts from API. Url: {Url}", url);
-            throw;
-        }
+        return homeContent.Posts;
     }
 
     public async Task<PostDetails?> GetPostBySlugAsync(
@@ -97,34 +97,48 @@ public sealed class BlogApiClient : IBlogApiClient
     public async Task<IReadOnlyCollection<CategoryItem>> GetCategoriesAsync(
         CancellationToken cancellationToken = default)
     {
-        if (_categoriesCache is not null &&
-            _categoriesCacheExpiresAt > DateTimeOffset.UtcNow)
-        {
-            return _categoriesCache;
-        }
+        var homeContent = await GetHomeContentAsync(null, cancellationToken);
 
-        const string url = "api/posts/categories";
+        return homeContent.Categories;
+    }
+
+    private async Task<BlogHomeContent> LoadHomeContentAsync(
+        string? categorySlug,
+        string cacheKey,
+        CancellationToken cancellationToken)
+    {
+        var url = string.IsNullOrWhiteSpace(categorySlug)
+            ? "api/posts/home"
+            : $"api/posts/home?category={Uri.EscapeDataString(categorySlug)}";
 
         try
         {
-            var categories = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<CategoryItem>>(
+            var content = await _httpClient.GetFromJsonAsync<BlogHomeContent>(
                 url,
-                cancellationToken) ?? [];
+                cancellationToken) ?? new BlogHomeContent([], []);
 
-            _categoriesCache = categories;
-            _categoriesCacheExpiresAt = DateTimeOffset.UtcNow.Add(CacheDuration);
+            _homeCache[cacheKey] = new HomeCacheEntry(
+                content,
+                DateTimeOffset.UtcNow.Add(CacheDuration));
 
-            return categories;
+            return content;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "APP failed to get categories from API. Url: {Url}", url);
+            _logger.LogError(ex, "APP failed to get home content from API. Url: {Url}", url);
             throw;
         }
     }
 
-    private sealed record PostsCacheEntry(
-        IReadOnlyCollection<PostListItem> Posts,
+    private static string CreateCategoryCacheKey(string? categorySlug)
+    {
+        return string.IsNullOrWhiteSpace(categorySlug)
+            ? "__all__"
+            : categorySlug.Trim().ToLowerInvariant();
+    }
+
+    private sealed record HomeCacheEntry(
+        BlogHomeContent Content,
         DateTimeOffset ExpiresAt);
 
     private sealed record PostDetailsCacheEntry(

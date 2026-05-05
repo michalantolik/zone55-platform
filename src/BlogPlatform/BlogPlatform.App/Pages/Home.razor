@@ -65,7 +65,8 @@
 
 <section class="content-frame container-xl">
     <aside class="sidebar">
-        <CategorySidebar ActiveSlug="@Category" />
+        <CategorySidebar ActiveSlug="@Category"
+                         Categories="@_categories" />
     </aside>
 
     <section class="posts-area">
@@ -127,13 +128,10 @@
     {
         _isLoading = true;
 
-        var categoriesTask = BlogApi.GetCategoriesAsync();
-        var postsTask = BlogApi.GetPostsAsync(Category);
+        var homeContent = await BlogApi.GetHomeContentAsync(Category);
 
-        await Task.WhenAll(categoriesTask, postsTask);
-
-        _categories = await categoriesTask;
-        _posts = await postsTask;
+        _categories = homeContent.Categories;
+        _posts = homeContent.Posts;
 
         _isLoading = false;
     }

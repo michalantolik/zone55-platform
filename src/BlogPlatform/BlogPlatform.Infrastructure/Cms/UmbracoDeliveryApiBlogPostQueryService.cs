@@ -34,8 +34,6 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
         string? categorySlug,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("API loading published posts. Category slug: {CategorySlug}", categorySlug);
-
         var posts = await LoadPostDetailsAsync(cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(categorySlug))
@@ -48,7 +46,7 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 .ToList();
         }
 
-        var result = posts
+        return posts
             .OrderByDescending(post => post.PublishedDate)
             .Select(post => new PostListItemDto(
                 post.Slug,
@@ -61,39 +59,24 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 post.Tags,
                 post.PublishedDate))
             .ToList();
-
-        _logger.LogInformation("API loaded published posts. Count: {Count}", result.Count);
-
-        return result;
     }
 
     public async Task<PostDetailsDto?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("API loading post by slug: {Slug}", slug);
-
         var posts = await LoadPostDetailsAsync(cancellationToken);
 
-        var post = posts.FirstOrDefault(post =>
+        return posts.FirstOrDefault(post =>
             string.Equals(post.Slug, slug, StringComparison.OrdinalIgnoreCase));
-
-        _logger.LogInformation(
-            "API loaded post by slug: {Slug}. Found: {Found}",
-            slug,
-            post is not null);
-
-        return post;
     }
 
     public async Task<IReadOnlyCollection<CategoryDto>> GetCategoriesAsync(
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("API loading categories.");
-
         var posts = await LoadPostDetailsAsync(cancellationToken);
 
-        var categories = posts
+        return posts
             .GroupBy(post => new { post.CategorySlug, post.Category })
             .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
             .Select(group => new CategoryDto(
@@ -102,10 +85,6 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 group.Count()))
             .OrderBy(category => category.Name)
             .ToList();
-
-        _logger.LogInformation("API loaded categories. Count: {Count}", categories.Count);
-
-        return categories;
     }
 
     private async Task<List<PostDetailsDto>> LoadPostDetailsAsync(
@@ -114,7 +93,7 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
         if (_cache.TryGetValue(PostsCacheKey, out List<PostDetailsDto>? cachedPosts) &&
             cachedPosts is not null)
         {
-            _logger.LogInformation("API CMS posts cache hit. Count: {Count}", cachedPosts.Count);
+            _logger.LogDebug("API CMS posts cache hit. Count: {Count}", cachedPosts.Count);
 
             return cachedPosts;
         }
@@ -126,7 +105,9 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
             if (_cache.TryGetValue(PostsCacheKey, out cachedPosts) &&
                 cachedPosts is not null)
             {
-                _logger.LogInformation("API CMS posts cache hit after wait. Count: {Count}", cachedPosts.Count);
+                _logger.LogDebug(
+                    "API CMS posts cache hit after wait. Count: {Count}",
+                    cachedPosts.Count);
 
                 return cachedPosts;
             }
@@ -140,9 +121,8 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
 
             using var response = await _httpClient.GetAsync(
                 _options.PostsEndpoint,
+                HttpCompletionOption.ResponseHeadersRead,
                 cancellationToken);
-
-            stopwatch.Stop();
 
             if (!response.IsSuccessStatusCode)
             {
@@ -160,12 +140,16 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
             var posts = await response.Content.ReadFromJsonAsync<List<PostDetailsDto>>(
                 cancellationToken: cancellationToken) ?? [];
 
+            stopwatch.Stop();
+
             _cache.Set(
                 PostsCacheKey,
                 posts,
                 new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                    SlidingExpiration = TimeSpan.FromMinutes(3),
+                    Priority = CacheItemPriority.High
                 });
 
             _logger.LogInformation(
