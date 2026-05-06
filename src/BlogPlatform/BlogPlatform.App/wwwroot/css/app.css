@@ -1282,7 +1282,14 @@ button {
 
     .mermaid-block .nodeLabel,
     .mermaid-block .label,
-    .mermaid-block text {
+    .mermaid-block text,
+    .mermaid-block foreignObject,
+    .mermaid-block foreignObject *,
+    .mermaid-block .labelBkg,
+    .mermaid-block .edgeLabel,
+    .mermaid-block .edgeLabel *,
+    .mermaid-block .cluster-label,
+    .mermaid-block .cluster-label * {
         color: var(--diagram-mermaid-node-text) !important;
         fill: var(--diagram-mermaid-node-text) !important;
     }

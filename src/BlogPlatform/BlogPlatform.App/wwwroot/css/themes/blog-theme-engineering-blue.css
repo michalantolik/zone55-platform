@@ -163,7 +163,14 @@ html[data-blog-theme="engineering-blue"] {
 
         html[data-blog-theme="engineering-blue"] .mermaid-block .nodeLabel,
         html[data-blog-theme="engineering-blue"] .mermaid-block .label,
-        html[data-blog-theme="engineering-blue"] .mermaid-block text {
+        html[data-blog-theme="engineering-blue"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject *,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .labelBkg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel *,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label * {
             color: #E5E7EB !important;
             fill: #E5E7EB !important;
         }
