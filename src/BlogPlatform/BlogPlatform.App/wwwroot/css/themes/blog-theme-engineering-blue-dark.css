@@ -1,139 +1,135 @@
-﻿/* src/BlogPlatform/BlogPlatform.App/wwwroot/css/themes/blog-theme-engineering-blue.css */
+﻿/* src/BlogPlatform/BlogPlatform.App/wwwroot/css/themes/blog-theme-engineering-blue-dark.css */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* =========================================================
-   Blog Platform Theme: Engineering Blue
+   Blog Platform Theme: Engineering Blue Dark
+   Option A - Subtle Blue Gray
    ========================================================= */
 
 :root,
-html[data-blog-theme="engineering-blue"] {
+html[data-blog-theme="engineering-blue-dark"] {
     --font-sans: 'Inter', Arial, sans-serif;
-    /* App shell */
-    --bg-main: #07111f;
-    --bg-deep: #020817;
-    --surface: #f4f7fb;
-    --surface-white: #ffffff;
-    --text-main: #e6edf7;
-    --text-soft: #bfd0e7;
-    --text-muted: #8fa2bd;
-    --text-dark: #0b1f3a;
-    --text-dark-soft: #53657f;
-    --primary: #4ea1ff;
-    --primary-strong: #2f6fd6;
-    --accent: #22c55e;
-    --accent-cyan: #56d4ff;
-    --border: #24344f;
-    --border-light: #dbe4ef;
-    --shadow-soft: 0 18px 44px rgba(0, 0, 0, .24);
-    --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
+    --bg-main: #081525;
+    --bg-deep: #020914;
+    --surface: #101c2d;
+    --surface-white: #15243a;
+    --text-main: #edf5ff;
+    --text-soft: #c7d7ed;
+    --text-muted: #90a5c1;
+    --text-dark: #eef6ff;
+    --text-dark-soft: #abc0dc;
+    --primary: #55b6ff;
+    --primary-strong: #7cc7ff;
+    --accent: #4fc3ff;
+    --accent-cyan: #55c7ff;
+    --border: #243653;
+    --border-light: rgba(148, 174, 208, .18);
+    --shadow-soft: 0 22px 58px rgba(0, 0, 0, .35);
+    --shadow-card: 0 16px 36px rgba(0, 0, 0, .22);
     --shell-width: 1260px;
-    /* Main layout / home page */
-    --body-bg-radial: rgba(78, 161, 255, .16);
-    --body-bg-radial-stop: 32%;
-    --body-bg-gradient-start: var(--bg-deep);
-    --body-bg-gradient-end: var(--bg-main);
-    --top-nav-bg: rgba(10, 20, 38, .86);
-    --top-nav-border: rgba(255, 255, 255, .08);
-    --brand-icon-text: #06111f;
-    --brand-icon-bg-start: var(--accent-cyan);
-    --brand-icon-bg-end: #9db7ff;
-    --menu-link-text: #d9e7ff;
-    --menu-link-active-text: #ffffff;
-    --menu-link-active-bg: rgba(78, 161, 255, .15);
-    --menu-link-active-border: rgba(78, 161, 255, .24);
-    --hero-bg-start: #071426;
-    --hero-bg-middle: #11264a;
-    --hero-bg-end: #12223e;
-    --hero-border: rgba(255, 255, 255, .08);
+    --body-bg-radial: rgba(85, 182, 255, .14);
+    --body-bg-radial-stop: 34%;
+    --body-bg-gradient-start: #020914;
+    --body-bg-gradient-end: #071426;
+    --top-nav-bg: rgba(7, 18, 32, .88);
+    --top-nav-border: rgba(117, 154, 197, .18);
+    --brand-icon-text: #04101d;
+    --brand-icon-bg-start: #55c7ff;
+    --brand-icon-bg-end: #80aaff;
+    --menu-link-text: #c8d9ef;
+    --menu-link-active-text: #f7fbff;
+    --menu-link-active-bg: rgba(85, 182, 255, .16);
+    --menu-link-active-border: rgba(85, 182, 255, .28);
+    --hero-bg-start: #071528;
+    --hero-bg-middle: #102440;
+    --hero-bg-end: #132944;
+    --hero-border: rgba(117, 154, 197, .16);
     --hero-title-text: #ffffff;
-    --hero-text: #d8e6fa;
-    --hero-eyebrow-text: #a7f3ff;
-    --hero-eyebrow-bg: rgba(86, 212, 255, .09);
-    --hero-eyebrow-border: rgba(86, 212, 255, .22);
-    --hero-title-gradient-start: var(--accent-cyan);
-    --hero-title-gradient-middle: var(--primary);
-    --hero-title-gradient-end: #a8b6ff;
+    --hero-text: #c9d9ee;
+    --hero-eyebrow-text: #b7ecff;
+    --hero-eyebrow-bg: rgba(85, 199, 255, .10);
+    --hero-eyebrow-border: rgba(85, 199, 255, .24);
+    --hero-title-gradient-start: #73d7ff;
+    --hero-title-gradient-middle: #55b6ff;
+    --hero-title-gradient-end: #a8b8ff;
     --tag-text-on-dark: #dff4ff;
-    --tag-bg-on-dark: rgba(255, 255, 255, .06);
-    --tag-border-on-dark: rgba(255, 255, 255, .10);
-    --signal-card-bg: rgba(255, 255, 255, .06);
-    --signal-card-border: rgba(255, 255, 255, .10);
-    --signal-card-title: #ffffff;
-    --signal-card-muted: #9fb4d7;
-    --intro-strip-bg: #091427;
-    --intro-strip-border: rgba(255,255,255,.08);
+    --tag-bg-on-dark: rgba(85, 182, 255, .10);
+    --tag-border-on-dark: rgba(85, 182, 255, .16);
+    --signal-card-bg: rgba(17, 36, 60, .68);
+    --signal-card-border: rgba(117, 154, 197, .18);
+    --signal-card-title: #f3f8ff;
+    --signal-card-muted: #9fb6d4;
+    --intro-strip-bg: #071426;
+    --intro-strip-border: rgba(117, 154, 197, .14);
     --intro-strip-title: #ffffff;
-    --content-frame-bg: #071228;
-    --content-frame-border: rgba(255, 255, 255, .08);
-    --sidebar-bg: #071228;
+    --content-frame-bg: #071426;
+    --content-frame-border: rgba(117, 154, 197, .18);
+    --sidebar-bg: #071426;
     --sidebar-title: #ffffff;
     --sidebar-text: #c4d4eb;
-    --category-pill-text: #f4f8ff;
-    --category-pill-bg: rgba(255, 255, 255, .045);
-    --category-pill-border: rgba(255, 255, 255, .08);
-    --category-pill-active-bg: rgba(78, 161, 255, .18);
-    --category-pill-active-border: rgba(78, 161, 255, .35);
-    --category-count-text: #cfe3ff;
-    --category-count-bg: rgba(78, 161, 255, .18);
-    --author-card-bg-start: rgba(78, 161, 255, .18);
-    --author-card-bg-end: rgba(34, 197, 94, .10);
-    --author-card-border: rgba(86, 212, 255, .18);
-    --author-card-small: #d7e7ff;
+    --category-pill-text: #f4f9ff;
+    --category-pill-bg: rgba(18, 38, 63, .78);
+    --category-pill-border: rgba(117, 154, 197, .13);
+    --category-pill-active-bg: rgba(85, 182, 255, .18);
+    --category-pill-active-border: rgba(85, 182, 255, .30);
+    --category-count-text: #d7ebff;
+    --category-count-bg: rgba(85, 182, 255, .16);
+    --author-card-bg-start: rgba(28, 73, 118, .70);
+    --author-card-bg-end: rgba(10, 30, 52, .88);
+    --author-card-border: rgba(85, 182, 255, .18);
+    --author-card-small: #cde2f8;
     --author-card-title: #ffffff;
-    --posts-area-bg: var(--surface);
-    --section-kicker-text: #607aa7;
-    --browse-link-text: #4b35b8;
-    --post-card-bg: var(--surface-white);
-    --post-card-text: var(--text-dark);
-    --post-card-border: var(--border-light);
-    --post-card-hover-border: rgba(78, 161, 255, .45);
-    --post-card-hover-shadow: 0 18px 34px rgba(15, 23, 42, .12);
-    --badge-text: #28506f;
-    --badge-bg: #eef6ff;
-    --badge-border: #d8e9fb;
-    --badge-primary-text: #075985;
-    --badge-primary-bg: #e0f7ff;
-    --badge-primary-border: #b8edff;
-    --post-title-text: var(--text-dark);
-    --post-title-hover: var(--primary-strong);
-    --post-summary-text: var(--text-dark-soft);
-    --post-tech-text: #075985;
-    --post-tech-bg: #e9f8ff;
-    --post-tech-border: #c6ecfb;
-    --post-footer-border: #edf1f6;
-    --post-footer-text: #697b95;
-    --read-button-text: var(--primary-strong);
-    --pagination-text: #52698d;
-    --pagination-button-bg: #ffffff;
-    --pagination-button-border: #dbe4ef;
-    --pagination-button-text: var(--text-dark);
-    --pagination-button-active-bg: var(--text-dark);
-    --pagination-button-active-text: #ffffff;
-    --pagination-button-active-border: var(--text-dark);
-    --pagination-button-active-shadow: 0 12px 24px rgba(15, 23, 42, .18);
-    --pagination-button-disabled-bg: #f7f9fc;
-    --pagination-button-disabled-text: #9ca9ba;
-    /* Article */
-    --article-post-bg: #FAFCFE;
-    --article-post-border: #dbe7f5;
-    --article-post-title: #081a33;
-    --article-post-text: #4a5f7a;
-    --article-post-muted: #6d7f98;
-    --article-summary-bg: #f1f7ff;
-    --article-summary-border: #d8e8fa;
-    --article-summary-text: #234460;
-    /* Shared diagram panel */
-    --diagram-border: #26364d;
-    --diagram-header-bg: #111827;
-    --diagram-header-text: #E5E7EB;
+    --posts-area-bg: #101c2d;
+    --section-kicker-text: #b5c9e4;
+    --browse-link-text: #55b6ff;
+    --post-card-bg: #132238;
+    --post-card-text: #eef6ff;
+    --post-card-border: rgba(117, 154, 197, .18);
+    --post-card-hover-border: rgba(85, 182, 255, .42);
+    --post-card-hover-shadow: 0 20px 42px rgba(0, 0, 0, .30);
+    --badge-text: #bfe7ff;
+    --badge-bg: rgba(85, 182, 255, .12);
+    --badge-border: rgba(85, 182, 255, .18);
+    --badge-primary-text: #d9f3ff;
+    --badge-primary-bg: rgba(85, 199, 255, .16);
+    --badge-primary-border: rgba(85, 199, 255, .24);
+    --post-title-text: #f5f9ff;
+    --post-title-hover: #7cc7ff;
+    --post-summary-text: #a9bdd7;
+    --post-tech-text: #c8edff;
+    --post-tech-bg: rgba(85, 182, 255, .12);
+    --post-tech-border: rgba(85, 182, 255, .18);
+    --post-footer-border: rgba(117, 154, 197, .14);
+    --post-footer-text: #91a8c5;
+    --read-button-text: #7cc7ff;
+    --pagination-text: #9fb4d1;
+    --pagination-button-bg: #132238;
+    --pagination-button-border: rgba(117, 154, 197, .20);
+    --pagination-button-text: #d9e8f8;
+    --pagination-button-active-bg: #55b6ff;
+    --pagination-button-active-text: #04101d;
+    --pagination-button-active-border: #55b6ff;
+    --pagination-button-active-shadow: 0 14px 28px rgba(85, 182, 255, .22);
+    --pagination-button-disabled-bg: rgba(19, 34, 56, .55);
+    --pagination-button-disabled-text: #6f819a;
+    --article-post-bg: #101c2d;
+    --article-post-border: rgba(117, 154, 197, .18);
+    --article-post-title: #f5f9ff;
+    --article-post-text: #c0d0e6;
+    --article-post-muted: #8fa5c1;
+    --article-summary-bg: #132238;
+    --article-summary-border: rgba(85, 182, 255, .18);
+    --article-summary-text: #cce3f8;
+    --diagram-border: #263d5c;
+    --diagram-header-bg: #0a1728;
+    --diagram-header-text: #E5F0FF;
     --diagram-font-family: SansSerif, sans-serif, Arial;
-    --diagram-line-color: #a7b4c8;
-    --diagram-node-text-color: #E5E7EB;
-    --diagram-node-border-color: #7d8ca3;
-    --diagram-node-bg-color: #374151;
-    --diagram-bg-color: #1F2937;
-    /* PlantUML diagram */
+    --diagram-line-color: #8fa9c8;
+    --diagram-node-text-color: #E5F0FF;
+    --diagram-node-border-color: #5f7898;
+    --diagram-node-bg-color: #1b2b43;
+    --diagram-bg-color: #101c2d;
     --diagram-plantuml-bg: var(--diagram-bg-color);
     --diagram-plantuml-inner-bg: var(--diagram-bg-color);
     --diagram-plantuml-node-bg: var(--diagram-node-bg-color);
@@ -141,124 +137,106 @@ html[data-blog-theme="engineering-blue"] {
     --diagram-plantuml-node-text: var(--diagram-node-text-color);
     --diagram-plantuml-line: var(--diagram-line-color);
     --diagram-plantuml-font-family: var(--diagram-font-family);
-    /* Mermaid diagram */
     --diagram-mermaid-bg: var(--diagram-bg-color);
     --diagram-mermaid-node-bg: var(--diagram-node-bg-color);
     --diagram-mermaid-node-border: var(--diagram-node-border-color);
     --diagram-mermaid-node-text: var(--diagram-node-text-color);
     --diagram-mermaid-line: var(--diagram-line-color);
     --diagram-mermaid-font-family: var(--diagram-font-family);
-    /* Code snippets */
-    --code-bg: #1F2937;
-    --code-text: #E5E7EB;
-    --code-line-number: #9ca3af;
-    --code-line-number-border: rgba(229, 231, 235, .10);
-    --code-copy-bg: rgba(229, 231, 235, .08);
-    --code-copy-bg-hover: rgba(229, 231, 235, .14);
-    --code-copy-text: #E5E7EB;
-    --code-copy-border: rgba(229, 231, 235, .26);
+    --code-bg: #101c2d;
+    --code-text: #E5F0FF;
+    --code-line-number: #8fa5c1;
+    --code-line-number-border: rgba(229, 240, 255, .10);
+    --code-copy-bg: rgba(85, 182, 255, .10);
+    --code-copy-bg-hover: rgba(85, 182, 255, .16);
+    --code-copy-text: #E5F0FF;
+    --code-copy-border: rgba(85, 182, 255, .24);
 }
 
-    /* =========================================================
-   Article surface
-   ========================================================= */
-
-    html[data-blog-theme="engineering-blue"] .article-card {
+    html[data-blog-theme="engineering-blue-dark"] .article-card {
         background: var(--article-post-bg);
         border-color: var(--article-post-border);
-        box-shadow: 0 24px 70px rgba(2, 8, 23, .22);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, .32);
     }
 
-    html[data-blog-theme="engineering-blue"] .article-summary {
-        background: linear-gradient(180deg, #f4f8ff, #eef6ff);
+    html[data-blog-theme="engineering-blue-dark"] .article-summary {
+        background: linear-gradient(180deg, #132238, #101c2d);
         border-color: var(--article-summary-border);
     }
 
-    /* =========================================================
-   Shared code and diagram panels
-   ========================================================= */
-
-    html[data-blog-theme="engineering-blue"] .code-block,
-    html[data-blog-theme="engineering-blue"] .diagram-block,
-    html[data-blog-theme="engineering-blue"] .plantuml-block,
-    html[data-blog-theme="engineering-blue"] .mermaid-block {
-        background: #1F2937;
-        border-color: #26364d;
-        box-shadow: 0 18px 44px rgba(15, 23, 42, .16);
+    html[data-blog-theme="engineering-blue-dark"] .code-block,
+    html[data-blog-theme="engineering-blue-dark"] .diagram-block,
+    html[data-blog-theme="engineering-blue-dark"] .plantuml-block,
+    html[data-blog-theme="engineering-blue-dark"] .mermaid-block {
+        background: var(--diagram-bg-color);
+        border-color: var(--diagram-border);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, .24);
     }
 
-        html[data-blog-theme="engineering-blue"] .snippet-toolbar,
-        html[data-blog-theme="engineering-blue"] .code-block > figcaption,
-        html[data-blog-theme="engineering-blue"] .diagram-block > figcaption {
-            color: #E5E7EB;
-            background: #111827;
-            border-bottom-color: rgba(229, 231, 235, .08);
+        html[data-blog-theme="engineering-blue-dark"] .snippet-toolbar,
+        html[data-blog-theme="engineering-blue-dark"] .code-block > figcaption,
+        html[data-blog-theme="engineering-blue-dark"] .diagram-block > figcaption {
+            color: var(--diagram-header-text);
+            background: var(--diagram-header-bg);
+            border-bottom-color: rgba(229, 240, 255, .08);
         }
 
-        html[data-blog-theme="engineering-blue"] .code-block pre {
-            color: #E5E7EB;
-            background: #1F2937;
+        html[data-blog-theme="engineering-blue-dark"] .code-block pre {
+            color: var(--code-text);
+            background: var(--code-bg);
         }
 
-        /* =========================================================
-   PlantUML diagram styles
-   ========================================================= */
-
-        html[data-blog-theme="engineering-blue"] .plantuml-block details pre,
-        html[data-blog-theme="engineering-blue"] .plantuml-block img,
-        html[data-blog-theme="engineering-blue"] .plantuml-block details {
-            color: #E5E7EB;
-            background: #1F2937;
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block details pre,
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block details {
+            color: var(--diagram-plantuml-node-text);
+            background: var(--diagram-plantuml-bg);
         }
 
-        html[data-blog-theme="engineering-blue"] .plantuml-block img,
-        html[data-blog-theme="engineering-blue"] .plantuml-block details {
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block details {
             font-family: var(--diagram-plantuml-font-family) !important;
         }
 
-        html[data-blog-theme="engineering-blue"] .plantuml-block summary,
-        html[data-blog-theme="engineering-blue"] .plantuml-block .plantuml-source-summary {
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block summary,
+        html[data-blog-theme="engineering-blue-dark"] .plantuml-block .plantuml-source-summary {
             color: var(--diagram-plantuml-node-text);
             font-family: var(--diagram-plantuml-font-family) !important;
         }
 
-        /* =========================================================
-   Mermaid diagram styles
-   ========================================================= */
-
-        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
-            color: #E5E7EB;
-            background: #1F2937;
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .mermaid {
+            color: var(--diagram-mermaid-node-text);
+            background: var(--diagram-mermaid-bg);
         }
 
-        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid,
-        html[data-blog-theme="engineering-blue"] .mermaid-block svg,
-        html[data-blog-theme="engineering-blue"] .mermaid-block text,
-        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
-        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject div,
-        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject span,
-        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject p {
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .mermaid,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block svg,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block foreignObject div,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block foreignObject span,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block foreignObject p {
             font-family: var(--diagram-mermaid-font-family) !important;
         }
 
-        html[data-blog-theme="engineering-blue"] .mermaid-block .node rect,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .node polygon,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .node circle,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .node ellipse {
-            fill: #374151 !important;
-            stroke: #7d8ca3 !important;
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .node rect,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .node polygon,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .node circle,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .node ellipse {
+            fill: var(--diagram-mermaid-node-bg) !important;
+            stroke: var(--diagram-mermaid-node-border) !important;
         }
 
-        html[data-blog-theme="engineering-blue"] .mermaid-block .nodeLabel,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .label,
-        html[data-blog-theme="engineering-blue"] .mermaid-block text,
-        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
-        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject *,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .labelBkg,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel *,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label * {
-            color: #E5E7EB !important;
-            fill: #E5E7EB !important;
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .nodeLabel,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .label,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block foreignObject *,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .labelBkg,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .edgeLabel,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .edgeLabel *,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .cluster-label,
+        html[data-blog-theme="engineering-blue-dark"] .mermaid-block .cluster-label * {
+            color: var(--diagram-mermaid-node-text) !important;
+            fill: var(--diagram-mermaid-node-text) !important;
         }
