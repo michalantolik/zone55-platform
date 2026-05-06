@@ -314,18 +314,26 @@ else
     private static string ApplyPlantUmlTheme(string source)
     {
         const string theme = """
+
 skinparam backgroundColor transparent
-skinparam defaultFontColor #24324A
-skinparam ArrowColor #7C8DA8
+skinparam defaultFontName Inter
+skinparam defaultFontColor #E5E7EB
+skinparam ArrowColor #A7B4C8
+
 skinparam rectangle {
-    BackgroundColor #F8FBFF
-    BorderColor #9FB7D9
-    FontColor #24324A
+    BackgroundColor #374151
+    BorderColor #7D8CA3
+    FontColor #E5E7EB
 }
+
 skinparam actor {
-    BorderColor #7C8DA8
-    FontColor #24324A
+    BorderColor #A7B4C8
+    FontColor #E5E7EB
 }
+
+skinparam shadowing false
+skinparam roundcorner 8
+
 """;
 
         return source.Replace("@startuml", $"@startuml{theme}", StringComparison.OrdinalIgnoreCase);

@@ -1,9 +1,9 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+﻿/* src/BlogPlatform/BlogPlatform.App/wwwroot/css/themes/blog-theme-engineering-blue.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* =========================================================
    Blog Platform Theme: Engineering Blue
-   Convention: css/themes/blog-theme-{theme-id}.css
-   Scope every custom theme with html[data-blog-theme="{theme-id}"].
    ========================================================= */
 
 :root,
@@ -30,32 +30,48 @@ html[data-blog-theme="engineering-blue"] {
     --shadow-soft: 0 18px 44px rgba(0, 0, 0, .24);
     --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
     --shell-width: 1260px;
+    /* Article */
     --article-page-bg: #07111f;
-    --article-post-bg: #fbfdff;
+    --article-post-bg: #fafcfe;
     --article-post-border: #dbe7f5;
     --article-post-title: #081a33;
     --article-post-text: #4a5f7a;
     --article-post-muted: #6d7f98;
-    --article-summary-bg: #edf7ff;
-    --article-summary-border: #cfe8ff;
+    --article-summary-bg: #f1f7ff;
+    --article-summary-border: #d8e8fa;
     --article-summary-text: #234460;
-    --diagram-header-bg: #0b1628;
-    --diagram-header-text: #e7f1ff;
-    --diagram-border: #d9e5f2;
-    --diagram-plantuml-bg: #f8fbff;
-    --diagram-plantuml-inner-bg: #ffffff;
-    --diagram-mermaid-bg: #101a2c;
-    --diagram-mermaid-node-bg: #18243a;
-    --diagram-mermaid-node-border: #7e90ad;
-    --diagram-mermaid-node-text: #d8e7fb;
-    --diagram-mermaid-line: #9fb0ca;
-    --code-bg: #08111f;
-    --code-header-bg: #0d182b;
-    --code-text: #dbeafe;
-    --code-muted: #7f91ad;
-    --code-line-number: #71819b;
+    /* Unified diagram/code surfaces */
+    --diagram-border: #26364d;
+    --diagram-header-bg: #111827;
+    --diagram-header-bg-end: #0b1322;
+    --diagram-header-text: #e5e7eb;
+    --diagram-surface-bg: #1f2937;
+    --diagram-surface-bg-soft: #243044;
+    --diagram-node-bg: #374151;
+    --diagram-node-border: #7d8ca3;
+    --diagram-node-text: #e5e7eb;
+    --diagram-line: #a7b4c8;
+    /* PlantUML */
+    --diagram-plantuml-bg: var(--diagram-surface-bg);
+    --diagram-plantuml-inner-bg: var(--diagram-surface-bg);
+    --diagram-plantuml-node-bg: var(--diagram-node-bg);
+    --diagram-plantuml-node-border: var(--diagram-node-border);
+    --diagram-plantuml-node-text: var(--diagram-node-text);
+    --diagram-plantuml-line: var(--diagram-line);
+    /* Mermaid */
+    --diagram-mermaid-bg: var(--diagram-surface-bg);
+    --diagram-mermaid-node-bg: var(--diagram-node-bg);
+    --diagram-mermaid-node-border: var(--diagram-node-border);
+    --diagram-mermaid-node-text: var(--diagram-node-text);
+    --diagram-mermaid-line: var(--diagram-line);
+    /* Code snippets */
+    --code-bg: var(--diagram-surface-bg);
+    --code-header-bg: var(--diagram-header-bg);
+    --code-text: #e5e7eb;
+    --code-muted: #9ca3af;
+    --code-line-number: #9ca3af;
     --code-line-number-border: rgba(255, 255, 255, .08);
-    --code-copy-bg: rgba(86, 212, 255, .1);
+    --code-copy-bg: rgba(86, 212, 255, .10);
     --code-copy-bg-hover: rgba(86, 212, 255, .18);
     --code-copy-text: #dff7ff;
     --code-copy-border: rgba(86, 212, 255, .28);
