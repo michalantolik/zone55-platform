@@ -1,0 +1,264 @@
+﻿/* src/BlogPlatform/BlogPlatform.App/wwwroot/css/themes/blog-theme-engineering-blue.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================
+   Blog Platform Theme: Engineering Blue
+   ========================================================= */
+
+:root,
+html[data-blog-theme="engineering-blue"] {
+    --font-sans: 'Inter', Arial, sans-serif;
+    /* App shell */
+    --bg-main: #07111f;
+    --bg-deep: #020817;
+    --surface: #f4f7fb;
+    --surface-white: #ffffff;
+    --text-main: #e6edf7;
+    --text-soft: #bfd0e7;
+    --text-muted: #8fa2bd;
+    --text-dark: #0b1f3a;
+    --text-dark-soft: #53657f;
+    --primary: #4ea1ff;
+    --primary-strong: #2f6fd6;
+    --accent: #22c55e;
+    --accent-cyan: #56d4ff;
+    --border: #24344f;
+    --border-light: #dbe4ef;
+    --shadow-soft: 0 18px 44px rgba(0, 0, 0, .24);
+    --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
+    --shell-width: 1260px;
+    /* Main layout / home page */
+    --body-bg-radial: rgba(78, 161, 255, .16);
+    --body-bg-radial-stop: 32%;
+    --body-bg-gradient-start: var(--bg-deep);
+    --body-bg-gradient-end: var(--bg-main);
+    --top-nav-bg: rgba(10, 20, 38, .86);
+    --top-nav-border: rgba(255, 255, 255, .08);
+    --brand-icon-text: #06111f;
+    --brand-icon-bg-start: var(--accent-cyan);
+    --brand-icon-bg-end: #9db7ff;
+    --menu-link-text: #d9e7ff;
+    --menu-link-active-text: #ffffff;
+    --menu-link-active-bg: rgba(78, 161, 255, .15);
+    --menu-link-active-border: rgba(78, 161, 255, .24);
+    --hero-bg-start: #071426;
+    --hero-bg-middle: #11264a;
+    --hero-bg-end: #12223e;
+    --hero-border: rgba(255, 255, 255, .08);
+    --hero-title-text: #ffffff;
+    --hero-text: #d8e6fa;
+    --hero-eyebrow-text: #a7f3ff;
+    --hero-eyebrow-bg: rgba(86, 212, 255, .09);
+    --hero-eyebrow-border: rgba(86, 212, 255, .22);
+    --hero-title-gradient-start: var(--accent-cyan);
+    --hero-title-gradient-middle: var(--primary);
+    --hero-title-gradient-end: #a8b6ff;
+    --tag-text-on-dark: #dff4ff;
+    --tag-bg-on-dark: rgba(255, 255, 255, .06);
+    --tag-border-on-dark: rgba(255, 255, 255, .10);
+    --signal-card-bg: rgba(255, 255, 255, .06);
+    --signal-card-border: rgba(255, 255, 255, .10);
+    --signal-card-title: #ffffff;
+    --signal-card-muted: #9fb4d7;
+    --intro-strip-bg: #091427;
+    --intro-strip-border: rgba(255,255,255,.08);
+    --intro-strip-title: #ffffff;
+    --content-frame-bg: #071228;
+    --content-frame-border: rgba(255, 255, 255, .08);
+    --sidebar-bg: #071228;
+    --sidebar-title: #ffffff;
+    --sidebar-text: #c4d4eb;
+    --category-pill-text: #f4f8ff;
+    --category-pill-bg: rgba(255, 255, 255, .045);
+    --category-pill-border: rgba(255, 255, 255, .08);
+    --category-pill-active-bg: rgba(78, 161, 255, .18);
+    --category-pill-active-border: rgba(78, 161, 255, .35);
+    --category-count-text: #cfe3ff;
+    --category-count-bg: rgba(78, 161, 255, .18);
+    --author-card-bg-start: rgba(78, 161, 255, .18);
+    --author-card-bg-end: rgba(34, 197, 94, .10);
+    --author-card-border: rgba(86, 212, 255, .18);
+    --author-card-small: #d7e7ff;
+    --author-card-title: #ffffff;
+    --posts-area-bg: var(--surface);
+    --section-kicker-text: #607aa7;
+    --browse-link-text: #4b35b8;
+    --post-card-bg: var(--surface-white);
+    --post-card-text: var(--text-dark);
+    --post-card-border: var(--border-light);
+    --post-card-hover-border: rgba(78, 161, 255, .45);
+    --post-card-hover-shadow: 0 18px 34px rgba(15, 23, 42, .12);
+    --badge-text: #28506f;
+    --badge-bg: #eef6ff;
+    --badge-border: #d8e9fb;
+    --badge-primary-text: #075985;
+    --badge-primary-bg: #e0f7ff;
+    --badge-primary-border: #b8edff;
+    --post-title-text: var(--text-dark);
+    --post-title-hover: var(--primary-strong);
+    --post-summary-text: var(--text-dark-soft);
+    --post-tech-text: #075985;
+    --post-tech-bg: #e9f8ff;
+    --post-tech-border: #c6ecfb;
+    --post-footer-border: #edf1f6;
+    --post-footer-text: #697b95;
+    --read-button-text: var(--primary-strong);
+    --pagination-text: #52698d;
+    --pagination-button-bg: #ffffff;
+    --pagination-button-border: #dbe4ef;
+    --pagination-button-text: var(--text-dark);
+    --pagination-button-active-bg: var(--text-dark);
+    --pagination-button-active-text: #ffffff;
+    --pagination-button-active-border: var(--text-dark);
+    --pagination-button-active-shadow: 0 12px 24px rgba(15, 23, 42, .18);
+    --pagination-button-disabled-bg: #f7f9fc;
+    --pagination-button-disabled-text: #9ca9ba;
+    /* Article */
+    --article-post-bg: #FAFCFE;
+    --article-post-border: #dbe7f5;
+    --article-post-title: #081a33;
+    --article-post-text: #4a5f7a;
+    --article-post-muted: #6d7f98;
+    --article-summary-bg: #f1f7ff;
+    --article-summary-border: #d8e8fa;
+    --article-summary-text: #234460;
+    /* Shared diagram panel */
+    --diagram-border: #26364d;
+    --diagram-header-bg: #111827;
+    --diagram-header-text: #E5E7EB;
+    --diagram-font-family: SansSerif, sans-serif, Arial;
+    --diagram-line-color: #a7b4c8;
+    --diagram-node-text-color: #E5E7EB;
+    --diagram-node-border-color: #7d8ca3;
+    --diagram-node-bg-color: #374151;
+    --diagram-bg-color: #1F2937;
+    /* PlantUML diagram */
+    --diagram-plantuml-bg: var(--diagram-bg-color);
+    --diagram-plantuml-inner-bg: var(--diagram-bg-color);
+    --diagram-plantuml-node-bg: var(--diagram-node-bg-color);
+    --diagram-plantuml-node-border: var(--diagram-node-border-color);
+    --diagram-plantuml-node-text: var(--diagram-node-text-color);
+    --diagram-plantuml-line: var(--diagram-line-color);
+    --diagram-plantuml-font-family: var(--diagram-font-family);
+    /* Mermaid diagram */
+    --diagram-mermaid-bg: var(--diagram-bg-color);
+    --diagram-mermaid-node-bg: var(--diagram-node-bg-color);
+    --diagram-mermaid-node-border: var(--diagram-node-border-color);
+    --diagram-mermaid-node-text: var(--diagram-node-text-color);
+    --diagram-mermaid-line: var(--diagram-line-color);
+    --diagram-mermaid-font-family: var(--diagram-font-family);
+    /* Code snippets */
+    --code-bg: #1F2937;
+    --code-text: #E5E7EB;
+    --code-line-number: #9ca3af;
+    --code-line-number-border: rgba(229, 231, 235, .10);
+    --code-copy-bg: rgba(229, 231, 235, .08);
+    --code-copy-bg-hover: rgba(229, 231, 235, .14);
+    --code-copy-text: #E5E7EB;
+    --code-copy-border: rgba(229, 231, 235, .26);
+}
+
+    /* =========================================================
+   Article surface
+   ========================================================= */
+
+    html[data-blog-theme="engineering-blue"] .article-card {
+        background: var(--article-post-bg);
+        border-color: var(--article-post-border);
+        box-shadow: 0 24px 70px rgba(2, 8, 23, .22);
+    }
+
+    html[data-blog-theme="engineering-blue"] .article-summary {
+        background: linear-gradient(180deg, #f4f8ff, #eef6ff);
+        border-color: var(--article-summary-border);
+    }
+
+    /* =========================================================
+   Shared code and diagram panels
+   ========================================================= */
+
+    html[data-blog-theme="engineering-blue"] .code-block,
+    html[data-blog-theme="engineering-blue"] .diagram-block,
+    html[data-blog-theme="engineering-blue"] .plantuml-block,
+    html[data-blog-theme="engineering-blue"] .mermaid-block {
+        background: #1F2937;
+        border-color: #26364d;
+        box-shadow: 0 18px 44px rgba(15, 23, 42, .16);
+    }
+
+        html[data-blog-theme="engineering-blue"] .snippet-toolbar,
+        html[data-blog-theme="engineering-blue"] .code-block > figcaption,
+        html[data-blog-theme="engineering-blue"] .diagram-block > figcaption {
+            color: #E5E7EB;
+            background: #111827;
+            border-bottom-color: rgba(229, 231, 235, .08);
+        }
+
+        html[data-blog-theme="engineering-blue"] .code-block pre {
+            color: #E5E7EB;
+            background: #1F2937;
+        }
+
+        /* =========================================================
+   PlantUML diagram styles
+   ========================================================= */
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block details pre,
+        html[data-blog-theme="engineering-blue"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details {
+            color: #E5E7EB;
+            background: #1F2937;
+        }
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details {
+            font-family: var(--diagram-plantuml-font-family) !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block summary,
+        html[data-blog-theme="engineering-blue"] .plantuml-block .plantuml-source-summary {
+            color: var(--diagram-plantuml-node-text);
+            font-family: var(--diagram-plantuml-font-family) !important;
+        }
+
+        /* =========================================================
+   Mermaid diagram styles
+   ========================================================= */
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
+            color: #E5E7EB;
+            background: #1F2937;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid,
+        html[data-blog-theme="engineering-blue"] .mermaid-block svg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject div,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject span,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject p {
+            font-family: var(--diagram-mermaid-font-family) !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node rect,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node polygon,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node circle,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node ellipse {
+            fill: #374151 !important;
+            stroke: #7d8ca3 !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .nodeLabel,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .label,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject *,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .labelBkg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel *,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label * {
+            color: #E5E7EB !important;
+            fill: #E5E7EB !important;
+        }

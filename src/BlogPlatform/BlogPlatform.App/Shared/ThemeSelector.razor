@@ -14,11 +14,12 @@
 @code {
     private string _selectedTheme = DefaultThemeId;
 
-    private const string DefaultThemeId = "engineering-blue";
+    private const string DefaultThemeId = "engineering-blue-dark";
 
     private static readonly IReadOnlyCollection<BlogThemeOption> Themes =
     [
-        new BlogThemeOption(DefaultThemeId, "Engineering Blue")
+        new BlogThemeOption(DefaultThemeId, "Engineering Blue Dark"),
+        new BlogThemeOption("engineering-blue", "Engineering Blue")
     ];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

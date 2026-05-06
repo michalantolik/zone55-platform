@@ -1,6 +1,6 @@
 ﻿window.blogPlatformTheme = (() => {
     const storageKey = 'blog-platform-theme';
-    const defaultTheme = 'engineering-blue';
+    const defaultTheme = 'engineering-blue-dark';
 
     function applyTheme(themeName) {
         const theme = themeName || defaultTheme;
