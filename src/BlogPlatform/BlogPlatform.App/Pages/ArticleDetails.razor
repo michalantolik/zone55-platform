@@ -4,6 +4,7 @@
 @using System.Text.Encodings.Web
 @using System.Text.Json
 @using Microsoft.JSInterop
+@inject IConfiguration Configuration
 @inject IBlogApiClient BlogApi
 @inject IJSRuntime JS
 
@@ -106,18 +107,22 @@ else
                             <figure class="diagram-block plantuml-block">
                                 <figcaption>PlantUML diagram</figcaption>
                                 <img src="@CreatePlantUmlUrl(block.Diagram, _plantUmlTheme)" alt="PlantUML diagram" />
-                                <details>
-                                    <summary class="plantuml-source-summary">PlantUML source</summary>
-                                    <div class="snippet-toolbar snippet-toolbar-nested">
-                                        <figcaption>context.puml</figcaption>
-                                        <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Diagram)">Copy</button>
-                                    </div>
-                                    <pre><code class="language-plantuml">@foreach (var line in GetCodeLines(block.Diagram))
-                                        {
-                                            <span class="code-line"><span class="line-number">@line.Number</span><span class="line-content">@line.Text</span></span>
-                                        }
-                                    </code></pre>
-                                </details>
+
+                                @if (IsPlantUmlSourceEnabled)
+                                {
+                                    <details>
+                                        <summary class="plantuml-source-summary">PlantUML source</summary>
+                                        <div class="snippet-toolbar snippet-toolbar-nested">
+                                            <figcaption>context.puml</figcaption>
+                                            <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Diagram)">Copy</button>
+                                        </div>
+                                        <pre><code class="language-plantuml">@foreach (var line in GetCodeLines(block.Diagram))
+                                            {
+                                                <span class="code-line"><span class="line-number">@line.Number</span><span class="line-content">@line.Text</span></span>
+                                            }
+                                        </code></pre>
+                                    </details>
+                                }
                             </figure>
                             break;
 
@@ -144,6 +149,9 @@ else
     private bool _shouldLoadDiagramTheme;
     private PlantUmlThemeSettings _plantUmlTheme = PlantUmlThemeSettings.Default;
     private IReadOnlyCollection<ArticleBlock> _blocks = [];
+
+    private bool IsPlantUmlSourceEnabled 
+        => Configuration.GetValue<bool>("Features:ShowPlantUmlSource");
 
     protected override async Task OnParametersSetAsync()
     {
