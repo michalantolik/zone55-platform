@@ -1,0 +1,62 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================
+   Blog Platform Theme: Engineering Blue
+   Convention: css/themes/blog-theme-{theme-id}.css
+   Scope every custom theme with html[data-blog-theme="{theme-id}"].
+   ========================================================= */
+
+:root,
+html[data-blog-theme="engineering-blue"] {
+    --font-sans: 'Inter', Arial, sans-serif;
+    --bg-main: #07111f;
+    --bg-deep: #020817;
+    --bg-panel: #0d1728;
+    --bg-panel-2: #111d32;
+    --bg-soft: #16243d;
+    --surface: #f4f7fb;
+    --surface-white: #ffffff;
+    --text-main: #e6edf7;
+    --text-soft: #bfd0e7;
+    --text-muted: #8fa2bd;
+    --text-dark: #0b1f3a;
+    --text-dark-soft: #53657f;
+    --primary: #4ea1ff;
+    --primary-strong: #2f6fd6;
+    --accent: #22c55e;
+    --accent-cyan: #56d4ff;
+    --border: #24344f;
+    --border-light: #dbe4ef;
+    --shadow-soft: 0 18px 44px rgba(0, 0, 0, .24);
+    --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
+    --shell-width: 1260px;
+    --article-page-bg: #07111f;
+    --article-post-bg: #fbfdff;
+    --article-post-border: #dbe7f5;
+    --article-post-title: #081a33;
+    --article-post-text: #4a5f7a;
+    --article-post-muted: #6d7f98;
+    --article-summary-bg: #edf7ff;
+    --article-summary-border: #cfe8ff;
+    --article-summary-text: #234460;
+    --diagram-header-bg: #0b1628;
+    --diagram-header-text: #e7f1ff;
+    --diagram-border: #d9e5f2;
+    --diagram-plantuml-bg: #f8fbff;
+    --diagram-plantuml-inner-bg: #ffffff;
+    --diagram-mermaid-bg: #101a2c;
+    --diagram-mermaid-node-bg: #18243a;
+    --diagram-mermaid-node-border: #7e90ad;
+    --diagram-mermaid-node-text: #d8e7fb;
+    --diagram-mermaid-line: #9fb0ca;
+    --code-bg: #08111f;
+    --code-header-bg: #0d182b;
+    --code-text: #dbeafe;
+    --code-muted: #7f91ad;
+    --code-line-number: #71819b;
+    --code-line-number-border: rgba(255, 255, 255, .08);
+    --code-copy-bg: rgba(86, 212, 255, .1);
+    --code-copy-bg-hover: rgba(86, 212, 255, .18);
+    --code-copy-text: #dff7ff;
+    --code-copy-border: rgba(86, 212, 255, .28);
+}

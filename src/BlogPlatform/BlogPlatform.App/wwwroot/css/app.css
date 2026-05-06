@@ -1,28 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root {
-    --bg-main: #07111f;
-    --bg-deep: #020817;
-    --bg-panel: #0d1728;
-    --bg-panel-2: #111d32;
-    --bg-soft: #16243d;
-    --surface: #f4f7fb;
-    --surface-white: #ffffff;
-    --text-main: #e6edf7;
-    --text-soft: #bfd0e7;
-    --text-muted: #8fa2bd;
-    --text-dark: #0b1f3a;
-    --text-dark-soft: #53657f;
-    --primary: #4ea1ff;
-    --primary-strong: #2f6fd6;
-    --accent: #22c55e;
-    --accent-cyan: #56d4ff;
-    --border: #24344f;
-    --border-light: #dbe4ef;
-    --shadow-soft: 0 18px 44px rgba(0, 0, 0, .24);
-    --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
-    --shell-width: 1260px;
-}
+/* =========================================================
+   Blog Platform base styles
+   Structural CSS only. Theme values live in separate files:
+   wwwroot/css/themes/blog-theme-*.css
+   ========================================================= */
 
 * {
     box-sizing: border-box;
@@ -38,7 +18,7 @@ html, body {
 
 body {
     margin: 0;
-    font-family: 'Inter', Arial, sans-serif;
+    font-family: var(--font-sans);
     background: radial-gradient(circle at top left, rgba(78, 161, 255, .16), transparent 32%), linear-gradient(180deg, var(--bg-deep), var(--bg-main));
     color: var(--text-main);
     font-size: 16px;
@@ -1116,58 +1096,6 @@ button {
         color: #075985;
     }
 
-/* =========================================================
-   BlogPlatform article theme layer
-   Change these tokens to create a new blog theme.
-   You can also set <html data-blog-theme="forest"> later.
-   ========================================================= */
-:root {
-    --font-sans: 'Inter', Arial, sans-serif;
-    --article-page-bg: #07111f;
-    --article-post-bg: #fbfdff;
-    --article-post-border: #dbe7f5;
-    --article-post-title: #081a33;
-    --article-post-text: #4a5f7a;
-    --article-post-muted: #6d7f98;
-    --article-summary-bg: #edf7ff;
-    --article-summary-border: #cfe8ff;
-    --article-summary-text: #234460;
-    --diagram-header-bg: #0b1628;
-    --diagram-header-text: #e7f1ff;
-    --diagram-border: #d9e5f2;
-    --diagram-plantuml-bg: #f8fbff;
-    --diagram-plantuml-inner-bg: #ffffff;
-    --diagram-mermaid-bg: #101a2c;
-    --diagram-mermaid-node-bg: #18243a;
-    --diagram-mermaid-node-border: #7e90ad;
-    --diagram-mermaid-node-text: #d8e7fb;
-    --diagram-mermaid-line: #9fb0ca;
-    --code-bg: #08111f;
-    --code-header-bg: #0d182b;
-    --code-text: #dbeafe;
-    --code-muted: #7f91ad;
-    --code-line-number: #71819b;
-    --code-line-number-border: rgba(255, 255, 255, .08);
-    --code-copy-bg: rgba(86, 212, 255, .1);
-    --code-copy-bg-hover: rgba(86, 212, 255, .18);
-    --code-copy-text: #dff7ff;
-    --code-copy-border: rgba(86, 212, 255, .28);
-}
-
-html[data-blog-theme="forest"] {
-    --article-page-bg: #07130f;
-    --article-post-bg: #fbfdf9;
-    --article-summary-bg: #eef9f1;
-    --article-summary-border: #ccebd3;
-    --article-summary-text: #234c34;
-    --diagram-plantuml-bg: #f7fbf5;
-    --diagram-mermaid-bg: #0f1d18;
-    --diagram-mermaid-node-bg: #1d3028;
-    --diagram-mermaid-node-border: #88aa96;
-    --diagram-mermaid-node-text: #e2f5e9;
-    --diagram-mermaid-line: #a3c4af;
-}
-
 .article-shell {
     padding: 34px 0 46px;
 }
@@ -1368,4 +1296,40 @@ html[data-blog-theme="forest"] {
     border-color: #b9e6ff;
     background: linear-gradient(180deg, #effaff, #eaf6ff);
     box-shadow: 0 12px 30px rgba(14, 116, 144, .10);
+}
+
+
+.theme-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+}
+
+    .theme-selector label {
+        color: var(--text-muted);
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    .theme-selector select {
+        min-height: 40px;
+        padding: 8px 34px 8px 12px;
+        border-radius: 999px;
+        color: var(--text-main);
+        background: rgba(78, 161, 255, .12);
+        border: 1px solid rgba(78, 161, 255, .28);
+        font-size: .86rem;
+        font-weight: 700;
+    }
+
+        .theme-selector select:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+@media (max-width: 980px) {
+    .theme-selector {
+        margin-left: 0;
+    }
 }

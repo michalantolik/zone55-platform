@@ -1,0 +1,43 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div class="theme-selector">
+    @* <label for="blog-theme-select">Theme</label> *@
+    <select id="blog-theme-select" value="@_selectedTheme" @onchange="OnThemeChangedAsync" aria-label="Select blog theme">
+        @foreach (var theme in Themes)
+        {
+            <option value="@theme.Id">@theme.Name</option>
+        }
+    </select>
+</div>
+
+@code {
+    private string _selectedTheme = DefaultThemeId;
+
+    private const string DefaultThemeId = "engineering-blue";
+
+    private static readonly IReadOnlyCollection<BlogThemeOption> Themes =
+    [
+        new BlogThemeOption(DefaultThemeId, "Engineering Blue")
+    ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _selectedTheme = await JS.InvokeAsync<string>("blogPlatformTheme.getCurrentTheme");
+        StateHasChanged();
+    }
+
+    private async Task OnThemeChangedAsync(ChangeEventArgs args)
+    {
+        _selectedTheme = args.Value?.ToString() ?? DefaultThemeId;
+        await JS.InvokeVoidAsync("blogPlatformTheme.applyTheme", _selectedTheme);
+        await JS.InvokeVoidAsync("blogPlatformArticle.refreshDiagramTheme");
+    }
+
+    private sealed record BlogThemeOption(string Id, string Name);
+}
