@@ -83,8 +83,15 @@ else
 
                         case ArticleBlockType.Code:
                             <figure class="code-block">
-                                <figcaption>@(block.FileName ?? block.Language ?? "code")</figcaption>
-                                <pre><code class="language-@block.Language">@block.Code</code></pre>
+                                <div class="snippet-toolbar">
+                                    <figcaption>@(block.FileName ?? block.Language ?? "code")</figcaption>
+                                    <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Code)">Copy</button>
+                                </div>
+                                <pre><code class="language-@block.Language">@foreach (var line in GetCodeLines(block.Code))
+                                    {
+                                        <span class="code-line"><span class="line-number">@line.Number</span><span class="line-content">@line.Text</span></span>
+                                    }
+                                </code></pre>
                             </figure>
                             break;
 
@@ -101,7 +108,15 @@ else
                                 <img src="@CreatePlantUmlUrl(block.Diagram)" alt="PlantUML diagram" />
                                 <details>
                                     <summary>PlantUML source</summary>
-                                    <pre><code class="language-plantuml">@block.Diagram</code></pre>
+                                    <div class="snippet-toolbar snippet-toolbar-nested">
+                                        <figcaption>context.puml</figcaption>
+                                        <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Diagram)">Copy</button>
+                                    </div>
+                                    <pre><code class="language-plantuml">@foreach (var line in GetCodeLines(block.Diagram))
+                                        {
+                                            <span class="code-line"><span class="line-number">@line.Number</span><span class="line-content">@line.Text</span></span>
+                                        }
+                                    </code></pre>
                                 </details>
                             </figure>
                             break;
@@ -274,6 +289,48 @@ else
         };
     }
 
+    private async Task CopyToClipboardAsync(string? value)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            await JS.InvokeVoidAsync("blogPlatformArticle.copyToClipboard", value);
+        }
+    }
+
+    private static IReadOnlyCollection<CodeLine> GetCodeLines(string? code)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            return [];
+        }
+
+        return code
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .Select((text, index) => new CodeLine(index + 1, text))
+            .ToArray();
+    }
+
+    private static string ApplyPlantUmlTheme(string source)
+    {
+        const string theme = """
+skinparam backgroundColor transparent
+skinparam defaultFontColor #24324A
+skinparam ArrowColor #7C8DA8
+skinparam rectangle {
+    BackgroundColor #F8FBFF
+    BorderColor #9FB7D9
+    FontColor #24324A
+}
+skinparam actor {
+    BorderColor #7C8DA8
+    FontColor #24324A
+}
+""";
+
+        return source.Replace("@startuml", $"@startuml{theme}", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string CreatePlantUmlUrl(string? diagram)
     {
         if (string.IsNullOrWhiteSpace(diagram))
@@ -281,7 +338,7 @@ else
             return string.Empty;
         }
 
-        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(diagram)}";
+        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(ApplyPlantUmlTheme(diagram))}";
     }
 
     private static string EncodePlantUml(string source)
@@ -328,6 +385,8 @@ else
         PlantUml,
         Callout
     }
+
+    private sealed record CodeLine(int Number, string Text);
 
     private sealed class ArticleBlock
     {

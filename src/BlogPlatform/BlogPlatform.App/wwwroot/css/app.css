@@ -1115,3 +1115,257 @@ button {
         margin: 0;
         color: #075985;
     }
+
+/* =========================================================
+   BlogPlatform article theme layer
+   Change these tokens to create a new blog theme.
+   You can also set <html data-blog-theme="forest"> later.
+   ========================================================= */
+:root {
+    --font-sans: 'Inter', Arial, sans-serif;
+    --article-page-bg: #07111f;
+    --article-post-bg: #fbfdff;
+    --article-post-border: #dbe7f5;
+    --article-post-title: #081a33;
+    --article-post-text: #4a5f7a;
+    --article-post-muted: #6d7f98;
+    --article-summary-bg: #edf7ff;
+    --article-summary-border: #cfe8ff;
+    --article-summary-text: #234460;
+    --diagram-header-bg: #0b1628;
+    --diagram-header-text: #e7f1ff;
+    --diagram-border: #d9e5f2;
+    --diagram-plantuml-bg: #f8fbff;
+    --diagram-plantuml-inner-bg: #ffffff;
+    --diagram-mermaid-bg: #101a2c;
+    --diagram-mermaid-node-bg: #18243a;
+    --diagram-mermaid-node-border: #7e90ad;
+    --diagram-mermaid-node-text: #d8e7fb;
+    --diagram-mermaid-line: #9fb0ca;
+    --code-bg: #08111f;
+    --code-header-bg: #0d182b;
+    --code-text: #dbeafe;
+    --code-muted: #7f91ad;
+    --code-line-number: #71819b;
+    --code-line-number-border: rgba(255, 255, 255, .08);
+    --code-copy-bg: rgba(86, 212, 255, .1);
+    --code-copy-bg-hover: rgba(86, 212, 255, .18);
+    --code-copy-text: #dff7ff;
+    --code-copy-border: rgba(86, 212, 255, .28);
+}
+
+html[data-blog-theme="forest"] {
+    --article-page-bg: #07130f;
+    --article-post-bg: #fbfdf9;
+    --article-summary-bg: #eef9f1;
+    --article-summary-border: #ccebd3;
+    --article-summary-text: #234c34;
+    --diagram-plantuml-bg: #f7fbf5;
+    --diagram-mermaid-bg: #0f1d18;
+    --diagram-mermaid-node-bg: #1d3028;
+    --diagram-mermaid-node-border: #88aa96;
+    --diagram-mermaid-node-text: #e2f5e9;
+    --diagram-mermaid-line: #a3c4af;
+}
+
+.article-shell {
+    padding: 34px 0 46px;
+}
+
+.article-card {
+    padding: clamp(28px, 4vw, 48px);
+    border-radius: 30px;
+    color: var(--article-post-title);
+    background: radial-gradient(circle at top right, rgba(78, 161, 255, .09), transparent 34%), linear-gradient(180deg, var(--article-post-bg), #ffffff 72%);
+    border: 1px solid var(--article-post-border);
+    box-shadow: 0 24px 70px rgba(2, 8, 23, .22);
+}
+
+    .article-card h1 {
+        color: var(--article-post-title);
+    }
+
+    .article-card p,
+    .article-card li,
+    .article-body p {
+        color: var(--article-post-text);
+    }
+
+.article-meta {
+    color: var(--article-post-muted);
+}
+
+.article-summary {
+    color: var(--article-summary-text);
+    background: var(--article-summary-bg);
+    border-color: var(--article-summary-border);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+}
+
+.code-block,
+.diagram-block {
+    margin: 30px 0;
+    overflow: hidden;
+    border: 1px solid var(--diagram-border);
+    border-radius: 20px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .10);
+}
+
+    .snippet-toolbar,
+    .code-block > figcaption,
+    .diagram-block > figcaption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 46px;
+        padding: 10px 14px;
+        color: var(--diagram-header-text);
+        background: linear-gradient(180deg, var(--diagram-header-bg), #081326);
+        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        font-size: .85rem;
+        font-weight: 800;
+    }
+
+        .snippet-toolbar figcaption {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+.snippet-toolbar-nested {
+    margin-top: 16px;
+    border-radius: 14px 14px 0 0;
+}
+
+.copy-button {
+    padding: 7px 11px;
+    border-radius: 999px;
+    color: var(--code-copy-text);
+    background: var(--code-copy-bg);
+    border: 1px solid var(--code-copy-border);
+    cursor: pointer;
+    font-size: .78rem;
+    font-weight: 800;
+    transition: background .16s ease, transform .16s ease, border-color .16s ease;
+}
+
+    .copy-button:hover {
+        background: var(--code-copy-bg-hover);
+        transform: translateY(-1px);
+    }
+
+.code-block {
+    background: var(--code-bg);
+}
+
+    .code-block pre,
+    .plantuml-block details pre {
+        margin: 0;
+        padding: 0;
+        overflow-x: auto;
+        color: var(--code-text);
+        background: var(--code-bg);
+        font-size: .92rem;
+        line-height: 1.65;
+    }
+
+    .code-block code,
+    .plantuml-block details code {
+        display: table;
+        min-width: 100%;
+        padding: 14px 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    }
+
+.code-line {
+    display: table-row;
+}
+
+.line-number,
+.line-content {
+    display: table-cell;
+    white-space: pre;
+}
+
+.line-number {
+    width: 1%;
+    padding: 0 14px;
+    color: var(--code-line-number);
+    border-right: 1px solid var(--code-line-number-border);
+    text-align: right;
+    user-select: none;
+}
+
+.line-content {
+    padding: 0 18px;
+}
+
+.plantuml-block {
+    background: var(--diagram-plantuml-bg);
+}
+
+    .plantuml-block img {
+        display: block;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: clamp(28px, 5vw, 52px);
+        background: var(--diagram-plantuml-inner-bg);
+    }
+
+    .plantuml-block details {
+        padding: 0 18px 18px;
+        color: var(--article-post-title);
+        background: var(--diagram-plantuml-bg);
+    }
+
+    .plantuml-block summary {
+        padding: 16px 0 0;
+        cursor: pointer;
+        color: var(--article-post-title);
+        font-weight: 800;
+    }
+
+.mermaid-block {
+    background: var(--diagram-mermaid-bg);
+}
+
+    .mermaid-block .mermaid {
+        display: flex;
+        justify-content: center;
+        min-height: 360px;
+        padding: clamp(28px, 5vw, 56px);
+        background: radial-gradient(circle at top, rgba(86, 212, 255, .08), transparent 36%), var(--diagram-mermaid-bg);
+    }
+
+    .mermaid-block svg {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .mermaid-block .node rect,
+    .mermaid-block .node polygon,
+    .mermaid-block .node circle,
+    .mermaid-block .node ellipse {
+        fill: var(--diagram-mermaid-node-bg) !important;
+        stroke: var(--diagram-mermaid-node-border) !important;
+        stroke-width: 1.5px !important;
+    }
+
+    .mermaid-block .nodeLabel,
+    .mermaid-block .label,
+    .mermaid-block text {
+        color: var(--diagram-mermaid-node-text) !important;
+        fill: var(--diagram-mermaid-node-text) !important;
+    }
+
+    .mermaid-block .edgePath .path,
+    .mermaid-block .flowchart-link {
+        stroke: var(--diagram-mermaid-line) !important;
+    }
+
+.callout {
+    border-color: #b9e6ff;
+    background: linear-gradient(180deg, #effaff, #eaf6ff);
+    box-shadow: 0 12px 30px rgba(14, 116, 144, .10);
+}

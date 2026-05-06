@@ -47,12 +47,39 @@
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 
-        mermaid.initialize({
-            startOnLoad: false,
-            theme: 'dark'
-        });
+        const getThemeValue = (name) =>
+            getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+        const initializeMermaid = () => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'base',
+                securityLevel: 'loose',
+                flowchart: {
+                    htmlLabels: true,
+                    curve: 'basis'
+                },
+                themeVariables: {
+                    background: getThemeValue('--diagram-mermaid-bg'),
+                    mainBkg: getThemeValue('--diagram-mermaid-node-bg'),
+                    secondBkg: getThemeValue('--diagram-mermaid-node-bg'),
+                    primaryColor: getThemeValue('--diagram-mermaid-node-bg'),
+                    primaryBorderColor: getThemeValue('--diagram-mermaid-node-border'),
+                    primaryTextColor: getThemeValue('--diagram-mermaid-node-text'),
+                    lineColor: getThemeValue('--diagram-mermaid-line'),
+                    arrowheadColor: getThemeValue('--diagram-mermaid-line'),
+                    fontFamily: getThemeValue('--font-sans')
+                }
+            });
+        };
+
+        initializeMermaid();
 
         window.blogPlatformArticle = {
+            copyToClipboard: async (text) => {
+                await navigator.clipboard.writeText(text);
+            },
+
             renderDiagrams: async () => {
                 const diagrams = document.querySelectorAll('.mermaid');
 
