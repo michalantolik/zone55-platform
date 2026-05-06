@@ -41,7 +41,7 @@ html[data-blog-theme="engineering-blue"] {
     --diagram-border: #26364d;
     --diagram-header-bg: #111827;
     --diagram-header-text: #E5E7EB;
-    --diagram-font-family: SansSerif;
+    --diagram-font-family: SansSerif, sans-serif, Arial;
     --diagram-line-color: #a7b4c8;
     --diagram-node-text-color: #E5E7EB;
     --diagram-node-border-color: #7d8ca3;
@@ -61,7 +61,7 @@ html[data-blog-theme="engineering-blue"] {
     --diagram-mermaid-node-border: var(--diagram-node-border-color);
     --diagram-mermaid-node-text: var(--diagram-node-text-color);
     --diagram-mermaid-line: var(--diagram-line-color);
-    --diagram-mermaid-font-family: var(--diagram-font-family), sans-serif;
+    --diagram-mermaid-font-family: var(--diagram-font-family);
     /* Code snippets */
     --code-bg: #1F2937;
     --code-text: #E5E7EB;
@@ -130,8 +130,10 @@ html[data-blog-theme="engineering-blue"] {
             font-family: var(--diagram-plantuml-font-family) !important;
         }
 
-        html[data-blog-theme="engineering-blue"] .plantuml-block summary {
-            color: #E5E7EB;
+        html[data-blog-theme="engineering-blue"] .plantuml-block summary,
+        html[data-blog-theme="engineering-blue"] .plantuml-block .plantuml-source-summary {
+            color: var(--diagram-plantuml-node-text);
+            font-family: var(--diagram-plantuml-font-family) !important;
         }
 
         /* =========================================================

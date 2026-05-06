@@ -967,11 +967,6 @@ button {
         color: var(--text-dark);
     }
 
-    .plantuml-block summary {
-        cursor: pointer;
-        font-weight: 800;
-    }
-
 .callout {
     margin: 28px 0;
     padding: 18px 20px;
@@ -1067,11 +1062,6 @@ button {
     .plantuml-block details {
         padding: 0 18px 18px;
         color: var(--text-dark);
-    }
-
-    .plantuml-block summary {
-        cursor: pointer;
-        font-weight: 800;
     }
 
 .callout {
@@ -1247,10 +1237,12 @@ button {
         background: var(--diagram-plantuml-bg);
     }
 
-    .plantuml-block summary {
+    .plantuml-block summary,
+    .plantuml-block .plantuml-source-summary {
         padding: 16px 0 0;
         cursor: pointer;
-        color: var(--article-post-title);
+        color: var(--diagram-plantuml-node-text);
+        font-family: var(--diagram-plantuml-font-family);
         font-weight: 800;
     }
 

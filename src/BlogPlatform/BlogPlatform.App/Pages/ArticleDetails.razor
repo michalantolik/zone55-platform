@@ -107,7 +107,7 @@ else
                                 <figcaption>PlantUML diagram</figcaption>
                                 <img src="@CreatePlantUmlUrl(block.Diagram, _plantUmlTheme)" alt="PlantUML diagram" />
                                 <details>
-                                    <summary>PlantUML source</summary>
+                                    <summary class="plantuml-source-summary">PlantUML source</summary>
                                     <div class="snippet-toolbar snippet-toolbar-nested">
                                         <figcaption>context.puml</figcaption>
                                         <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Diagram)">Copy</button>
