@@ -10,6 +10,16 @@ namespace BlogPlatform.Api.Controllers;
 [EnableRateLimiting("ClientLogs")]
 public sealed class ClientLogsController : ControllerBase
 {
+    private static readonly HashSet<string> AllowedLevels =
+    [
+        "TRACE",
+        "DEBUG",
+        "INFORMATION",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+    ];
+
     private readonly ILogger<ClientLogsController> _logger;
     private readonly ClientLoggingOptions _options;
 
@@ -35,18 +45,14 @@ public sealed class ClientLogsController : ControllerBase
             return BadRequest("Log message is required.");
         }
 
-        var safeMessage = log.Message.Trim();
-
-        if (safeMessage.Length > _options.MaxMessageLength)
-        {
-            safeMessage = safeMessage[.._options.MaxMessageLength] + " [truncated]";
-        }
+        var safeMessage = NormalizeMessage(log.Message, _options.MaxMessageLength);
+        var level = NormalizeLevel(log.Level);
 
         using (LogContext.PushProperty("App", "APP"))
         {
             const string messageTemplate = "APP client log: {Message}";
 
-            switch (log.Level?.ToUpperInvariant())
+            switch (level)
             {
                 case "TRACE":
                     _logger.LogTrace(messageTemplate, safeMessage);
@@ -75,6 +81,35 @@ public sealed class ClientLogsController : ControllerBase
         }
 
         return Accepted();
+    }
+
+    private static string NormalizeMessage(string message, int maxLength)
+    {
+        var safeMessage = message
+            .Trim()
+            .Replace("\r", " ")
+            .Replace("\n", " ");
+
+        if (safeMessage.Length > maxLength)
+        {
+            safeMessage = safeMessage[..maxLength] + " [truncated]";
+        }
+
+        return safeMessage;
+    }
+
+    private static string NormalizeLevel(string? level)
+    {
+        var normalizedLevel = level?.Trim().ToUpperInvariant();
+
+        if (string.IsNullOrWhiteSpace(normalizedLevel))
+        {
+            return "INFORMATION";
+        }
+
+        return AllowedLevels.Contains(normalizedLevel)
+            ? normalizedLevel
+            : "INFORMATION";
     }
 }
 

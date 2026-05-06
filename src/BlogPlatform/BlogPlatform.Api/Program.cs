@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using BlogPlatform.Api.Controllers;
 using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
@@ -31,6 +32,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<ClientLoggingOptions>(
+    builder.Configuration.GetSection("ClientLogging"));
+
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddRateLimiter(options =>
@@ -62,7 +66,7 @@ builder.Services.AddCors(options =>
 
         if (allowedOrigins.Length == 0)
         {
-            policy.AllowAnyHeader().AllowAnyMethod();
+            Log.Warning("No CORS origins configured. Browser cross-origin requests will be blocked.");
             return;
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Http.Json;
 using BlogPlatform.App.Models;
 
@@ -11,9 +12,9 @@ public sealed class BlogApiClient : IBlogApiClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<BlogApiClient> _logger;
 
-    private readonly Dictionary<string, HomeCacheEntry> _homeCache = [];
-    private readonly Dictionary<string, Task<BlogHomeContent>> _homeRequests = [];
-    private readonly Dictionary<string, PostDetailsCacheEntry> _postDetailsCache = [];
+    private readonly ConcurrentDictionary<string, HomeCacheEntry> _homeCache = [];
+    private readonly ConcurrentDictionary<string, Lazy<Task<BlogHomeContent>>> _homeRequests = [];
+    private readonly ConcurrentDictionary<string, PostDetailsCacheEntry> _postDetailsCache = [];
 
     public BlogApiClient(
         HttpClient httpClient,
@@ -35,21 +36,18 @@ public sealed class BlogApiClient : IBlogApiClient
             return cachedHome.Content;
         }
 
-        if (_homeRequests.TryGetValue(cacheKey, out var existingRequest))
-        {
-            return await existingRequest;
-        }
-
-        var request = LoadHomeContentAsync(categorySlug, cacheKey, cancellationToken);
-        _homeRequests[cacheKey] = request;
+        var request = _homeRequests.GetOrAdd(
+            cacheKey,
+            _ => new Lazy<Task<BlogHomeContent>>(
+                () => LoadHomeContentAsync(categorySlug, cacheKey, cancellationToken)));
 
         try
         {
-            return await request;
+            return await request.Value;
         }
         finally
         {
-            _homeRequests.Remove(cacheKey);
+            _homeRequests.TryRemove(cacheKey, out _);
         }
     }
 
@@ -99,6 +97,15 @@ public sealed class BlogApiClient : IBlogApiClient
                 DateTimeOffset.UtcNow.Add(CacheDuration));
 
             return post;
+        }
+        catch (Exception ex) when (_postDetailsCache.TryGetValue(cacheKey, out var stalePost))
+        {
+            _logger.LogWarning(
+                ex,
+                "APP failed to refresh post details from API. Returning cached post. Url: {Url}",
+                url);
+
+            return stalePost.Post;
         }
         catch (Exception ex)
         {
