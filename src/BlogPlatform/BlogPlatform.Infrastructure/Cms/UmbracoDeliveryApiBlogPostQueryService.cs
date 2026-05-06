@@ -90,88 +90,107 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
     private async Task<List<PostDetailsDto>> LoadPostDetailsAsync(
         CancellationToken cancellationToken)
     {
-        if (_cache.TryGetValue(PostsCacheKey, out List<PostDetailsDto>? cachedPosts) &&
-            cachedPosts is not null)
-        {
-            _logger.LogDebug("API CMS posts cache hit. Count: {Count}", cachedPosts.Count);
+        var now = DateTimeOffset.UtcNow;
 
-            return cachedPosts;
+        if (_cache.TryGetValue(PostsCacheKey, out PostsCacheEntry? cachedEntry) &&
+            cachedEntry is not null &&
+            cachedEntry.FreshUntil > now)
+        {
+            _logger.LogDebug("API CMS posts fresh cache hit. Count: {Count}", cachedEntry.Posts.Count);
+
+            return cachedEntry.Posts;
         }
 
         await PostsLoadLock.WaitAsync(cancellationToken);
 
         try
         {
-            if (_cache.TryGetValue(PostsCacheKey, out cachedPosts) &&
-                cachedPosts is not null)
+            now = DateTimeOffset.UtcNow;
+
+            if (_cache.TryGetValue(PostsCacheKey, out cachedEntry) &&
+                cachedEntry is not null &&
+                cachedEntry.FreshUntil > now)
             {
                 _logger.LogDebug(
-                    "API CMS posts cache hit after wait. Count: {Count}",
-                    cachedPosts.Count);
+                    "API CMS posts fresh cache hit after wait. Count: {Count}",
+                    cachedEntry.Posts.Count);
 
-                return cachedPosts;
+                return cachedEntry.Posts;
             }
 
             var stopwatch = Stopwatch.StartNew();
 
             _logger.LogInformation(
-                "API CMS posts cache miss. Calling CMS. Base address: {BaseAddress}. Endpoint: {Endpoint}",
+                "API CMS posts cache miss or stale cache. Calling CMS. Base address: {BaseAddress}. Endpoint: {Endpoint}",
                 _httpClient.BaseAddress,
                 _options.PostsEndpoint);
 
-            using var response = await _httpClient.GetAsync(
-                _options.PostsEndpoint,
-                HttpCompletionOption.ResponseHeadersRead,
-                cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                var posts = await FetchPostsFromCmsAsync(stopwatch, cancellationToken);
 
-                _logger.LogError(
-                    "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
-                    response.StatusCode,
-                    stopwatch.ElapsedMilliseconds,
-                    responseBody);
+                var freshCacheDuration = TimeSpan.FromSeconds(_options.FreshCacheSeconds);
+                var staleCacheDuration = TimeSpan.FromSeconds(_options.StaleCacheSeconds);
 
-                response.EnsureSuccessStatusCode();
+                _cache.Set(
+                    PostsCacheKey,
+                    new PostsCacheEntry(posts, DateTimeOffset.UtcNow.Add(freshCacheDuration)),
+                    new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = staleCacheDuration,
+                        Priority = CacheItemPriority.High
+                    });
+
+                _logger.LogInformation(
+                    "API received CMS posts. Count: {Count}. Duration: {ElapsedMs} ms",
+                    posts.Count,
+                    stopwatch.ElapsedMilliseconds);
+
+                return posts;
             }
+            catch (Exception ex) when (cachedEntry is not null)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "API failed to refresh CMS posts. Returning stale cache. Count: {Count}",
+                    cachedEntry.Posts.Count);
 
-            var posts = await response.Content.ReadFromJsonAsync<List<PostDetailsDto>>(
-                cancellationToken: cancellationToken) ?? [];
-
-            stopwatch.Stop();
-
-            _cache.Set(
-                PostsCacheKey,
-                posts,
-                new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
-                    SlidingExpiration = TimeSpan.FromMinutes(3),
-                    Priority = CacheItemPriority.High
-                });
-
-            _logger.LogInformation(
-                "API received CMS posts. Count: {Count}. Duration: {ElapsedMs} ms",
-                posts.Count,
-                stopwatch.ElapsedMilliseconds);
-
-            return posts;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "API failed while calling CMS content endpoint. Base address: {BaseAddress}. Endpoint: {Endpoint}",
-                _httpClient.BaseAddress,
-                _options.PostsEndpoint);
-
-            throw;
+                return cachedEntry.Posts;
+            }
         }
         finally
         {
             PostsLoadLock.Release();
         }
     }
+
+    private async Task<List<PostDetailsDto>> FetchPostsFromCmsAsync(
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        using var response = await _httpClient.GetAsync(
+            _options.PostsEndpoint,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            _logger.LogError(
+                "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
+                response.StatusCode,
+                stopwatch.ElapsedMilliseconds,
+                responseBody);
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        return await response.Content.ReadFromJsonAsync<List<PostDetailsDto>>(
+            cancellationToken: cancellationToken) ?? [];
+    }
+
+    private sealed record PostsCacheEntry(
+        List<PostDetailsDto> Posts,
+        DateTimeOffset FreshUntil);
 }

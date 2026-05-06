@@ -6,6 +6,11 @@ public sealed class UmbracoDeliveryApiOptions
 
     public string BaseUrl { get; set; } = string.Empty;
 
-    public string PostsEndpoint { get; set; } =
-        "umbraco/delivery/api/v2/content?filter=contentType:blogArticle";
+    public string PostsEndpoint { get; set; } = "api/blog-content/articles";
+
+    public int FreshCacheSeconds { get; set; } = 600;
+
+    public int StaleCacheSeconds { get; set; } = 3600;
+
+    public int TimeoutSeconds { get; set; } = 10;
 }

@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
@@ -32,16 +33,41 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("ClientLogs", httpContext =>
+    {
+        var partitionKey = httpContext.Connection.RemoteIpAddress?.ToString()
+            ?? "unknown-client";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey,
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("BlazorApp", policy =>
     {
+        var allowedOrigins = builder.Configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>() ?? [];
+
+        if (allowedOrigins.Length == 0)
+        {
+            policy.AllowAnyHeader().AllowAnyMethod();
+            return;
+        }
+
         policy
-            .WithOrigins(
-                "https://localhost:7252",
-                "http://localhost:5016",
-                "https://localhost:7180",
-                "http://localhost:5179")
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -64,6 +90,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("BlazorApp");
+
+app.UseRateLimiter();
 
 app.UseAuthorization();
 

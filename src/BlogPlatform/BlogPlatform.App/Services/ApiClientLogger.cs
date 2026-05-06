@@ -4,6 +4,8 @@ namespace BlogPlatform.App.Services;
 
 public sealed class ApiClientLogger : ILogger
 {
+    private const int MaxMessageLength = 2000;
+
     private readonly HttpClient _httpClient;
     private readonly string _categoryName;
 
@@ -57,7 +59,12 @@ public sealed class ApiClientLogger : ILogger
         {
             var fullMessage = exception is null
                 ? $"[{_categoryName}] {message}"
-                : $"[{_categoryName}] {message}. Exception: {exception}";
+                : $"[{_categoryName}] {message}. Exception: {exception.GetType().Name}: {exception.Message}";
+
+            if (fullMessage.Length > MaxMessageLength)
+            {
+                fullMessage = fullMessage[..MaxMessageLength] + " [truncated]";
+            }
 
             await _httpClient.PostAsJsonAsync(
                 "api/client-logs",
@@ -65,6 +72,7 @@ public sealed class ApiClientLogger : ILogger
         }
         catch
         {
+            // Never allow browser-side logging failures to break the app.
         }
     }
 }

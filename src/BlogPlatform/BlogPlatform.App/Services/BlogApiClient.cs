@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using BlogPlatform.App.Models;
 
 namespace BlogPlatform.App.Services;
@@ -77,9 +78,21 @@ public sealed class BlogApiClient : IBlogApiClient
 
         try
         {
-            var post = await _httpClient.GetFromJsonAsync<PostDetails>(
-                url,
-                cancellationToken);
+            using var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                _postDetailsCache[cacheKey] = new PostDetailsCacheEntry(
+                    null,
+                    DateTimeOffset.UtcNow.Add(CacheDuration));
+
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var post = await response.Content.ReadFromJsonAsync<PostDetails>(
+                cancellationToken: cancellationToken);
 
             _postDetailsCache[cacheKey] = new PostDetailsCacheEntry(
                 post,
@@ -122,6 +135,15 @@ public sealed class BlogApiClient : IBlogApiClient
                 DateTimeOffset.UtcNow.Add(CacheDuration));
 
             return content;
+        }
+        catch (Exception ex) when (_homeCache.TryGetValue(cacheKey, out var staleHome))
+        {
+            _logger.LogWarning(
+                ex,
+                "APP failed to refresh home content from API. Returning cached content. Url: {Url}",
+                url);
+
+            return staleHome.Content;
         }
         catch (Exception ex)
         {
