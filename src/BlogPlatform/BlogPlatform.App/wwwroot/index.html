@@ -70,7 +70,7 @@
                     primaryTextColor: getThemeValue('--diagram-mermaid-node-text'),
                     lineColor: getThemeValue('--diagram-mermaid-line'),
                     arrowheadColor: getThemeValue('--diagram-mermaid-line'),
-                    fontFamily: getThemeValue('--font-sans')
+                    fontFamily: getThemeValue('--diagram-font-family')
                 }
             });
         };
@@ -78,6 +78,8 @@
         initializeMermaid();
 
         window.blogPlatformArticle = {
+            getThemeValue,
+
             refreshDiagramTheme: async () => {
                 initializeMermaid();
                 await window.blogPlatformArticle.renderDiagrams();

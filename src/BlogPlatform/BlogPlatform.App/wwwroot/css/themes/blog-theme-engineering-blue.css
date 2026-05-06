@@ -60,6 +60,7 @@ html[data-blog-theme="engineering-blue"] {
     --diagram-node-border: #7d8ca3;
     --diagram-node-text: #E5E7EB;
     --diagram-line: #a7b4c8;
+    --diagram-font-family: SansSerif;
     /* PlantUML */
     --diagram-plantuml-bg: #1F2937;
     --diagram-plantuml-inner-bg: #1F2937;
@@ -67,12 +68,14 @@ html[data-blog-theme="engineering-blue"] {
     --diagram-plantuml-node-border: #7d8ca3;
     --diagram-plantuml-node-text: #E5E7EB;
     --diagram-plantuml-line: #a7b4c8;
+    --diagram-plantuml-font-family: var(--diagram-font-family);
     /* Mermaid */
     --diagram-mermaid-bg: #1F2937;
     --diagram-mermaid-node-bg: #374151;
     --diagram-mermaid-node-border: #7d8ca3;
     --diagram-mermaid-node-text: #E5E7EB;
     --diagram-mermaid-line: #a7b4c8;
+    --diagram-mermaid-font-family: var(--diagram-font-family);
     /* Code snippets */
     --code-bg: #1F2937;
     --code-header-bg: #111827;
@@ -123,6 +126,14 @@ html[data-blog-theme="engineering-blue"] {
         html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
             color: #E5E7EB;
             background: #1F2937;
+        }
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid,
+        html[data-blog-theme="engineering-blue"] .mermaid-block svg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text {
+            font-family: var(--diagram-font-family) !important;
         }
 
         html[data-blog-theme="engineering-blue"] .plantuml-block summary {

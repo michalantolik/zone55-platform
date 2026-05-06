@@ -105,7 +105,7 @@ else
                         case ArticleBlockType.PlantUml:
                             <figure class="diagram-block plantuml-block">
                                 <figcaption>PlantUML diagram</figcaption>
-                                <img src="@CreatePlantUmlUrl(block.Diagram)" alt="PlantUML diagram" />
+                                <img src="@CreatePlantUmlUrl(block.Diagram, _plantUmlTheme)" alt="PlantUML diagram" />
                                 <details>
                                     <summary>PlantUML source</summary>
                                     <div class="snippet-toolbar snippet-toolbar-nested">
@@ -141,6 +141,8 @@ else
     private PostDetails? _article;
     private bool _isLoading = true;
     private bool _shouldRenderDiagrams;
+    private bool _shouldLoadDiagramTheme;
+    private PlantUmlThemeSettings _plantUmlTheme = PlantUmlThemeSettings.Default;
     private IReadOnlyCollection<ArticleBlock> _blocks = [];
 
     protected override async Task OnParametersSetAsync()
@@ -151,11 +153,26 @@ else
         _blocks = ParseBlocks(_article?.BodyHtml);
 
         _isLoading = false;
+        _shouldLoadDiagramTheme = true;
         _shouldRenderDiagrams = true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (_shouldLoadDiagramTheme)
+        {
+            _shouldLoadDiagramTheme = false;
+
+            var updatedTheme = await LoadPlantUmlThemeSettingsAsync();
+
+            if (updatedTheme != _plantUmlTheme)
+            {
+                _plantUmlTheme = updatedTheme;
+                StateHasChanged();
+                return;
+            }
+        }
+
         if (_shouldRenderDiagrams)
         {
             _shouldRenderDiagrams = false;
@@ -311,24 +328,49 @@ else
             .ToArray();
     }
 
-    private static string ApplyPlantUmlTheme(string source)
+    private async Task<PlantUmlThemeSettings> LoadPlantUmlThemeSettingsAsync()
     {
-        const string theme = """
+        var fontFamily = await GetThemeValueAsync("--diagram-font-family", PlantUmlThemeSettings.Default.FontFamily);
+        var textColor = await GetThemeValueAsync("--diagram-plantuml-node-text", PlantUmlThemeSettings.Default.TextColor);
+        var arrowColor = await GetThemeValueAsync("--diagram-plantuml-line", PlantUmlThemeSettings.Default.ArrowColor);
+        var nodeBackground = await GetThemeValueAsync("--diagram-plantuml-node-bg", PlantUmlThemeSettings.Default.NodeBackground);
+        var nodeBorder = await GetThemeValueAsync("--diagram-plantuml-node-border", PlantUmlThemeSettings.Default.NodeBorder);
+
+        return new PlantUmlThemeSettings(
+            fontFamily,
+            textColor,
+            arrowColor,
+            nodeBackground,
+            nodeBorder);
+    }
+
+    private async Task<string> GetThemeValueAsync(string cssVariableName, string fallback)
+    {
+        var value = await JS.InvokeAsync<string>("blogPlatformArticle.getThemeValue", cssVariableName);
+
+        return string.IsNullOrWhiteSpace(value)
+            ? fallback
+            : value;
+    }
+
+    private static string ApplyPlantUmlTheme(string source, PlantUmlThemeSettings themeSettings)
+    {
+        var theme = $$"""
 
 skinparam backgroundColor transparent
-skinparam defaultFontName Inter
-skinparam defaultFontColor #E5E7EB
-skinparam ArrowColor #A7B4C8
+skinparam defaultFontName {{themeSettings.FontFamily}}
+skinparam defaultFontColor {{themeSettings.TextColor}}
+skinparam ArrowColor {{themeSettings.ArrowColor}}
 
 skinparam rectangle {
-    BackgroundColor #374151
-    BorderColor #7D8CA3
-    FontColor #E5E7EB
+    BackgroundColor {{themeSettings.NodeBackground}}
+    BorderColor {{themeSettings.NodeBorder}}
+    FontColor {{themeSettings.TextColor}}
 }
 
 skinparam actor {
-    BorderColor #A7B4C8
-    FontColor #E5E7EB
+    BorderColor {{themeSettings.ArrowColor}}
+    FontColor {{themeSettings.TextColor}}
 }
 
 skinparam shadowing false
@@ -339,14 +381,14 @@ skinparam roundcorner 8
         return source.Replace("@startuml", $"@startuml{theme}", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string CreatePlantUmlUrl(string? diagram)
+    private static string CreatePlantUmlUrl(string? diagram, PlantUmlThemeSettings themeSettings)
     {
         if (string.IsNullOrWhiteSpace(diagram))
         {
             return string.Empty;
         }
 
-        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(ApplyPlantUmlTheme(diagram))}";
+        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(ApplyPlantUmlTheme(diagram, themeSettings))}";
     }
 
     private static string EncodePlantUml(string source)
@@ -395,6 +437,21 @@ skinparam roundcorner 8
     }
 
     private sealed record CodeLine(int Number, string Text);
+
+    private sealed record PlantUmlThemeSettings(
+        string FontFamily,
+        string TextColor,
+        string ArrowColor,
+        string NodeBackground,
+        string NodeBorder)
+    {
+        public static PlantUmlThemeSettings Default { get; } = new(
+            "SansSerif",
+            "#E5E7EB",
+            "#A7B4C8",
+            "#374151",
+            "#7D8CA3");
+    }
 
     private sealed class ArticleBlock
     {
