@@ -4,11 +4,20 @@
 
 /* =========================================================
    Blog Platform Theme: Engineering Blue
+
+   Reference screenshot color system:
+   1. Main post background:          #FAFCFE
+   2. Diagram background:            #1F2937
+   3. Diagram header background:     #111827
+   4. Diagram block background:      #374151
+   5. Diagram block text:            #E5E7EB
+   6. Code snippet background:       #1F2937
    ========================================================= */
 
 :root,
 html[data-blog-theme="engineering-blue"] {
     --font-sans: 'Inter', Arial, sans-serif;
+    /* App shell */
     --bg-main: #07111f;
     --bg-deep: #020817;
     --bg-panel: #0d1728;
@@ -32,7 +41,7 @@ html[data-blog-theme="engineering-blue"] {
     --shell-width: 1260px;
     /* Article */
     --article-page-bg: #07111f;
-    --article-post-bg: #fafcfe;
+    --article-post-bg: #FAFCFE;
     --article-post-border: #dbe7f5;
     --article-post-title: #081a33;
     --article-post-text: #4a5f7a;
@@ -43,36 +52,94 @@ html[data-blog-theme="engineering-blue"] {
     /* Unified diagram/code surfaces */
     --diagram-border: #26364d;
     --diagram-header-bg: #111827;
-    --diagram-header-bg-end: #0b1322;
-    --diagram-header-text: #e5e7eb;
-    --diagram-surface-bg: #1f2937;
-    --diagram-surface-bg-soft: #243044;
+    --diagram-header-bg-end: #111827;
+    --diagram-header-text: #E5E7EB;
+    --diagram-surface-bg: #1F2937;
+    --diagram-surface-bg-soft: #1F2937;
     --diagram-node-bg: #374151;
     --diagram-node-border: #7d8ca3;
-    --diagram-node-text: #e5e7eb;
+    --diagram-node-text: #E5E7EB;
     --diagram-line: #a7b4c8;
     /* PlantUML */
-    --diagram-plantuml-bg: var(--diagram-surface-bg);
-    --diagram-plantuml-inner-bg: var(--diagram-surface-bg);
-    --diagram-plantuml-node-bg: var(--diagram-node-bg);
-    --diagram-plantuml-node-border: var(--diagram-node-border);
-    --diagram-plantuml-node-text: var(--diagram-node-text);
-    --diagram-plantuml-line: var(--diagram-line);
+    --diagram-plantuml-bg: #1F2937;
+    --diagram-plantuml-inner-bg: #1F2937;
+    --diagram-plantuml-node-bg: #374151;
+    --diagram-plantuml-node-border: #7d8ca3;
+    --diagram-plantuml-node-text: #E5E7EB;
+    --diagram-plantuml-line: #a7b4c8;
     /* Mermaid */
-    --diagram-mermaid-bg: var(--diagram-surface-bg);
-    --diagram-mermaid-node-bg: var(--diagram-node-bg);
-    --diagram-mermaid-node-border: var(--diagram-node-border);
-    --diagram-mermaid-node-text: var(--diagram-node-text);
-    --diagram-mermaid-line: var(--diagram-line);
+    --diagram-mermaid-bg: #1F2937;
+    --diagram-mermaid-node-bg: #374151;
+    --diagram-mermaid-node-border: #7d8ca3;
+    --diagram-mermaid-node-text: #E5E7EB;
+    --diagram-mermaid-line: #a7b4c8;
     /* Code snippets */
-    --code-bg: var(--diagram-surface-bg);
-    --code-header-bg: var(--diagram-header-bg);
-    --code-text: #e5e7eb;
+    --code-bg: #1F2937;
+    --code-header-bg: #111827;
+    --code-text: #E5E7EB;
     --code-muted: #9ca3af;
     --code-line-number: #9ca3af;
-    --code-line-number-border: rgba(255, 255, 255, .08);
-    --code-copy-bg: rgba(86, 212, 255, .10);
-    --code-copy-bg-hover: rgba(86, 212, 255, .18);
-    --code-copy-text: #dff7ff;
-    --code-copy-border: rgba(86, 212, 255, .28);
+    --code-line-number-border: rgba(229, 231, 235, .10);
+    --code-copy-bg: rgba(229, 231, 235, .08);
+    --code-copy-bg-hover: rgba(229, 231, 235, .14);
+    --code-copy-text: #E5E7EB;
+    --code-copy-border: rgba(229, 231, 235, .26);
 }
+
+    /* Screenshot-matching article surface */
+    html[data-blog-theme="engineering-blue"] .article-card {
+        background: var(--article-post-bg);
+        border-color: var(--article-post-border);
+        box-shadow: 0 24px 70px rgba(2, 8, 23, .22);
+    }
+
+    html[data-blog-theme="engineering-blue"] .article-summary {
+        background: linear-gradient(180deg, #f4f8ff, #eef6ff);
+        border-color: var(--article-summary-border);
+    }
+
+    /* Screenshot-matching diagram and code panels */
+    html[data-blog-theme="engineering-blue"] .code-block,
+    html[data-blog-theme="engineering-blue"] .diagram-block,
+    html[data-blog-theme="engineering-blue"] .plantuml-block,
+    html[data-blog-theme="engineering-blue"] .mermaid-block {
+        background: #1F2937;
+        border-color: #26364d;
+        box-shadow: 0 18px 44px rgba(15, 23, 42, .16);
+    }
+
+        html[data-blog-theme="engineering-blue"] .snippet-toolbar,
+        html[data-blog-theme="engineering-blue"] .code-block > figcaption,
+        html[data-blog-theme="engineering-blue"] .diagram-block > figcaption {
+            color: #E5E7EB;
+            background: #111827;
+            border-bottom-color: rgba(229, 231, 235, .08);
+        }
+
+        html[data-blog-theme="engineering-blue"] .code-block pre,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details pre,
+        html[data-blog-theme="engineering-blue"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
+            color: #E5E7EB;
+            background: #1F2937;
+        }
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block summary {
+            color: #E5E7EB;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node rect,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node polygon,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node circle,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node ellipse {
+            fill: #374151 !important;
+            stroke: #7d8ca3 !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .nodeLabel,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .label,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text {
+            color: #E5E7EB !important;
+            fill: #E5E7EB !important;
+        }
