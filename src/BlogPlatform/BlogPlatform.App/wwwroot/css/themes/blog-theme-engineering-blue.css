@@ -4,14 +4,6 @@
 
 /* =========================================================
    Blog Platform Theme: Engineering Blue
-
-   Reference screenshot color system:
-   1. Main post background:          #FAFCFE
-   2. Diagram background:            #1F2937
-   3. Diagram header background:     #111827
-   4. Diagram block background:      #374151
-   5. Diagram block text:            #E5E7EB
-   6. Code snippet background:       #1F2937
    ========================================================= */
 
 :root,
@@ -20,9 +12,6 @@ html[data-blog-theme="engineering-blue"] {
     /* App shell */
     --bg-main: #07111f;
     --bg-deep: #020817;
-    --bg-panel: #0d1728;
-    --bg-panel-2: #111d32;
-    --bg-soft: #16243d;
     --surface: #f4f7fb;
     --surface-white: #ffffff;
     --text-main: #e6edf7;
@@ -40,7 +29,6 @@ html[data-blog-theme="engineering-blue"] {
     --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
     --shell-width: 1260px;
     /* Article */
-    --article-page-bg: #07111f;
     --article-post-bg: #FAFCFE;
     --article-post-border: #dbe7f5;
     --article-post-title: #081a33;
@@ -49,19 +37,12 @@ html[data-blog-theme="engineering-blue"] {
     --article-summary-bg: #f1f7ff;
     --article-summary-border: #d8e8fa;
     --article-summary-text: #234460;
-    /* Unified diagram/code surfaces */
+    /* Shared diagram panel */
     --diagram-border: #26364d;
     --diagram-header-bg: #111827;
-    --diagram-header-bg-end: #111827;
     --diagram-header-text: #E5E7EB;
-    --diagram-surface-bg: #1F2937;
-    --diagram-surface-bg-soft: #1F2937;
-    --diagram-node-bg: #374151;
-    --diagram-node-border: #7d8ca3;
-    --diagram-node-text: #E5E7EB;
-    --diagram-line: #a7b4c8;
     --diagram-font-family: SansSerif;
-    /* PlantUML */
+    /* PlantUML diagram */
     --diagram-plantuml-bg: #1F2937;
     --diagram-plantuml-inner-bg: #1F2937;
     --diagram-plantuml-node-bg: #374151;
@@ -69,18 +50,16 @@ html[data-blog-theme="engineering-blue"] {
     --diagram-plantuml-node-text: #E5E7EB;
     --diagram-plantuml-line: #a7b4c8;
     --diagram-plantuml-font-family: var(--diagram-font-family);
-    /* Mermaid */
+    /* Mermaid diagram */
     --diagram-mermaid-bg: #1F2937;
     --diagram-mermaid-node-bg: #374151;
     --diagram-mermaid-node-border: #7d8ca3;
     --diagram-mermaid-node-text: #E5E7EB;
     --diagram-mermaid-line: #a7b4c8;
-    --diagram-mermaid-font-family: var(--diagram-font-family);
+    --diagram-mermaid-font-family: var(--diagram-font-family), sans-serif;
     /* Code snippets */
     --code-bg: #1F2937;
-    --code-header-bg: #111827;
     --code-text: #E5E7EB;
-    --code-muted: #9ca3af;
     --code-line-number: #9ca3af;
     --code-line-number-border: rgba(229, 231, 235, .10);
     --code-copy-bg: rgba(229, 231, 235, .08);
@@ -89,7 +68,10 @@ html[data-blog-theme="engineering-blue"] {
     --code-copy-border: rgba(229, 231, 235, .26);
 }
 
-    /* Screenshot-matching article surface */
+    /* =========================================================
+   Article surface
+   ========================================================= */
+
     html[data-blog-theme="engineering-blue"] .article-card {
         background: var(--article-post-bg);
         border-color: var(--article-post-border);
@@ -101,7 +83,10 @@ html[data-blog-theme="engineering-blue"] {
         border-color: var(--article-summary-border);
     }
 
-    /* Screenshot-matching diagram and code panels */
+    /* =========================================================
+   Shared code and diagram panels
+   ========================================================= */
+
     html[data-blog-theme="engineering-blue"] .code-block,
     html[data-blog-theme="engineering-blue"] .diagram-block,
     html[data-blog-theme="engineering-blue"] .plantuml-block,
@@ -119,25 +104,48 @@ html[data-blog-theme="engineering-blue"] {
             border-bottom-color: rgba(229, 231, 235, .08);
         }
 
-        html[data-blog-theme="engineering-blue"] .code-block pre,
+        html[data-blog-theme="engineering-blue"] .code-block pre {
+            color: #E5E7EB;
+            background: #1F2937;
+        }
+
+        /* =========================================================
+   PlantUML diagram styles
+   ========================================================= */
+
         html[data-blog-theme="engineering-blue"] .plantuml-block details pre,
         html[data-blog-theme="engineering-blue"] .plantuml-block img,
-        html[data-blog-theme="engineering-blue"] .plantuml-block details,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
+        html[data-blog-theme="engineering-blue"] .plantuml-block details {
             color: #E5E7EB;
             background: #1F2937;
         }
 
         html[data-blog-theme="engineering-blue"] .plantuml-block img,
-        html[data-blog-theme="engineering-blue"] .plantuml-block details,
-        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid,
-        html[data-blog-theme="engineering-blue"] .mermaid-block svg,
-        html[data-blog-theme="engineering-blue"] .mermaid-block text {
-            font-family: var(--diagram-font-family) !important;
+        html[data-blog-theme="engineering-blue"] .plantuml-block details {
+            font-family: var(--diagram-plantuml-font-family) !important;
         }
 
         html[data-blog-theme="engineering-blue"] .plantuml-block summary {
             color: #E5E7EB;
+        }
+
+        /* =========================================================
+   Mermaid diagram styles
+   ========================================================= */
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
+            color: #E5E7EB;
+            background: #1F2937;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid,
+        html[data-blog-theme="engineering-blue"] .mermaid-block svg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject div,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject span,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject p {
+            font-family: var(--diagram-mermaid-font-family) !important;
         }
 
         html[data-blog-theme="engineering-blue"] .mermaid-block .node rect,
