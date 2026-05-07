@@ -1,4 +1,4 @@
-﻿/* src/BlogPlatform/BlogPlatform.App/wwwroot/css/themes/blog-theme-engineering-blue-dark.css */
+/* src/BlogPlatform/BlogPlatform.App/wwwroot/css/themes/blog-theme-engineering-blue-dark.css */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -83,7 +83,7 @@ html[data-blog-theme="engineering-blue-dark"] {
     --posts-area-bg: #101c2d;
     --section-kicker-text: #b5c9e4;
     --browse-link-text: #55b6ff;
-    --post-card-bg: #132238;
+    --post-card-bg: linear-gradient( 135deg, #0f2747 0%, #132b4d 35%, #122846 65%, #0d223d 100% );
     --post-card-text: #eef6ff;
     --post-card-border: rgba(117, 154, 197, .18);
     --post-card-hover-border: rgba(85, 182, 255, .42);
@@ -113,7 +113,7 @@ html[data-blog-theme="engineering-blue-dark"] {
     --pagination-button-active-shadow: 0 14px 28px rgba(85, 182, 255, .22);
     --pagination-button-disabled-bg: rgba(19, 34, 56, .55);
     --pagination-button-disabled-text: #6f819a;
-    --article-post-bg: #101c2d;
+    --article-post-bg: linear-gradient( 135deg, #0f2747 0%, #132b4d 35%, #122846 65%, #0d223d 100% );
     --article-post-border: rgba(117, 154, 197, .18);
     --article-post-title: #f5f9ff;
     --article-post-text: #c0d0e6;
@@ -151,6 +151,23 @@ html[data-blog-theme="engineering-blue-dark"] {
     --code-copy-bg-hover: rgba(85, 182, 255, .16);
     --code-copy-text: #E5F0FF;
     --code-copy-border: rgba(85, 182, 255, .24);
+    /* Article detail theme tokens */
+    --article-breadcrumb-text: var(--text-soft);
+    --article-breadcrumb-link: var(--primary);
+    --article-breadcrumb-current: var(--menu-link-active-text);
+    --article-browse-link-text: var(--browse-link-text);
+    --article-card-bg: var(--article-post-bg);
+    --article-card-shadow: 0 24px 70px rgba(0, 0, 0, .32);
+    --article-summary-shadow: none;
+    --diagram-panel-bg: var(--diagram-bg-color);
+    --diagram-panel-shadow: 0 18px 44px rgba(0, 0, 0, .24);
+    --diagram-header-border: rgba(229, 240, 255, .08);
+    --mermaid-canvas-bg: var(--diagram-mermaid-bg);
+    --callout-border: rgba(85, 182, 255, .24);
+    --callout-bg: linear-gradient(180deg, rgba(85, 182, 255, .12), rgba(19, 34, 56, .92));
+    --callout-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+    --callout-title: var(--badge-primary-text);
+    --callout-text: var(--article-post-text);
 }
 
     html[data-blog-theme="engineering-blue-dark"] .article-card {

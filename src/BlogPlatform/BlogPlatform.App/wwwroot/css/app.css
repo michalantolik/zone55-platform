@@ -573,7 +573,7 @@ button {
 .project-card {
     padding: 20px;
     border-radius: 18px;
-    background: white;
+    background: var(--surface-white);
     border: 1px solid var(--post-card-border);
     box-shadow: var(--shadow-card);
 }
@@ -602,19 +602,23 @@ button {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    color: var(--text-soft);
+    color: var(--article-breadcrumb-text);
     font-size: .92rem;
 }
 
     .breadcrumbs a {
-        color: #dceaff;
+        color: var(--article-breadcrumb-link);
+    }
+
+    .breadcrumbs strong {
+        color: var(--article-breadcrumb-current);
     }
 
 .article-card {
     padding: 42px;
     border-radius: 28px;
     color: var(--text-dark);
-    background: white;
+    background: var(--surface-white);
     border: 1px solid var(--border-light);
     box-shadow: var(--shadow-soft);
 }
@@ -645,7 +649,7 @@ button {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    color: #6a7b95;
+    color: var(--article-post-muted);
     font-size: .92rem;
 }
 
@@ -653,9 +657,9 @@ button {
     margin-top: 26px;
     padding: 18px 20px;
     border-radius: 18px;
-    color: #26435e;
-    background: #f1f7ff;
-    border: 1px solid #dbeafd;
+    color: var(--article-summary-text);
+    background: var(--article-summary-bg);
+    border: 1px solid var(--article-summary-border);
     line-height: 1.7;
 }
 
@@ -925,7 +929,7 @@ button {
         padding: 12px 16px;
         color: #dbeafe;
         background: #0d1728;
-        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        border-bottom: 1px solid var(--diagram-header-border);
         font-size: .85rem;
         font-weight: 800;
     }
@@ -952,7 +956,7 @@ button {
     }
 
 .plantuml-block {
-    background: white;
+    background: var(--surface-white);
 }
 
     .plantuml-block img {
@@ -973,7 +977,7 @@ button {
     border-radius: 18px;
     border: 1px solid #bae6fd;
     background: #effaff;
-    color: #075985;
+    color: var(--callout-text);
 }
 
     .callout strong {
@@ -986,7 +990,7 @@ button {
 
     .callout p {
         margin: 0;
-        color: #075985;
+        color: var(--callout-text);
     }
 
 .article-body {
@@ -1022,7 +1026,7 @@ button {
         padding: 12px 16px;
         color: #dbeafe;
         background: #0d1728;
-        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        border-bottom: 1px solid var(--diagram-header-border);
         font-size: .85rem;
         font-weight: 800;
     }
@@ -1049,7 +1053,7 @@ button {
     }
 
 .plantuml-block {
-    background: white;
+    background: var(--surface-white);
 }
 
     .plantuml-block img {
@@ -1070,7 +1074,7 @@ button {
     border-radius: 18px;
     border: 1px solid #bae6fd;
     background: #effaff;
-    color: #075985;
+    color: var(--callout-text);
 }
 
     .callout strong {
@@ -1083,7 +1087,7 @@ button {
 
     .callout p {
         margin: 0;
-        color: #075985;
+        color: var(--callout-text);
     }
 
 .article-shell {
@@ -1094,9 +1098,9 @@ button {
     padding: clamp(28px, 4vw, 48px);
     border-radius: 30px;
     color: var(--article-post-title);
-    background: radial-gradient(circle at top right, rgba(78, 161, 255, .09), transparent 34%), linear-gradient(180deg, var(--article-post-bg), #ffffff 72%);
+    background: var(--article-card-bg);
     border: 1px solid var(--article-post-border);
-    box-shadow: 0 24px 70px rgba(2, 8, 23, .22);
+    box-shadow: var(--article-card-shadow);
 }
 
     .article-card h1 {
@@ -1117,7 +1121,7 @@ button {
     color: var(--article-summary-text);
     background: var(--article-summary-bg);
     border-color: var(--article-summary-border);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    box-shadow: var(--article-summary-shadow);
 }
 
 .code-block,
@@ -1126,7 +1130,7 @@ button {
     overflow: hidden;
     border: 1px solid var(--diagram-border);
     border-radius: 20px;
-    box-shadow: 0 18px 44px rgba(15, 23, 42, .10);
+    box-shadow: var(--diagram-panel-shadow);
 }
 
     .snippet-toolbar,
@@ -1139,8 +1143,8 @@ button {
         min-height: 46px;
         padding: 10px 14px;
         color: var(--diagram-header-text);
-        background: linear-gradient(180deg, var(--diagram-header-bg), #081326);
-        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        background: var(--diagram-header-bg);
+        border-bottom: 1px solid var(--diagram-header-border);
         font-size: .85rem;
         font-weight: 800;
     }
@@ -1255,7 +1259,7 @@ button {
         justify-content: center;
         min-height: 360px;
         padding: clamp(28px, 5vw, 56px);
-        background: radial-gradient(circle at top, rgba(86, 212, 255, .08), transparent 36%), var(--diagram-mermaid-bg);
+        background: var(--mermaid-canvas-bg);
     }
 
     .mermaid-block svg {
@@ -1292,9 +1296,9 @@ button {
     }
 
 .callout {
-    border-color: #b9e6ff;
-    background: linear-gradient(180deg, #effaff, #eaf6ff);
-    box-shadow: 0 12px 30px rgba(14, 116, 144, .10);
+    border-color: var(--callout-border);
+    background: var(--callout-bg);
+    box-shadow: var(--callout-shadow);
 }
 
 
