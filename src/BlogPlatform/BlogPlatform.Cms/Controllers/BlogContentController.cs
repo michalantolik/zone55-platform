@@ -16,6 +16,7 @@ namespace BlogPlatform.Cms.Controllers;
 public sealed class BlogContentController : ControllerBase
 {
     private const string ArticlesCacheKey = "cms-blog-articles";
+    private const string CategoriesCacheKey = "cms-blog-categories";
 
     private readonly IContentService _contentService;
     private readonly ILogger<BlogContentController> _logger;
@@ -31,46 +32,139 @@ public sealed class BlogContentController : ControllerBase
         _cache = cache;
     }
 
-    [HttpGet("articles")]
-    public async Task<ActionResult<IReadOnlyCollection<CmsPostDetailsDto>>> GetArticles(
-        CancellationToken cancellationToken)
+    [HttpGet("categories")]
+    public ActionResult<IReadOnlyCollection<CmsCategoryListItemDto>> GetCategories()
     {
-        if (_cache.TryGetValue(ArticlesCacheKey, out IReadOnlyCollection<CmsPostDetailsDto>? cachedArticles) &&
-            cachedArticles is not null)
-        {
-            return Ok(cachedArticles);
-        }
-
-        var rootContent = _contentService.GetRootContent().ToList();
-
-        var categories = rootContent
-            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogCategory)
-            .ToDictionary(
-                content => content.Key,
-                content => new CmsCategoryDto(
-                    GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "uncategorized"),
-                    GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Uncategorized"));
-
-        var posts = rootContent
-            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogArticle)
-            .Select(content => MapPost(content, categories))
-            .OrderByDescending(post => post.PublishedDate)
+        var categories = GetRootCategories()
+            .Select(content => new CmsCategoryListItemDto(
+                content.Key,
+                GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Untitled category",
+                GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "category")))
+            .OrderBy(category => category.Name)
             .ToList();
 
-        _cache.Set(
-            ArticlesCacheKey,
-            posts,
-            new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
-                SlidingExpiration = TimeSpan.FromMinutes(3),
-                Priority = CacheItemPriority.High
-            });
+        return Ok(categories);
+    }
+
+    [HttpGet("articles")]
+    public ActionResult<IReadOnlyCollection<CmsArticleListItemDto>> GetArticles(
+        [FromQuery] string? categorySlug = null)
+    {
+        var categories = GetCategoryDictionary();
+
+        var posts = GetRootArticles()
+            .Select(content => MapArticleListItem(content, categories))
+            .Where(article =>
+                string.IsNullOrWhiteSpace(categorySlug) ||
+                string.Equals(article.CategorySlug, categorySlug, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(article => article.PublishedDate)
+            .ThenBy(article => article.Title)
+            .ToList();
 
         return Ok(posts);
     }
 
-    private static CmsPostDetailsDto MapPost(
+    [HttpGet("articles/{key:guid}")]
+    public ActionResult<CmsArticleEditorDto> GetArticle(Guid key)
+    {
+        var article = _contentService.GetById(key);
+
+        if (article is null ||
+            article.ContentType.Alias != BlogContentAliases.BlogArticle)
+        {
+            return NotFound();
+        }
+
+        var categories = GetCategoryDictionary();
+        var category = ResolveCategory(article, categories);
+
+        return Ok(new CmsArticleEditorDto(
+            article.Key,
+            GetString(article, BlogContentAliases.Title) ?? article.Name ?? "Untitled",
+            GetString(article, BlogContentAliases.Slug) ?? CreateSlug(article.Name ?? "article"),
+            GetString(article, BlogContentAliases.Summary) ?? string.Empty,
+            category.Name,
+            category.Slug,
+            GetString(article, BlogContentAliases.Level) ?? "Draft",
+            GetString(article, BlogContentAliases.Focus) ?? "Preview",
+            GetString(article, BlogContentAliases.Tags) ?? string.Empty,
+            GetString(article, BlogContentAliases.BodyBlocks) ?? string.Empty,
+            true));
+    }
+
+    [HttpPost("articles")]
+    public ActionResult<CmsSaveArticleResponse> CreateArticle(
+        [FromBody] CmsSaveArticleRequest request)
+    {
+        var category = FindCategoryBySlug(request.CategorySlug);
+
+        if (category is null)
+        {
+            return BadRequest(new CmsSaveArticleResponse(
+                false,
+                Guid.Empty,
+                "Category not found."));
+        }
+
+        var article = _contentService.Create(
+            request.Title,
+            -1,
+            BlogContentAliases.BlogArticle);
+
+        ApplyArticleValues(article, request, category);
+
+        _contentService.Save(article);
+        var result = _contentService.Publish(article, new[] { "*" });
+
+        ClearCaches();
+
+        return Ok(new CmsSaveArticleResponse(
+            result.Success,
+            article.Key,
+            result.Success
+                ? "Article created successfully."
+                : "Unable to create article."));
+    }
+
+    [HttpPut("articles/{key:guid}")]
+    public ActionResult<CmsSaveArticleResponse> UpdateArticle(
+        Guid key,
+        [FromBody] CmsSaveArticleRequest request)
+    {
+        var article = _contentService.GetById(key);
+
+        if (article is null ||
+            article.ContentType.Alias != BlogContentAliases.BlogArticle)
+        {
+            return NotFound();
+        }
+
+        var category = FindCategoryBySlug(request.CategorySlug);
+
+        if (category is null)
+        {
+            return BadRequest(new CmsSaveArticleResponse(
+                false,
+                key,
+                "Category not found."));
+        }
+
+        ApplyArticleValues(article, request, category);
+
+        _contentService.Save(article);
+        var result = _contentService.Publish(article, new[] { "*" });
+
+        ClearCaches();
+
+        return Ok(new CmsSaveArticleResponse(
+            result.Success,
+            article.Key,
+            result.Success
+                ? "Article updated successfully."
+                : "Unable to update article."));
+    }
+
+    private CmsArticleListItemDto MapArticleListItem(
         IContent content,
         IReadOnlyDictionary<Guid, CmsCategoryDto> categories)
     {
@@ -85,184 +179,90 @@ public sealed class BlogContentController : ControllerBase
             ?? content.Name
             ?? "Untitled";
 
-        return new CmsPostDetailsDto(
+        return new CmsArticleListItemDto(
+            content.Key,
             GetString(content, BlogContentAliases.Slug) ?? CreateSlug(title),
             title,
             GetString(content, BlogContentAliases.Summary) ?? string.Empty,
+            category.Name,
             category.Name,
             category.Slug,
             GetString(content, BlogContentAliases.Level) ?? "Intermediate",
             GetString(content, BlogContentAliases.Focus) ?? "Practical",
             tags,
             GetDateTimeOffset(content, BlogContentAliases.PublishedDate),
-            GetString(content, BlogContentAliases.BodyBlocks) ?? string.Empty);
+            GetString(content, BlogContentAliases.BodyBlocks) ?? string.Empty,
+            content.UpdateDate);
     }
 
-    private static string RenderBodyHtml(IContent content)
+    private void ApplyArticleValues(
+        IContent article,
+        CmsSaveArticleRequest request,
+        IContent category)
     {
-        var rawJson = content.GetValue<string>(BlogContentAliases.BodyBlocks);
+        var title = string.IsNullOrWhiteSpace(request.Title)
+            ? "Untitled article"
+            : request.Title.Trim();
 
-        if (string.IsNullOrWhiteSpace(rawJson))
+        article.Name = title;
+
+        article.SetValue(BlogContentAliases.Title, title);
+        article.SetValue(BlogContentAliases.Slug, request.Slug?.Trim() ?? string.Empty);
+        article.SetValue(BlogContentAliases.Summary, request.Summary ?? string.Empty);
+        article.SetValue(BlogContentAliases.Level, request.Level ?? "Draft");
+        article.SetValue(BlogContentAliases.Focus, request.Focus ?? "Preview");
+        article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
+        article.SetValue(BlogContentAliases.BodyBlocks, request.BodyBlocks ?? string.Empty);
+
+        article.SetValue(
+            BlogContentAliases.Category,
+            $"umb://document/{category.Key:N}");
+
+        if (!article.GetValue<DateTime?>(BlogContentAliases.PublishedDate).HasValue)
         {
-            return string.Empty;
+            article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
         }
+    }
 
-        using var document = JsonDocument.Parse(rawJson);
+    private IReadOnlyCollection<IContent> GetRootArticles()
+    {
+        return _contentService
+            .GetRootContent()
+            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogArticle)
+            .ToList();
+    }
 
-        if (!document.RootElement.TryGetProperty("layout", out var layout) ||
-            !layout.TryGetProperty("Umbraco.BlockList", out var layoutItems) ||
-            !document.RootElement.TryGetProperty("contentData", out var contentData))
-        {
-            return string.Empty;
-        }
+    private IReadOnlyCollection<IContent> GetRootCategories()
+    {
+        return _contentService
+            .GetRootContent()
+            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogCategory)
+            .ToList();
+    }
 
-        var blocksByUdi = contentData
-            .EnumerateArray()
-            .Where(x => x.TryGetProperty("udi", out _))
+    private IReadOnlyDictionary<Guid, CmsCategoryDto> GetCategoryDictionary()
+    {
+        return GetRootCategories()
             .ToDictionary(
-                x => x.GetProperty("udi").GetString() ?? string.Empty,
-                x => x);
-
-        var html = new StringBuilder();
-
-        foreach (var layoutItem in layoutItems.EnumerateArray())
-        {
-            var contentUdi = layoutItem.GetProperty("contentUdi").GetString();
-
-            if (string.IsNullOrWhiteSpace(contentUdi) ||
-                !blocksByUdi.TryGetValue(contentUdi, out var block))
-            {
-                continue;
-            }
-
-            html.AppendLine(RenderBlockHtml(block));
-        }
-
-        return html.ToString();
+                content => content.Key,
+                content => new CmsCategoryDto(
+                    GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "uncategorized"),
+                    GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Uncategorized"));
     }
 
-    private static string RenderBlockHtml(JsonElement block)
+    private IContent? FindCategoryBySlug(string? categorySlug)
     {
-        var contentTypeKey = block.GetProperty("contentTypeKey").GetGuid();
-
-        var text = GetJsonString(block, "text");
-        var level = GetJsonInt(block, "level") ?? 2;
-        var language = GetJsonString(block, "language");
-        var fileName = GetJsonString(block, "fileName");
-        var code = GetJsonString(block, "code");
-        var diagram = GetJsonString(block, "diagram");
-        var kind = GetJsonString(block, "kind");
-
-        if (!string.IsNullOrWhiteSpace(text) && block.TryGetProperty("level", out _))
+        if (string.IsNullOrWhiteSpace(categorySlug))
         {
-            var safeLevel = Math.Clamp(level, 2, 4);
-
-            return $"<h{safeLevel}>{HtmlEncoder.Default.Encode(text)}</h{safeLevel}>";
+            return null;
         }
 
-        if (!string.IsNullOrWhiteSpace(code))
-        {
-            return $"""
-                <figure class="code-block">
-                    <figcaption>{HtmlEncoder.Default.Encode(fileName ?? language ?? "code")}</figcaption>
-                    <pre><code class="language-{HtmlEncoder.Default.Encode(language ?? "text")}">{HtmlEncoder.Default.Encode(code)}</code></pre>
-                </figure>
-                """;
-        }
-
-        if (!string.IsNullOrWhiteSpace(diagram) &&
-            diagram.TrimStart().StartsWith("@startuml", StringComparison.OrdinalIgnoreCase))
-        {
-            var encodedDiagram = EncodePlantUml(diagram);
-
-            return $"""
-                <figure class="diagram-block plantuml-block">
-                    <figcaption>PlantUML diagram</figcaption>
-                    <img src="https://www.plantuml.com/plantuml/svg/{encodedDiagram}" alt="PlantUML diagram" />
-                    <details>
-                        <summary>PlantUML source</summary>
-                        <pre><code class="language-plantuml">{HtmlEncoder.Default.Encode(diagram)}</code></pre>
-                    </details>
-                </figure>
-                """;
-        }
-
-        if (!string.IsNullOrWhiteSpace(diagram))
-        {
-            return $"""
-                <figure class="diagram-block mermaid-block">
-                    <figcaption>Mermaid diagram</figcaption>
-                    <pre class="mermaid">{HtmlEncoder.Default.Encode(diagram)}</pre>
-                </figure>
-                """;
-        }
-
-        if (!string.IsNullOrWhiteSpace(kind))
-        {
-            return $"""
-                <aside class="callout callout-{HtmlEncoder.Default.Encode(kind.ToLowerInvariant())}">
-                    <strong>{HtmlEncoder.Default.Encode(kind)}</strong>
-                    <p>{HtmlEncoder.Default.Encode(text ?? string.Empty)}</p>
-                </aside>
-                """;
-        }
-
-        if (!string.IsNullOrWhiteSpace(text))
-        {
-            return $"<p>{HtmlEncoder.Default.Encode(text)}</p>";
-        }
-
-        return string.Empty;
-    }
-
-    private static string? GetJsonString(JsonElement element, string propertyName)
-    {
-        return element.TryGetProperty(propertyName, out var value)
-            ? value.GetString()
-            : null;
-    }
-
-    private static int? GetJsonInt(JsonElement element, string propertyName)
-    {
-        return element.TryGetProperty(propertyName, out var value) &&
-               value.TryGetInt32(out var number)
-            ? number
-            : null;
-    }
-
-    private static string EncodePlantUml(string source)
-    {
-        var bytes = Encoding.UTF8.GetBytes(source);
-
-        using var output = new MemoryStream();
-
-        using (var deflate = new DeflateStream(output, CompressionLevel.SmallestSize, leaveOpen: true))
-        {
-            deflate.Write(bytes, 0, bytes.Length);
-        }
-
-        return EncodePlantUmlBytes(output.ToArray());
-    }
-
-    private static string EncodePlantUmlBytes(byte[] data)
-    {
-        const string alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
-
-        var result = new StringBuilder();
-
-        for (var i = 0; i < data.Length; i += 3)
-        {
-            var b1 = data[i];
-            var b2 = i + 1 < data.Length ? data[i + 1] : 0;
-            var b3 = i + 2 < data.Length ? data[i + 2] : 0;
-
-            result.Append(alphabet[b1 >> 2]);
-            result.Append(alphabet[((b1 & 0x3) << 4) | (b2 >> 4)]);
-            result.Append(alphabet[((b2 & 0xF) << 2) | (b3 >> 6)]);
-            result.Append(alphabet[b3 & 0x3F]);
-        }
-
-        return result.ToString();
+        return GetRootCategories()
+            .FirstOrDefault(content =>
+                string.Equals(
+                    GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? string.Empty),
+                    categorySlug,
+                    StringComparison.OrdinalIgnoreCase));
     }
 
     private static CmsCategoryDto ResolveCategory(
@@ -306,17 +306,59 @@ public sealed class BlogContentController : ControllerBase
         return value.Trim().ToLowerInvariant().Replace(" ", "-");
     }
 
+    private void ClearCaches()
+    {
+        _cache.Remove(ArticlesCacheKey);
+        _cache.Remove(CategoriesCacheKey);
+    }
+
     private sealed record CmsCategoryDto(string Slug, string Name);
 
-    public sealed record CmsPostDetailsDto(
+    public sealed record CmsCategoryListItemDto(
+        Guid Key,
+        string Name,
+        string Slug);
+
+    public sealed record CmsArticleListItemDto(
+        Guid Key,
         string Slug,
         string Title,
         string Summary,
         string Category,
+        string CategoryName,
         string CategorySlug,
         string Level,
         string Focus,
         IReadOnlyCollection<string> Tags,
         DateTimeOffset? PublishedDate,
-        string BodyHtml);
+        string BodyHtml,
+        DateTime UpdatedUtc);
+
+    public sealed record CmsArticleEditorDto(
+        Guid Key,
+        string Title,
+        string Slug,
+        string Summary,
+        string CategoryName,
+        string CategorySlug,
+        string Level,
+        string Focus,
+        string Tags,
+        string BodyBlocks,
+        bool IsExistingArticle);
+
+    public sealed record CmsSaveArticleRequest(
+        string Title,
+        string Slug,
+        string Summary,
+        string CategorySlug,
+        string Tags,
+        string BodyBlocks,
+        string? Level,
+        string? Focus);
+
+    public sealed record CmsSaveArticleResponse(
+        bool Success,
+        Guid Key,
+        string Message);
 }
