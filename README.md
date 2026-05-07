@@ -1,47 +1,109 @@
 # .NET Cloud Blog Platform
 
-A cloud-oriented portfolio blog platform built with **.NET**, **Blazor WebAssembly**, **ASP.NET Core Web API**, and **Umbraco CMS**.
+A cloud-oriented engineering blog platform built with:
 
-The project is designed as a practical engineering portfolio that demonstrates backend structure, clean architecture thinking, API design, CMS integration, documentation, and a future path toward Azure deployment, CI/CD, and Infrastructure as Code.
+- .NET 10
+- Blazor WebAssembly
+- ASP.NET Core Web API
+- Umbraco CMS
+- layered / clean architecture principles
 
-It is not only a blog application.
+The repository is designed as a practical engineering portfolio platform focused on:
 
-It is a technical portfolio system for documenting engineering decisions, architecture, cloud-readiness, content management, and implementation progress.
+- backend engineering
+- architecture communication
+- cloud readiness
+- CMS integration
+- rendering systems
+- diagnostics and observability
+- future Azure deployment
+- CI/CD and Infrastructure as Code
 
----
+This is not only a blog.
 
-## Project Status
-
-Current state: **early-stage portfolio platform / architecture foundation with CMS integration started**.
-
-The solution already contains:
-
-- Blazor WebAssembly frontend application
-- ASP.NET Core Web API project
-- Umbraco-based CMS project (`BlogPlatform.Cms`)
-- Application layer with DTOs
-- Domain layer with core entities and enums
-- Infrastructure project prepared for future persistence/cloud integrations
-- Swagger/OpenAPI support in the API
-- Static portfolio content focused on .NET backend, cloud, DevOps, and architecture
-- Local SQL Server / LocalDB setup for Umbraco CMS
-- Umbraco Delivery API enabled for future headless CMS scenarios
-
-Planned evolution:
-
-- Replace static/sample data with real application services
-- Use Umbraco CMS as a managed content source
-- Connect the Blazor frontend and/or API to CMS-managed content
-- Add persistence in the Infrastructure layer where needed
-- Add authentication and authorization
-- Add automated tests
-- Add CI/CD pipeline
-- Add Azure deployment and infrastructure automation
-- Expand documentation with architecture decision records and diagrams
+It is an engineering platform used to experiment with:
+- rendering pipelines
+- content management
+- architectural structure
+- developer tooling
+- diagnostics
+- frontend/backend integration
+- technical documentation workflows
 
 ---
 
-## Solution Structure
+# Current State
+
+Current state:
+
+**working engineering portfolio platform with CMS-side live preview system**
+
+The repository currently contains:
+
+- Blazor WebAssembly frontend
+- ASP.NET Core Web API
+- Umbraco CMS integration
+- layered architecture foundation
+- markdown-based article rendering
+- article component rendering system
+- code block rendering
+- live article preview
+- iframe synchronization pipeline
+- preview diagnostics and observability
+- preview ACK/message synchronization
+- Swagger/OpenAPI
+- static engineering portfolio content
+- LocalDB-based CMS setup
+
+---
+
+# Key Implemented Features
+
+## Live Article Preview
+
+The platform now contains a fully working CMS-style live article preview system.
+
+Architecture:
+
+```text
+CMS Editor
+    ↓
+postMessage()
+    ↓
+Blazor Preview App (iframe)
+    ↓
+Deserialize Article
+    ↓
+Render Components
+    ↓
+ACK Response
+    ↓
+Diagnostics Logging
+```
+
+Implemented features:
+
+- live iframe preview updates
+- debounced editor synchronization
+- preview ACK pipeline
+- preview diagnostics logging
+- render sequence tracking
+- render key invalidation
+- safe logging without recursion
+- runtime preview synchronization
+- markdown/code block rendering
+
+The preview system was intentionally designed as a realistic engineering exercise focused on:
+- frontend/backend communication
+- runtime synchronization
+- diagnostics
+- rendering lifecycle debugging
+- state invalidation problems
+- production troubleshooting
+
+---
+
+# Solution Structure
 
 ```text
 src/
@@ -57,426 +119,310 @@ src/
 
 ---
 
-## Projects Summary
+# Projects Summary
 
-| Project | Type | Responsibility | Current Content | My Experience |
-|---|---|---|---|---|
-| `BlogPlatform.App` | Blazor WebAssembly frontend | Portfolio blog UI, pages, navigation, article cards, category filtering | Home, About, Projects, Article Details, shared components, CSS | Frontend understanding |
-| `BlogPlatform.Api` | ASP.NET Core Web API | HTTP API boundary for backend capabilities | `PostsController`, Swagger/OpenAPI, controller setup | Backend foundation and REST API |
-| `BlogPlatform.Cms` | Umbraco CMS | Content management and editorial system | SQL LocalDB for local Umbraco CMS | Umbraco CMS |
-| `BlogPlatform.Application` | Application layer | DTOs, use cases, application contracts, orchestration | `PostDto` | Clean architecture and separation of concerns |
-| `BlogPlatform.Domain` | Domain layer | Core business model independent from frameworks | `Post`, `Category`, `Tag`, `PostStatus` | Domain modeling and architecture discipline |
-| `BlogPlatform.Infrastructure` | Infrastructure layer | Future persistence, external services, cloud integrations | Project shell with references to Application and Domain | Cloud/platform Engineering |
-| `tests` | Test area | Future automated tests | Placeholder README | Production-quality engineering |
-| `infra` | Infrastructure area | Future IaC and deployment resources | Placeholder README | Platform engineering |
-| `docs` | Documentation area | Future technical documentation and diagrams | Placeholder README | Solution architecture communication skills |
+| Project | Responsibility |
+|---|---|
+| `BlogPlatform.App` | Blazor WebAssembly frontend, article rendering, live preview iframe |
+| `BlogPlatform.Api` | ASP.NET Core API, diagnostics endpoints, future backend services |
+| `BlogPlatform.Cms` | Umbraco CMS and CMS-side editor shell |
+| `BlogPlatform.Application` | application contracts and DTOs |
+| `BlogPlatform.Domain` | domain entities and enums |
+| `BlogPlatform.Infrastructure` | future persistence/cloud integrations |
+| `docs` | architecture and engineering documentation |
+| `infra` | future IaC/deployment resources |
+| `tests` | future automated tests |
 
 ---
 
-## Architecture Overview
-
-The repository follows a layered architecture inspired by **Clean Architecture**.
+# Architecture Overview
 
 ```mermaid
 flowchart TB
-    Visitor[Visitor]
-    Editor[Editor]
 
-    App[Blazor App]
-    Api[ASP.NET API]
-    Cms[Umbraco CMS]
+    Editor[CMS Editor]
+    Visitor[Visitor]
+
+    Cms[BlogPlatform.Cms]
+    Preview[Blazor Preview App]
+    Api[ASP.NET Core API]
 
     Application[Application Layer]
     Domain[Domain Layer]
     Infrastructure[Infrastructure Layer]
 
-    Visitor --> App
     Editor --> Cms
+    Cms --> Preview
 
-    App --> Api
-    App --> Cms
+    Visitor --> Preview
+
+    Preview --> Api
 
     Api --> Application
     Application --> Domain
+
     Infrastructure --> Application
     Infrastructure --> Domain
 ```
 
-### Dependency Direction
-
-```mermaid
-flowchart LR
-    Api[BlogPlatform.Api] --> Application[BlogPlatform.Application]
-    Application --> Domain[BlogPlatform.Domain]
-    Infrastructure[BlogPlatform.Infrastructure] --> Application
-    Infrastructure --> Domain
-    App[BlogPlatform.App] -. runtime HTTP integration .-> Api
-```
-
-The main rule is that the **Domain** layer remains independent. Application logic should depend on the domain model, while infrastructure details should stay outside the core business model.
-
 ---
 
-## Runtime Flow
+# Live Preview Runtime Flow
 
 ```mermaid
 sequenceDiagram
-    actor Visitor
-    participant App as Blazor WebAssembly App
-    participant Api as ASP.NET Core API
-    participant Application as Application Layer
-    participant Domain as Domain Model
-    participant Infrastructure as Infrastructure Layer
 
-    Visitor->>App: Opens portfolio blog
-    App->>App: Renders static pages and article cards
-    App-->>Api: Future API request for posts/projects
-    Api->>Application: Execute use case / query
-    Application->>Domain: Use domain entities and rules
-    Application-->>Api: Return DTO
-    Api-->>App: JSON response
-    App-->>Visitor: Render content
+    participant CMS as CMS Editor
+    participant IFrame as Blazor Preview
+    participant Renderer as Article Renderer
+    participant Diagnostics as Diagnostics API
 
-    Note over Infrastructure: Future database, storage, identity, search, Azure services
+    CMS->>IFrame: postMessage(article)
+    IFrame->>IFrame: Deserialize JSON
+    IFrame->>Renderer: Render article blocks
+    Renderer-->>IFrame: Render completed
+    IFrame->>CMS: ACK(sequence)
+    IFrame->>Diagnostics: Preview diagnostics logs
 ```
 
 ---
 
-## Technology Stack
+# Technology Stack
 
 | Area | Technology |
 |---|---|
 | Frontend | Blazor WebAssembly |
 | Backend | ASP.NET Core Web API |
 | CMS | Umbraco CMS |
-| Database (CMS) | SQL Server LocalDB |
 | Language | C# |
-| Runtime | .NET 10 target framework |
-| API Documentation | Swagger / Swashbuckle |
+| Runtime | .NET 10 |
+| API Docs | Swagger |
+| Rendering | Markdown + Blazor components |
+| Communication | iframe + postMessage |
+| Diagnostics | API-based preview diagnostics |
 | Architecture | Layered / Clean Architecture foundation |
-| Future Cloud Direction | Azure App Service, Azure Storage, Key Vault, CI/CD, IaC |
+| Future Cloud | Azure |
 
 ---
 
-## Dependencies
+# Current Frontend Features
 
-### `BlogPlatform.Api`
+The frontend currently includes:
 
-| Package | Version | Purpose |
-|---|---:|---|
-| `Microsoft.AspNetCore.OpenApi` | `10.0.5` | OpenAPI support |
-| `Swashbuckle.AspNetCore` | `10.1.7` | Swagger UI and API documentation |
-
-Project reference:
-
-```text
-BlogPlatform.Api → BlogPlatform.Application
-```
-
-### `BlogPlatform.App`
-
-| Package | Version | Purpose |
-|---|---:|---|
-| `Microsoft.AspNetCore.Components.WebAssembly` | `10.0.5` | Blazor WebAssembly runtime |
-| `Microsoft.AspNetCore.Components.WebAssembly.DevServer` | `10.0.5` | Local development server |
-
-### `BlogPlatform.Application`
-
-Project reference:
-
-```text
-BlogPlatform.Application → BlogPlatform.Domain
-```
-
-### `BlogPlatform.Infrastructure`
-
-Project references:
-
-```text
-BlogPlatform.Infrastructure → BlogPlatform.Application
-BlogPlatform.Infrastructure → BlogPlatform.Domain
-```
+- engineering-themed UI
+- article rendering system
+- article detail pages
+- category navigation
+- reusable rendering components
+- markdown rendering
+- code block rendering
+- PlantUML/Mermaid integration foundation
+- live preview rendering
+- preview diagnostics overlay
+- iframe synchronization
 
 ---
 
-## Domain Model
+# CMS Features
 
-The current domain model is intentionally small and focused on the blog/content concept.
+`BlogPlatform.Cms` currently provides:
 
-```mermaid
-classDiagram
-    class Post {
-        int Id
-        string Title
-        string Content
-        DateTime CreatedAt
-        PostStatus Status
-    }
-
-    class Category {
-        int Id
-        string Name
-    }
-
-    class Tag {
-        int Id
-        string Name
-    }
-
-    class PostStatus {
-        <<enumeration>>
-        Draft
-        Published
-        Archived
-    }
-
-    Post --> PostStatus
-```
-
-Current entities:
-
-| Entity | Purpose |
-|---|---|
-| `Post` | Represents a blog/article entry |
-| `Category` | Represents a content category |
-| `Tag` | Represents a content tag |
-| `PostStatus` | Defines post lifecycle state: draft, published, archived |
+- CMS editor shell
+- live preview iframe integration
+- editor-to-preview synchronization
+- debounced live updates
+- ACK-based preview confirmation
+- preview lifecycle diagnostics
 
 ---
 
-## Current API
+# Diagnostics and Observability
 
-The API currently exposes a sample posts endpoint.
+The repository now includes a lightweight diagnostics pipeline used for preview troubleshooting.
 
-| Method | Endpoint | Description |
+Features:
+
+- render sequence tracking
+- preview ACK tracking
+- iframe synchronization logging
+- render lifecycle logging
+- safe diagnostics transport
+- recursion-safe logging strategy
+
+The diagnostics pipeline was intentionally separated from the standard application logger to avoid infinite recursive logging loops.
+
+---
+
+# Engineering Topics Demonstrated
+
+This repository intentionally demonstrates practical engineering topics such as:
+
+- layered architecture
+- runtime synchronization
+- iframe communication
+- diagnostics-first troubleshooting
+- rendering pipelines
+- state invalidation debugging
+- component rendering
+- CMS/frontend integration
+- architecture documentation
+- developer tooling
+- observability mindset
+
+---
+
+# Current API
+
+Current endpoints include:
+
+| Method | Endpoint | Purpose |
 |---|---|---|
-| `GET` | `/api/posts` | Returns a sample list of posts |
+| GET | `/api/posts` | sample posts |
+| POST | `/api/preview-diagnostics` | preview diagnostics logging |
 
-Current sample response concept:
-
-```json
-[
-  {
-    "id": 1,
-    "title": "First post",
-    "content": "Hello from .NET API"
-  }
-]
-```
-
-Swagger is enabled in the Development environment.
+Swagger/OpenAPI is enabled in Development mode.
 
 ---
 
-## CMS (BlogPlatform.Cms)
+# How to Run
 
-The CMS project is based on **Umbraco** and provides:
-- Backoffice for content editors
-- Website rendering capabilities
-- Delivery API (headless mode support)
-- SQL Server LocalDB integration
-- Automatic database creation
-
-### Configuration snippet
-
-```csharp
-builder.CreateUmbracoBuilder()
-    .AddBackOffice()
-    .AddWebsite()
-    .AddDeliveryApi()
-    .AddComposers()
-    .Build();
-```
-
-### Local database
-
-```json
-"ConnectionStrings": {
-  "umbracoDbDSN": "Server=(localdb)\\MSSQLLocalDB;Database=BlogPlatformUmbracoDb;Integrated Security=true;"
-}
-```
-
-### Backoffice URL
-
-```
-/umbraco
-```
-
----
-
-## Frontend Features
-
-The Blazor WebAssembly application currently includes:
-
-- Home page with engineering positioning
-- Category navigation:
-  - Backend (.NET)
-  - Cloud & DevOps
-  - Architecture
-- Article cards with title, summary, level, focus, and tech stack
-- Article details page based on slug routing
-- About page focused on .NET backend and cloud engineering
-- Projects page explaining the portfolio purpose
-- Shared layout and reusable post card component
-
----
-
-## How to Run Locally
-
-### Prerequisites
-
-- .NET SDK compatible with `net10.0`
-- Git
-
-### Run the API
+## Run API
 
 ```bash
 cd src/BlogPlatform/BlogPlatform.Api
 dotnet run
 ```
 
-Default launch URLs from the repository:
+Default:
 
 ```text
-http://localhost:5083
 https://localhost:7214
 ```
 
-Swagger UI is available in Development mode.
+---
 
-### Run the Blazor App
+## Run Blazor App
 
 ```bash
 cd src/BlogPlatform/BlogPlatform.App
 dotnet run
 ```
 
-Default launch URLs from the repository:
+Default:
 
 ```text
-http://localhost:5016
 https://localhost:7252
 ```
 
 ---
 
-## Recommended Next Steps
+## Run CMS
 
-### 1. Connect the frontend to the API
+```bash
+cd src/BlogPlatform/BlogPlatform.Cms
+dotnet run
+```
 
-Currently the frontend uses static in-memory article data. The next practical step is to move post data behind the API and consume it from the Blazor app using `HttpClient`.
-
-### 2. Add application services
-
-Introduce use cases such as:
-
-- `GetPostsQuery`
-- `GetPostBySlugQuery`
-- `CreatePostCommand`
-- `UpdatePostCommand`
-- `PublishPostCommand`
-
-### 3. Add persistence
-
-Use the Infrastructure layer for:
-
-- Entity Framework Core
-- SQL Server or PostgreSQL
-- repository/query implementations
-- migrations
-
-### 4. Add automated tests
-
-Recommended test layers:
-
-- Domain tests
-- Application service tests
-- API endpoint tests
-- Blazor component tests if needed
-
-### 5. Add CI/CD
-
-A good portfolio pipeline should include:
-
-- restore
-- build
-- test
-- publish artifacts
-- deploy to Azure
-
-### 6. Add Azure infrastructure
-
-Good next Azure targets:
-
-- Azure App Service for API
-- Static Web Apps or App Service for frontend
-- Azure SQL Database
-- Azure Key Vault
-- Application Insights
-- Storage Account
-
-### 7. Add documentation
-
-Recommended documentation files:
+Default:
 
 ```text
-docs/
-├── architecture.md
-├── deployment.md
-├── ci-cd.md
-├── decisions/
-│   ├── 0001-clean-architecture.md
-│   └── 0002-blazor-webassembly-frontend.md
-└── diagrams/
+https://localhost:44393
+```
+
+CMS editor:
+
+```text
+/blog-admin/article-editor
+```
+
+Umbraco backoffice:
+
+```text
+/umbraco
 ```
 
 ---
 
-## Suggested Future Architecture
+# Recommended Next Steps
 
-```mermaid
-flowchart TB
-    User[User]
-    CDN[Static Web Hosting / CDN]
-    Api[ASP.NET Core API]
-    AppService[Azure App Service]
-    Db[(Azure SQL Database)]
-    KeyVault[Azure Key Vault]
-    Insights[Application Insights]
-    Pipeline[GitHub Actions / Azure DevOps]
-    IaC[Infrastructure as Code]
+## Backend
 
-    User --> CDN
-    CDN --> Api
-    Api --> AppService
-    AppService --> Db
-    AppService --> KeyVault
-    AppService --> Insights
-    Pipeline --> CDN
-    Pipeline --> AppService
-    IaC --> CDN
-    IaC --> AppService
-    IaC --> Db
-    IaC --> KeyVault
-    IaC --> Insights
-```
+- replace static data
+- add application services
+- add EF Core persistence
+- add authentication/authorization
+
+## Cloud
+
+- Azure App Service
+- Azure SQL
+- Key Vault
+- Application Insights
+- Blob Storage
+
+## DevOps
+
+- GitHub Actions
+- Azure DevOps pipelines
+- automated deployments
+- IaC
+
+## Engineering
+
+- automated tests
+- render pipeline tests
+- component snapshot tests
+- diagnostics dashboards
+- architecture decision records
 
 ---
 
-## Portfolio Value
+# Future Direction
 
-This repository can become a strong portfolio project because it combines:
+Planned evolution:
+
+```text
+Static Portfolio
+    ↓
+Headless CMS Platform
+    ↓
+Cloud-Native Engineering Platform
+    ↓
+Production-Grade Portfolio System
+```
+
+Future goals:
+
+- headless CMS architecture
+- Azure deployment
+- CI/CD
+- Infrastructure as Code
+- distributed diagnostics
+- search/indexing
+- article versioning
+- AI-assisted content workflows
+
+---
+
+# Portfolio Value
+
+This repository demonstrates practical experience with:
 
 - .NET backend engineering
-- cloud-readiness
-- frontend presentation
-- architectural separation
-- technical writing
-- diagram-based communication
-- CI/CD and infrastructure direction
+- Blazor WebAssembly
+- architecture design
+- runtime debugging
+- diagnostics
+- rendering systems
+- CMS integration
+- cloud-oriented thinking
+- developer tooling
+- frontend/backend synchronization
+
+The project intentionally emphasizes engineering depth and troubleshooting capability rather than only visual UI work.
 
 ---
 
-## License
+# License
 
-This project includes a `LICENSE` file in the repository.
+This repository contains a LICENSE file.
