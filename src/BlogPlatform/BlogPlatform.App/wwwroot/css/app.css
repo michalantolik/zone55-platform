@@ -234,6 +234,93 @@ button {
         line-height: 1.35;
     }
 
+.author-visual-card {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 20px;
+    color: var(--signal-card-title);
+    background: var(--signal-card-bg);
+    border: 1px solid var(--signal-card-border);
+    overflow: hidden;
+    transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+    .author-visual-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--accent);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, .22);
+    }
+
+.author-visual-image {
+    height: 132px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .92);
+}
+
+    .author-visual-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 48%;
+        display: block;
+        filter: grayscale(1) contrast(1.08);
+        opacity: .9;
+        transition: transform .35s ease, opacity .22s ease;
+    }
+
+.author-visual-card:hover .author-visual-image img {
+    transform: scale(1.035);
+    opacity: 1;
+}
+
+.author-visual-text small {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--signal-card-muted);
+    font-weight: 700;
+}
+
+.author-visual-text strong {
+    display: block;
+    line-height: 1.35;
+    font-size: .96rem;
+}
+
+@media (max-width: 980px) {
+    .author-visual-card {
+        grid-template-columns: 150px 1fr;
+        align-items: center;
+    }
+
+    .author-visual-image {
+        height: 96px;
+    }
+}
+
+@media (max-width: 620px) {
+    .author-visual-card {
+        grid-template-columns: 1fr;
+    }
+
+    .author-visual-image {
+        height: 120px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .author-visual-card,
+    .author-visual-image img {
+        transition: none;
+    }
+
+        .author-visual-card:hover,
+        .author-visual-card:hover .author-visual-image img {
+            transform: none;
+        }
+}
+
 .intro-strip {
     display: grid;
     grid-template-columns: 1fr 1fr;
