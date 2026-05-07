@@ -19,20 +19,24 @@ public sealed class PreviewDiagnosticsClient : IPreviewDiagnosticsClient
     {
         try
         {
-            await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "api/preview-diagnostics",
                 new PreviewDiagnosticEntry(
                     source,
                     eventName,
                     sequence,
                     message));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine(
+                    $"PREVIEW DIAGNOSTICS FAILED: StatusCode={(int)response.StatusCode}; Event={eventName}; Sequence={sequence}");
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine(
-                $"PREVIEW DIAGNOSTICS FAILED: {ex}");
-
-            throw;
+                $"PREVIEW DIAGNOSTICS FAILED: {ex.GetType().Name}: {ex.Message}");
         }
     }
 }

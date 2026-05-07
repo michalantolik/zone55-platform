@@ -1,11 +1,15 @@
 ﻿@page "/preview/article"
+@layout PreviewLayout
+
 @using System.Text.Json
 @using BlogPlatform.Contracts.Posts
 @using BlogPlatform.App.Models
 @using BlogPlatform.App.Services
 @using Microsoft.JSInterop
+
 @inject IJSRuntime JS
 @inject IPreviewDiagnosticsClient Diagnostics
+
 
 <PageTitle>Article preview</PageTitle>
 
