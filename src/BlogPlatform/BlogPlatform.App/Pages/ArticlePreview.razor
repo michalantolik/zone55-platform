@@ -1,0 +1,57 @@
+﻿@page "/preview/article"
+@using System.Text.Json
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<PageTitle>Article preview</PageTitle>
+
+<section class="article-shell container-xl">
+    @if (_article is null)
+    {
+        <article class="article-card">
+            <h1>Waiting for preview data...</h1>
+            <p>Open this page inside the CMS preview iframe.</p>
+        </article>
+    }
+    else
+    {
+        <ArticleRenderer Article="_article" />
+    }
+</section>
+
+@code {
+    private PostDetails? _article;
+    private DotNetObjectReference<ArticlePreview>? _objectReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _objectReference = DotNetObjectReference.Create(this);
+
+        await JS.InvokeVoidAsync(
+            "blogPlatformPreview.register",
+            _objectReference);
+    }
+
+    [JSInvokable]
+    public async Task LoadPreviewArticle(string json)
+    {
+        _article = JsonSerializer.Deserialize<PostDetails>(
+            json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _objectReference?.Dispose();
+    }
+}

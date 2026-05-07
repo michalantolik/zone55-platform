@@ -112,6 +112,21 @@
                 }
             }
         };
+
+        window.blogPlatformPreview = {
+            register: (dotNetObject) => {
+                window.addEventListener('message', async (event) => {
+                    if (!event.data || event.data.type !== 'BLOG_ARTICLE_PREVIEW') {
+                        return;
+                    }
+
+                    await dotNetObject.invokeMethodAsync(
+                        'LoadPreviewArticle',
+                        JSON.stringify(event.data.article));
+                });
+            }
+        };
+
     </script>
 
 </body>

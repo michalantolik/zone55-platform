@@ -1,0 +1,219 @@
+﻿@using System.IO.Compression
+@using System.Text
+@using BlogPlatform.Contracts.Posts
+@using Microsoft.JSInterop
+@inject IConfiguration Configuration
+@inject IJSRuntime JS
+
+@if (Article is not null)
+{
+    <article class="article-card">
+        <div class="tag-row">
+            @foreach (var tag in Article.Tags)
+            {
+                <span>@tag</span>
+            }
+        </div>
+
+        <h1>@Article.Title</h1>
+
+        <div class="article-meta">
+            <strong>Engineering note</strong>
+            <span>·</span>
+            <span>Michał Antolik</span>
+            <span>·</span>
+            <span>@Article.Category</span>
+        </div>
+
+        <div class="article-summary">
+            @Article.Summary
+        </div>
+
+        <div class="article-body">
+            @foreach (var block in Blocks)
+            {
+                @switch (block.Type)
+                {
+                    case ArticleBlockType.Heading:
+                        <DynamicComponent Type="@GetHeadingComponent(block.Level)" Parameters="@CreateHeadingParameters(block.Text)" />
+                        break;
+
+                    case ArticleBlockType.Text:
+                        <p>@block.Text</p>
+                        break;
+
+                    case ArticleBlockType.Code:
+                        <figure class="code-block">
+                            <div class="snippet-toolbar">
+                                <figcaption>@(block.FileName ?? block.Language ?? "code")</figcaption>
+                                <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Code)">Copy</button>
+                            </div>
+                            <pre><code class="language-@block.Language">@foreach (var line in GetCodeLines(block.Code))
+                                {
+                                    <span class="code-line"><span class="line-number">@line.Number</span><span class="line-content">@line.Text</span></span>
+                                }
+                            </code></pre>
+                        </figure>
+                        break;
+
+                    case ArticleBlockType.Mermaid:
+                        <figure class="diagram-block mermaid-block">
+                            <figcaption>Mermaid diagram</figcaption>
+                            <pre class="mermaid">@block.Diagram</pre>
+                        </figure>
+                        break;
+
+                    case ArticleBlockType.PlantUml:
+                        <figure class="diagram-block plantuml-block">
+                            <figcaption>PlantUML diagram</figcaption>
+                            <img src="@CreatePlantUmlUrl(block.Diagram)" alt="PlantUML diagram" />
+                        </figure>
+                        break;
+
+                    case ArticleBlockType.Callout:
+                        <aside class="callout callout-@block.Kind">
+                            <strong>@block.Kind</strong>
+                            <p>@block.Text</p>
+                        </aside>
+                        break;
+                }
+            }
+        </div>
+    </article>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public PostDetails? Article { get; set; }
+
+    private IReadOnlyCollection<ArticleBlockDto> Blocks =>
+        ArticleBlockParser.Parse(Article?.BodyHtml);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("blogPlatformArticle.renderDiagrams");
+    }
+
+    private static Type GetHeadingComponent(int level)
+    {
+        return level switch
+        {
+            3 => typeof(H3),
+            4 => typeof(H4),
+            _ => typeof(H2)
+        };
+    }
+
+    private static Dictionary<string, object?> CreateHeadingParameters(string? text)
+    {
+        return new()
+        {
+            ["ChildContent"] = (RenderFragment)(builder => builder.AddContent(0, text))
+        };
+    }
+
+    private async Task CopyToClipboardAsync(string? value)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            await JS.InvokeVoidAsync("blogPlatformArticle.copyToClipboard", value);
+        }
+    }
+
+    private static IReadOnlyCollection<CodeLine> GetCodeLines(string? code)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            return [];
+        }
+
+        return code
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .Select((text, index) => new CodeLine(index + 1, text))
+            .ToArray();
+    }
+
+    private static string CreatePlantUmlUrl(string? diagram)
+    {
+        if (string.IsNullOrWhiteSpace(diagram))
+        {
+            return string.Empty;
+        }
+
+        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(diagram)}";
+    }
+
+    private static string EncodePlantUml(string source)
+    {
+        var bytes = Encoding.UTF8.GetBytes(source);
+
+        using var output = new MemoryStream();
+
+        using (var deflate = new DeflateStream(output, CompressionLevel.SmallestSize, leaveOpen: true))
+        {
+            deflate.Write(bytes, 0, bytes.Length);
+        }
+
+        return EncodePlantUmlBytes(output.ToArray());
+    }
+
+    private static string EncodePlantUmlBytes(byte[] data)
+    {
+        const string alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+
+        var result = new StringBuilder();
+
+        for (var i = 0; i < data.Length; i += 3)
+        {
+            var b1 = data[i];
+            var b2 = i + 1 < data.Length ? data[i + 1] : 0;
+            var b3 = i + 2 < data.Length ? data[i + 2] : 0;
+
+            result.Append(alphabet[b1 >> 2]);
+            result.Append(alphabet[((b1 & 0x3) << 4) | (b2 >> 4)]);
+            result.Append(alphabet[((b2 & 0xF) << 2) | (b3 >> 6)]);
+            result.Append(alphabet[b3 & 0x3F]);
+        }
+
+        return result.ToString();
+    }
+
+    private sealed record CodeLine(int Number, string Text);
+
+    private sealed class H2 : ComponentBase
+    {
+        [Parameter] public RenderFragment? ChildContent { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "h2");
+            builder.AddContent(1, ChildContent);
+            builder.CloseElement();
+        }
+    }
+
+    private sealed class H3 : ComponentBase
+    {
+        [Parameter] public RenderFragment? ChildContent { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "h3");
+            builder.AddContent(1, ChildContent);
+            builder.CloseElement();
+        }
+    }
+
+    private sealed class H4 : ComponentBase
+    {
+        [Parameter] public RenderFragment? ChildContent { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "h4");
+            builder.AddContent(1, ChildContent);
+            builder.CloseElement();
+        }
+    }
+}
