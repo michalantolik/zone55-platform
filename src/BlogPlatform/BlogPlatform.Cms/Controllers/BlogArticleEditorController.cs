@@ -5,10 +5,14 @@ namespace BlogPlatform.Cms.Controllers;
 public sealed class BlogArticleEditorController : Controller
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<BlogArticleEditorController> _logger;
 
-    public BlogArticleEditorController(IConfiguration configuration)
+    public BlogArticleEditorController(
+        IConfiguration configuration,
+        ILogger<BlogArticleEditorController> logger)
     {
         _configuration = configuration;
+        _logger = logger;
     }
 
     [HttpGet("/blog-admin/article-editor")]
@@ -16,6 +20,10 @@ public sealed class BlogArticleEditorController : Controller
     {
         var previewUrl = _configuration["BlogPreview:AppPreviewUrl"]
             ?? "https://localhost:5002/preview/article";
+
+        _logger.LogInformation(
+            "LIVE_PREVIEW CMS editor opened. PreviewUrl={PreviewUrl}",
+            previewUrl);
 
         ViewData["PreviewUrl"] = previewUrl;
 

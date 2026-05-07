@@ -4,7 +4,7 @@ namespace BlogPlatform.App.Services;
 
 public sealed class ApiClientLogger : ILogger
 {
-    private const int MaxMessageLength = 2000;
+    private const int MaxMessageLength = 3000;
 
     private readonly HttpClient _httpClient;
     private readonly string _categoryName;

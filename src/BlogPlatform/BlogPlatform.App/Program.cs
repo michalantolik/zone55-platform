@@ -15,18 +15,22 @@ if (string.IsNullOrWhiteSpace(apiBaseUrl))
     throw new InvalidOperationException("Api:BaseUrl is missing.");
 }
 
-builder.Logging.AddProvider(new ApiClientLoggerProvider(apiBaseUrl));
-
-builder.Services.AddScoped(_ => new HttpClient
+var apiHttpClient = new HttpClient
 {
     BaseAddress = new Uri(apiBaseUrl, UriKind.Absolute)
-});
+};
+
+builder.Services.AddScoped(_ => apiHttpClient);
+
+builder.Logging.AddProvider(
+    new ApiClientLoggerProvider(apiHttpClient));
 
 builder.Services.AddScoped<IBlogApiClient, BlogApiClient>();
+builder.Services.AddScoped<IPreviewDiagnosticsClient, PreviewDiagnosticsClient>();
 
 var host = builder.Build();
 
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation("APP starting. API base URL: {ApiBaseUrl}", apiBaseUrl);
+logger.LogWarning("APP starting. API base URL: {ApiBaseUrl}", apiBaseUrl);
 
 await host.RunAsync();

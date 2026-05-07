@@ -1,15 +1,17 @@
 ﻿@using System.IO.Compression
 @using System.Text
+@using BlogPlatform.App.Models
 @using BlogPlatform.Contracts.Posts
 @using Microsoft.JSInterop
-@inject IConfiguration Configuration
 @inject IJSRuntime JS
 
 @if (Article is not null)
 {
-    <article class="article-card">
+    var blocks = ArticleBlockParser.Parse(Article.BodyHtml);
+
+    <article class="article-card" @key="Article.Title + Article.Summary + Article.BodyHtml">
         <div class="tag-row">
-            @foreach (var tag in Article.Tags)
+            @foreach (var tag in Article.Tags ?? [])
             {
                 <span>@tag</span>
             }
@@ -30,12 +32,12 @@
         </div>
 
         <div class="article-body">
-            @foreach (var block in Blocks)
+            @foreach (var block in blocks)
             {
                 @switch (block.Type)
                 {
                     case ArticleBlockType.Heading:
-                        <DynamicComponent Type="@GetHeadingComponent(block.Level)" Parameters="@CreateHeadingParameters(block.Text)" />
+                        @RenderHeading(block)
                         break;
 
                     case ArticleBlockType.Text:
@@ -48,6 +50,7 @@
                                 <figcaption>@(block.FileName ?? block.Language ?? "code")</figcaption>
                                 <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(block.Code)">Copy</button>
                             </div>
+
                             <pre><code class="language-@block.Language">@foreach (var line in GetCodeLines(block.Code))
                                 {
                                     <span class="code-line"><span class="line-number">@line.Number</span><span class="line-content">@line.Text</span></span>
@@ -86,31 +89,24 @@
     [Parameter, EditorRequired]
     public PostDetails? Article { get; set; }
 
-    private IReadOnlyCollection<ArticleBlockDto> Blocks =>
-        ArticleBlockParser.Parse(Article?.BodyHtml);
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeVoidAsync("blogPlatformArticle.renderDiagrams");
     }
 
-    private static Type GetHeadingComponent(int level)
+    private static RenderFragment RenderHeading(ArticleBlockDto block) => builder =>
     {
-        return level switch
+        var tagName = block.Level switch
         {
-            3 => typeof(H3),
-            4 => typeof(H4),
-            _ => typeof(H2)
+            3 => "h3",
+            4 => "h4",
+            _ => "h2"
         };
-    }
 
-    private static Dictionary<string, object?> CreateHeadingParameters(string? text)
-    {
-        return new()
-        {
-            ["ChildContent"] = (RenderFragment)(builder => builder.AddContent(0, text))
-        };
-    }
+        builder.OpenElement(0, tagName);
+        builder.AddContent(1, block.Text);
+        builder.CloseElement();
+    };
 
     private async Task CopyToClipboardAsync(string? value)
     {
@@ -180,40 +176,4 @@
     }
 
     private sealed record CodeLine(int Number, string Text);
-
-    private sealed class H2 : ComponentBase
-    {
-        [Parameter] public RenderFragment? ChildContent { get; set; }
-
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
-        {
-            builder.OpenElement(0, "h2");
-            builder.AddContent(1, ChildContent);
-            builder.CloseElement();
-        }
-    }
-
-    private sealed class H3 : ComponentBase
-    {
-        [Parameter] public RenderFragment? ChildContent { get; set; }
-
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
-        {
-            builder.OpenElement(0, "h3");
-            builder.AddContent(1, ChildContent);
-            builder.CloseElement();
-        }
-    }
-
-    private sealed class H4 : ComponentBase
-    {
-        [Parameter] public RenderFragment? ChildContent { get; set; }
-
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
-        {
-            builder.OpenElement(0, "h4");
-            builder.AddContent(1, ChildContent);
-            builder.CloseElement();
-        }
-    }
 }

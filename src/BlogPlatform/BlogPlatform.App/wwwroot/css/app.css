@@ -1423,3 +1423,17 @@ button {
         margin-left: 0;
     }
 }
+
+.article-preview-debug {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid #2563eb;
+    border-radius: 10px;
+    background: #dbeafe;
+    color: #1e3a8a;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+}

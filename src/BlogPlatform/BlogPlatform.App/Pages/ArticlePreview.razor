@@ -1,11 +1,15 @@
 ﻿@page "/preview/article"
 @using System.Text.Json
+@using BlogPlatform.Contracts.Posts
+@using BlogPlatform.App.Models
+@using BlogPlatform.App.Services
 @using Microsoft.JSInterop
 @inject IJSRuntime JS
+@inject IPreviewDiagnosticsClient Diagnostics
 
 <PageTitle>Article preview</PageTitle>
 
-<section class="article-shell container-xl">
+<section class="article-shell container-xl" @key="_renderKey">
     @if (_article is null)
     {
         <article class="article-card">
@@ -15,18 +19,96 @@
     }
     else
     {
-        <ArticleRenderer Article="_article" />
+        var blocks = ArticleBlockParser.Parse(_article.BodyHtml ?? string.Empty);
+
+        <div class="article-preview-debug">
+            Preview sequence: @_lastSequence |
+            Title: @_article.Title |
+            Summary length: @(_article.Summary?.Length ?? 0) |
+            Blocks: @blocks.Count |
+            Render key: @_renderKey
+        </div>
+
+        <article class="article-card" @key="_renderKey">
+            <div class="tag-row">
+                @foreach (var tag in _article.Tags ?? [])
+                {
+                    <span>@tag</span>
+                }
+            </div>
+
+            <h1>@_article.Title</h1>
+
+            <div class="article-meta">
+                <strong>Engineering note</strong>
+                <span>·</span>
+                <span>Michał Antolik</span>
+                <span>·</span>
+                <span>@_article.Category</span>
+            </div>
+
+            <div class="article-summary">
+                @_article.Summary
+            </div>
+
+            <div class="article-body">
+                @foreach (var block in blocks)
+                {
+                    if (block.Type == ArticleBlockType.Heading)
+                    {
+                        if (block.Level == 3)
+                        {
+                            <h3>@block.Text</h3>
+                        }
+                        else if (block.Level == 4)
+                        {
+                            <h4>@block.Text</h4>
+                        }
+                        else
+                        {
+                            <h2>@block.Text</h2>
+                        }
+                    }
+                    else if (block.Type == ArticleBlockType.Text)
+                    {
+                        <p>@block.Text</p>
+                    }
+                    else if (block.Type == ArticleBlockType.Code)
+                    {
+                        <figure class="code-block">
+                            <div class="snippet-toolbar">
+                                <figcaption>@(block.FileName ?? block.Language ?? "code")</figcaption>
+                            </div>
+
+                            <pre><code>@block.Code</code></pre>
+                        </figure>
+                    }
+                    else
+                    {
+                        <p>@block.Text</p>
+                    }
+                }
+            </div>
+        </article>
     }
 </section>
 
 @code {
     private PostDetails? _article;
     private DotNetObjectReference<ArticlePreview>? _objectReference;
+    private int _renderKey;
+    private int _lastSequence;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
         {
+            await Diagnostics.WriteAsync(
+                "APP",
+                "ArticlePreview.AfterRender",
+                _lastSequence,
+                $"Render completed. RenderKey={_renderKey}; Title={_article?.Title}");
+
             return;
         }
 
@@ -35,19 +117,85 @@
         await JS.InvokeVoidAsync(
             "blogPlatformPreview.register",
             _objectReference);
+
+        await Diagnostics.WriteAsync(
+            "APP",
+            "ArticlePreview.Registered",
+            0,
+            "Preview JS listener registered.");
     }
 
     [JSInvokable]
-    public async Task LoadPreviewArticle(string json)
+    public async Task LoadPreviewArticle(string json, int sequence)
     {
-        _article = JsonSerializer.Deserialize<PostDetails>(
-            json,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+        try
+        {
+            await Diagnostics.WriteAsync(
+                "APP",
+                "LoadPreviewArticle.Start",
+                sequence,
+                $"JsonIsNull={json is null}; JsonLength={json?.Length ?? 0}");
 
-        await InvokeAsync(StateHasChanged);
+            var article = JsonSerializer.Deserialize<PostDetails>(
+                json,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+            await Diagnostics.WriteAsync(
+                "APP",
+                "AfterDeserialize",
+                sequence,
+                $"ArticleIsNull={article is null}; Title={article?.Title}; BodyHtmlIsNull={article?.BodyHtml is null}");
+
+            if (article is null)
+            {
+                return;
+            }
+
+            var blocks = ArticleBlockParser.Parse(article.BodyHtml ?? string.Empty);
+
+            _article = article;
+            _lastSequence = sequence;
+            _renderKey++;
+
+            await Diagnostics.WriteAsync(
+                "APP",
+                "BeforeStateHasChanged",
+                sequence,
+                $"Title={_article.Title}; SummaryLength={_article.Summary?.Length ?? 0}; Blocks={blocks.Count}; RenderKey={_renderKey}");
+
+            await InvokeAsync(StateHasChanged);
+
+            await Diagnostics.WriteAsync(
+                "APP",
+                "AfterStateHasChanged",
+                sequence,
+                $"StateHasChanged completed. Title={_article.Title}; RenderKey={_renderKey}");
+
+            await JS.InvokeVoidAsync(
+                "blogPlatformPreview.sendAck",
+                sequence,
+                _article.Title,
+                blocks.Count);
+
+            await Diagnostics.WriteAsync(
+                "APP",
+                "AfterAck",
+                sequence,
+                $"ACK sent. Title={_article.Title}; Blocks={blocks.Count}; RenderKey={_renderKey}");
+        }
+        catch (Exception ex)
+        {
+            await Diagnostics.WriteAsync(
+                "APP",
+                "LoadPreviewArticle.Exception",
+                sequence,
+                $"{ex.GetType().Name}: {ex.Message}");
+
+            throw;
+        }
     }
 
     public void Dispose()

@@ -115,12 +115,23 @@ public sealed class Example
         </section>
 
         <section class="preview-panel">
-            <iframe id="previewFrame" src="@previewUrl"></iframe>
+            <iframe id="previewFrame"
+                    src="@previewUrl"
+                    onload="console.log('[LIVE_PREVIEW] iframe loaded:', this.src)">
+            </iframe>
         </section>
     </div>
 
     <script>
             const frame = document.getElementById('previewFrame');
+            const previewUrl = '@previewUrl';
+
+            const previewDebounceDelayMs = 300;
+
+            let sendSequence = 0;
+            let previewDebounceTimer = null;
+            let lastScheduledReason = '';
+            let iframeIsLoaded = false;
 
             const fields = [
                 'title',
@@ -132,13 +143,79 @@ public sealed class Example
                 'body'
             ];
 
+            console.log('[LIVE_PREVIEW] iframe previewUrl =', previewUrl);
+
+            logToPlatform(
+                'WARNING',
+                `Iframe configured with previewUrl=${previewUrl}`);
+
+            logToPlatform(
+                'INFORMATION',
+                `Editor initialized. PreviewUrl=${previewUrl}; DebounceDelayMs=${previewDebounceDelayMs}`);
+
             for (const field of fields) {
-                document.getElementById(field).addEventListener('input', sendPreview);
+                const element = document.getElementById(field);
+
+                element.addEventListener('input', () => {
+                    logToPlatform(
+                        'INFORMATION',
+                        `Input changed. Field=${field}; ValueLength=${element.value.length}`);
+
+                    schedulePreview(`input:${field}`);
+                });
             }
 
-            frame.addEventListener('load', sendPreview);
+            frame.addEventListener('load', () => {
+                iframeIsLoaded = true;
 
-            function sendPreview() {
+                console.log('[LIVE_PREVIEW] iframe actual src =', frame.src);
+
+                logToPlatform(
+                    'INFORMATION',
+                    `Iframe load event fired. FrameSrc=${frame.src}; HasContentWindow=${!!frame.contentWindow}`);
+
+                sendPreviewNow('iframe-load');
+            });
+
+            window.addEventListener('message', (event) => {
+                if (!event.data || event.data.type !== 'BLOG_ARTICLE_PREVIEW_ACK') {
+                    return;
+                }
+
+                logToPlatform(
+                    'INFORMATION',
+                    `ACK received from preview iframe. Sequence=${event.data.sequence}; Title=${event.data.title}; Blocks=${event.data.blockCount}; Origin=${event.origin}`);
+            });
+
+            function schedulePreview(reason) {
+                lastScheduledReason = reason;
+
+                if (previewDebounceTimer !== null) {
+                    clearTimeout(previewDebounceTimer);
+                }
+
+                previewDebounceTimer = setTimeout(() => {
+                    previewDebounceTimer = null;
+
+                    sendPreviewNow(`debounced:${lastScheduledReason}`);
+                }, previewDebounceDelayMs);
+
+                logToPlatform(
+                    'INFORMATION',
+                    `Preview update scheduled. Reason=${reason}; DebounceDelayMs=${previewDebounceDelayMs}`);
+            }
+
+            function sendPreviewNow(reason) {
+                if (!iframeIsLoaded && reason !== 'iframe-load') {
+                    logToPlatform(
+                        'WARNING',
+                        `Preview send skipped because iframe is not loaded yet. Reason=${reason}`);
+
+                    return;
+                }
+
+                sendSequence++;
+
                 const article = {
                     slug: value('slug'),
                     title: value('title'),
@@ -152,10 +229,29 @@ public sealed class Example
                     bodyHtml: createUmbracoBlockListJson(value('body'))
                 };
 
+                const bodyBlockCount = countBlocks(article.bodyHtml);
+
+                logToPlatform(
+                    'INFORMATION',
+                    `Sending preview. Reason=${reason}; Sequence=${sendSequence}; Title=${article.title}; Slug=${article.slug}; SummaryLength=${article.summary.length}; Tags=${article.tags.length}; BodyChars=${value('body').length}; Blocks=${bodyBlockCount}; HasContentWindow=${!!frame.contentWindow}`);
+
+                if (!frame.contentWindow) {
+                    logToPlatform(
+                        'ERROR',
+                        `Cannot send preview. Iframe contentWindow is missing. Sequence=${sendSequence}`);
+
+                    return;
+                }
+
                 frame.contentWindow.postMessage({
                     type: 'BLOG_ARTICLE_PREVIEW',
+                    sequence: sendSequence,
                     article
                 }, '*');
+
+                logToPlatform(
+                    'INFORMATION',
+                    `postMessage executed. Sequence=${sendSequence}; Title=${article.title}`);
             }
 
             function value(id) {
@@ -234,6 +330,32 @@ public sealed class Example
                     },
                     contentData: blocks,
                     settingsData: []
+                });
+            }
+
+            function countBlocks(bodyHtml) {
+                try {
+                    const parsed = JSON.parse(bodyHtml);
+                    return parsed.contentData?.length ?? 0;
+                } catch {
+                    return -1;
+                }
+            }
+
+            function logToPlatform(level, message) {
+                console.log(`[LIVE_PREVIEW] ${level}: ${message}`);
+
+                fetch('/api/cms-client-logs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        level,
+                        message
+                    })
+                }).catch(() => {
+                    console.warn('[LIVE_PREVIEW] Failed to send CMS browser log.');
                 });
             }
     </script>
