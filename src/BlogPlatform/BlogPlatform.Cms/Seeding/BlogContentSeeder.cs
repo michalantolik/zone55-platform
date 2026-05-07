@@ -448,6 +448,468 @@ public sealed class BlogContentSeeder
             summary: "Simple diagrams that explain system context, components, deployment, and data flow.",
             tags: new[] { "PlantUML", "C4", "Diagrams", "Docs" },
             bodyBlocks: CreateArchitectureArticleBlocks());
+
+        CreateOrUpdateArticle(
+            name: "ASP.NET Core Web API Fundamentals: Getting Acquainted with ASP.NET Core",
+            slug: "aspnet-core-web-api-fundamentals-getting-acquainted",
+            categorySlug: "backend-dotnet",
+            level: "Beginner",
+            focus: "Course Notes",
+            summary: "A standalone study note explaining the ASP.NET Core Web API project structure, hosting model, dependency injection, middleware pipeline, environments, Swagger, CLI usage, and MVC vs Minimal API approaches.",
+            tags: new[] { ".NET", "ASP.NET Core", "Web API", "Middleware", "Swagger", "Dependency Injection" },
+            bodyBlocks: new List<SeedBlock>
+            {
+                HeadingBlock(2, "What this course module explains"),
+
+                TextBlock(
+                    "This article summarizes the first major module of an ASP.NET Core Web API fundamentals course. The goal is to understand what ASP.NET Core is, how a new Web API project is structured, how it runs, how requests flow through middleware, and how development environments affect runtime behavior."),
+
+                TextBlock(
+                    "The module uses a beginner-friendly path. It starts with the big picture, then creates a new ASP.NET Core Web API project, runs it from Visual Studio and the command line, inspects the generated files, and finally explains the request pipeline and environment-specific behavior."),
+
+                HeadingBlock(2, "ASP.NET Core in the big picture"),
+
+                TextBlock(
+                    "ASP.NET Core is a cross-platform, high-performance, open-source framework for building modern web applications, services, APIs, cloud-enabled systems, IoT backends, and mobile backends. It can be developed on Windows, Linux, or macOS and deployed either to the cloud or on-premises."),
+
+                TextBlock(
+                    "ASP.NET Core is the web framework. .NET is the developer platform it runs on. Older versions originally ran on .NET Core, but after .NET Core evolved, Microsoft renamed the platform to .NET starting with .NET 5. Version 4 was skipped to avoid confusion with the older .NET Framework 4.x line."),
+
+                CalloutBlock(
+                    kind: "note",
+                    text: ".NET 8 is a long-term support release. .NET 9 is a current release. For production learning projects, .NET 8 is often the safer baseline because it has longer support."),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart TD
+                        A[.NET Developer Platform] --> B[ASP.NET Core Web Framework]
+                        B --> C[Web APIs]
+                        B --> D[Web Apps]
+                        B --> E[Cloud Services]
+                        B --> F[Mobile Backends]
+                        C --> G[Controllers / Minimal APIs]
+                    """),
+
+                HeadingBlock(2, "Two common ways to build APIs"),
+
+                TextBlock(
+                    "ASP.NET Core supports more than one API-building style. The course focuses on the classic ASP.NET Core MVC approach, which uses controllers and actions. This approach is full-featured, proven, and commonly used for larger APIs."),
+
+                TextBlock(
+                    "The second common style is Minimal APIs. Minimal APIs are lightweight and useful for smaller APIs, microservice-style endpoints, proxies, or scenarios where the full MVC feature set is not required."),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart LR
+                        A[ASP.NET Core API Options] --> B[MVC Controllers]
+                        A --> C[Minimal APIs]
+
+                        B --> B1[Full-featured]
+                        B --> B2[Controllers and actions]
+                        B --> B3[Good for larger APIs]
+
+                        C --> C1[Lightweight]
+                        C --> C2[Less ceremony]
+                        C --> C3[Good for small services]
+                    """),
+
+                HeadingBlock(2, "Creating a new Web API project"),
+
+                TextBlock(
+                    "A new ASP.NET Core Web API project can be created from Visual Studio using the ASP.NET Core Web API template. The sample API in the course is named CityInfo.API and is intended to expose cities and their points of interest."),
+
+                TextBlock(
+                    "The generated project starts with a small structure: a project file, appsettings.json, launchSettings.json, Program.cs, and a sample WeatherForecast endpoint. The sample endpoint is useful for seeing the project run, but in the course it is removed so the real API can be built from scratch."),
+
+                CodeSnippetBlock(
+                    language: "xml",
+                    fileName: "CityInfo.API.csproj",
+                    code:
+                    """
+                    <Project Sdk="Microsoft.NET.Sdk.Web">
+
+                      <PropertyGroup>
+                        <TargetFramework>net8.0</TargetFramework>
+                        <Nullable>enable</Nullable>
+                        <ImplicitUsings>enable</ImplicitUsings>
+                      </PropertyGroup>
+
+                      <ItemGroup>
+                        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+                      </ItemGroup>
+
+                    </Project>
+                    """),
+
+                TextBlock(
+                    "The Microsoft.NET.Sdk.Web SDK implicitly references the ASP.NET Core shared framework. That shared framework contains Microsoft-supported assemblies for MVC, hosting, authentication, configuration, logging, and other common web application features."),
+
+                HeadingBlock(2, "Swagger and OpenAPI support"),
+
+                TextBlock(
+                    "The default Web API template includes Swashbuckle.AspNetCore. Swashbuckle generates an OpenAPI specification and provides a Swagger UI page that documents the API and allows basic interactive testing."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    builder.Services.AddEndpointsApiExplorer();
+                    builder.Services.AddSwaggerGen();
+
+                    if (app.Environment.IsDevelopment())
+                    {
+                        app.UseSwagger();
+                        app.UseSwaggerUI();
+                    }
+                    """),
+
+                CalloutBlock(
+                    kind: "tip",
+                    text: "Swagger is very useful during development because it gives immediate feedback about available endpoints, HTTP methods, request shapes, and response shapes."),
+
+                HeadingBlock(2, "launchSettings.json and local profiles"),
+
+                TextBlock(
+                    "The launchSettings.json file configures how the application starts on a local development machine. It is not meant to be deployed as production configuration. It can define multiple profiles, such as http, https, and IIS Express."),
+
+                TextBlock(
+                    "Profiles with commandName set to Project use Kestrel, the built-in cross-platform web server. IIS Express profiles use IIS Express instead. For modern ASP.NET Core development, Kestrel is often the simpler and more cross-platform choice."),
+
+                CodeSnippetBlock(
+                    language: "json",
+                    fileName: "launchSettings.json",
+                    code:
+                    """
+                    {
+                      "profiles": {
+                        "https": {
+                          "commandName": "Project",
+                          "launchBrowser": false,
+                          "launchUrl": "swagger",
+                          "applicationUrl": "https://localhost:7206;http://localhost:5206",
+                          "environmentVariables": {
+                            "ASPNETCORE_ENVIRONMENT": "Development"
+                          }
+                        }
+                      }
+                    }
+                    """),
+
+                HeadingBlock(2, "Running the API from Visual Studio and the CLI"),
+
+                TextBlock(
+                    "The application can be started from Visual Studio with F5 when debugging is needed, or Ctrl+F5 when running without the debugger. The selected launch profile controls whether the app starts with HTTP, HTTPS, or IIS Express."),
+
+                TextBlock(
+                    "The same application can also be started from the command line with the dotnet CLI. The CLI is important because build servers, automation scripts, and advanced restore or publish workflows commonly depend on it."),
+
+                CodeSnippetBlock(
+                    language: "bash",
+                    fileName: "terminal",
+                    code:
+                    """
+                    dotnet run
+
+                    dotnet run --launch-profile https
+                    """),
+
+                CalloutBlock(
+                    kind: "note",
+                    text: "There is no single best way to run an ASP.NET Core application. Visual Studio, Visual Studio Code, Rider, and the dotnet CLI all use the same underlying toolchain."),
+
+                HeadingBlock(2, "Program.cs is the application entry point"),
+
+                TextBlock(
+                    "Modern ASP.NET Core projects use top-level statements in Program.cs. That means the file does not visibly contain a Program class or Main method, but the compiler generates them behind the scenes."),
+
+                TextBlock(
+                    "Program.cs is responsible for creating the WebApplicationBuilder, registering services, building the WebApplication, configuring the request pipeline, and finally running the app."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    var builder = WebApplication.CreateBuilder(args);
+
+                    builder.Services.AddControllers();
+                    builder.Services.AddEndpointsApiExplorer();
+                    builder.Services.AddSwaggerGen();
+
+                    var app = builder.Build();
+
+                    if (app.Environment.IsDevelopment())
+                    {
+                        app.UseSwagger();
+                        app.UseSwaggerUI();
+                    }
+
+                    app.UseHttpsRedirection();
+
+                    app.UseAuthorization();
+
+                    app.MapControllers();
+
+                    app.Run();
+                    """),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart TD
+                        A[Create WebApplicationBuilder] --> B[Register services]
+                        B --> C[Build WebApplication]
+                        C --> D[Configure middleware pipeline]
+                        D --> E[Map endpoints]
+                        E --> F[Run application]
+                    """),
+
+                HeadingBlock(2, "Dependency injection starts in builder.Services"),
+
+                TextBlock(
+                    "The Services collection on WebApplicationBuilder is the built-in dependency injection container. Framework services and application services are registered there so they can later be injected into controllers, services, middleware, or other components."),
+
+                TextBlock(
+                    "The AddControllers call registers the services needed for controller-based APIs. This includes controller discovery, model binding, validation support, formatters, and other MVC-related infrastructure."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    builder.Services.AddControllers();
+                    """),
+
+                CalloutBlock(
+                    kind: "tip",
+                    text: "Think of dependency injection as the place where the application declares what components exist and how other parts of the system can receive them."),
+
+                HeadingBlock(2, "The request pipeline and middleware"),
+
+                TextBlock(
+                    "After the app is built, the next major concept is the request pipeline. The request pipeline defines how ASP.NET Core responds to incoming HTTP requests. It is composed of middleware components."),
+
+                TextBlock(
+                    "Middleware components are executed in the order they are added. Each middleware can do work before the next component, pass the request forward, do work after the next component, or stop the pipeline and return a response immediately."),
+
+                MermaidDiagramBlock(
+                    """
+                    sequenceDiagram
+                        participant Client
+                        participant M1 as Middleware 1
+                        participant M2 as Middleware 2
+                        participant M3 as Endpoint / Controller
+
+                        Client->>M1: HTTP request
+                        M1->>M2: pass request
+                        M2->>M3: pass request
+                        M3-->>M2: response
+                        M2-->>M1: response
+                        M1-->>Client: HTTP response
+                    """),
+
+                TextBlock(
+                    "Order matters. For example, if authentication or authorization middleware stops a request because the user is not allowed, later middleware and endpoint logic should not run. This is why security middleware must be placed deliberately."),
+
+                HeadingBlock(2, "A simple inline middleware example"),
+
+                TextBlock(
+                    "The course demonstrates that the pipeline can be simplified to return the same response for every request. This helps show that ASP.NET Core only does what the configured pipeline tells it to do."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    var builder = WebApplication.CreateBuilder(args);
+
+                    var app = builder.Build();
+
+                    app.Run(async context =>
+                    {
+                        await context.Response.WriteAsync("Hello World!");
+                    });
+
+                    app.Run();
+                    """),
+
+                TextBlock(
+                    "With this setup, every URL returns Hello World, including /swagger or any random path, because the pipeline does not map requests to controllers or Swagger. It simply writes one response."),
+
+                HeadingBlock(2, "Middleware order changes behavior"),
+
+                TextBlock(
+                    "If the Hello World middleware is placed before Swagger middleware and does not pass the request forward, Swagger will never run. If Swagger is placed earlier and handles /swagger first, the documentation UI can appear for that path."),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart TD
+                        A[Incoming request: /swagger] --> B{Swagger middleware first?}
+                        B -->|Yes| C[Show Swagger UI]
+                        B -->|No| D[Hello World middleware]
+                        D --> E[Return Hello World]
+                    """),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    if (app.Environment.IsDevelopment())
+                    {
+                        app.UseSwagger();
+                        app.UseSwaggerUI();
+                    }
+
+                    app.Run(async context =>
+                    {
+                        await context.Response.WriteAsync("Hello World!");
+                    });
+                    """),
+
+                CalloutBlock(
+                    kind: "warning",
+                    text: "Middleware order is not cosmetic. It directly changes the runtime behavior of the application."),
+
+                HeadingBlock(2, "Working with environments"),
+
+                TextBlock(
+                    "ASP.NET Core uses the ASPNETCORE_ENVIRONMENT variable to describe the current runtime environment. Common values are Development, Staging, and Production. Custom names are also possible."),
+
+                TextBlock(
+                    "Environment is not the same thing as build configuration. Debug and Release describe how code is built. Development, Staging, and Production describe where and how the application is running."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    if (app.Environment.IsDevelopment())
+                    {
+                        app.UseSwagger();
+                        app.UseSwaggerUI();
+                    }
+                    """),
+
+                TextBlock(
+                    "The app.Environment property exposes information about the current hosting environment. It can provide the environment name, application name, content root path, and other runtime details."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    var environmentName = app.Environment.EnvironmentName;
+                    var applicationName = app.Environment.ApplicationName;
+                    var contentRootPath = app.Environment.ContentRootPath;
+                    """),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart LR
+                        A[ASPNETCORE_ENVIRONMENT] --> B{Environment}
+                        B --> C[Development]
+                        B --> D[Staging]
+                        B --> E[Production]
+
+                        C --> F[Enable Swagger UI]
+                        E --> G[Disable development-only middleware]
+                    """),
+
+                HeadingBlock(2, "The role of controllers"),
+
+                TextBlock(
+                    "In the MVC approach, controllers receive HTTP requests and expose actions. Later modules in the course build real controllers for cities and points of interest. The first module mainly prepares the foundation by explaining where controllers are registered and how requests eventually reach them."),
+
+                CodeSnippetBlock(
+                    language: "csharp",
+                    fileName: "Program.cs",
+                    code:
+                    """
+                    builder.Services.AddControllers();
+
+                    var app = builder.Build();
+
+                    app.MapControllers();
+                    """),
+
+                TextBlock(
+                    "AddControllers registers the required MVC services. MapControllers adds controller endpoints to the request pipeline so incoming HTTP requests can be routed to controller actions."),
+
+                HeadingBlock(2, "A PlantUML view of the startup model"),
+
+                PlantUmlDiagramBlock(
+                    """
+                    @startuml
+                    title ASP.NET Core Web API Startup Model
+
+                    rectangle "Program.cs" as Program
+                    rectangle "WebApplicationBuilder" as Builder
+                    rectangle "Service Collection\nDependency Injection" as Services
+                    rectangle "WebApplication" as App
+                    rectangle "Middleware Pipeline" as Pipeline
+                    rectangle "Controllers" as Controllers
+
+                    Program --> Builder : CreateBuilder(args)
+                    Builder --> Services : Register framework and app services
+                    Services --> App : builder.Build()
+                    App --> Pipeline : Configure request handling
+                    Pipeline --> Controllers : Map controller endpoints
+
+                    @enduml
+                    """),
+
+                HeadingBlock(2, "Important project files"),
+
+                TextBlock(
+                    "A beginner should understand the purpose of the generated files before adding more code. The project file defines the target framework and package references. appsettings.json stores application settings. launchSettings.json defines local launch profiles. Program.cs configures and runs the application."),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart TD
+                        A[ASP.NET Core Web API Project] --> B[.csproj]
+                        A --> C[Program.cs]
+                        A --> D[appsettings.json]
+                        A --> E[launchSettings.json]
+                        A --> F[Controllers]
+
+                        B --> B1[Target framework and packages]
+                        C --> C1[Services and middleware]
+                        D --> D1[Application configuration]
+                        E --> E1[Local development profiles]
+                        F --> F1[API endpoints]
+                    """),
+
+                HeadingBlock(2, "Key lessons from the module"),
+
+                TextBlock(
+                    "The most important lesson is that ASP.NET Core applications are explicitly assembled. You register services, build the app, configure middleware, map endpoints, and run the host. Nothing magical has to happen in a hidden place."),
+
+                TextBlock(
+                    "The second important lesson is that the request pipeline is central to how ASP.NET Core works. Middleware order controls what happens to a request, whether it continues through the pipeline, and what response is eventually returned."),
+
+                TextBlock(
+                    "The third important lesson is that environment-specific behavior is normal. Development can enable tools like Swagger UI, while Production can use a stricter and more secure runtime setup."),
+
+                CalloutBlock(
+                    kind: "summary",
+                    text: "At the end of this module, you should understand the ASP.NET Core big picture, project structure, Program.cs startup flow, dependency injection registration, middleware pipeline, launch profiles, CLI usage, Swagger setup, and environment-based behavior."),
+
+                HeadingBlock(2, "Minimal mental model"),
+
+                TextBlock(
+                    "A useful mental model is this: ASP.NET Core receives an HTTP request, sends it through a configured middleware pipeline, optionally routes it to a controller action, and then sends an HTTP response back to the client."),
+
+                MermaidDiagramBlock(
+                    """
+                    flowchart LR
+                        A[HTTP Request] --> B[Kestrel]
+                        B --> C[Middleware Pipeline]
+                        C --> D[Routing]
+                        D --> E[Controller Action]
+                        E --> F[HTTP Response]
+                    """)
+            });
     }
 
     private List<SeedBlock> CreateConfigurationArticleBlocks()
