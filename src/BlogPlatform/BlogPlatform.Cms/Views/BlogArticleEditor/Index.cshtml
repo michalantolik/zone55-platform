@@ -13,923 +13,945 @@
     <title>Article editor</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+            * {
+                box-sizing: border-box;
+            }
 
-        :root {
-            --article-editor-sidebar-width: 420px;
-            --article-editor-sidebar-min-width: 260px;
-            --article-editor-preview-min-width: 420px;
-            --article-editor-splitter-width: 10px;
-        }
+            :root {
+                --article-editor-sidebar-width: 420px;
+                --article-editor-sidebar-min-width: 260px;
+                --article-editor-preview-min-width: 420px;
+                --article-editor-splitter-width: 10px;
+            }
 
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Inter, Arial, sans-serif;
-            background: #061325;
-            color: #f5f7fb;
-        }
+            body {
+                margin: 0;
+                overflow: hidden;
+                font-family: Inter, Arial, sans-serif;
+                background: #061325;
+                color: #f5f7fb;
+            }
 
-        body.resizing {
-            cursor: col-resize;
-            user-select: none;
-        }
+                body.resizing {
+                    cursor: col-resize;
+                    user-select: none;
+                }
 
-        body.resizing iframe {
-            pointer-events: none;
-        }
+                    body.resizing iframe {
+                        pointer-events: none;
+                    }
 
-        .layout {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
+            .layout {
+                display: flex;
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+            }
 
-        .sidebar {
-            flex: 0 0 var(--article-editor-sidebar-width);
-            min-width: var(--article-editor-sidebar-min-width);
-            overflow-y: auto;
-            padding: 20px;
-            background: #06152b;
-        }
+            .sidebar {
+                flex: 0 0 var(--article-editor-sidebar-width);
+                min-width: var(--article-editor-sidebar-min-width);
+                overflow-y: auto;
+                padding: 20px;
+                background: #06152b;
+            }
 
-        .splitter {
-            flex: 0 0 var(--article-editor-splitter-width);
-            width: var(--article-editor-splitter-width);
-            cursor: col-resize;
-            background: #11243e;
-            border-left: 1px solid #29405f;
-            border-right: 1px solid #29405f;
-            position: relative;
-            touch-action: none;
-        }
+            .splitter {
+                flex: 0 0 var(--article-editor-splitter-width);
+                width: var(--article-editor-splitter-width);
+                cursor: col-resize;
+                background: #11243e;
+                border-left: 1px solid #29405f;
+                border-right: 1px solid #29405f;
+                position: relative;
+                touch-action: none;
+            }
 
-        .splitter::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 3px;
-            height: 64px;
-            border-radius: 999px;
-            background: #5f7fa8;
-            transform: translate(-50%, -50%);
-            opacity: 0.8;
-        }
+                .splitter::after {
+                    content: "";
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 3px;
+                    height: 64px;
+                    border-radius: 999px;
+                    background: #5f7fa8;
+                    transform: translate(-50%, -50%);
+                    opacity: 0.8;
+                }
 
-        .splitter:hover,
-        body.resizing .splitter {
-            background: #17365d;
-        }
+                .splitter:hover,
+                body.resizing .splitter {
+                    background: #17365d;
+                }
 
-        .preview-area {
-            flex: 1 1 auto;
-            min-width: var(--article-editor-preview-min-width);
-            padding: 18px;
-            background:
-                radial-gradient(circle at top, #103b69, #04111d);
-        }
+            .preview-area {
+                flex: 1 1 auto;
+                min-width: var(--article-editor-preview-min-width);
+                padding: 18px;
+                background: radial-gradient(circle at top, #103b69, #04111d);
+            }
 
-        iframe {
-            width: 100%;
-            height: calc(100vh - 36px);
-            border: 0;
-            border-radius: 18px;
-            background: white;
-        }
+            iframe {
+                width: 100%;
+                height: calc(100vh - 36px);
+                border: 0;
+                border-radius: 18px;
+                background: white;
+            }
 
-        h1 {
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 28px;
-        }
+            h1 {
+                margin-top: 0;
+                margin-bottom: 18px;
+                font-size: 28px;
+            }
 
-        .field-label {
-            display: block;
-            margin-top: 28px;
-            margin-bottom: 10px;
-            color: #84bbff;
-            font-weight: 800;
-            font-size: 14px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+            .field-label {
+                display: block;
+                margin-top: 28px;
+                margin-bottom: 10px;
+                color: #84bbff;
+                font-weight: 800;
+                font-size: 14px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
 
-        .field-label:first-of-type {
-            margin-top: 0;
-        }
+                .field-label:first-of-type {
+                    margin-top: 0;
+                }
 
-        input,
-        textarea,
-        select {
-            width: 100%;
-            border-radius: 10px;
-            border: 1px solid #35527a;
-            background: #020b18;
-            color: white;
-            padding: 12px;
-            font-size: 15px;
-        }
+            input,
+            textarea,
+            select {
+                width: 100%;
+                border-radius: 10px;
+                border: 1px solid #35527a;
+                background: #020b18;
+                color: white;
+                padding: 12px;
+                font-size: 15px;
+            }
 
-        textarea {
-            min-height: 180px;
-            resize: vertical;
-        }
+            textarea {
+                min-height: 180px;
+                resize: vertical;
+            }
 
-        .button-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
+            .button-row {
+                display: flex;
+                gap: 12px;
+                margin-top: 20px;
+            }
 
-        button {
-            border: 0;
-            border-radius: 10px;
-            padding: 12px 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.15s ease;
-        }
+            button {
+                border: 0;
+                border-radius: 10px;
+                padding: 12px 18px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: 0.15s ease;
+            }
 
-        button:hover {
-            transform: translateY(-1px);
-        }
+                button:hover {
+                    transform: translateY(-1px);
+                }
 
-        .btn-primary {
-            background: #1677ff;
-            color: white;
-        }
+            .btn-primary {
+                background: #1677ff;
+                color: white;
+            }
 
-        .btn-secondary {
-            background: #2d4463;
-            color: white;
-        }
+            .btn-secondary {
+                background: #2d4463;
+                color: white;
+            }
 
-        .btn-danger {
-            background: #d0384d;
-            color: white;
-        }
+            .btn-danger {
+                background: #d0384d;
+                color: white;
+            }
 
-        .status-bar {
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 700;
-        }
+            .status-bar {
+                margin-top: 20px;
+                padding: 14px;
+                border-radius: 12px;
+                font-weight: 700;
+            }
 
-        .status-clean {
-            background: #183822;
-            color: #a9ffb9;
-        }
+            .status-clean {
+                background: #183822;
+                color: #a9ffb9;
+            }
 
-        .status-dirty {
-            background: #4b3412;
-            color: #ffd58d;
-        }
+            .status-dirty {
+                background: #4b3412;
+                color: #ffd58d;
+            }
 
-        .status-new {
-            background: #163b62;
-            color: #a7d0ff;
-        }
+            .status-new {
+                background: #163b62;
+                color: #a7d0ff;
+            }
 
-        .status-loading {
-            background: #192a45;
-            color: #b9d8ff;
-        }
+            .status-loading {
+                background: #192a45;
+                color: #b9d8ff;
+            }
 
-        .editing-existing-alert {
-            display: none;
-            margin-bottom: 18px;
-            padding: 14px 16px;
-            border: 1px solid #7c6422;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(89, 68, 14, 0.92), rgba(43, 62, 24, 0.94));
-            color: #ffeec2;
-            line-height: 1.5;
-        }
+            .mode-alert {
+                display: none;
+                margin-bottom: 18px;
+                padding: 14px 16px;
+                border-radius: 14px;
+                line-height: 1.5;
+            }
 
-        .editing-existing-alert.visible {
-            display: block;
-        }
+                .mode-alert.visible {
+                    display: block;
+                }
 
-        .editing-existing-alert strong {
-            display: block;
-            margin-bottom: 4px;
-            color: #fff7db;
-        }
+            .editing-existing-alert {
+                border: 1px solid #7c6422;
+                background: linear-gradient(135deg, rgba(89, 68, 14, 0.92), rgba(43, 62, 24, 0.94));
+                color: #ffeec2;
+            }
 
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
+            .creating-new-alert {
+                border: 1px solid #4f93e8;
+                background: linear-gradient(135deg, rgba(16, 73, 135, 0.95), rgba(12, 44, 82, 0.96));
+                color: #d7eaff;
+            }
 
-        .modal {
-            width: 460px;
-            border-radius: 18px;
-            border: 1px solid #39577e;
-            background: #0d1d35;
-            padding: 24px;
-        }
+            .mode-alert strong {
+                display: block;
+                margin-bottom: 4px;
+                color: #fff7db;
+            }
 
-        .modal h2 {
-            margin-top: 0;
-        }
+            .modal-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.6);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            }
 
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 24px;
-        }
+            .modal {
+                width: 460px;
+                border-radius: 18px;
+                border: 1px solid #39577e;
+                background: #0d1d35;
+                padding: 24px;
+            }
+
+                .modal h2 {
+                    margin-top: 0;
+                }
+
+            .modal-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                margin-top: 24px;
+            }
     </style>
 </head>
 
 <body>
 
-<div class="layout">
+    <div class="layout">
 
-    <div class="sidebar" id="editorSidebar">
+        <div class="sidebar" id="editorSidebar">
 
-        <h1>Article editor</h1>
+            <h1>Article editor</h1>
 
-        <div id="editingExistingAlert" class="editing-existing-alert">
-            <strong>Editing existing CMS article</strong>
-            You are changing an article already stored in the CMS. Preview updates live, but changes are local until you save.
+            <div id="editingExistingAlert" class="mode-alert editing-existing-alert">
+                <strong>Editing existing CMS article</strong>
+                You are changing an article already stored in the CMS. Preview updates live, but changes are local until you save.
+            </div>
+
+            <div id="creatingNewAlert" class="mode-alert creating-new-alert">
+                <strong>Creating new CMS article</strong>
+                Placeholder content is loaded below and sent to live preview immediately. Adjust the fields, then save when the new article is ready.
+            </div>
+
+            <label class="field-label" for="title">Title</label>
+            <input id="title" type="text" />
+
+            <label class="field-label" for="slug">Slug</label>
+            <input id="slug" type="text" />
+
+            <label class="field-label" for="summary">Summary</label>
+            <textarea id="summary"></textarea>
+
+            <label class="field-label" for="articleCategory">Category</label>
+            <select id="articleCategory"></select>
+
+            <label class="field-label" for="tags">Tags comma-separated</label>
+            <input id="tags" type="text" />
+
+            <label class="field-label" for="bodyMarkdown">Body markdown</label>
+            <textarea id="bodyMarkdown"></textarea>
+
+            <div id="editorStatus" class="status-bar status-new">
+                Creating new article
+            </div>
+
+            <div class="button-row">
+                <button class="btn-primary" type="button" onclick="confirmSave()">
+                    Save
+                </button>
+
+                <button class="btn-danger" type="button" onclick="confirmCancel()">
+                    Cancel
+                </button>
+            </div>
+
         </div>
 
-        <label class="field-label" for="title">Title</label>
-        <input id="title" type="text" />
-
-        <label class="field-label" for="slug">Slug</label>
-        <input id="slug" type="text" />
-
-        <label class="field-label" for="summary">Summary</label>
-        <textarea id="summary"></textarea>
-
-        <label class="field-label" for="articleCategory">Category</label>
-        <select id="articleCategory"></select>
-
-        <label class="field-label" for="tags">Tags comma-separated</label>
-        <input id="tags" type="text" />
-
-        <label class="field-label" for="bodyMarkdown">Body markdown</label>
-        <textarea id="bodyMarkdown"></textarea>
-
-        <div id="editorStatus" class="status-bar status-new">
-            Creating new article
+        <div id="paneSplitter"
+             class="splitter"
+             role="separator"
+             aria-orientation="vertical"
+             aria-label="Resize article editor panes">
         </div>
 
-        <div class="button-row">
-            <button class="btn-primary" type="button" onclick="confirmSave()">
-                Save
-            </button>
+        <div class="preview-area">
 
-            <button class="btn-danger" type="button" onclick="confirmCancel()">
-                Cancel
-            </button>
+            <iframe id="previewFrame"
+                    src="@previewUrl"
+                    onload="onPreviewFrameLoaded()">
+            </iframe>
+
         </div>
 
     </div>
 
-    <div
-        id="paneSplitter"
-        class="splitter"
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize article editor panes">
-    </div>
+    <div id="saveModal" class="modal-backdrop">
+        <div class="modal">
+            <h2>Save article</h2>
 
-    <div class="preview-area">
+            <p>Are you sure you want to save the article?</p>
 
-        <iframe
-            id="previewFrame"
-            src="@previewUrl"
-            onload="onPreviewFrameLoaded()">
-        </iframe>
+            <div class="modal-buttons">
+                <button class="btn-secondary" type="button" onclick="closeSaveModal()">
+                    No
+                </button>
 
-    </div>
-
-</div>
-
-<div id="saveModal" class="modal-backdrop">
-    <div class="modal">
-        <h2>Save article</h2>
-
-        <p>Are you sure you want to save the article?</p>
-
-        <div class="modal-buttons">
-            <button class="btn-secondary" type="button" onclick="closeSaveModal()">
-                No
-            </button>
-
-            <button class="btn-primary" type="button" onclick="saveArticle()">
-                Yes, save
-            </button>
+                <button class="btn-primary" type="button" onclick="saveArticle()">
+                    Yes, save
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="cancelModal" class="modal-backdrop">
-    <div class="modal">
-        <h2>Cancel changes</h2>
+    <div id="cancelModal" class="modal-backdrop">
+        <div class="modal">
+            <h2>Cancel changes</h2>
 
-        <p>Are you sure you want to discard local changes?</p>
+            <p>Are you sure you want to discard local changes?</p>
 
-        <div class="modal-buttons">
-            <button class="btn-secondary" type="button" onclick="closeCancelModal()">
-                No
-            </button>
+            <div class="modal-buttons">
+                <button class="btn-secondary" type="button" onclick="closeCancelModal()">
+                    No
+                </button>
 
-            <button class="btn-danger" type="button" onclick="cancelChanges()">
-                Yes, cancel
-            </button>
+                <button class="btn-danger" type="button" onclick="cancelChanges()">
+                    Yes, cancel
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const sidebarWidthStorageKey =
-        "blogArticleEditor.sidebarWidth";
+    <script>
+                const sidebarWidthStorageKey =
+                    "blogArticleEditor.sidebarWidth";
 
-    const defaultSidebarWidth =
-        420;
+                const defaultSidebarWidth =
+                    420;
 
-    const minSidebarWidth =
-        260;
+                const minSidebarWidth =
+                    260;
 
-    const minPreviewWidth =
-        420;
+                const minPreviewWidth =
+                    420;
 
-    let currentArticleKey = null;
-    let currentLevel = "Draft";
-    let currentFocus = "Preview";
-    let originalState = null;
-    let isDirty = false;
-    let sendSequence = 0;
-    let previewFrameLoaded = false;
+                let currentArticleKey = null;
+                let currentLevel = "Draft";
+                let currentFocus = "Preview";
+                let originalState = null;
+                let isDirty = false;
+                let sendSequence = 0;
+                let previewFrameLoaded = false;
 
-    const frame =
-        document.getElementById("previewFrame");
+                const frame =
+                    document.getElementById("previewFrame");
 
-    const fieldIds = [
-        "title",
-        "slug",
-        "summary",
-        "articleCategory",
-        "tags",
-        "bodyMarkdown"
-    ];
+                const fieldIds = [
+                    "title",
+                    "slug",
+                    "summary",
+                    "articleCategory",
+                    "tags",
+                    "bodyMarkdown"
+                ];
 
-    document.addEventListener("DOMContentLoaded", async () => {
+                document.addEventListener("DOMContentLoaded", async () => {
 
-        initializeResizablePanes();
+                    initializeResizablePanes();
 
-        await loadCategories();
+                    await loadCategories();
 
-        attachFieldListeners();
+                    attachFieldListeners();
 
-        const articleKey =
-            getRequestedArticleKey();
+                    const articleKey =
+                        getRequestedArticleKey();
 
-        if (articleKey) {
-            await loadExistingArticle(articleKey);
-        }
-        else {
-            createNewArticle();
-        }
+                    if (articleKey) {
+                        await loadExistingArticle(articleKey);
+                    }
+                    else {
+                        createNewArticle();
+                    }
 
-        sendPreviewUpdate();
-    });
-
-    function initializeResizablePanes() {
-
-        const splitter =
-            document.getElementById("paneSplitter");
-
-        const savedWidth =
-            Number(localStorage.getItem(sidebarWidthStorageKey));
-
-        if (Number.isFinite(savedWidth) && savedWidth > 0) {
-            setSidebarWidth(savedWidth);
-        }
-        else {
-            setSidebarWidth(defaultSidebarWidth);
-        }
-
-        splitter.addEventListener("pointerdown", startPaneResize);
-
-        splitter.addEventListener("dblclick", () => {
-            setSidebarWidth(defaultSidebarWidth);
-
-            localStorage.setItem(
-                sidebarWidthStorageKey,
-                defaultSidebarWidth.toString());
-        });
-
-        window.addEventListener("resize", () => {
-            setSidebarWidth(getCurrentSidebarWidth());
-        });
-    }
-
-    function startPaneResize(event) {
-
-        event.preventDefault();
-
-        const splitter =
-            document.getElementById("paneSplitter");
-
-        splitter.setPointerCapture(event.pointerId);
-
-        document.body.classList.add("resizing");
-
-        const onPointerMove = moveEvent => {
-            setSidebarWidth(moveEvent.clientX);
-        };
-
-        const onPointerUp = upEvent => {
-
-            splitter.releasePointerCapture(upEvent.pointerId);
-
-            document.body.classList.remove("resizing");
-
-            localStorage.setItem(
-                sidebarWidthStorageKey,
-                getCurrentSidebarWidth().toString());
-
-            window.removeEventListener("pointermove", onPointerMove);
-            window.removeEventListener("pointerup", onPointerUp);
-            window.removeEventListener("pointercancel", onPointerUp);
-        };
-
-        window.addEventListener("pointermove", onPointerMove);
-        window.addEventListener("pointerup", onPointerUp);
-        window.addEventListener("pointercancel", onPointerUp);
-    }
-
-    function setSidebarWidth(requestedWidth) {
-
-        const maxSidebarWidth =
-            Math.max(
-                minSidebarWidth,
-                window.innerWidth - minPreviewWidth);
-
-        const width =
-            Math.min(
-                Math.max(requestedWidth, minSidebarWidth),
-                maxSidebarWidth);
-
-        document.documentElement.style.setProperty(
-            "--article-editor-sidebar-width",
-            `${width}px`);
-    }
-
-    function getCurrentSidebarWidth() {
-
-        const sidebar =
-            document.getElementById("editorSidebar");
-
-        return Math.round(sidebar.getBoundingClientRect().width);
-    }
-
-    function getRequestedArticleKey() {
-
-        const parameters =
-            new URLSearchParams(window.location.search);
-
-        return parameters.get("articleKey");
-    }
-
-    function onPreviewFrameLoaded() {
-
-        previewFrameLoaded = true;
-
-        console.log("[LIVE_PREVIEW] iframe loaded:", frame.src);
-
-        setTimeout(() => {
-            sendPreviewUpdate();
-        }, 250);
-    }
-
-    async function loadCategories() {
-
-        const response =
-            await fetch("/api/blog-content/categories");
-
-        const categories =
-            await response.json();
-
-        const articleCategory =
-            document.getElementById("articleCategory");
-
-        articleCategory.innerHTML = "";
-
-        for (const category of categories) {
-
-            articleCategory.innerHTML += `
-                <option value="${category.slug}">
-                    ${category.name}
-                </option>
-            `;
-        }
-    }
-
-    async function loadExistingArticle(articleKey) {
-
-        updateStatus(
-            "Loading article...",
-            "status-loading");
-
-        const response =
-            await fetch(`/api/blog-content/articles/${encodeURIComponent(articleKey)}`);
-
-        if (!response.ok) {
-
-            updateStatus(
-                "Article could not be loaded",
-                "status-dirty");
-
-            console.error(
-                "[ARTICLE_EDITOR] failed to load article:",
-                articleKey,
-                response.status);
-
-            return;
-        }
-
-        const article =
-            await response.json();
-
-        populateArticle(article);
-
-        originalState =
-            getCurrentState();
-
-        setDirty(false);
-
-        updateStatus(
-            "Existing article loaded",
-            "status-clean");
-
-        updateEditingExistingAlert();
-        notifyParent(false);
-        sendPreviewUpdate();
-    }
-
-    function populateArticle(article) {
-
-        currentArticleKey =
-            article.key;
-
-        currentLevel =
-            article.level || "Draft";
-
-        currentFocus =
-            article.focus || "Preview";
-
-        setValue("title", article.title);
-        setValue("slug", article.slug);
-        setValue("summary", article.summary);
-        setValue("articleCategory", article.categorySlug);
-        setValue("tags", article.tags);
-        setValue("bodyMarkdown", article.bodyBlocks);
-    }
-
-    function createNewArticle() {
-
-        currentArticleKey = null;
-        currentLevel = "Draft";
-        currentFocus = "Preview";
-
-        setValue("title", "Example article title");
-        setValue("slug", "example-article");
-        setValue("summary", "Short article summary.");
-        setValue("tags", ".NET, Architecture, Azure");
-
-        setValue("bodyMarkdown",
-`## First heading
-
-This is the first paragraph.
-
-\`\`\`csharp
-public sealed class Example
-{
-    public string Name { get; set; } = string.Empty;
-}
-\`\`\`
-`);
-
-        originalState =
-            getCurrentState();
-
-        setDirty(false);
-
-        updateStatus(
-            "Creating new article",
-            "status-new");
-
-        updateEditingExistingAlert();
-        notifyParent(false);
-        sendPreviewUpdate();
-    }
-
-    function attachFieldListeners() {
-
-        for (const fieldId of fieldIds) {
-
-            const field =
-                document.getElementById(fieldId);
-
-            field.addEventListener("input", onEditorChanged);
-            field.addEventListener("change", onEditorChanged);
-        }
-    }
-
-    function onEditorChanged() {
-
-        const changed =
-            JSON.stringify(getCurrentState()) !==
-            JSON.stringify(originalState);
-
-        setDirty(changed);
-
-        sendPreviewUpdate();
-    }
-
-    function getCurrentState() {
-
-        return {
-            title: value("title"),
-            slug: value("slug"),
-            summary: value("summary"),
-            categorySlug: value("articleCategory"),
-            tags: value("tags"),
-            bodyMarkdown: value("bodyMarkdown"),
-            level: currentLevel,
-            focus: currentFocus
-        };
-    }
-
-    function sendPreviewUpdate() {
-
-        sendSequence++;
-
-        const article = {
-
-            slug: value("slug"),
-
-            title: value("title"),
-
-            summary: value("summary"),
-
-            category: selectedText("articleCategory"),
-
-            categorySlug: value("articleCategory"),
-
-            level: currentLevel,
-
-            focus: currentFocus,
-
-            tags:
-                value("tags")
-                    .split(",")
-                    .map(x => x.trim())
-                    .filter(Boolean),
-
-            publishedDate: null,
-
-            bodyHtml:
-                value("bodyMarkdown")
-        };
-
-        try {
-
-            frame.contentWindow.postMessage({
-                type: "BLOG_ARTICLE_PREVIEW",
-                sequence: sendSequence,
-                article
-            }, "*");
-
-            console.log(
-                "[LIVE_PREVIEW] message sent:",
-                sendSequence,
-                article.title);
-        }
-        catch (error) {
-
-            console.error(
-                "[LIVE_PREVIEW] failed to send preview message:",
-                error);
-        }
-    }
-
-    function setDirty(value) {
-
-        isDirty = value;
-
-        notifyParent(false);
-
-        if (isDirty) {
-
-            updateStatus(
-                "Unsaved local changes",
-                "status-dirty");
-        }
-        else {
-
-            if (currentArticleKey) {
-
-                updateStatus(
-                    "All changes saved",
-                    "status-clean");
-            }
-            else {
-
-                updateStatus(
-                    "Creating new article",
-                    "status-new");
-            }
-        }
-    }
-
-    function updateStatus(text, cssClass) {
-
-        const status =
-            document.getElementById("editorStatus");
-
-        status.className =
-            `status-bar ${cssClass}`;
-
-        status.innerText =
-            text;
-    }
-
-    function confirmSave() {
-
-        document.getElementById("saveModal").style.display =
-            "flex";
-    }
-
-    function closeSaveModal() {
-
-        document.getElementById("saveModal").style.display =
-            "none";
-    }
-
-    function confirmCancel() {
-
-        document.getElementById("cancelModal").style.display =
-            "flex";
-    }
-
-    function closeCancelModal() {
-
-        document.getElementById("cancelModal").style.display =
-            "none";
-    }
-
-    async function saveArticle() {
-
-        closeSaveModal();
-
-        const payload = {
-
-            title: value("title"),
-            slug: value("slug"),
-            summary: value("summary"),
-            categorySlug: value("articleCategory"),
-            tags: value("tags"),
-            bodyBlocks: value("bodyMarkdown"),
-            level: currentLevel,
-            focus: currentFocus
-        };
-
-        let response;
-
-        if (currentArticleKey) {
-
-            response = await fetch(
-                `/api/blog-content/articles/${currentArticleKey}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
+                    sendPreviewUpdate();
                 });
-        }
-        else {
 
-            response = await fetch(
-                "/api/blog-content/articles",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-        }
+                function initializeResizablePanes() {
 
-        const result =
-            await response.json();
+                    const splitter =
+                        document.getElementById("paneSplitter");
 
-        if (result.success) {
+                    const savedWidth =
+                        Number(localStorage.getItem(sidebarWidthStorageKey));
 
-            currentArticleKey =
-                result.key;
+                    if (Number.isFinite(savedWidth) && savedWidth > 0) {
+                        setSidebarWidth(savedWidth);
+                    }
+                    else {
+                        setSidebarWidth(defaultSidebarWidth);
+                    }
 
-            originalState =
-                getCurrentState();
+                    splitter.addEventListener("pointerdown", startPaneResize);
 
-            setDirty(false);
+                    splitter.addEventListener("dblclick", () => {
+                        setSidebarWidth(defaultSidebarWidth);
 
-            notifyParent(true);
+                        localStorage.setItem(
+                            sidebarWidthStorageKey,
+                            defaultSidebarWidth.toString());
+                    });
 
-            alert(result.message);
-        }
-        else {
+                    window.addEventListener("resize", () => {
+                        setSidebarWidth(getCurrentSidebarWidth());
+                    });
+                }
 
-            alert(result.message);
-        }
-    }
+                function startPaneResize(event) {
 
-    function cancelChanges() {
+                    event.preventDefault();
 
-        closeCancelModal();
+                    const splitter =
+                        document.getElementById("paneSplitter");
 
-        if (!originalState) {
-            return;
-        }
+                    splitter.setPointerCapture(event.pointerId);
 
-        setValue("title", originalState.title);
-        setValue("slug", originalState.slug);
-        setValue("summary", originalState.summary);
-        setValue("articleCategory", originalState.categorySlug);
-        setValue("tags", originalState.tags);
-        setValue("bodyMarkdown", originalState.bodyMarkdown);
+                    document.body.classList.add("resizing");
 
-        currentLevel =
-            originalState.level || "Draft";
+                    const onPointerMove = moveEvent => {
+                        setSidebarWidth(moveEvent.clientX);
+                    };
 
-        currentFocus =
-            originalState.focus || "Preview";
+                    const onPointerUp = upEvent => {
 
-        setDirty(false);
+                        splitter.releasePointerCapture(upEvent.pointerId);
 
-        sendPreviewUpdate();
-    }
+                        document.body.classList.remove("resizing");
 
-    function updateEditingExistingAlert() {
+                        localStorage.setItem(
+                            sidebarWidthStorageKey,
+                            getCurrentSidebarWidth().toString());
 
-        document
-            .getElementById("editingExistingAlert")
-            .classList
-            .toggle("visible", Boolean(currentArticleKey));
-    }
+                        window.removeEventListener("pointermove", onPointerMove);
+                        window.removeEventListener("pointerup", onPointerUp);
+                        window.removeEventListener("pointercancel", onPointerUp);
+                    };
 
-    function notifyParent(saved) {
+                    window.addEventListener("pointermove", onPointerMove);
+                    window.addEventListener("pointerup", onPointerUp);
+                    window.addEventListener("pointercancel", onPointerUp);
+                }
 
-        try {
-            window.parent.postMessage({
-                type: "BLOG_ARTICLE_EDITOR_STATE",
-                articleKey: currentArticleKey,
-                title: value("title"),
-                isDirty,
-                saved: Boolean(saved)
-            }, "*");
-        }
-        catch (error) {
-            console.error("[ARTICLE_EDITOR] failed to notify parent:", error);
-        }
-    }
+                function setSidebarWidth(requestedWidth) {
 
-    function value(id) {
+                    const maxSidebarWidth =
+                        Math.max(
+                            minSidebarWidth,
+                            window.innerWidth - minPreviewWidth);
 
-        return document.getElementById(id).value;
-    }
+                    const width =
+                        Math.min(
+                            Math.max(requestedWidth, minSidebarWidth),
+                            maxSidebarWidth);
 
-    function setValue(id, value) {
+                    document.documentElement.style.setProperty(
+                        "--article-editor-sidebar-width",
+                        `${width}px`);
+                }
 
-        document.getElementById(id).value =
-            value ?? "";
-    }
+                function getCurrentSidebarWidth() {
 
-    function selectedText(id) {
+                    const sidebar =
+                        document.getElementById("editorSidebar");
 
-        const select =
-            document.getElementById(id);
+                    return Math.round(sidebar.getBoundingClientRect().width);
+                }
 
-        return select.options[select.selectedIndex]?.text ?? "";
-    }
-</script>
+                function getRequestedArticleKey() {
+
+                    const parameters =
+                        new URLSearchParams(window.location.search);
+
+                    return parameters.get("articleKey");
+                }
+
+                function onPreviewFrameLoaded() {
+
+                    previewFrameLoaded = true;
+
+                    console.log("[LIVE_PREVIEW] iframe loaded:", frame.src);
+
+                    setTimeout(() => {
+                        sendPreviewUpdate();
+                    }, 250);
+                }
+
+                async function loadCategories() {
+
+                    const response =
+                        await fetch("/api/blog-content/categories");
+
+                    const categories =
+                        await response.json();
+
+                    const articleCategory =
+                        document.getElementById("articleCategory");
+
+                    articleCategory.innerHTML = "";
+
+                    for (const category of categories) {
+
+                        articleCategory.innerHTML += `
+                            <option value="${category.slug}">
+                                ${category.name}
+                            </option>
+                        `;
+                    }
+                }
+
+                async function loadExistingArticle(articleKey) {
+
+                    updateStatus(
+                        "Loading article...",
+                        "status-loading");
+
+                    const response =
+                        await fetch(`/api/blog-content/articles/${encodeURIComponent(articleKey)}`);
+
+                    if (!response.ok) {
+
+                        updateStatus(
+                            "Article could not be loaded",
+                            "status-dirty");
+
+                        console.error(
+                            "[ARTICLE_EDITOR] failed to load article:",
+                            articleKey,
+                            response.status);
+
+                        return;
+                    }
+
+                    const article =
+                        await response.json();
+
+                    populateArticle(article);
+
+                    originalState =
+                        getCurrentState();
+
+                    setDirty(false);
+
+                    updateStatus(
+                        "Existing article loaded",
+                        "status-clean");
+
+                    updateModeAlerts();
+                    notifyParent(false);
+                    sendPreviewUpdate();
+                }
+
+                function populateArticle(article) {
+
+                    currentArticleKey =
+                        article.key;
+
+                    currentLevel =
+                        article.level || "Draft";
+
+                    currentFocus =
+                        article.focus || "Preview";
+
+                    setValue("title", article.title);
+                    setValue("slug", article.slug);
+                    setValue("summary", article.summary);
+                    setValue("articleCategory", article.categorySlug);
+                    setValue("tags", article.tags);
+                    setValue("bodyMarkdown", article.bodyBlocks);
+                }
+
+                function createNewArticle() {
+
+                    currentArticleKey = null;
+                    currentLevel = "Draft";
+                    currentFocus = "Preview";
+
+                    setValue("title", "Example article title");
+                    setValue("slug", "example-article");
+                    setValue("summary", "Short article summary.");
+                    setValue("tags", ".NET, Architecture, Azure");
+
+                    setValue("bodyMarkdown",
+            `## First heading
+
+            This is the first paragraph.
+
+            \`\`\`csharp
+            public sealed class Example
+            {
+                public string Name { get; set; } = string.Empty;
+            }
+            \`\`\`
+            `);
+
+                    originalState =
+                        getCurrentState();
+
+                    setDirty(false);
+
+                    updateStatus(
+                        "Creating new article",
+                        "status-new");
+
+                    updateModeAlerts();
+                    notifyParent(false);
+                    sendPreviewUpdate();
+                }
+
+                function attachFieldListeners() {
+
+                    for (const fieldId of fieldIds) {
+
+                        const field =
+                            document.getElementById(fieldId);
+
+                        field.addEventListener("input", onEditorChanged);
+                        field.addEventListener("change", onEditorChanged);
+                    }
+                }
+
+                function onEditorChanged() {
+
+                    const changed =
+                        JSON.stringify(getCurrentState()) !==
+                        JSON.stringify(originalState);
+
+                    setDirty(changed);
+
+                    sendPreviewUpdate();
+                }
+
+                function getCurrentState() {
+
+                    return {
+                        title: value("title"),
+                        slug: value("slug"),
+                        summary: value("summary"),
+                        categorySlug: value("articleCategory"),
+                        tags: value("tags"),
+                        bodyMarkdown: value("bodyMarkdown"),
+                        level: currentLevel,
+                        focus: currentFocus
+                    };
+                }
+
+                function sendPreviewUpdate() {
+
+                    sendSequence++;
+
+                    const article = {
+
+                        slug: value("slug"),
+
+                        title: value("title"),
+
+                        summary: value("summary"),
+
+                        category: selectedText("articleCategory"),
+
+                        categorySlug: value("articleCategory"),
+
+                        level: currentLevel,
+
+                        focus: currentFocus,
+
+                        tags:
+                            value("tags")
+                                .split(",")
+                                .map(x => x.trim())
+                                .filter(Boolean),
+
+                        publishedDate: null,
+
+                        bodyHtml:
+                            value("bodyMarkdown")
+                    };
+
+                    try {
+
+                        frame.contentWindow.postMessage({
+                            type: "BLOG_ARTICLE_PREVIEW",
+                            sequence: sendSequence,
+                            article
+                        }, "*");
+
+                        console.log(
+                            "[LIVE_PREVIEW] message sent:",
+                            sendSequence,
+                            article.title);
+                    }
+                    catch (error) {
+
+                        console.error(
+                            "[LIVE_PREVIEW] failed to send preview message:",
+                            error);
+                    }
+                }
+
+                function setDirty(value) {
+
+                    isDirty = value;
+
+                    notifyParent(false);
+
+                    if (isDirty) {
+
+                        updateStatus(
+                            "Unsaved local changes",
+                            "status-dirty");
+                    }
+                    else {
+
+                        if (currentArticleKey) {
+
+                            updateStatus(
+                                "All changes saved",
+                                "status-clean");
+                        }
+                        else {
+
+                            updateStatus(
+                                "Creating new article",
+                                "status-new");
+                        }
+                    }
+                }
+
+                function updateStatus(text, cssClass) {
+
+                    const status =
+                        document.getElementById("editorStatus");
+
+                    status.className =
+                        `status-bar ${cssClass}`;
+
+                    status.innerText =
+                        text;
+                }
+
+                function confirmSave() {
+
+                    document.getElementById("saveModal").style.display =
+                        "flex";
+                }
+
+                function closeSaveModal() {
+
+                    document.getElementById("saveModal").style.display =
+                        "none";
+                }
+
+                function confirmCancel() {
+
+                    document.getElementById("cancelModal").style.display =
+                        "flex";
+                }
+
+                function closeCancelModal() {
+
+                    document.getElementById("cancelModal").style.display =
+                        "none";
+                }
+
+                async function saveArticle() {
+
+                    closeSaveModal();
+
+                    const payload = {
+
+                        title: value("title"),
+                        slug: value("slug"),
+                        summary: value("summary"),
+                        categorySlug: value("articleCategory"),
+                        tags: value("tags"),
+                        bodyBlocks: value("bodyMarkdown"),
+                        level: currentLevel,
+                        focus: currentFocus
+                    };
+
+                    let response;
+
+                    if (currentArticleKey) {
+
+                        response = await fetch(
+                            `/api/blog-content/articles/${currentArticleKey}`,
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                    }
+                    else {
+
+                        response = await fetch(
+                            "/api/blog-content/articles",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                    }
+
+                    const result =
+                        await response.json();
+
+                    if (result.success) {
+
+                        currentArticleKey =
+                            result.key;
+
+                        updateModeAlerts();
+
+                        originalState =
+                            getCurrentState();
+
+                        setDirty(false);
+
+                        notifyParent(true);
+
+                        alert(result.message);
+                    }
+                    else {
+
+                        alert(result.message);
+                    }
+                }
+
+                function cancelChanges() {
+
+                    closeCancelModal();
+
+                    if (!originalState) {
+                        return;
+                    }
+
+                    setValue("title", originalState.title);
+                    setValue("slug", originalState.slug);
+                    setValue("summary", originalState.summary);
+                    setValue("articleCategory", originalState.categorySlug);
+                    setValue("tags", originalState.tags);
+                    setValue("bodyMarkdown", originalState.bodyMarkdown);
+
+                    currentLevel =
+                        originalState.level || "Draft";
+
+                    currentFocus =
+                        originalState.focus || "Preview";
+
+                    setDirty(false);
+
+                    sendPreviewUpdate();
+                }
+
+                function updateModeAlerts() {
+
+                    const isExistingArticle =
+                        Boolean(currentArticleKey);
+
+                    document
+                        .getElementById("editingExistingAlert")
+                        .classList
+                        .toggle("visible", isExistingArticle);
+
+                    document
+                        .getElementById("creatingNewAlert")
+                        .classList
+                        .toggle("visible", !isExistingArticle);
+                }
+
+                function notifyParent(saved) {
+
+                    try {
+                        window.parent.postMessage({
+                            type: "BLOG_ARTICLE_EDITOR_STATE",
+                            articleKey: currentArticleKey,
+                            title: value("title"),
+                            isDirty,
+                            mode: currentArticleKey ? "existing" : "new",
+                            saved: Boolean(saved)
+                        }, "*");
+                    }
+                    catch (error) {
+                        console.error("[ARTICLE_EDITOR] failed to notify parent:", error);
+                    }
+                }
+
+                function value(id) {
+
+                    return document.getElementById(id).value;
+                }
+
+                function setValue(id, value) {
+
+                    document.getElementById(id).value =
+                        value ?? "";
+                }
+
+                function selectedText(id) {
+
+                    const select =
+                        document.getElementById(id);
+
+                    return select.options[select.selectedIndex]?.text ?? "";
+                }
+    </script>
 
 </body>
 </html>

@@ -196,6 +196,46 @@
         }
 
         .btn:hover { transform: translateY(-1px); }
+
+        .articles-action-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 0 0 20px 0;
+        }
+
+        .new-article-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #4f93e8;
+            border-radius: 999px;
+            padding: 12px 18px 12px 13px;
+            background: linear-gradient(135deg, #1677ff, #0d4fa8);
+            color: white;
+            font: inherit;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 16px 34px rgba(22, 119, 255, 0.28);
+        }
+
+        .new-article-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 20px 42px rgba(22, 119, 255, 0.36);
+        }
+
+        .new-article-button-mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            font-size: 20px;
+            line-height: 1;
+        }
+
         .btn-secondary { background: #2d4463; }
         .btn-danger { background: #d0384d; }
         .btn-icon { min-width: 42px; padding: 10px 13px; border-radius: 999px; font-size: 18px; line-height: 1; }
@@ -230,6 +270,23 @@
             font-weight: 900;
             letter-spacing: 0.12em;
             text-transform: uppercase;
+        }
+
+        .inline-editor-header.new-article-mode {
+            border-color: #4f93e8;
+            background: linear-gradient(135deg, rgba(16, 73, 135, 0.95), rgba(12, 44, 82, 0.96));
+        }
+
+        .inline-editor-header.new-article-mode .inline-editor-eyebrow {
+            color: #b9d8ff;
+        }
+
+        .inline-editor-header.new-article-mode .inline-editor-title {
+            color: #ffffff;
+        }
+
+        .inline-editor-header.new-article-mode .inline-editor-text {
+            color: #d7eaff;
         }
 
         .inline-editor-title { margin: 0 0 4px 0; font-size: 20px; font-weight: 900; color: #fff7db; }
@@ -295,15 +352,22 @@
 
             <section id="articlesPanel" class="panel">
                 <div id="articlesListView">
+                    <div id="articlesActionBar" class="articles-action-bar">
+                        <button class="new-article-button" type="button" onclick="openNewArticleEditorInArticlesTab()">
+                            <span class="new-article-button-mark">+</span>
+                            <span>Create new article</span>
+                        </button>
+                    </div>
+
                     <div id="articlesGrouped"></div>
                 </div>
 
                 <div id="articlesEditorView" class="hidden">
-                    <div class="inline-editor-header">
+                    <div id="inlineEditorHeader" class="inline-editor-header">
                         <div>
-                            <div class="inline-editor-eyebrow">Editing existing article</div>
+                            <div id="inlineEditorEyebrow" class="inline-editor-eyebrow">Editing existing article</div>
                             <h2 id="inlineEditorTitle" class="inline-editor-title">Article editor</h2>
-                            <p class="inline-editor-text">
+                            <p id="inlineEditorText" class="inline-editor-text">
                                 You are editing an article that already exists in the CMS. Changes are local until you save them in the editor.
                             </p>
                         </div>
@@ -341,6 +405,7 @@
         let activePanel = "categories";
         let inlineEditorIsDirty = false;
         let inlineEditorArticleKey = null;
+        let inlineEditorMode = "existing";
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("searchInput").addEventListener("input", renderActivePanel);
@@ -475,9 +540,11 @@
 
             inlineEditorIsDirty = false;
             inlineEditorArticleKey = articleKey;
+            inlineEditorMode = "existing";
 
-            document.getElementById("inlineEditorTitle").innerText =
-                article ? article.title : "Article editor";
+            setInlineEditorHeader(
+                "existing",
+                article ? article.title : "Article editor");
 
             document.getElementById("articlesListView").classList.add("hidden");
             document.getElementById("articlesEditorView").classList.remove("hidden");
@@ -486,6 +553,40 @@
             frame.src = `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}&embedded=articles&requestId=${Date.now()}`;
 
             showPanel("articles");
+        }
+
+        function openNewArticleEditorInArticlesTab() {
+            inlineEditorIsDirty = false;
+            inlineEditorArticleKey = null;
+            inlineEditorMode = "new";
+
+            setInlineEditorHeader(
+                "new",
+                "Create new article");
+
+            document.getElementById("articlesListView").classList.add("hidden");
+            document.getElementById("articlesEditorView").classList.remove("hidden");
+
+            const frame = document.getElementById("inlineArticleEditorFrame");
+            frame.src = `/blog-admin/article-editor?embedded=articles&mode=new&requestId=${Date.now()}`;
+
+            showPanel("articles");
+        }
+
+        function setInlineEditorHeader(mode, title) {
+            const isNew = mode === "new";
+
+            document.getElementById("inlineEditorHeader").classList.toggle("new-article-mode", isNew);
+
+            document.getElementById("inlineEditorEyebrow").innerText = isNew
+                ? "Creating new article"
+                : "Editing existing article";
+
+            document.getElementById("inlineEditorTitle").innerText = title;
+
+            document.getElementById("inlineEditorText").innerText = isNew
+                ? "You are creating a new CMS article. Placeholder content is loaded into the editor and previewed immediately so you can start shaping the article."
+                : "You are editing an article that already exists in the CMS. Changes are local until you save them in the editor.";
         }
 
         function requestCloseInlineArticleEditor() {
@@ -536,8 +637,14 @@
                 inlineEditorArticleKey = message.articleKey;
             }
 
+            if (message.mode) {
+                inlineEditorMode = message.mode;
+            }
+
             if (message.title) {
-                document.getElementById("inlineEditorTitle").innerText = message.title;
+                setInlineEditorHeader(
+                    inlineEditorMode,
+                    message.title);
             }
 
             if (message.saved) {
