@@ -77,9 +77,12 @@
     </div>
 </section>
 
-<section class="container-xl blog-view-switch-section">
-    <ViewModeSwitch CurrentView="@CurrentView" />
-</section>
+@if (IsBlogDisplayModeSwitchEnabled)
+{
+    <section class="container-xl blog-view-switch-section">
+        <ViewModeSwitch CurrentView="@CurrentView" />
+    </section>
+}
 
 @if (_isLoading)
 {
@@ -150,6 +153,11 @@ else
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
     private LearningPathVisualizationType _learningPathVisualization;
     private bool _isLoading = true;
+
+    private bool IsBlogDisplayModeSwitchEnabled =>
+    Configuration.GetValue<bool>(
+        "Features:EnableBlogDisplayModeSwitch",
+        true);
 
     private bool IsLearningPathView =>
         string.Equals(CurrentView, "path", StringComparison.OrdinalIgnoreCase);
