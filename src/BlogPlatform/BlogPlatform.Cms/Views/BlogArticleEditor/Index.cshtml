@@ -13,9 +13,15 @@
     <title>Article editor</title>
 
     <style>
-
         * {
             box-sizing: border-box;
+        }
+
+        :root {
+            --article-editor-sidebar-width: 420px;
+            --article-editor-sidebar-min-width: 260px;
+            --article-editor-preview-min-width: 420px;
+            --article-editor-splitter-width: 10px;
         }
 
         body {
@@ -26,21 +32,62 @@
             color: #f5f7fb;
         }
 
+        body.resizing {
+            cursor: col-resize;
+            user-select: none;
+        }
+
+        body.resizing iframe {
+            pointer-events: none;
+        }
+
         .layout {
             display: flex;
             height: 100vh;
+            width: 100vw;
+            overflow: hidden;
         }
 
         .sidebar {
-            width: 420px;
+            flex: 0 0 var(--article-editor-sidebar-width);
+            min-width: var(--article-editor-sidebar-min-width);
             overflow-y: auto;
             padding: 20px;
-            border-right: 1px solid #29405f;
             background: #06152b;
         }
 
+        .splitter {
+            flex: 0 0 var(--article-editor-splitter-width);
+            width: var(--article-editor-splitter-width);
+            cursor: col-resize;
+            background: #11243e;
+            border-left: 1px solid #29405f;
+            border-right: 1px solid #29405f;
+            position: relative;
+            touch-action: none;
+        }
+
+        .splitter::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 64px;
+            border-radius: 999px;
+            background: #5f7fa8;
+            transform: translate(-50%, -50%);
+            opacity: 0.8;
+        }
+
+        .splitter:hover,
+        body.resizing .splitter {
+            background: #17365d;
+        }
+
         .preview-area {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: var(--article-editor-preview-min-width);
             padding: 18px;
             background:
                 radial-gradient(circle at top, #103b69, #04111d);
@@ -185,7 +232,6 @@
             gap: 12px;
             margin-top: 24px;
         }
-
     </style>
 </head>
 
@@ -193,11 +239,9 @@
 
 <div class="layout">
 
-    <div class="sidebar">
+    <div class="sidebar" id="editorSidebar">
 
-        <h1>
-            Article editor
-        </h1>
+        <h1>Article editor</h1>
 
         <div class="helper">
             Create new articles or edit existing Umbraco CMS articles
@@ -205,124 +249,73 @@
         </div>
 
         <div class="button-row">
-            <button
-                class="btn-primary"
-                type="button"
-                onclick="createNewArticle()">
-
+            <button class="btn-primary" type="button" onclick="createNewArticle()">
                 Create new article
-
             </button>
         </div>
 
-        <div class="section-title">
-            Existing articles
-        </div>
+        <div class="section-title">Existing articles</div>
 
-        <label>
-            Category
-        </label>
+        <label>Category</label>
 
         <select id="categoryFilter">
-            <option value="">
-                Loading...
-            </option>
+            <option value="">Loading...</option>
         </select>
 
-        <label>
-            Article
-        </label>
+        <label>Article</label>
 
         <select id="articleSelect">
-            <option value="">
-                Select article
-            </option>
+            <option value="">Select article</option>
         </select>
 
         <div class="button-row">
-
-            <button
-                class="btn-secondary"
-                type="button"
-                onclick="loadSelectedArticle()">
-
+            <button class="btn-secondary" type="button" onclick="loadSelectedArticle()">
                 Load article
-
             </button>
-
         </div>
 
-        <div class="section-title">
-            Article fields
-        </div>
+        <div class="section-title">Article fields</div>
 
-        <label>
-            Title
-        </label>
-
+        <label>Title</label>
         <input id="title" type="text" />
 
-        <label>
-            Slug
-        </label>
-
+        <label>Slug</label>
         <input id="slug" type="text" />
 
-        <label>
-            Summary
-        </label>
-
+        <label>Summary</label>
         <textarea id="summary"></textarea>
 
-        <label>
-            Category
-        </label>
+        <label>Category</label>
+        <select id="articleCategory"></select>
 
-        <select id="articleCategory">
-        </select>
-
-        <label>
-            Tags comma-separated
-        </label>
-
+        <label>Tags comma-separated</label>
         <input id="tags" type="text" />
 
-        <label>
-            Body markdown
-        </label>
-
+        <label>Body markdown</label>
         <textarea id="bodyMarkdown"></textarea>
 
-        <div
-            id="editorStatus"
-            class="status-bar status-new">
-
+        <div id="editorStatus" class="status-bar status-new">
             Creating new article
-
         </div>
 
         <div class="button-row">
-
-            <button
-                class="btn-primary"
-                type="button"
-                onclick="confirmSave()">
-
+            <button class="btn-primary" type="button" onclick="confirmSave()">
                 Save
-
             </button>
 
-            <button
-                class="btn-danger"
-                type="button"
-                onclick="confirmCancel()">
-
+            <button class="btn-danger" type="button" onclick="confirmCancel()">
                 Cancel
-
             </button>
-
         </div>
 
+    </div>
+
+    <div
+        id="paneSplitter"
+        class="splitter"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize article editor panes">
     </div>
 
     <div class="preview-area">
@@ -330,99 +323,67 @@
         <iframe
             id="previewFrame"
             src="@previewUrl"
-            onload="console.log('[LIVE_PREVIEW] iframe loaded:', this.src)">
+            onload="onPreviewFrameLoaded()">
         </iframe>
 
     </div>
 
 </div>
 
-<div
-    id="saveModal"
-    class="modal-backdrop">
-
+<div id="saveModal" class="modal-backdrop">
     <div class="modal">
+        <h2>Save article</h2>
 
-        <h2>
-            Save article
-        </h2>
-
-        <p>
-            Are you sure you want to save the article?
-        </p>
+        <p>Are you sure you want to save the article?</p>
 
         <div class="modal-buttons">
-
-            <button
-                class="btn-secondary"
-                type="button"
-                onclick="closeSaveModal()">
-
+            <button class="btn-secondary" type="button" onclick="closeSaveModal()">
                 No
-
             </button>
 
-            <button
-                class="btn-primary"
-                type="button"
-                onclick="saveArticle()">
-
+            <button class="btn-primary" type="button" onclick="saveArticle()">
                 Yes, save
-
             </button>
-
         </div>
-
     </div>
-
 </div>
 
-<div
-    id="cancelModal"
-    class="modal-backdrop">
-
+<div id="cancelModal" class="modal-backdrop">
     <div class="modal">
+        <h2>Cancel changes</h2>
 
-        <h2>
-            Cancel changes
-        </h2>
-
-        <p>
-            Are you sure you want to discard local changes?
-        </p>
+        <p>Are you sure you want to discard local changes?</p>
 
         <div class="modal-buttons">
-
-            <button
-                class="btn-secondary"
-                type="button"
-                onclick="closeCancelModal()">
-
+            <button class="btn-secondary" type="button" onclick="closeCancelModal()">
                 No
-
             </button>
 
-            <button
-                class="btn-danger"
-                type="button"
-                onclick="cancelChanges()">
-
+            <button class="btn-danger" type="button" onclick="cancelChanges()">
                 Yes, cancel
-
             </button>
-
         </div>
-
     </div>
-
 </div>
 
 <script>
+    const sidebarWidthStorageKey =
+        "blogArticleEditor.sidebarWidth";
+
+    const defaultSidebarWidth =
+        420;
+
+    const minSidebarWidth =
+        260;
+
+    const minPreviewWidth =
+        420;
 
     let currentArticleKey = null;
     let originalState = null;
     let isDirty = false;
     let sendSequence = 0;
+    let previewFrameLoaded = false;
 
     const frame =
         document.getElementById("previewFrame");
@@ -438,6 +399,8 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
 
+        initializeResizablePanes();
+
         await loadCategories();
 
         attachFieldListeners();
@@ -446,6 +409,107 @@
 
         sendPreviewUpdate();
     });
+
+    function initializeResizablePanes() {
+
+        const splitter =
+            document.getElementById("paneSplitter");
+
+        const savedWidth =
+            Number(localStorage.getItem(sidebarWidthStorageKey));
+
+        if (Number.isFinite(savedWidth) && savedWidth > 0) {
+            setSidebarWidth(savedWidth);
+        }
+        else {
+            setSidebarWidth(defaultSidebarWidth);
+        }
+
+        splitter.addEventListener("pointerdown", startPaneResize);
+
+        splitter.addEventListener("dblclick", () => {
+            setSidebarWidth(defaultSidebarWidth);
+
+            localStorage.setItem(
+                sidebarWidthStorageKey,
+                defaultSidebarWidth.toString());
+        });
+
+        window.addEventListener("resize", () => {
+            setSidebarWidth(getCurrentSidebarWidth());
+        });
+    }
+
+    function startPaneResize(event) {
+
+        event.preventDefault();
+
+        const splitter =
+            document.getElementById("paneSplitter");
+
+        splitter.setPointerCapture(event.pointerId);
+
+        document.body.classList.add("resizing");
+
+        const onPointerMove = moveEvent => {
+            setSidebarWidth(moveEvent.clientX);
+        };
+
+        const onPointerUp = upEvent => {
+
+            splitter.releasePointerCapture(upEvent.pointerId);
+
+            document.body.classList.remove("resizing");
+
+            localStorage.setItem(
+                sidebarWidthStorageKey,
+                getCurrentSidebarWidth().toString());
+
+            window.removeEventListener("pointermove", onPointerMove);
+            window.removeEventListener("pointerup", onPointerUp);
+            window.removeEventListener("pointercancel", onPointerUp);
+        };
+
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
+        window.addEventListener("pointercancel", onPointerUp);
+    }
+
+    function setSidebarWidth(requestedWidth) {
+
+        const maxSidebarWidth =
+            Math.max(
+                minSidebarWidth,
+                window.innerWidth - minPreviewWidth);
+
+        const width =
+            Math.min(
+                Math.max(requestedWidth, minSidebarWidth),
+                maxSidebarWidth);
+
+        document.documentElement.style.setProperty(
+            "--article-editor-sidebar-width",
+            `${width}px`);
+    }
+
+    function getCurrentSidebarWidth() {
+
+        const sidebar =
+            document.getElementById("editorSidebar");
+
+        return Math.round(sidebar.getBoundingClientRect().width);
+    }
+
+    function onPreviewFrameLoaded() {
+
+        previewFrameLoaded = true;
+
+        console.log("[LIVE_PREVIEW] iframe loaded:", frame.src);
+
+        setTimeout(() => {
+            sendPreviewUpdate();
+        }, 250);
+    }
 
     async function loadCategories() {
 
@@ -653,11 +717,25 @@ public sealed class Example
                 createPreviewHtml(value("bodyMarkdown"))
         };
 
-        frame.contentWindow.postMessage({
-            type: "BLOG_ARTICLE_PREVIEW",
-            sequence: sendSequence,
-            article
-        }, "*");
+        try {
+
+            frame.contentWindow.postMessage({
+                type: "BLOG_ARTICLE_PREVIEW",
+                sequence: sendSequence,
+                article
+            }, "*");
+
+            console.log(
+                "[LIVE_PREVIEW] message sent:",
+                sendSequence,
+                article.title);
+        }
+        catch (error) {
+
+            console.error(
+                "[LIVE_PREVIEW] failed to send preview message:",
+                error);
+        }
     }
 
     function createPreviewHtml(markdown) {
@@ -836,7 +914,6 @@ public sealed class Example
 
         return select.options[select.selectedIndex]?.text ?? "";
     }
-
 </script>
 
 </body>
