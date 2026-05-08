@@ -19,15 +19,18 @@ public sealed class BlogContentController : ControllerBase
     private const string CategoriesCacheKey = "cms-blog-categories";
 
     private readonly IContentService _contentService;
+    private readonly IContentTypeService _contentTypeService;
     private readonly ILogger<BlogContentController> _logger;
     private readonly IMemoryCache _cache;
 
     public BlogContentController(
         IContentService contentService,
+        IContentTypeService contentTypeService,
         ILogger<BlogContentController> logger,
         IMemoryCache cache)
     {
         _contentService = contentService;
+        _contentTypeService = contentTypeService;
         _logger = logger;
         _cache = cache;
     }
@@ -44,6 +47,25 @@ public sealed class BlogContentController : ControllerBase
             .ToList();
 
         return Ok(categories);
+    }
+
+    [HttpGet("document-types")]
+    public ActionResult<IReadOnlyCollection<CmsDocumentTypeListItemDto>> GetDocumentTypes()
+    {
+        var documentTypes = _contentTypeService
+            .GetAll()
+            .Select(contentType => new CmsDocumentTypeListItemDto(
+                contentType.Key,
+                contentType.Name ?? contentType.Alias,
+                contentType.Alias,
+                contentType.Icon ?? "icon-document",
+                contentType.IsElement,
+                GetContentCount(contentType.Alias)))
+            .OrderBy(documentType => documentType.IsElement)
+            .ThenBy(documentType => documentType.Name)
+            .ToList();
+
+        return Ok(documentTypes);
     }
 
     [HttpGet("articles")]
@@ -224,6 +246,16 @@ public sealed class BlogContentController : ControllerBase
         }
     }
 
+    private int GetContentCount(string contentTypeAlias)
+    {
+        return _contentService
+            .GetRootContent()
+            .Count(content => string.Equals(
+                content.ContentType.Alias,
+                contentTypeAlias,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
     private IReadOnlyCollection<IContent> GetRootArticles()
     {
         return _contentService
@@ -318,6 +350,14 @@ public sealed class BlogContentController : ControllerBase
         Guid Key,
         string Name,
         string Slug);
+
+    public sealed record CmsDocumentTypeListItemDto(
+        Guid Key,
+        string Name,
+        string Alias,
+        string Icon,
+        bool IsElement,
+        int ContentCount);
 
     public sealed record CmsArticleListItemDto(
         Guid Key,

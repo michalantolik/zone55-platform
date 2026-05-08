@@ -236,6 +236,71 @@
             line-height: 1;
         }
 
+        .document-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .document-type-card {
+            display: grid;
+            grid-template-columns: 54px 1fr;
+            gap: 16px;
+            align-items: start;
+            border: 1px solid #24405f;
+            border-radius: 18px;
+            background: rgba(4, 17, 29, 0.9);
+            padding: 18px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+        }
+
+        .document-type-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #35527a;
+            background: linear-gradient(180deg, rgba(132, 187, 255, 0.22), rgba(22, 119, 255, 0.10));
+            color: #d7eaff;
+            font-weight: 900;
+            font-size: 17px;
+        }
+
+        .document-type-body h2 {
+            margin: 3px 0 6px 0;
+            font-size: 20px;
+        }
+
+        .document-type-body p {
+            margin: 0;
+            color: #aac2de;
+        }
+
+        .document-type-kind {
+            color: #84bbff;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .document-type-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .document-type-meta span {
+            border-radius: 999px;
+            padding: 6px 9px;
+            background: #163b62;
+            color: #a7d0ff;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
         .btn-secondary { background: #2d4463; }
         .btn-danger { background: #d0384d; }
         .btn-icon { min-width: 42px; padding: 10px 13px; border-radius: 999px; font-size: 18px; line-height: 1; }
@@ -332,6 +397,7 @@
             <nav class="top-nav">
                 <button id="categoriesTab" class="active" type="button" onclick="showPanel('categories')">Categories</button>
                 <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
+                <button id="documentTypesTab" type="button" onclick="showPanel('documentTypes')">Document Types</button>
             </nav>
         </header>
 
@@ -345,12 +411,16 @@
             </section>
 
             <section id="toolbarSection" class="toolbar">
-                <input id="searchInput" class="search" type="search" placeholder="Search categories or articles..." />
+                <input id="searchInput" class="search" type="search" placeholder="Search categories, articles or document types..." />
                 <div id="statusText" class="status">Loading CMS content...</div>
             </section>
 
             <section id="categoriesPanel" class="panel active">
                 <div id="categoriesGrid" class="grid"></div>
+            </section>
+
+            <section id="documentTypesPanel" class="panel">
+                <div id="documentTypesGrid" class="document-types-grid"></div>
             </section>
 
             <section id="articlesPanel" class="panel">
@@ -406,6 +476,7 @@
     <script>
         let categories = [];
         let articles = [];
+        let documentTypes = [];
         let activePanel = "categories";
         let inlineEditorIsDirty = false;
         let inlineEditorArticleKey = null;
@@ -421,18 +492,20 @@
         });
 
         async function loadContent() {
-            const [categoriesResponse, articlesResponse] = await Promise.all([
+            const [categoriesResponse, articlesResponse, documentTypesResponse] = await Promise.all([
                 fetch("/api/blog-content/categories"),
-                fetch("/api/blog-content/articles")
+                fetch("/api/blog-content/articles"),
+                fetch("/api/blog-content/document-types")
             ]);
 
             categories = await categoriesResponse.json();
             articles = await articlesResponse.json();
+            documentTypes = await documentTypesResponse.json();
 
             renderActivePanel();
 
             document.getElementById("statusText").innerText =
-                `${categories.length} categories, ${articles.length} articles`;
+                `${categories.length} categories, ${articles.length} articles, ${documentTypes.length} document types`;
         }
 
         function showPanel(panel) {
@@ -440,9 +513,11 @@
 
             document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
             document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
+            document.getElementById("documentTypesTab").classList.toggle("active", panel === "documentTypes");
 
             document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
             document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
+            document.getElementById("documentTypesPanel").classList.toggle("active", panel === "documentTypes");
 
             const articlesEditorIsOpen = panel === "articles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
 
@@ -461,6 +536,10 @@
 
             if (activePanel === "articles" && document.getElementById("articlesEditorView").classList.contains("hidden")) {
                 renderArticles();
+            }
+
+            if (activePanel === "documentTypes") {
+                renderDocumentTypes();
             }
         }
 
@@ -488,6 +567,87 @@
                     </article>
                 `;
             }).join("");
+        }
+
+        function renderDocumentTypes() {
+            const search = getSearchText();
+
+            const filteredDocumentTypes = documentTypes
+                .filter(documentType =>
+                    documentType.name.toLowerCase().includes(search) ||
+                    documentType.alias.toLowerCase().includes(search) ||
+                    documentType.icon.toLowerCase().includes(search))
+                .sort((a, b) => Number(a.isElement) - Number(b.isElement) || a.name.localeCompare(b.name));
+
+            const grid = document.getElementById("documentTypesGrid");
+
+            if (filteredDocumentTypes.length === 0) {
+                grid.innerHTML = `<div class="empty">No document types found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filteredDocumentTypes.map(renderDocumentTypeCard).join("");
+        }
+
+        function renderDocumentTypeCard(documentType) {
+            const kind = documentType.isElement ? "Element type" : "Document type";
+            const countText = documentType.contentCount === 1
+                ? "1 content item"
+                : `${documentType.contentCount} content items`;
+
+            return `
+                <article class="document-type-card">
+                    <div class="document-type-icon" title="${escapeHtml(documentType.icon)}">
+                        ${getDocumentTypeIcon(documentType)}
+                    </div>
+
+                    <div class="document-type-body">
+                        <div class="document-type-kind">${kind}</div>
+                        <h2>${escapeHtml(documentType.name)}</h2>
+                        <p>${escapeHtml(documentType.alias)}</p>
+
+                        <div class="document-type-meta">
+                            <span>${escapeHtml(documentType.icon)}</span>
+                            <span>${countText}</span>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function getDocumentTypeIcon(documentType) {
+            const alias = String(documentType.alias ?? "").toLowerCase();
+            const icon = String(documentType.icon ?? "").toLowerCase();
+
+            if (alias.includes("article") || icon.includes("article") || icon.includes("news")) {
+                return "▤";
+            }
+
+            if (alias.includes("category") || icon.includes("folder")) {
+                return "▰";
+            }
+
+            if (alias.includes("heading") || icon.includes("heading")) {
+                return "H1";
+            }
+
+            if (alias.includes("code") || icon.includes("code")) {
+                return "&lt;&gt;";
+            }
+
+            if (alias.includes("plant") || alias.includes("mermaid") || icon.includes("diagram")) {
+                return "⌘";
+            }
+
+            if (alias.includes("text")) {
+                return "¶";
+            }
+
+            if (alias.includes("callout")) {
+                return "△";
+            }
+
+            return documentType.isElement ? "◇" : "□";
         }
 
         function renderArticles() {
