@@ -1,0 +1,124 @@
+﻿@using BlogPlatform.App.Models
+
+<section class="learning-path-shell">
+    <div class="learning-path-header">
+        <div>
+            <div class="section-kicker">GUIDED ROADMAP</div>
+            <h2>.NET Learning Path</h2>
+            <p>
+                Follow articles from C# foundations to architecture, Azure,
+                CI/CD and advanced backend engineering.
+            </p>
+        </div>
+
+        <a class="learning-path-latest-link" href="/?view=latest">
+            Back to latest articles →
+        </a>
+    </div>
+
+    @if (Visualization == LearningPathVisualizationType.PyramidDashboard)
+    {
+        <div class="learning-path-pyramid">
+            @foreach (var level in Levels.Reverse())
+            {
+                <section class="learning-path-pyramid-row @level.AccentClass">
+                    <div>
+                        <span>Level @level.Number</span>
+                        <h3>@level.Title</h3>
+                    </div>
+
+                    <div class="learning-path-pyramid-tags">
+                        @foreach (var step in level.Steps.Take(3))
+                        {
+                            <a href="@GetFirstPostUrl(step)">
+                                @step.Title
+                            </a>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+    else if (Visualization == LearningPathVisualizationType.EngineeringJourney)
+    {
+        <div class="learning-path-journey">
+            @foreach (var level in Levels)
+            {
+                <section class="learning-path-zone">
+                    <div class="learning-path-zone-header @level.AccentClass">
+                        <span>Zone @level.Number</span>
+                        <h3>@level.Title</h3>
+                    </div>
+
+                    <div class="learning-path-zone-steps">
+                        @foreach (var step in level.Steps)
+                        {
+                            <a class="learning-path-zone-step" href="@GetFirstPostUrl(step)">
+                                <span>@step.StepOrder</span>
+
+                                <strong>@step.Title</strong>
+
+                                <small>
+                                    @(step.Posts.Count == 0
+                                        ? "No articles yet"
+                                        : $"{step.Posts.Count} article(s)")
+                                </small>
+                            </a>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="learning-path-vertical">
+            @foreach (var level in Levels)
+            {
+                <section class="learning-path-level" id="level-@level.Number">
+                    <div class="learning-path-level-marker @level.AccentClass">
+                        @level.Number
+                    </div>
+
+                    <div class="learning-path-level-card">
+                        <div class="learning-path-level-top">
+                            <div>
+                                <span>Level @level.Number</span>
+                                <h3>@level.Title</h3>
+                                <p>@level.Description</p>
+                            </div>
+
+                            <a href="#level-@level.Number" class="learning-path-open-button">
+                                Open Level
+                            </a>
+                        </div>
+
+                        <div class="learning-path-step-grid">
+                            @foreach (var step in level.Steps)
+                            {
+                                <RenderStepCard Step="step" />
+                            }
+                        </div>
+                    </div>
+                </section>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public IReadOnlyCollection<LearningPathLevel> Levels { get; set; } = [];
+
+    [Parameter]
+    public LearningPathVisualizationType Visualization { get; set; }
+
+    private string GetFirstPostUrl(LearningPathStep step)
+    {
+        var firstPost = step.Posts.FirstOrDefault();
+
+        return firstPost is null
+            ? "/?view=path"
+            : $"/articles/{firstPost.Slug}";
+    }
+}

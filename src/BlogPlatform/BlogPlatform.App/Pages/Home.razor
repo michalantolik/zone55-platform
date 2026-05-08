@@ -1,6 +1,7 @@
 ﻿@page "/"
 @page "/articles"
 @inject IBlogApiClient BlogApi
+@inject IConfiguration Configuration
 
 <PageTitle>.NET Backend & Cloud Engineering Notes</PageTitle>
 
@@ -76,56 +77,87 @@
     </div>
 </section>
 
-<section class="content-frame container-xl">
-    <aside class="sidebar">
-        <CategorySidebar ActiveSlug="@Category"
-                         Categories="@_categories" />
-    </aside>
-
-    <section class="posts-area">
-        <div class="section-header">
-            <div>
-                <div class="section-kicker">LATEST CONTENT</div>
-                <h2>@PageTitleText</h2>
-                <p>@Subtitle</p>
-            </div>
-
-            <a href="/articles">Browse all posts</a>
-        </div>
-
-        @if (_isLoading)
-        {
-            <p>Loading posts from Umbraco CMS...</p>
-        }
-        else if (_posts.Count == 0)
-        {
-            <p>No posts found.</p>
-        }
-        else
-        {
-            <div class="post-grid">
-                @foreach (var post in _posts)
-                {
-                    <PostCard Title="@post.Title"
-                              Summary="@post.Summary"
-                              Category="@post.Category"
-                              Level="@post.Level"
-                              Focus="@post.Focus"
-                              Url="@($"/articles/{post.Slug}")"
-                              TechStack="@post.Tags" />
-                }
-            </div>
-        }
-    </section>
+<section class="container-xl blog-view-switch-section">
+    <ViewModeSwitch CurrentView="@CurrentView" />
 </section>
+
+@if (_isLoading)
+{
+    <section class="content-frame container-xl">
+        <section class="posts-area">
+            <p>Loading posts from Umbraco CMS...</p>
+        </section>
+    </section>
+}
+else if (IsLearningPathView)
+{
+    <section class="content-frame content-frame-learning-path container-xl">
+        <LearningPathView Levels="@_learningPathLevels"
+                          Visualization="@_learningPathVisualization" />
+    </section>
+}
+else
+{
+    <section class="content-frame container-xl">
+        <aside class="sidebar">
+            <CategorySidebar ActiveSlug="@Category"
+                             Categories="@_categories" />
+        </aside>
+
+        <section class="posts-area">
+            <div class="section-header">
+                <div>
+                    <div class="section-kicker">LATEST CONTENT</div>
+                    <h2>@PageTitleText</h2>
+                    <p>@Subtitle</p>
+                </div>
+
+                <a href="/articles">Browse all posts</a>
+            </div>
+
+            @if (_posts.Count == 0)
+            {
+                <p>No posts found.</p>
+            }
+            else
+            {
+                <div class="post-grid">
+                    @foreach (var post in _posts)
+                    {
+                        <PostCard Title="@post.Title"
+                                  Summary="@post.Summary"
+                                  Category="@post.Category"
+                                  Level="@post.Level"
+                                  Focus="@post.Focus"
+                                  Url="@($"/articles/{post.Slug}")"
+                                  TechStack="@post.Tags" />
+                    }
+                </div>
+            }
+        </section>
+    </section>
+}
 
 @code {
     [SupplyParameterFromQuery(Name = "category")]
     public string? Category { get; set; }
 
+    [SupplyParameterFromQuery(Name = "view")]
+    public string? View { get; set; }
+
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<CategoryItem> _categories = [];
+    private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
+    private LearningPathVisualizationType _learningPathVisualization;
     private bool _isLoading = true;
+
+    private bool IsLearningPathView =>
+        string.Equals(CurrentView, "path", StringComparison.OrdinalIgnoreCase);
+
+    private string CurrentView =>
+        string.Equals(View, "path", StringComparison.OrdinalIgnoreCase)
+            ? "path"
+            : "latest";
 
     private string PageTitleText =>
         string.IsNullOrWhiteSpace(Category)
@@ -141,11 +173,29 @@
     {
         _isLoading = true;
 
+        _learningPathVisualization = ReadLearningPathVisualization();
+
         var homeContent = await BlogApi.GetHomeContentAsync(Category);
 
         _categories = homeContent.Categories;
         _posts = homeContent.Posts;
+        _learningPathLevels = LearningPathCatalog.Build(homeContent.Posts);
 
         _isLoading = false;
+    }
+
+    private LearningPathVisualizationType ReadLearningPathVisualization()
+    {
+        var configuredValue = Configuration["LearningPath:Visualization"];
+
+        if (Enum.TryParse<LearningPathVisualizationType>(
+                configuredValue,
+                ignoreCase: true,
+                out var visualization))
+        {
+            return visualization;
+        }
+
+        return LearningPathVisualizationType.VerticalRoadmap;
     }
 }
