@@ -195,6 +195,11 @@
             color: #a7d0ff;
         }
 
+        .status-loading {
+            background: #192a45;
+            color: #b9d8ff;
+        }
+
         .modal-backdrop {
             position: fixed;
             inset: 0;
@@ -338,6 +343,8 @@
         420;
 
     let currentArticleKey = null;
+    let currentLevel = "Draft";
+    let currentFocus = "Preview";
     let originalState = null;
     let isDirty = false;
     let sendSequence = 0;
@@ -363,7 +370,15 @@
 
         attachFieldListeners();
 
-        createNewArticle();
+        const articleKey =
+            getRequestedArticleKey();
+
+        if (articleKey) {
+            await loadExistingArticle(articleKey);
+        }
+        else {
+            createNewArticle();
+        }
 
         sendPreviewUpdate();
     });
@@ -458,6 +473,14 @@
         return Math.round(sidebar.getBoundingClientRect().width);
     }
 
+    function getRequestedArticleKey() {
+
+        const parameters =
+            new URLSearchParams(window.location.search);
+
+        return parameters.get("articleKey");
+    }
+
     function onPreviewFrameLoaded() {
 
         previewFrameLoaded = true;
@@ -492,9 +515,70 @@
         }
     }
 
+    async function loadExistingArticle(articleKey) {
+
+        updateStatus(
+            "Loading article...",
+            "status-loading");
+
+        const response =
+            await fetch(`/api/blog-content/articles/${encodeURIComponent(articleKey)}`);
+
+        if (!response.ok) {
+
+            updateStatus(
+                "Article could not be loaded",
+                "status-dirty");
+
+            console.error(
+                "[ARTICLE_EDITOR] failed to load article:",
+                articleKey,
+                response.status);
+
+            return;
+        }
+
+        const article =
+            await response.json();
+
+        populateArticle(article);
+
+        originalState =
+            getCurrentState();
+
+        setDirty(false);
+
+        updateStatus(
+            "Existing article loaded",
+            "status-clean");
+
+        sendPreviewUpdate();
+    }
+
+    function populateArticle(article) {
+
+        currentArticleKey =
+            article.key;
+
+        currentLevel =
+            article.level || "Draft";
+
+        currentFocus =
+            article.focus || "Preview";
+
+        setValue("title", article.title);
+        setValue("slug", article.slug);
+        setValue("summary", article.summary);
+        setValue("articleCategory", article.categorySlug);
+        setValue("tags", article.tags);
+        setValue("bodyMarkdown", article.bodyBlocks);
+    }
+
     function createNewArticle() {
 
         currentArticleKey = null;
+        currentLevel = "Draft";
+        currentFocus = "Preview";
 
         setValue("title", "Example article title");
         setValue("slug", "example-article");
@@ -557,7 +641,9 @@ public sealed class Example
             summary: value("summary"),
             categorySlug: value("articleCategory"),
             tags: value("tags"),
-            bodyMarkdown: value("bodyMarkdown")
+            bodyMarkdown: value("bodyMarkdown"),
+            level: currentLevel,
+            focus: currentFocus
         };
     }
 
@@ -577,9 +663,9 @@ public sealed class Example
 
             categorySlug: value("articleCategory"),
 
-            level: "Draft",
+            level: currentLevel,
 
-            focus: "Preview",
+            focus: currentFocus,
 
             tags:
                 value("tags")
@@ -590,7 +676,7 @@ public sealed class Example
             publishedDate: null,
 
             bodyHtml:
-                createPreviewHtml(value("bodyMarkdown"))
+                value("bodyMarkdown")
         };
 
         try {
@@ -612,15 +698,6 @@ public sealed class Example
                 "[LIVE_PREVIEW] failed to send preview message:",
                 error);
         }
-    }
-
-    function createPreviewHtml(markdown) {
-
-        return markdown
-            .replace(/^## (.*)$/gm, "<h2>$1</h2>")
-            .replace(/^# (.*)$/gm, "<h1>$1</h1>")
-            .replace(/\*\*(.*?)\*\*/gm, "<strong>$1</strong>")
-            .replace(/\n/g, "<br/>");
     }
 
     function setDirty(value) {
@@ -698,8 +775,8 @@ public sealed class Example
             categorySlug: value("articleCategory"),
             tags: value("tags"),
             bodyBlocks: value("bodyMarkdown"),
-            level: "Draft",
-            focus: "Preview"
+            level: currentLevel,
+            focus: currentFocus
         };
 
         let response;
@@ -764,6 +841,12 @@ public sealed class Example
         setValue("articleCategory", originalState.categorySlug);
         setValue("tags", originalState.tags);
         setValue("bodyMarkdown", originalState.bodyMarkdown);
+
+        currentLevel =
+            originalState.level || "Draft";
+
+        currentFocus =
+            originalState.focus || "Preview";
 
         setDirty(false);
 

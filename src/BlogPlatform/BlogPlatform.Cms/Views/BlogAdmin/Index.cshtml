@@ -289,7 +289,7 @@
                     Articles
                 </button>
 
-                <button id="editorTab" type="button" onclick="showPanel('editor')">
+                <button id="editorTab" type="button" onclick="openEmptyArticleEditor()">
                     Article Editor
                 </button>
             </nav>
@@ -474,15 +474,22 @@
                 `;
             }
 
-            function openArticleEditor(articleKey) {
-
-                const frame =
-                    document.getElementById("articleEditorFrame");
+            function openEmptyArticleEditor() {
+                const frame = document.getElementById("articleEditorFrame");
 
                 frame.src =
-                    `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}`;
+                    `/blog-admin/article-editor?requestId=${Date.now()}`;
 
                 showPanel("editor");
+            }
+
+            function openArticleEditor(articleKey) {
+                showPanel("editor");
+
+                const frame = document.getElementById("articleEditorFrame");
+
+                frame.src =
+                    `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}&requestId=${Date.now()}`;
             }
 
             function groupByCategory(items) {
