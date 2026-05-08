@@ -110,7 +110,7 @@
 
         .panel { max-width: 1180px; margin: 0 auto; display: none; }
         .panel.active { display: block; }
-        .panel.editor-panel, .panel.article-editor-panel-active { max-width: none; }
+        .panel.article-editor-panel-active { max-width: none; }
 
         .editor-frame-shell {
             height: calc(100vh - 100px);
@@ -272,7 +272,6 @@
             <nav class="top-nav">
                 <button id="categoriesTab" class="active" type="button" onclick="showPanel('categories')">Categories</button>
                 <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
-                <button id="editorTab" type="button" onclick="openEmptyArticleEditor()">Article Editor</button>
             </nav>
         </header>
 
@@ -281,7 +280,7 @@
                 <h1>Blog content workspace</h1>
                 <p>
                     Browse Umbraco CMS categories and articles in a clean Blog Platform admin view.
-                    Use Article Editor when you want to create or edit articles with live preview.
+                    Use Open editor from the Articles tab when you want to edit an existing article with live preview.
                 </p>
             </section>
 
@@ -317,12 +316,6 @@
                     <div class="editor-frame-shell">
                         <iframe id="inlineArticleEditorFrame" class="editor-frame" title="Article Editor in Articles tab"></iframe>
                     </div>
-                </div>
-            </section>
-
-            <section id="editorPanel" class="panel editor-panel">
-                <div class="editor-frame-shell">
-                    <iframe id="articleEditorFrame" class="editor-frame" src="/blog-admin/article-editor" title="Article Editor"></iframe>
                 </div>
             </section>
         </main>
@@ -376,18 +369,15 @@
 
             document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
             document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
-            document.getElementById("editorTab").classList.toggle("active", panel === "editor");
 
             document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
             document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
-            document.getElementById("editorPanel").classList.toggle("active", panel === "editor");
 
-            const editorIsFullPage = panel === "editor";
             const articlesEditorIsOpen = panel === "articles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
 
-            document.getElementById("toolbarSection").classList.toggle("hidden", editorIsFullPage || articlesEditorIsOpen);
-            document.getElementById("heroSection").style.display = editorIsFullPage || articlesEditorIsOpen ? "none" : "block";
-            document.getElementById("mainContent").classList.toggle("editor-active", editorIsFullPage || articlesEditorIsOpen);
+            document.getElementById("toolbarSection").classList.toggle("hidden", articlesEditorIsOpen);
+            document.getElementById("heroSection").style.display = articlesEditorIsOpen ? "none" : "block";
+            document.getElementById("mainContent").classList.toggle("editor-active", articlesEditorIsOpen);
             document.getElementById("articlesPanel").classList.toggle("article-editor-panel-active", articlesEditorIsOpen);
 
             renderActivePanel();
@@ -478,12 +468,6 @@
                     </button>
                 </article>
             `;
-        }
-
-        function openEmptyArticleEditor() {
-            const frame = document.getElementById("articleEditorFrame");
-            frame.src = `/blog-admin/article-editor?requestId=${Date.now()}`;
-            showPanel("editor");
         }
 
         function openArticleEditorInArticlesTab(articleKey) {
