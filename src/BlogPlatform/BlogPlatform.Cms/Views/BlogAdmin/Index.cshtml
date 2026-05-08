@@ -467,11 +467,22 @@
                             </div>
                         </div>
 
-                        <button class="btn" type="button" onclick="showPanel('editor')">
+                        <button class="btn" type="button" onclick="openArticleEditor('${article.key}')">
                             Open editor
                         </button>
                     </article>
                 `;
+            }
+
+            function openArticleEditor(articleKey) {
+
+                const frame =
+                    document.getElementById("articleEditorFrame");
+
+                frame.src =
+                    `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}`;
+
+                showPanel("editor");
             }
 
             function groupByCategory(items) {
