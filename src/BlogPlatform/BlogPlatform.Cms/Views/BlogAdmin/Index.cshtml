@@ -1,0 +1,463 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Blog admin</title>
+
+    <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: Inter, Arial, sans-serif;
+                background: #061325;
+                color: #f5f7fb;
+            }
+
+            .admin-shell {
+                min-height: 100vh;
+                background: radial-gradient(circle at top left, rgba(22, 119, 255, 0.22), transparent 34rem), #061325;
+            }
+
+            .top-bar {
+                height: 64px;
+                display: flex;
+                align-items: center;
+                padding: 0 28px;
+                gap: 28px;
+                background: #0b1b33;
+                border-bottom: 1px solid #24405f;
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 900;
+                letter-spacing: 0.02em;
+            }
+
+            .brand-mark {
+                width: 34px;
+                height: 34px;
+                border-radius: 999px;
+                display: grid;
+                place-items: center;
+                background: #1677ff;
+                color: white;
+                font-weight: 900;
+            }
+
+            .top-nav {
+                display: flex;
+                height: 100%;
+                align-items: center;
+                gap: 6px;
+            }
+
+                .top-nav button,
+                .top-nav a {
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    border: 0;
+                    border-bottom: 3px solid transparent;
+                    padding: 0 18px;
+                    background: transparent;
+                    color: #c8d8ef;
+                    font: inherit;
+                    font-weight: 800;
+                    text-decoration: none;
+                    cursor: pointer;
+                }
+
+                    .top-nav button:hover,
+                    .top-nav a:hover,
+                    .top-nav button.active {
+                        color: white;
+                        border-bottom-color: #84bbff;
+                        background: rgba(255, 255, 255, 0.04);
+                    }
+
+            .content {
+                padding: 28px;
+            }
+
+            .hero {
+                max-width: 1180px;
+                margin: 0 auto 24px auto;
+                padding: 26px;
+                border: 1px solid #24405f;
+                border-radius: 22px;
+                background: rgba(9, 28, 52, 0.92);
+            }
+
+                .hero h1 {
+                    margin: 0 0 10px 0;
+                    font-size: 34px;
+                }
+
+                .hero p {
+                    margin: 0;
+                    color: #aac2de;
+                    line-height: 1.6;
+                }
+
+            .toolbar {
+                max-width: 1180px;
+                margin: 0 auto 20px auto;
+                display: flex;
+                gap: 14px;
+                align-items: center;
+            }
+
+            .search {
+                flex: 1;
+                border-radius: 12px;
+                border: 1px solid #35527a;
+                background: #020b18;
+                color: white;
+                padding: 13px 15px;
+                font-size: 15px;
+            }
+
+            .status {
+                color: #84bbff;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+
+            .panel {
+                max-width: 1180px;
+                margin: 0 auto;
+                display: none;
+            }
+
+                .panel.active {
+                    display: block;
+                }
+
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 18px;
+            }
+
+            .card {
+                border: 1px solid #24405f;
+                border-radius: 18px;
+                background: rgba(4, 17, 29, 0.9);
+                padding: 20px;
+                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+            }
+
+                .card h2,
+                .card h3 {
+                    margin: 0 0 10px 0;
+                }
+
+                .card p {
+                    margin: 0;
+                    color: #aac2de;
+                    line-height: 1.5;
+                }
+
+            .category-badge {
+                display: inline-flex;
+                margin-top: 16px;
+                padding: 7px 10px;
+                border-radius: 999px;
+                background: #163b62;
+                color: #a7d0ff;
+                font-size: 13px;
+                font-weight: 800;
+            }
+
+            .category-group {
+                margin-bottom: 26px;
+            }
+
+            .category-heading {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin: 0 0 12px 0;
+                color: #84bbff;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                font-size: 14px;
+                font-weight: 900;
+            }
+
+            .article-list {
+                display: grid;
+                gap: 12px;
+            }
+
+            .article-row {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 18px;
+                align-items: center;
+                border: 1px solid #24405f;
+                border-radius: 16px;
+                background: rgba(4, 17, 29, 0.88);
+                padding: 16px 18px;
+            }
+
+            .article-title {
+                font-weight: 900;
+                margin-bottom: 5px;
+            }
+
+            .article-meta {
+                color: #aac2de;
+                font-size: 14px;
+            }
+
+            .btn {
+                border: 0;
+                border-radius: 10px;
+                padding: 11px 14px;
+                background: #1677ff;
+                color: white;
+                font-weight: 800;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .empty {
+                padding: 22px;
+                border: 1px dashed #35527a;
+                border-radius: 16px;
+                color: #aac2de;
+                background: rgba(4, 17, 29, 0.65);
+            }
+    </style>
+</head>
+
+<body>
+    <div class="admin-shell">
+
+        <header class="top-bar">
+            <div class="brand">
+                <div class="brand-mark">B</div>
+                <div>Blog admin</div>
+            </div>
+
+            <nav class="top-nav">
+                <button id="categoriesTab" class="active" type="button" onclick="showPanel('categories')">
+                    Categories
+                </button>
+
+                <button id="articlesTab" type="button" onclick="showPanel('articles')">
+                    Articles
+                </button>
+
+                <a href="/blog-admin/article-editor">
+                    Article Editor
+                </a>
+            </nav>
+        </header>
+
+        <main class="content">
+            <section class="hero">
+                <h1>Blog content workspace</h1>
+                <p>
+                    Browse Umbraco CMS categories and articles in a clean Blog Platform admin view.
+                    Use Article Editor when you want to create or edit articles with live preview.
+                </p>
+            </section>
+
+            <section class="toolbar">
+                <input id="searchInput" class="search" type="search" placeholder="Search categories or articles..." />
+                <div id="statusText" class="status">Loading CMS content...</div>
+            </section>
+
+            <section id="categoriesPanel" class="panel active">
+                <div id="categoriesGrid" class="grid"></div>
+            </section>
+
+            <section id="articlesPanel" class="panel">
+                <div id="articlesGrouped"></div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+            let categories = [];
+            let articles = [];
+            let activePanel = "categories";
+
+            document.addEventListener("DOMContentLoaded", async () => {
+                document
+                    .getElementById("searchInput")
+                    .addEventListener("input", renderActivePanel);
+
+                await loadContent();
+            });
+
+            async function loadContent() {
+                const [categoriesResponse, articlesResponse] = await Promise.all([
+                    fetch("/api/blog-content/categories"),
+                    fetch("/api/blog-content/articles")
+                ]);
+
+                categories = await categoriesResponse.json();
+                articles = await articlesResponse.json();
+
+                renderActivePanel();
+
+                document.getElementById("statusText").innerText =
+                    `${categories.length} categories, ${articles.length} articles`;
+            }
+
+            function showPanel(panel) {
+                activePanel = panel;
+
+                document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
+                document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
+
+                document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
+                document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
+
+                renderActivePanel();
+            }
+
+            function renderActivePanel() {
+                if (activePanel === "categories") {
+                    renderCategories();
+                }
+
+                if (activePanel === "articles") {
+                    renderArticles();
+                }
+            }
+
+            function renderCategories() {
+                const search = getSearchText();
+
+                const filteredCategories = categories
+                    .filter(category =>
+                        category.name.toLowerCase().includes(search) ||
+                        category.slug.toLowerCase().includes(search))
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                const grid = document.getElementById("categoriesGrid");
+
+                if (filteredCategories.length === 0) {
+                    grid.innerHTML = `<div class="empty">No categories found.</div>`;
+                    return;
+                }
+
+                grid.innerHTML = filteredCategories
+                    .map(category => {
+                        const count = articles.filter(article =>
+                            article.categorySlug === category.slug).length;
+
+                        return `
+                            <article class="card">
+                                <h2>${escapeHtml(category.name)}</h2>
+                                <p>${escapeHtml(category.slug)}</p>
+                                <span class="category-badge">${count} article${count === 1 ? "" : "s"}</span>
+                            </article>
+                        `;
+                    })
+                    .join("");
+            }
+
+            function renderArticles() {
+                const search = getSearchText();
+
+                const filteredArticles = articles
+                    .filter(article =>
+                        article.title.toLowerCase().includes(search) ||
+                        article.slug.toLowerCase().includes(search) ||
+                        article.categoryName.toLowerCase().includes(search))
+                    .sort((a, b) =>
+                        a.categoryName.localeCompare(b.categoryName) ||
+                        a.title.localeCompare(b.title));
+
+                const grouped = groupByCategory(filteredArticles);
+
+                const container = document.getElementById("articlesGrouped");
+
+                if (filteredArticles.length === 0) {
+                    container.innerHTML = `<div class="empty">No articles found.</div>`;
+                    return;
+                }
+
+                container.innerHTML = Object
+                    .keys(grouped)
+                    .sort((a, b) => a.localeCompare(b))
+                    .map(categoryName => `
+                        <section class="category-group">
+                            <div class="category-heading">
+                                <span>${escapeHtml(categoryName)}</span>
+                                <span>${grouped[categoryName].length}</span>
+                            </div>
+
+                            <div class="article-list">
+                                ${grouped[categoryName].map(renderArticleRow).join("")}
+                            </div>
+                        </section>
+                    `)
+                    .join("");
+            }
+
+            function renderArticleRow(article) {
+                return `
+                    <article class="article-row">
+                        <div>
+                            <div class="article-title">${escapeHtml(article.title)}</div>
+                            <div class="article-meta">
+                                ${escapeHtml(article.slug)} · ${escapeHtml(article.level)} · ${escapeHtml(article.focus)}
+                            </div>
+                        </div>
+
+                        <a class="btn" href="/blog-admin/article-editor">
+                            Open editor
+                        </a>
+                    </article>
+                `;
+            }
+
+            function groupByCategory(items) {
+                return items.reduce((result, article) => {
+                    const categoryName = article.categoryName || "Uncategorized";
+
+                    result[categoryName] ??= [];
+                    result[categoryName].push(article);
+
+                    return result;
+                }, {});
+            }
+
+            function getSearchText() {
+                return document
+                    .getElementById("searchInput")
+                    .value
+                    .trim()
+                    .toLowerCase();
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? "")
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll("\"", "&quot;")
+                    .replaceAll("'", "&#039;");
+            }
+    </script>
+
+</body>
+</html>

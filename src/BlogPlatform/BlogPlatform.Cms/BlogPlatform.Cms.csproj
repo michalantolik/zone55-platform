@@ -8,6 +8,7 @@
 		<UserSecretsId>9d27371d-d8d0-484c-a66f-22c878a4873e</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
+	  <AdditionalFiles Remove="Views\BlogAdmin\Index.cshtml" />
 	  <AdditionalFiles Remove="Views\BlogArticleEditor\Index.cshtml" />
 	</ItemGroup>
 
