@@ -114,6 +114,100 @@ public sealed class BlogContentController : ControllerBase
             true));
     }
 
+
+    [HttpDelete("categories/{key:guid}")]
+    public IActionResult DeleteCategory(Guid key)
+    {
+        var category = _contentService.GetById(key);
+
+        if (category is null ||
+            category.ContentType.Alias != BlogContentAliases.BlogCategory)
+        {
+            return NotFound(new CmsDeleteResponse(false, "Category not found."));
+        }
+
+        var articlesUsingCategory = GetRootArticles()
+            .Count(article => IsArticleAssignedToCategory(article, key));
+
+        if (articlesUsingCategory > 0)
+        {
+            return BadRequest(new CmsDeleteResponse(
+                false,
+                $"Cannot delete category because {articlesUsingCategory} article{(articlesUsingCategory == 1 ? string.Empty : "s")} still use it."));
+        }
+
+        try
+        {
+            _contentService.Delete(category);
+            ClearCaches();
+
+            return Ok(new CmsDeleteResponse(true, "Category deleted successfully."));
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Unable to delete CMS category. Key={CategoryKey}", key);
+            return StatusCode(500, new CmsDeleteResponse(false, "Unable to delete category."));
+        }
+    }
+
+    [HttpDelete("articles/{key:guid}")]
+    public IActionResult DeleteArticle(Guid key)
+    {
+        var article = _contentService.GetById(key);
+
+        if (article is null ||
+            article.ContentType.Alias != BlogContentAliases.BlogArticle)
+        {
+            return NotFound(new CmsDeleteResponse(false, "Article not found."));
+        }
+
+        try
+        {
+            _contentService.Delete(article);
+            ClearCaches();
+
+            return Ok(new CmsDeleteResponse(true, "Article deleted successfully."));
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Unable to delete CMS article. Key={ArticleKey}", key);
+            return StatusCode(500, new CmsDeleteResponse(false, "Unable to delete article."));
+        }
+    }
+
+    [HttpDelete("document-types/{key:guid}")]
+    public IActionResult DeleteDocumentType(Guid key)
+    {
+        var documentType = _contentTypeService.Get(key);
+
+        if (documentType is null)
+        {
+            return NotFound(new CmsDeleteResponse(false, "Document type not found."));
+        }
+
+        var contentCount = GetContentCount(documentType.Alias);
+
+        if (contentCount > 0)
+        {
+            return BadRequest(new CmsDeleteResponse(
+                false,
+                $"Cannot delete document type because {contentCount} content item{(contentCount == 1 ? string.Empty : "s")} still use it."));
+        }
+
+        try
+        {
+            _contentTypeService.Delete(documentType);
+            ClearCaches();
+
+            return Ok(new CmsDeleteResponse(true, "Document type deleted successfully."));
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Unable to delete CMS document type. Key={DocumentTypeKey}", key);
+            return StatusCode(500, new CmsDeleteResponse(false, "Unable to delete document type."));
+        }
+    }
+
     [HttpPost("articles")]
     public ActionResult<CmsSaveArticleResponse> CreateArticle(
         [FromBody] CmsSaveArticleRequest request)
@@ -319,6 +413,24 @@ public sealed class BlogContentController : ControllerBase
         return new CmsCategoryDto("uncategorized", "Uncategorized");
     }
 
+
+    private static bool IsArticleAssignedToCategory(IContent article, Guid categoryKey)
+    {
+        var rawCategory = GetString(article, BlogContentAliases.Category);
+
+        if (string.IsNullOrWhiteSpace(rawCategory))
+        {
+            return false;
+        }
+
+        var guidText = rawCategory
+            .Replace("umb://document/", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase);
+
+        return Guid.TryParse(guidText, out var resolvedCategoryKey) &&
+            resolvedCategoryKey == categoryKey;
+    }
+
     private static string? GetString(IContent content, string alias)
     {
         return content.GetValue<string>(alias);
@@ -401,4 +513,9 @@ public sealed class BlogContentController : ControllerBase
         bool Success,
         Guid Key,
         string Message);
+
+    public sealed record CmsDeleteResponse(
+        bool Success,
+        string Message);
 }
+

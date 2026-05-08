@@ -143,6 +143,29 @@
         .card h2, .card h3 { margin: 0 0 10px 0; }
         .card p { margin: 0; color: #aac2de; line-height: 1.5; }
 
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .card-main,
+        .article-main,
+        .document-type-main {
+            min-width: 0;
+        }
+
+        .card-actions,
+        .article-actions,
+        .document-type-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
         .category-badge {
             display: inline-flex;
             margin-top: 16px;
@@ -244,7 +267,7 @@
 
         .document-type-card {
             display: grid;
-            grid-template-columns: 54px 1fr;
+            grid-template-columns: 54px 1fr auto;
             gap: 16px;
             align-items: start;
             border: 1px solid #24405f;
@@ -304,6 +327,64 @@
         .btn-secondary { background: #2d4463; }
         .btn-danger { background: #d0384d; }
         .btn-icon { min-width: 42px; padding: 10px 13px; border-radius: 999px; font-size: 18px; line-height: 1; }
+
+        .delete-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 116, 139, 0.5);
+            border-radius: 999px;
+            padding: 9px 12px;
+            background: rgba(208, 56, 77, 0.12);
+            color: #ffb4c0;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .delete-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 148, 164, 0.78);
+            background: rgba(208, 56, 77, 0.22);
+            color: #ffd6dc;
+        }
+
+        .delete-button-icon {
+            width: 18px;
+            height: 18px;
+            display: inline-grid;
+            place-items: center;
+            line-height: 1;
+        }
+
+        .article-actions .delete-button {
+            width: 42px;
+            height: 42px;
+            padding: 0;
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            max-width: 420px;
+            display: none;
+            border: 1px solid #35527a;
+            border-radius: 16px;
+            padding: 14px 16px;
+            background: #0d1d35;
+            color: #f5f7fb;
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+            z-index: 10000;
+            font-weight: 800;
+            line-height: 1.45;
+        }
+
+        .toast.success { border-color: rgba(31, 157, 85, 0.75); }
+        .toast.error { border-color: rgba(208, 56, 77, 0.85); color: #ffd6dc; }
 
         .empty {
             padding: 22px;
@@ -459,6 +540,20 @@
         </main>
     </div>
 
+    <div id="deleteContentModal" class="modal-backdrop">
+        <div class="modal">
+            <h2 id="deleteContentModalTitle">Delete item?</h2>
+            <p id="deleteContentModalMessage">This action cannot be undone.</p>
+
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" type="button" onclick="closeDeleteContentModal()">Cancel</button>
+                <button id="confirmDeleteContentButton" class="btn btn-danger" type="button" onclick="confirmDeleteContent()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
     <div id="closeInlineEditorModal" class="modal-backdrop">
         <div class="modal">
             <h2>Close article editor?</h2>
@@ -483,6 +578,8 @@
         let inlineEditorMode = "existing";
         let inlineEditorIsValid = false;
         let inlineEditorTitle = "Article editor";
+        let pendingDelete = null;
+        let toastTimeout = null;
 
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("searchInput").addEventListener("input", renderActivePanel);
@@ -561,9 +658,17 @@
 
                 return `
                     <article class="card">
-                        <h2>${escapeHtml(category.name)}</h2>
-                        <p>${escapeHtml(category.slug)}</p>
-                        <span class="category-badge">${count} article${count === 1 ? "" : "s"}</span>
+                        <div class="card-header">
+                            <div class="card-main">
+                                <h2>${escapeHtml(category.name)}</h2>
+                                <p>${escapeHtml(category.slug)}</p>
+                                <span class="category-badge">${count} article${count === 1 ? "" : "s"}</span>
+                            </div>
+
+                            <div class="card-actions">
+                                ${renderDeleteButton("Delete", `requestDelete('category', '${escapeJs(category.key)}')`, "Delete category")}
+                            </div>
+                        </div>
                     </article>
                 `;
             }).join("");
@@ -601,7 +706,7 @@
                         ${getDocumentTypeIcon(documentType)}
                     </div>
 
-                    <div class="document-type-body">
+                    <div class="document-type-body document-type-main">
                         <div class="document-type-kind">${kind}</div>
                         <h2>${escapeHtml(documentType.name)}</h2>
                         <p>${escapeHtml(documentType.alias)}</p>
@@ -610,6 +715,10 @@
                             <span>${escapeHtml(documentType.icon)}</span>
                             <span>${countText}</span>
                         </div>
+                    </div>
+
+                    <div class="document-type-actions">
+                        ${renderDeleteButton("Delete", `requestDelete('documentType', '${escapeJs(documentType.key)}')`, "Delete document type")}
                     </div>
                 </article>
             `;
@@ -687,18 +796,165 @@
         function renderArticleRow(article) {
             return `
                 <article class="article-row">
-                    <div>
+                    <div class="article-main">
                         <div class="article-title">${escapeHtml(article.title)}</div>
                         <div class="article-meta">
                             ${escapeHtml(article.slug)} · ${escapeHtml(article.level)} · ${escapeHtml(article.focus)}
                         </div>
                     </div>
 
-                    <button class="btn" type="button" onclick="openArticleEditorInArticlesTab('${escapeJs(article.key)}')">
-                        Open editor
-                    </button>
+                    <div class="article-actions">
+                        <button class="btn" type="button" onclick="openArticleEditorInArticlesTab('${escapeJs(article.key)}')">
+                            Open editor
+                        </button>
+                        ${renderDeleteButton("Delete", `requestDelete('article', '${escapeJs(article.key)}')`, "Delete article", false)}
+                    </div>
                 </article>
             `;
+        }
+
+        function renderDeleteButton(label, clickHandler, title, showText = true) {
+            return `
+                <button class="delete-button" type="button" title="${escapeHtml(title)}" onclick="${clickHandler}">
+                    <span class="delete-button-icon" aria-hidden="true">🗑</span>
+                    ${showText ? `<span>${escapeHtml(label)}</span>` : `<span class="hidden">${escapeHtml(label)}</span>`}
+                </button>
+            `;
+        }
+
+        function requestDelete(type, key) {
+            pendingDelete = resolveDeleteTarget(type, key);
+
+            if (!pendingDelete) {
+                showToast("Cannot find selected item.", "error");
+                return;
+            }
+
+            document.getElementById("deleteContentModalTitle").innerText = pendingDelete.title;
+            document.getElementById("deleteContentModalMessage").innerText = pendingDelete.message;
+            document.getElementById("confirmDeleteContentButton").disabled = false;
+            document.getElementById("confirmDeleteContentButton").innerText = "Delete";
+            document.getElementById("deleteContentModal").style.display = "flex";
+        }
+
+        function resolveDeleteTarget(type, key) {
+            if (type === "category") {
+                const category = categories.find(item => item.key === key);
+
+                if (!category) {
+                    return null;
+                }
+
+                return {
+                    type,
+                    key,
+                    endpoint: `/api/blog-content/categories/${encodeURIComponent(key)}`,
+                    title: "Delete category?",
+                    message: `Delete category "${category.name}"? This action cannot be undone. Categories with assigned articles are protected and will not be deleted.`
+                };
+            }
+
+            if (type === "article") {
+                const article = articles.find(item => item.key === key);
+
+                if (!article) {
+                    return null;
+                }
+
+                return {
+                    type,
+                    key,
+                    endpoint: `/api/blog-content/articles/${encodeURIComponent(key)}`,
+                    title: "Delete article?",
+                    message: `Delete article "${article.title}"? This action cannot be undone.`
+                };
+            }
+
+            if (type === "documentType") {
+                const documentType = documentTypes.find(item => item.key === key);
+
+                if (!documentType) {
+                    return null;
+                }
+
+                return {
+                    type,
+                    key,
+                    endpoint: `/api/blog-content/document-types/${encodeURIComponent(key)}`,
+                    title: "Delete document type?",
+                    message: `Delete document type "${documentType.name}"? This action cannot be undone. Types with existing content items are protected and will not be deleted.`
+                };
+            }
+
+            return null;
+        }
+
+        function closeDeleteContentModal() {
+            document.getElementById("deleteContentModal").style.display = "none";
+            pendingDelete = null;
+        }
+
+        async function confirmDeleteContent() {
+            if (!pendingDelete) {
+                return;
+            }
+
+            const button = document.getElementById("confirmDeleteContentButton");
+            button.disabled = true;
+            button.innerText = "Deleting...";
+
+            try {
+                const response = await fetch(pendingDelete.endpoint, {
+                    method: "DELETE"
+                });
+
+                const result = await readJsonResponse(response);
+
+                if (!response.ok || result.success === false) {
+                    showToast(result.message || "Unable to delete selected item.", "error");
+                    button.disabled = false;
+                    button.innerText = "Delete";
+                    return;
+                }
+
+                closeDeleteContentModal();
+                showToast(result.message || "Item deleted successfully.", "success");
+                await loadContent();
+            }
+            catch (error) {
+                console.error(error);
+                showToast("Unable to delete selected item.", "error");
+                button.disabled = false;
+                button.innerText = "Delete";
+            }
+        }
+
+        async function readJsonResponse(response) {
+            try {
+                return await response.json();
+            }
+            catch {
+                return {
+                    success: response.ok,
+                    message: response.ok ? "Done." : "Request failed."
+                };
+            }
+        }
+
+        function showToast(message, kind) {
+            const toast = document.getElementById("toast");
+
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+            }
+
+            toast.className = `toast ${kind}`;
+            toast.innerText = message;
+            toast.style.display = "block";
+
+            toastTimeout = setTimeout(() => {
+                toast.style.display = "none";
+            }, 4200);
         }
 
         function openArticleEditorInArticlesTab(articleKey) {
