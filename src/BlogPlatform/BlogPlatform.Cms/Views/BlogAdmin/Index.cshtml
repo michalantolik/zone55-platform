@@ -62,8 +62,7 @@
                 gap: 6px;
             }
 
-                .top-nav button,
-                .top-nav a {
+                .top-nav button {
                     height: 100%;
                     display: flex;
                     align-items: center;
@@ -79,7 +78,6 @@
                 }
 
                     .top-nav button:hover,
-                    .top-nav a:hover,
                     .top-nav button.active {
                         color: white;
                         border-bottom-color: #84bbff;
@@ -89,6 +87,10 @@
             .content {
                 padding: 28px;
             }
+
+                .content.editor-active {
+                    padding: 18px;
+                }
 
             .hero {
                 max-width: 1180px;
@@ -118,6 +120,10 @@
                 align-items: center;
             }
 
+                .toolbar.hidden {
+                    display: none;
+                }
+
             .search {
                 flex: 1;
                 border-radius: 12px;
@@ -143,6 +149,28 @@
                 .panel.active {
                     display: block;
                 }
+
+                .panel.editor-panel {
+                    max-width: none;
+                }
+
+            .editor-frame-shell {
+                height: calc(100vh - 100px);
+                min-height: 680px;
+                border: 1px solid #24405f;
+                border-radius: 18px;
+                overflow: hidden;
+                background: #06152b;
+                box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+            }
+
+            .editor-frame {
+                width: 100%;
+                height: 100%;
+                border: 0;
+                display: block;
+                background: #061325;
+            }
 
             .grid {
                 display: grid;
@@ -261,14 +289,14 @@
                     Articles
                 </button>
 
-                <a href="/blog-admin/article-editor">
+                <button id="editorTab" type="button" onclick="showPanel('editor')">
                     Article Editor
-                </a>
+                </button>
             </nav>
         </header>
 
-        <main class="content">
-            <section class="hero">
+        <main id="mainContent" class="content">
+            <section id="heroSection" class="hero">
                 <h1>Blog content workspace</h1>
                 <p>
                     Browse Umbraco CMS categories and articles in a clean Blog Platform admin view.
@@ -276,7 +304,7 @@
                 </p>
             </section>
 
-            <section class="toolbar">
+            <section id="toolbarSection" class="toolbar">
                 <input id="searchInput" class="search" type="search" placeholder="Search categories or articles..." />
                 <div id="statusText" class="status">Loading CMS content...</div>
             </section>
@@ -287,6 +315,16 @@
 
             <section id="articlesPanel" class="panel">
                 <div id="articlesGrouped"></div>
+            </section>
+
+            <section id="editorPanel" class="panel editor-panel">
+                <div class="editor-frame-shell">
+                    <iframe id="articleEditorFrame"
+                            class="editor-frame"
+                            src="/blog-admin/article-editor"
+                            title="Article Editor">
+                    </iframe>
+                </div>
             </section>
         </main>
 
@@ -325,9 +363,15 @@
 
                 document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
                 document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
+                document.getElementById("editorTab").classList.toggle("active", panel === "editor");
 
                 document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
                 document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
+                document.getElementById("editorPanel").classList.toggle("active", panel === "editor");
+
+                document.getElementById("toolbarSection").classList.toggle("hidden", panel === "editor");
+                document.getElementById("heroSection").style.display = panel === "editor" ? "none" : "block";
+                document.getElementById("mainContent").classList.toggle("editor-active", panel === "editor");
 
                 renderActivePanel();
             }
@@ -423,9 +467,9 @@
                             </div>
                         </div>
 
-                        <a class="btn" href="/blog-admin/article-editor">
+                        <button class="btn" type="button" onclick="showPanel('editor')">
                             Open editor
-                        </a>
+                        </button>
                     </article>
                 `;
             }
