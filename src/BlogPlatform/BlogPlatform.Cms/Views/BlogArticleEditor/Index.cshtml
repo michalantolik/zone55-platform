@@ -217,6 +217,70 @@
                     background: rgba(132, 187, 255, 0.14);
                 }
 
+            .block-catalog-modal {
+                width: min(760px, 100%);
+            }
+
+            .block-catalog-intro {
+                margin: 0 0 18px 0;
+                color: #c8d8ef;
+                line-height: 1.5;
+            }
+
+            .block-catalog-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                margin-top: 14px;
+            }
+
+            .block-type-card {
+                min-height: 150px;
+                display: grid;
+                grid-template-rows: 1fr auto;
+                border: 1px solid #35527a;
+                border-radius: 10px;
+                overflow: hidden;
+                background: #ffffff;
+                color: #111827;
+                cursor: pointer;
+                text-align: left;
+                padding: 0;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+            }
+
+                .block-type-card:hover,
+                .block-type-card:focus-visible {
+                    border-color: #84bbff;
+                    box-shadow: 0 0 0 3px rgba(132, 187, 255, 0.18), 0 8px 24px rgba(0, 0, 0, 0.28);
+                    outline: none;
+                    transform: translateY(-1px);
+                }
+
+            .block-type-icon-area {
+                min-height: 108px;
+                display: grid;
+                place-items: center;
+                background: #f3f4f6;
+                color: #111827;
+                font-size: 30px;
+                font-weight: 900;
+            }
+
+            .block-type-name {
+                padding: 12px 14px;
+                color: #0b2350;
+                background: #ffffff;
+                font-size: 13px;
+                font-weight: 800;
+            }
+
+            @@media (max-width: 720px) {
+                .block-catalog-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
             .splitter {
                 flex: 0 0 var(--article-editor-splitter-width);
                 width: var(--article-editor-splitter-width);
@@ -340,7 +404,7 @@
             <section id="bodyTabPanel" class="tab-panel">
                 <textarea id="bodyMarkdown"></textarea>
                 <div id="bodyBlocksList" class="block-list"></div>
-                <button class="add-content" type="button" onclick="addBodyBlock()">Add content</button>
+                <button class="add-content" type="button" onclick="openBlockTypePicker()">Add content</button>
             </section>
         </div>
 
@@ -356,6 +420,19 @@
                     src="@previewUrl"
                     onload="onPreviewFrameLoaded()">
             </iframe>
+        </div>
+    </div>
+
+    <div id="blockTypePickerModal" class="modal-backdrop">
+        <div class="modal block-catalog-modal">
+            <h2>Add content</h2>
+            <p class="block-catalog-intro">Choose the block type you want to add to the article body.</p>
+
+            <div id="blockTypePickerGrid" class="block-catalog-grid"></div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeBlockTypePicker()">Close</button>
+            </div>
         </div>
     </div>
 
@@ -386,6 +463,81 @@
             let previewFrameLoaded = false;
             let bodyBlocks = [];
             let editedBlockIndex = null;
+
+            const availableBlockTypes = [
+                {
+                    type: "text",
+                    name: "Text Block",
+                    alias: "textBlock",
+                    icon: "▯",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "text",
+                        text: "New text block"
+                    })
+                },
+                {
+                    type: "heading",
+                    name: "Heading Block",
+                    alias: "headingBlock",
+                    icon: "H1",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "heading",
+                        text: "New heading",
+                        level: 2
+                    })
+                },
+                {
+                    type: "code",
+                    name: "Code Snippet Block",
+                    alias: "codeSnippetBlock",
+                    icon: "&lt;&gt;",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "code",
+                        language: "csharp",
+                        fileName: "Program.cs",
+                        code: "// Add your code snippet here"
+                    })
+                },
+                {
+                    type: "mermaid",
+                    name: "Mermaid Diagram Block",
+                    alias: "mermaidDiagramBlock",
+                    icon: "⌘",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "mermaid",
+                        diagram: "flowchart TD\n    A[Start] --> B[Next step]",
+                        mermaid: "flowchart TD\n    A[Start] --> B[Next step]"
+                    })
+                },
+                {
+                    type: "plantuml",
+                    name: "PlantUML Diagram Block",
+                    alias: "plantUmlDiagramBlock",
+                    icon: "⇧",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "plantuml",
+                        diagram: "@@startuml\nactor User\nUser -> System: Request\n@enduml",
+                        plantUml: "@@startuml\nactor User\nUser -> System: Request\n@enduml"
+                    })
+                },
+                {
+                    type: "callout",
+                    name: "Callout Block",
+                    alias: "calloutBlock",
+                    icon: "△",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "callout",
+                        calloutType: "tip",
+                        text: "New callout block"
+                    })
+                }
+            ];
 
             const frame = document.getElementById("previewFrame");
 
@@ -963,13 +1115,36 @@
                 onEditorChanged();
             }
 
-            function addBodyBlock() {
-                bodyBlocks.push({
-                    udi: createElementUdi(),
-                    type: "text",
-                    text: "New text block"
-                });
+            function renderBlockTypePicker() {
+                const grid = document.getElementById("blockTypePickerGrid");
 
+                grid.innerHTML = availableBlockTypes
+                    .map(blockType => `
+                        <button class="block-type-card" type="button" onclick="addBodyBlock('${escapeJs(blockType.type)}')">
+                            <span class="block-type-icon-area">${blockType.icon}</span>
+                            <span class="block-type-name">${escapeHtml(blockType.name)}</span>
+                        </button>
+                    `)
+                    .join("");
+            }
+
+            function openBlockTypePicker() {
+                renderBlockTypePicker();
+                document.getElementById("blockTypePickerModal").style.display = "flex";
+            }
+
+            function closeBlockTypePicker() {
+                document.getElementById("blockTypePickerModal").style.display = "none";
+            }
+
+            function addBodyBlock(blockType) {
+                const definition =
+                    availableBlockTypes.find(item => item.type === blockType) ||
+                    availableBlockTypes[0];
+
+                bodyBlocks.push(definition.create());
+
+                closeBlockTypePicker();
                 syncBodyMarkdownFromBlocks();
                 renderBodyBlocks();
                 onEditorChanged();
@@ -1247,6 +1422,13 @@
                     .replaceAll(">", "&gt;")
                     .replaceAll("\"", "&quot;")
                     .replaceAll("'", "&#039;");
+            }
+
+
+            function escapeJs(value) {
+                return String(value ?? "")
+                    .replaceAll("\\", "\\\\")
+                    .replaceAll("'", "\\'");
             }
     </script>
 </body>
