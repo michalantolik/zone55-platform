@@ -9,271 +9,260 @@
     <title>Blog admin</title>
 
     <style>
-            * {
-                box-sizing: border-box;
-            }
+        * { box-sizing: border-box; }
 
-            body {
-                margin: 0;
-                font-family: Inter, Arial, sans-serif;
-                background: #061325;
-                color: #f5f7fb;
-            }
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: #061325;
+            color: #f5f7fb;
+        }
 
-            .admin-shell {
-                min-height: 100vh;
-                background: radial-gradient(circle at top left, rgba(22, 119, 255, 0.22), transparent 34rem), #061325;
-            }
+        .admin-shell {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, rgba(22, 119, 255, 0.22), transparent 34rem), #061325;
+        }
 
-            .top-bar {
-                height: 64px;
-                display: flex;
-                align-items: center;
-                padding: 0 28px;
-                gap: 28px;
-                background: #0b1b33;
-                border-bottom: 1px solid #24405f;
-                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-            }
+        .top-bar {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 28px;
+            background: #0b1b33;
+            border-bottom: 1px solid #24405f;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
 
-            .brand {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                font-weight: 900;
-                letter-spacing: 0.02em;
-            }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: 0.02em; }
 
-            .brand-mark {
-                width: 34px;
-                height: 34px;
-                border-radius: 999px;
-                display: grid;
-                place-items: center;
-                background: #1677ff;
-                color: white;
-                font-weight: 900;
-            }
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: #1677ff;
+            color: white;
+            font-weight: 900;
+        }
 
-            .top-nav {
-                display: flex;
-                height: 100%;
-                align-items: center;
-                gap: 6px;
-            }
+        .top-nav { display: flex; height: 100%; align-items: center; gap: 6px; }
 
-                .top-nav button {
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    border: 0;
-                    border-bottom: 3px solid transparent;
-                    padding: 0 18px;
-                    background: transparent;
-                    color: #c8d8ef;
-                    font: inherit;
-                    font-weight: 800;
-                    text-decoration: none;
-                    cursor: pointer;
-                }
+        .top-nav button {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            border: 0;
+            border-bottom: 3px solid transparent;
+            padding: 0 18px;
+            background: transparent;
+            color: #c8d8ef;
+            font: inherit;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
-                    .top-nav button:hover,
-                    .top-nav button.active {
-                        color: white;
-                        border-bottom-color: #84bbff;
-                        background: rgba(255, 255, 255, 0.04);
-                    }
+        .top-nav button:hover,
+        .top-nav button.active {
+            color: white;
+            border-bottom-color: #84bbff;
+            background: rgba(255, 255, 255, 0.04);
+        }
 
-            .content {
-                padding: 28px;
-            }
+        .content { padding: 28px; }
+        .content.editor-active { padding: 18px; }
 
-                .content.editor-active {
-                    padding: 18px;
-                }
+        .hero {
+            max-width: 1180px;
+            margin: 0 auto 24px auto;
+            padding: 26px;
+            border: 1px solid #24405f;
+            border-radius: 22px;
+            background: rgba(9, 28, 52, 0.92);
+        }
 
-            .hero {
-                max-width: 1180px;
-                margin: 0 auto 24px auto;
-                padding: 26px;
-                border: 1px solid #24405f;
-                border-radius: 22px;
-                background: rgba(9, 28, 52, 0.92);
-            }
+        .hero h1 { margin: 0 0 10px 0; font-size: 34px; }
+        .hero p { margin: 0; color: #aac2de; line-height: 1.6; }
 
-                .hero h1 {
-                    margin: 0 0 10px 0;
-                    font-size: 34px;
-                }
+        .toolbar {
+            max-width: 1180px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
 
-                .hero p {
-                    margin: 0;
-                    color: #aac2de;
-                    line-height: 1.6;
-                }
+        .toolbar.hidden { display: none; }
 
-            .toolbar {
-                max-width: 1180px;
-                margin: 0 auto 20px auto;
-                display: flex;
-                gap: 14px;
-                align-items: center;
-            }
+        .search {
+            flex: 1;
+            border-radius: 12px;
+            border: 1px solid #35527a;
+            background: #020b18;
+            color: white;
+            padding: 13px 15px;
+            font-size: 15px;
+        }
 
-                .toolbar.hidden {
-                    display: none;
-                }
+        .status { color: #84bbff; font-weight: 800; white-space: nowrap; }
 
-            .search {
-                flex: 1;
-                border-radius: 12px;
-                border: 1px solid #35527a;
-                background: #020b18;
-                color: white;
-                padding: 13px 15px;
-                font-size: 15px;
-            }
+        .panel { max-width: 1180px; margin: 0 auto; display: none; }
+        .panel.active { display: block; }
+        .panel.editor-panel, .panel.article-editor-panel-active { max-width: none; }
 
-            .status {
-                color: #84bbff;
-                font-weight: 800;
-                white-space: nowrap;
-            }
+        .editor-frame-shell {
+            height: calc(100vh - 100px);
+            min-height: 680px;
+            border: 1px solid #24405f;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #06152b;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+        }
 
-            .panel {
-                max-width: 1180px;
-                margin: 0 auto;
-                display: none;
-            }
+        .editor-frame {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            background: #061325;
+        }
 
-                .panel.active {
-                    display: block;
-                }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
 
-                .panel.editor-panel {
-                    max-width: none;
-                }
+        .card {
+            border: 1px solid #24405f;
+            border-radius: 18px;
+            background: rgba(4, 17, 29, 0.9);
+            padding: 20px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+        }
 
-            .editor-frame-shell {
-                height: calc(100vh - 100px);
-                min-height: 680px;
-                border: 1px solid #24405f;
-                border-radius: 18px;
-                overflow: hidden;
-                background: #06152b;
-                box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
-            }
+        .card h2, .card h3 { margin: 0 0 10px 0; }
+        .card p { margin: 0; color: #aac2de; line-height: 1.5; }
 
-            .editor-frame {
-                width: 100%;
-                height: 100%;
-                border: 0;
-                display: block;
-                background: #061325;
-            }
+        .category-badge {
+            display: inline-flex;
+            margin-top: 16px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: #163b62;
+            color: #a7d0ff;
+            font-size: 13px;
+            font-weight: 800;
+        }
 
-            .grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 18px;
-            }
+        .category-group { margin-bottom: 26px; }
 
-            .card {
-                border: 1px solid #24405f;
-                border-radius: 18px;
-                background: rgba(4, 17, 29, 0.9);
-                padding: 20px;
-                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-            }
+        .category-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 0 12px 0;
+            color: #84bbff;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 14px;
+            font-weight: 900;
+        }
 
-                .card h2,
-                .card h3 {
-                    margin: 0 0 10px 0;
-                }
+        .article-list { display: grid; gap: 12px; }
 
-                .card p {
-                    margin: 0;
-                    color: #aac2de;
-                    line-height: 1.5;
-                }
+        .article-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 18px;
+            align-items: center;
+            border: 1px solid #24405f;
+            border-radius: 16px;
+            background: rgba(4, 17, 29, 0.88);
+            padding: 16px 18px;
+        }
 
-            .category-badge {
-                display: inline-flex;
-                margin-top: 16px;
-                padding: 7px 10px;
-                border-radius: 999px;
-                background: #163b62;
-                color: #a7d0ff;
-                font-size: 13px;
-                font-weight: 800;
-            }
+        .article-title { font-weight: 900; margin-bottom: 5px; }
+        .article-meta { color: #aac2de; font-size: 14px; }
 
-            .category-group {
-                margin-bottom: 26px;
-            }
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 14px;
+            background: #1677ff;
+            color: white;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
-            .category-heading {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin: 0 0 12px 0;
-                color: #84bbff;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                font-size: 14px;
-                font-weight: 900;
-            }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-secondary { background: #2d4463; }
+        .btn-danger { background: #d0384d; }
+        .btn-icon { min-width: 42px; padding: 10px 13px; border-radius: 999px; font-size: 18px; line-height: 1; }
 
-            .article-list {
-                display: grid;
-                gap: 12px;
-            }
+        .empty {
+            padding: 22px;
+            border: 1px dashed #35527a;
+            border-radius: 16px;
+            color: #aac2de;
+            background: rgba(4, 17, 29, 0.65);
+        }
 
-            .article-row {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                gap: 18px;
-                align-items: center;
-                border: 1px solid #24405f;
-                border-radius: 16px;
-                background: rgba(4, 17, 29, 0.88);
-                padding: 16px 18px;
-            }
+        .hidden { display: none !important; }
 
-            .article-title {
-                font-weight: 900;
-                margin-bottom: 5px;
-            }
+        .inline-editor-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 18px;
+            align-items: center;
+            margin-bottom: 14px;
+            padding: 16px 18px;
+            border: 1px solid #5b7c24;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(89, 68, 14, 0.92), rgba(43, 62, 24, 0.94));
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+        }
 
-            .article-meta {
-                color: #aac2de;
-                font-size: 14px;
-            }
+        .inline-editor-eyebrow {
+            margin-bottom: 5px;
+            color: #ffe6a3;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
 
-            .btn {
-                border: 0;
-                border-radius: 10px;
-                padding: 11px 14px;
-                background: #1677ff;
-                color: white;
-                font-weight: 800;
-                text-decoration: none;
-                cursor: pointer;
-            }
+        .inline-editor-title { margin: 0 0 4px 0; font-size: 20px; font-weight: 900; color: #fff7db; }
+        .inline-editor-text { margin: 0; color: #ffeec2; line-height: 1.5; }
 
-            .empty {
-                padding: 22px;
-                border: 1px dashed #35527a;
-                border-radius: 16px;
-                color: #aac2de;
-                background: rgba(4, 17, 29, 0.65);
-            }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.68);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 24px;
+        }
+
+        .modal {
+            width: min(520px, 100%);
+            border-radius: 20px;
+            border: 1px solid #48678f;
+            background: #0d1d35;
+            padding: 24px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 { margin: 0 0 12px 0; }
+        .modal p { margin: 0; color: #c8d8ef; line-height: 1.6; }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
     </style>
 </head>
 
 <body>
     <div class="admin-shell">
-
         <header class="top-bar">
             <div class="brand">
                 <div class="brand-mark">B</div>
@@ -281,17 +270,9 @@
             </div>
 
             <nav class="top-nav">
-                <button id="categoriesTab" class="active" type="button" onclick="showPanel('categories')">
-                    Categories
-                </button>
-
-                <button id="articlesTab" type="button" onclick="showPanel('articles')">
-                    Articles
-                </button>
-
-                <button id="editorTab" type="button" onclick="openEmptyArticleEditor()">
-                    Article Editor
-                </button>
+                <button id="categoriesTab" class="active" type="button" onclick="showPanel('categories')">Categories</button>
+                <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
+                <button id="editorTab" type="button" onclick="openEmptyArticleEditor()">Article Editor</button>
             </nav>
         </header>
 
@@ -314,212 +295,297 @@
             </section>
 
             <section id="articlesPanel" class="panel">
-                <div id="articlesGrouped"></div>
+                <div id="articlesListView">
+                    <div id="articlesGrouped"></div>
+                </div>
+
+                <div id="articlesEditorView" class="hidden">
+                    <div class="inline-editor-header">
+                        <div>
+                            <div class="inline-editor-eyebrow">Editing existing article</div>
+                            <h2 id="inlineEditorTitle" class="inline-editor-title">Article editor</h2>
+                            <p class="inline-editor-text">
+                                You are editing an article that already exists in the CMS. Changes are local until you save them in the editor.
+                            </p>
+                        </div>
+
+                        <button class="btn btn-danger btn-icon" type="button" onclick="requestCloseInlineArticleEditor()" title="Close editor">
+                            ×
+                        </button>
+                    </div>
+
+                    <div class="editor-frame-shell">
+                        <iframe id="inlineArticleEditorFrame" class="editor-frame" title="Article Editor in Articles tab"></iframe>
+                    </div>
+                </div>
             </section>
 
             <section id="editorPanel" class="panel editor-panel">
                 <div class="editor-frame-shell">
-                    <iframe id="articleEditorFrame"
-                            class="editor-frame"
-                            src="/blog-admin/article-editor"
-                            title="Article Editor">
-                    </iframe>
+                    <iframe id="articleEditorFrame" class="editor-frame" src="/blog-admin/article-editor" title="Article Editor"></iframe>
                 </div>
             </section>
         </main>
+    </div>
 
+    <div id="closeInlineEditorModal" class="modal-backdrop">
+        <div class="modal">
+            <h2>Discard local article changes?</h2>
+            <p>
+                This article has unsaved local changes. Closing the editor will abandon those changes and return you to the Articles list.
+            </p>
+
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" type="button" onclick="closeInlineEditorModal()">Keep editing</button>
+                <button class="btn btn-danger" type="button" onclick="closeInlineArticleEditor()">Discard changes</button>
+            </div>
+        </div>
     </div>
 
     <script>
-            let categories = [];
-            let articles = [];
-            let activePanel = "categories";
+        let categories = [];
+        let articles = [];
+        let activePanel = "categories";
+        let inlineEditorIsDirty = false;
+        let inlineEditorArticleKey = null;
 
-            document.addEventListener("DOMContentLoaded", async () => {
-                document
-                    .getElementById("searchInput")
-                    .addEventListener("input", renderActivePanel);
+        document.addEventListener("DOMContentLoaded", async () => {
+            document.getElementById("searchInput").addEventListener("input", renderActivePanel);
+            window.addEventListener("message", onEditorMessage);
 
-                await loadContent();
-            });
+            await loadContent();
+        });
 
-            async function loadContent() {
-                const [categoriesResponse, articlesResponse] = await Promise.all([
-                    fetch("/api/blog-content/categories"),
-                    fetch("/api/blog-content/articles")
-                ]);
+        async function loadContent() {
+            const [categoriesResponse, articlesResponse] = await Promise.all([
+                fetch("/api/blog-content/categories"),
+                fetch("/api/blog-content/articles")
+            ]);
 
-                categories = await categoriesResponse.json();
-                articles = await articlesResponse.json();
+            categories = await categoriesResponse.json();
+            articles = await articlesResponse.json();
 
-                renderActivePanel();
+            renderActivePanel();
 
-                document.getElementById("statusText").innerText =
-                    `${categories.length} categories, ${articles.length} articles`;
+            document.getElementById("statusText").innerText =
+                `${categories.length} categories, ${articles.length} articles`;
+        }
+
+        function showPanel(panel) {
+            activePanel = panel;
+
+            document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
+            document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
+            document.getElementById("editorTab").classList.toggle("active", panel === "editor");
+
+            document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
+            document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
+            document.getElementById("editorPanel").classList.toggle("active", panel === "editor");
+
+            const editorIsFullPage = panel === "editor";
+            const articlesEditorIsOpen = panel === "articles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
+
+            document.getElementById("toolbarSection").classList.toggle("hidden", editorIsFullPage || articlesEditorIsOpen);
+            document.getElementById("heroSection").style.display = editorIsFullPage || articlesEditorIsOpen ? "none" : "block";
+            document.getElementById("mainContent").classList.toggle("editor-active", editorIsFullPage || articlesEditorIsOpen);
+            document.getElementById("articlesPanel").classList.toggle("article-editor-panel-active", articlesEditorIsOpen);
+
+            renderActivePanel();
+        }
+
+        function renderActivePanel() {
+            if (activePanel === "categories") {
+                renderCategories();
             }
 
-            function showPanel(panel) {
-                activePanel = panel;
+            if (activePanel === "articles" && document.getElementById("articlesEditorView").classList.contains("hidden")) {
+                renderArticles();
+            }
+        }
 
-                document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
-                document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
-                document.getElementById("editorTab").classList.toggle("active", panel === "editor");
+        function renderCategories() {
+            const search = getSearchText();
+            const filteredCategories = categories
+                .filter(category => category.name.toLowerCase().includes(search) || category.slug.toLowerCase().includes(search))
+                .sort((a, b) => a.name.localeCompare(b.name));
 
-                document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
-                document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
-                document.getElementById("editorPanel").classList.toggle("active", panel === "editor");
+            const grid = document.getElementById("categoriesGrid");
 
-                document.getElementById("toolbarSection").classList.toggle("hidden", panel === "editor");
-                document.getElementById("heroSection").style.display = panel === "editor" ? "none" : "block";
-                document.getElementById("mainContent").classList.toggle("editor-active", panel === "editor");
-
-                renderActivePanel();
+            if (filteredCategories.length === 0) {
+                grid.innerHTML = `<div class="empty">No categories found.</div>`;
+                return;
             }
 
-            function renderActivePanel() {
-                if (activePanel === "categories") {
-                    renderCategories();
-                }
+            grid.innerHTML = filteredCategories.map(category => {
+                const count = articles.filter(article => article.categorySlug === category.slug).length;
 
-                if (activePanel === "articles") {
-                    renderArticles();
-                }
-            }
-
-            function renderCategories() {
-                const search = getSearchText();
-
-                const filteredCategories = categories
-                    .filter(category =>
-                        category.name.toLowerCase().includes(search) ||
-                        category.slug.toLowerCase().includes(search))
-                    .sort((a, b) => a.name.localeCompare(b.name));
-
-                const grid = document.getElementById("categoriesGrid");
-
-                if (filteredCategories.length === 0) {
-                    grid.innerHTML = `<div class="empty">No categories found.</div>`;
-                    return;
-                }
-
-                grid.innerHTML = filteredCategories
-                    .map(category => {
-                        const count = articles.filter(article =>
-                            article.categorySlug === category.slug).length;
-
-                        return `
-                            <article class="card">
-                                <h2>${escapeHtml(category.name)}</h2>
-                                <p>${escapeHtml(category.slug)}</p>
-                                <span class="category-badge">${count} article${count === 1 ? "" : "s"}</span>
-                            </article>
-                        `;
-                    })
-                    .join("");
-            }
-
-            function renderArticles() {
-                const search = getSearchText();
-
-                const filteredArticles = articles
-                    .filter(article =>
-                        article.title.toLowerCase().includes(search) ||
-                        article.slug.toLowerCase().includes(search) ||
-                        article.categoryName.toLowerCase().includes(search))
-                    .sort((a, b) =>
-                        a.categoryName.localeCompare(b.categoryName) ||
-                        a.title.localeCompare(b.title));
-
-                const grouped = groupByCategory(filteredArticles);
-
-                const container = document.getElementById("articlesGrouped");
-
-                if (filteredArticles.length === 0) {
-                    container.innerHTML = `<div class="empty">No articles found.</div>`;
-                    return;
-                }
-
-                container.innerHTML = Object
-                    .keys(grouped)
-                    .sort((a, b) => a.localeCompare(b))
-                    .map(categoryName => `
-                        <section class="category-group">
-                            <div class="category-heading">
-                                <span>${escapeHtml(categoryName)}</span>
-                                <span>${grouped[categoryName].length}</span>
-                            </div>
-
-                            <div class="article-list">
-                                ${grouped[categoryName].map(renderArticleRow).join("")}
-                            </div>
-                        </section>
-                    `)
-                    .join("");
-            }
-
-            function renderArticleRow(article) {
                 return `
-                    <article class="article-row">
-                        <div>
-                            <div class="article-title">${escapeHtml(article.title)}</div>
-                            <div class="article-meta">
-                                ${escapeHtml(article.slug)} · ${escapeHtml(article.level)} · ${escapeHtml(article.focus)}
-                            </div>
-                        </div>
-
-                        <button class="btn" type="button" onclick="openArticleEditor('${article.key}')">
-                            Open editor
-                        </button>
+                    <article class="card">
+                        <h2>${escapeHtml(category.name)}</h2>
+                        <p>${escapeHtml(category.slug)}</p>
+                        <span class="category-badge">${count} article${count === 1 ? "" : "s"}</span>
                     </article>
                 `;
+            }).join("");
+        }
+
+        function renderArticles() {
+            const search = getSearchText();
+            const filteredArticles = articles
+                .filter(article =>
+                    article.title.toLowerCase().includes(search) ||
+                    article.slug.toLowerCase().includes(search) ||
+                    article.categoryName.toLowerCase().includes(search))
+                .sort((a, b) => a.categoryName.localeCompare(b.categoryName) || a.title.localeCompare(b.title));
+
+            const grouped = groupByCategory(filteredArticles);
+            const container = document.getElementById("articlesGrouped");
+
+            if (filteredArticles.length === 0) {
+                container.innerHTML = `<div class="empty">No articles found.</div>`;
+                return;
             }
 
-            function openEmptyArticleEditor() {
-                const frame = document.getElementById("articleEditorFrame");
+            container.innerHTML = Object.keys(grouped)
+                .sort((a, b) => a.localeCompare(b))
+                .map(categoryName => `
+                    <section class="category-group">
+                        <div class="category-heading">
+                            <span>${escapeHtml(categoryName)}</span>
+                            <span>${grouped[categoryName].length}</span>
+                        </div>
 
-                frame.src =
-                    `/blog-admin/article-editor?requestId=${Date.now()}`;
+                        <div class="article-list">
+                            ${grouped[categoryName].map(renderArticleRow).join("")}
+                        </div>
+                    </section>
+                `)
+                .join("");
+        }
 
-                showPanel("editor");
+        function renderArticleRow(article) {
+            return `
+                <article class="article-row">
+                    <div>
+                        <div class="article-title">${escapeHtml(article.title)}</div>
+                        <div class="article-meta">
+                            ${escapeHtml(article.slug)} · ${escapeHtml(article.level)} · ${escapeHtml(article.focus)}
+                        </div>
+                    </div>
+
+                    <button class="btn" type="button" onclick="openArticleEditorInArticlesTab('${escapeJs(article.key)}')">
+                        Open editor
+                    </button>
+                </article>
+            `;
+        }
+
+        function openEmptyArticleEditor() {
+            const frame = document.getElementById("articleEditorFrame");
+            frame.src = `/blog-admin/article-editor?requestId=${Date.now()}`;
+            showPanel("editor");
+        }
+
+        function openArticleEditorInArticlesTab(articleKey) {
+            const article = articles.find(item => item.key === articleKey);
+
+            inlineEditorIsDirty = false;
+            inlineEditorArticleKey = articleKey;
+
+            document.getElementById("inlineEditorTitle").innerText =
+                article ? article.title : "Article editor";
+
+            document.getElementById("articlesListView").classList.add("hidden");
+            document.getElementById("articlesEditorView").classList.remove("hidden");
+
+            const frame = document.getElementById("inlineArticleEditorFrame");
+            frame.src = `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}&embedded=articles&requestId=${Date.now()}`;
+
+            showPanel("articles");
+        }
+
+        function requestCloseInlineArticleEditor() {
+            if (inlineEditorIsDirty) {
+                document.getElementById("closeInlineEditorModal").style.display = "flex";
+                return;
             }
 
-            function openArticleEditor(articleKey) {
-                showPanel("editor");
+            closeInlineArticleEditor();
+        }
 
-                const frame = document.getElementById("articleEditorFrame");
+        function closeInlineEditorModal() {
+            document.getElementById("closeInlineEditorModal").style.display = "none";
+        }
 
-                frame.src =
-                    `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}&requestId=${Date.now()}`;
+        function closeInlineArticleEditor() {
+            closeInlineEditorModal();
+
+            inlineEditorIsDirty = false;
+            inlineEditorArticleKey = null;
+
+            const frame = document.getElementById("inlineArticleEditorFrame");
+            frame.removeAttribute("src");
+
+            document.getElementById("articlesEditorView").classList.add("hidden");
+            document.getElementById("articlesListView").classList.remove("hidden");
+
+            showPanel("articles");
+            renderArticles();
+        }
+
+        async function onEditorMessage(event) {
+            const inlineFrame = document.getElementById("inlineArticleEditorFrame");
+
+            if (event.source !== inlineFrame.contentWindow) {
+                return;
             }
 
-            function groupByCategory(items) {
-                return items.reduce((result, article) => {
-                    const categoryName = article.categoryName || "Uncategorized";
+            const message = event.data;
 
-                    result[categoryName] ??= [];
-                    result[categoryName].push(article);
-
-                    return result;
-                }, {});
+            if (!message || message.type !== "BLOG_ARTICLE_EDITOR_STATE") {
+                return;
             }
 
-            function getSearchText() {
-                return document
-                    .getElementById("searchInput")
-                    .value
-                    .trim()
-                    .toLowerCase();
+            inlineEditorIsDirty = Boolean(message.isDirty);
+
+            if (message.articleKey) {
+                inlineEditorArticleKey = message.articleKey;
             }
 
-            function escapeHtml(value) {
-                return String(value ?? "")
-                    .replaceAll("&", "&amp;")
-                    .replaceAll("<", "&lt;")
-                    .replaceAll(">", "&gt;")
-                    .replaceAll("\"", "&quot;")
-                    .replaceAll("'", "&#039;");
+            if (message.title) {
+                document.getElementById("inlineEditorTitle").innerText = message.title;
             }
+
+            if (message.saved) {
+                await loadContent();
+            }
+        }
+
+        function groupByCategory(items) {
+            return items.reduce((result, article) => {
+                const categoryName = article.categoryName || "Uncategorized";
+                result[categoryName] ??= [];
+                result[categoryName].push(article);
+                return result;
+            }, {});
+        }
+
+        function getSearchText() {
+            return document.getElementById("searchInput").value.trim().toLowerCase();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function escapeJs(value) {
+            return String(value ?? "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+        }
     </script>
-
 </body>
 </html>

@@ -200,6 +200,27 @@
             color: #b9d8ff;
         }
 
+        .editing-existing-alert {
+            display: none;
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border: 1px solid #7c6422;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(89, 68, 14, 0.92), rgba(43, 62, 24, 0.94));
+            color: #ffeec2;
+            line-height: 1.5;
+        }
+
+        .editing-existing-alert.visible {
+            display: block;
+        }
+
+        .editing-existing-alert strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #fff7db;
+        }
+
         .modal-backdrop {
             position: fixed;
             inset: 0;
@@ -238,6 +259,11 @@
     <div class="sidebar" id="editorSidebar">
 
         <h1>Article editor</h1>
+
+        <div id="editingExistingAlert" class="editing-existing-alert">
+            <strong>Editing existing CMS article</strong>
+            You are changing an article already stored in the CMS. Preview updates live, but changes are local until you save.
+        </div>
 
         <label class="field-label" for="title">Title</label>
         <input id="title" type="text" />
@@ -552,6 +578,8 @@
             "Existing article loaded",
             "status-clean");
 
+        updateEditingExistingAlert();
+        notifyParent(false);
         sendPreviewUpdate();
     }
 
@@ -607,6 +635,8 @@ public sealed class Example
             "Creating new article",
             "status-new");
 
+        updateEditingExistingAlert();
+        notifyParent(false);
         sendPreviewUpdate();
     }
 
@@ -703,6 +733,8 @@ public sealed class Example
     function setDirty(value) {
 
         isDirty = value;
+
+        notifyParent(false);
 
         if (isDirty) {
 
@@ -819,6 +851,8 @@ public sealed class Example
 
             setDirty(false);
 
+            notifyParent(true);
+
             alert(result.message);
         }
         else {
@@ -851,6 +885,30 @@ public sealed class Example
         setDirty(false);
 
         sendPreviewUpdate();
+    }
+
+    function updateEditingExistingAlert() {
+
+        document
+            .getElementById("editingExistingAlert")
+            .classList
+            .toggle("visible", Boolean(currentArticleKey));
+    }
+
+    function notifyParent(saved) {
+
+        try {
+            window.parent.postMessage({
+                type: "BLOG_ARTICLE_EDITOR_STATE",
+                articleKey: currentArticleKey,
+                title: value("title"),
+                isDirty,
+                saved: Boolean(saved)
+            }, "*");
+        }
+        catch (error) {
+            console.error("[ARTICLE_EDITOR] failed to notify parent:", error);
+        }
     }
 
     function value(id) {
