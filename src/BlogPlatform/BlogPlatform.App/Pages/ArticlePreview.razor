@@ -10,8 +10,38 @@
 @inject IJSRuntime JS
 @inject IPreviewDiagnosticsClient Diagnostics
 
-
 <PageTitle>Article preview</PageTitle>
+
+<style>
+    html {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(132, 187, 255, 0.75) rgba(6, 19, 37, 0.9);
+    }
+
+    body::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    body::-webkit-scrollbar-track {
+        background: rgba(6, 19, 37, 0.95);
+        border-radius: 999px;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        min-height: 80px;
+        border: 3px solid rgba(6, 19, 37, 0.95);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #84bbff, #1677ff);
+    }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #b7d8ff, #4ea1ff);
+        }
+
+    body::-webkit-scrollbar-corner {
+        background: rgba(6, 19, 37, 0.95);
+    }
+</style>
 
 <section class="article-shell container-xl" @key="_renderKey">
     @if (_article is null)
@@ -24,14 +54,6 @@
     else
     {
         var blocks = ArticleBlockParser.Parse(_article.BodyHtml ?? string.Empty);
-
-        <div class="article-preview-debug">
-            Preview sequence: @_lastSequence |
-            Title: @_article.Title |
-            Summary length: @(_article.Summary?.Length ?? 0) |
-            Blocks: @blocks.Count |
-            Render key: @_renderKey
-        </div>
 
         <article class="article-card" @key="_renderKey">
             <div class="tag-row">
