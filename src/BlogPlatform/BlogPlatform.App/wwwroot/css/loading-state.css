@@ -1,0 +1,191 @@
+﻿.loading-content-frame {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 210px;
+    padding: 28px;
+    background: radial-gradient(circle at 12% 30%, rgba(86, 212, 255, .12), transparent 32%), radial-gradient(circle at 88% 20%, rgba(78, 161, 255, .1), transparent 30%), var(--content-frame-bg);
+}
+
+.blog-loading-panel {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 220px;
+    align-items: center;
+    gap: 28px;
+    width: 100%;
+    min-height: 150px;
+    padding: 28px;
+    overflow: hidden;
+    border-radius: 24px;
+    color: var(--text-main);
+    background: linear-gradient(135deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .025)), var(--posts-area-bg);
+    border: 1px solid var(--content-frame-border);
+    box-shadow: var(--shadow-card);
+}
+
+    .blog-loading-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient( 90deg, transparent, rgba(86, 212, 255, .08), transparent );
+        transform: translateX(-100%);
+        animation: blogLoadingSweep 2.6s ease-in-out infinite;
+    }
+
+.blog-loading-orb {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--primary));
+    box-shadow: 0 0 34px rgba(86, 212, 255, .26);
+}
+
+    .blog-loading-orb::after {
+        content: "</>";
+        color: var(--brand-icon-text);
+        font-size: 1.1rem;
+        font-weight: 900;
+    }
+
+    .blog-loading-orb span {
+        position: absolute;
+        inset: -8px;
+        border-radius: 28px;
+        border: 1px solid rgba(86, 212, 255, .24);
+        animation: blogLoadingPulse 1.8s ease-in-out infinite;
+    }
+
+        .blog-loading-orb span:nth-child(2) {
+            inset: -16px;
+            animation-delay: .18s;
+        }
+
+        .blog-loading-orb span:nth-child(3) {
+            inset: -24px;
+            animation-delay: .36s;
+        }
+
+.blog-loading-copy {
+    position: relative;
+    z-index: 1;
+}
+
+    .blog-loading-copy h2 {
+        margin: 0;
+        color: var(--text-dark);
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        line-height: 1.1;
+        letter-spacing: -.035em;
+    }
+
+    .blog-loading-copy p {
+        margin: 10px 0 0;
+        color: var(--text-dark-soft);
+        line-height: 1.65;
+    }
+
+.blog-loading-skeleton {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 12px;
+}
+
+    .blog-loading-skeleton span {
+        display: block;
+        height: 13px;
+        border-radius: 999px;
+        background: linear-gradient( 90deg, rgba(86, 212, 255, .1), rgba(86, 212, 255, .28), rgba(86, 212, 255, .1) );
+        background-size: 220% 100%;
+        animation: blogLoadingSkeleton 1.6s ease-in-out infinite;
+    }
+
+        .blog-loading-skeleton span:nth-child(1) {
+            width: 100%;
+        }
+
+        .blog-loading-skeleton span:nth-child(2) {
+            width: 78%;
+            animation-delay: .1s;
+        }
+
+        .blog-loading-skeleton span:nth-child(3) {
+            width: 58%;
+            animation-delay: .2s;
+        }
+
+@keyframes blogLoadingSweep {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    35% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes blogLoadingPulse {
+    0%, 100% {
+        opacity: .15;
+        transform: scale(.94);
+    }
+
+    50% {
+        opacity: .72;
+        transform: scale(1.04);
+    }
+}
+
+@keyframes blogLoadingSkeleton {
+    0% {
+        background-position: 120% 0;
+    }
+
+    100% {
+        background-position: -120% 0;
+    }
+}
+
+@media (max-width: 900px) {
+    .blog-loading-panel {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .blog-loading-skeleton {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 620px) {
+    .loading-content-frame {
+        padding: 18px;
+    }
+
+    .blog-loading-panel {
+        grid-template-columns: 1fr;
+        justify-items: start;
+        padding: 24px;
+    }
+
+    .blog-loading-orb {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blog-loading-panel::before,
+    .blog-loading-orb span,
+    .blog-loading-skeleton span {
+        animation: none;
+    }
+}

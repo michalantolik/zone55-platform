@@ -86,10 +86,28 @@
 
 @if (_isLoading)
 {
-    <section class="content-frame container-xl">
-        <section class="posts-area">
-            <p>Loading posts from Umbraco CMS...</p>
-        </section>
+    <section class="content-frame loading-content-frame container-xl"
+             aria-live="polite"
+             aria-busy="true">
+        <div class="blog-loading-panel">
+            <div class="blog-loading-orb" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <div class="blog-loading-copy">
+                <div class="section-kicker">LOADING CONTENT</div>
+                <h2>Preparing engineering notes</h2>
+                <p>Loading posts from Umbraco CMS...</p>
+            </div>
+
+            <div class="blog-loading-skeleton" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
     </section>
 }
 else if (IsLearningPathView)
@@ -155,9 +173,9 @@ else
     private bool _isLoading = true;
 
     private bool IsBlogDisplayModeSwitchEnabled =>
-    Configuration.GetValue<bool>(
-        "Features:EnableBlogDisplayModeSwitch",
-        true);
+        Configuration.GetValue<bool>(
+            "Features:EnableBlogDisplayModeSwitch",
+            true);
 
     private bool IsLearningPathView =>
         string.Equals(CurrentView, "path", StringComparison.OrdinalIgnoreCase);
