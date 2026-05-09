@@ -4,5 +4,5 @@ public enum LearningPathVisualizationType
 {
     VerticalRoadmap,
     PyramidDashboard,
-    EngineeringJourney
+    DotnetZones
 }
