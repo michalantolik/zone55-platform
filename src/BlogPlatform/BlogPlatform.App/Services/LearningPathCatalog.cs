@@ -73,10 +73,11 @@ public static class LearningPathCatalog
                 "Build real applications, APIs and user-facing features.",
                 "learning-path-accent-web",
                 [
-                    CreateStep(5, 1, "ASP.NET Core MVC", "Controllers, views, routing, models and application structure.", "Intermediate", ["asp.net", "mvc", "controller", "razor", "web api"]),
-                    CreateStep(6, 2, "LINQ & Collections", "Modern and efficient data handling in C#.", "Intermediate", ["linq", "collection", "list", "query"]),
-                    CreateStep(7, 3, "Dependency Injection", "Loose coupling, services and standard .NET application composition.", "Intermediate", ["dependency injection", "di", "service", "ioc"]),
-                    CreateStep(8, 4, "Desktop Apps", "Visual applications with WPF, MAUI or desktop UI patterns.", "Optional", ["wpf", "maui", "desktop"])
+                    CreateStep(5, 1, "ASP.NET Core Ecosystem", "Understand MVC, Razor Pages, Blazor, Web API, gRPC, SignalR, hosting and the ASP.NET Core request pipeline.", "Intermediate", ["asp.net core", "asp.net", "razor pages", "mvc", "blazor", "web api", "minimal api", "grpc", "signalr", "middleware", "kestrel", "hosting", "request pipeline"]),
+                    CreateStep(6, 2, "ASP.NET Core MVC", "Controllers, views, routing, models and application structure.", "Intermediate", ["asp.net", "mvc", "controller", "razor", "web api"]),
+                    CreateStep(7, 3, "LINQ & Collections", "Modern and efficient data handling in C#.", "Intermediate", ["linq", "collection", "list", "query"]),
+                    CreateStep(8, 4, "Dependency Injection", "Loose coupling, services and standard .NET application composition.", "Intermediate", ["dependency injection", "di", "service", "ioc"]),
+                    CreateStep(9, 5, "Desktop Apps", "Visual applications with WPF, MAUI or desktop UI patterns.", "Optional", ["wpf", "maui", "desktop"])
                 ]),
 
             new LearningPathLevel(
@@ -85,12 +86,12 @@ public static class LearningPathCatalog
                 "Design maintainable, testable and data-driven systems.",
                 "learning-path-accent-architecture",
                 [
-                    CreateStep(9, 1, "SQL Fundamentals", "Learn relational databases, SQL queries, joins, keys and basic data modeling.", "Intermediate", ["sql", "database", "relational database", "query", "join", "primary key", "foreign key"]),
-                    CreateStep(10, 2, "Entity Framework Core", "Interact with databases using objects and migrations.", "Intermediate", ["entity framework", "ef core", "database", "sql", "migration"]),
-                    CreateStep(11, 3, "Async Programming", "Build non-blocking applications with async and await.", "Intermediate", ["async", "await", "task", "asynchronous"]),
-                    CreateStep(12, 4, "Testing", "Protect behavior with unit, integration and automated tests.", "Intermediate", ["test", "testing", "xunit", "nunit", "playwright", "selenium"]),
-                    CreateStep(13, 5, "Clean Architecture", "Separate responsibilities and keep business logic maintainable.", "Advanced", ["clean architecture", "architecture", "domain", "application layer"]),
-                    CreateStep(14, 6, "Design Patterns", "Reusable solutions for common software design problems.", "Advanced", ["design pattern", "patterns", "factory", "strategy", "repository"])
+                    CreateStep(10, 1, "SQL Fundamentals", "Learn relational databases, SQL queries, joins, keys and basic data modeling.", "Intermediate", ["sql", "database", "relational database", "query", "join", "primary key", "foreign key"]),
+                    CreateStep(11, 2, "Entity Framework Core", "Interact with databases using objects and migrations.", "Intermediate", ["entity framework", "ef core", "database", "sql", "migration"]),
+                    CreateStep(12, 3, "Async Programming", "Build non-blocking applications with async and await.", "Intermediate", ["async", "await", "task", "asynchronous"]),
+                    CreateStep(13, 4, "Testing", "Protect behavior with unit, integration and automated tests.", "Intermediate", ["test", "testing", "xunit", "nunit", "playwright", "selenium"]),
+                    CreateStep(14, 5, "Clean Architecture", "Separate responsibilities and keep business logic maintainable.", "Advanced", ["clean architecture", "architecture", "domain", "application layer"]),
+                    CreateStep(15, 6, "Design Patterns", "Reusable solutions for common software design problems.", "Advanced", ["design pattern", "patterns", "factory", "strategy", "repository"])
                 ]),
 
             new LearningPathLevel(
@@ -99,11 +100,11 @@ public static class LearningPathCatalog
                 "Cloud engineering, automation and advanced backend skills.",
                 "learning-path-accent-cloud",
                 [
-                    CreateStep(15, 1, "Microservices", "Small independent services connected through APIs and messaging.", "Advanced", ["microservice", "distributed", "service bus", "messaging"]),
-                    CreateStep(16, 2, "Azure Integration", "Deploy and scale .NET systems with Microsoft Azure.", "Advanced", ["azure", "app service", "storage", "key vault", "cloud"]),
-                    CreateStep(17, 3, "CI/CD Pipelines", "Automated building, testing and deployment.", "Advanced", ["ci/cd", "pipeline", "github actions", "azure devops", "deployment"]),
-                    CreateStep(18, 4, "Performance Tuning", "Benchmarking, memory, profiling and runtime efficiency.", "Advanced", ["performance", "benchmark", "memory", "profiling"]),
-                    CreateStep(19, 5, "Advanced C#", "Records, pattern matching, spans and modern language features.", "Advanced", ["record", "pattern matching", "span", "advanced c#"])
+                    CreateStep(16, 1, "Microservices", "Small independent services connected through APIs and messaging.", "Advanced", ["microservice", "distributed", "service bus", "messaging"]),
+                    CreateStep(17, 2, "Azure Integration", "Deploy and scale .NET systems with Microsoft Azure.", "Advanced", ["azure", "app service", "storage", "key vault", "cloud"]),
+                    CreateStep(18, 3, "CI/CD Pipelines", "Automated building, testing and deployment.", "Advanced", ["ci/cd", "pipeline", "github actions", "azure devops", "deployment"]),
+                    CreateStep(19, 4, "Performance Tuning", "Benchmarking, memory, profiling and runtime efficiency.", "Advanced", ["performance", "benchmark", "memory", "profiling"]),
+                    CreateStep(20, 5, "Advanced C#", "Records, pattern matching, spans and modern language features.", "Advanced", ["record", "pattern matching", "span", "advanced c#"])
                 ])
         ];
     }
