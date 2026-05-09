@@ -4,7 +4,7 @@
     <div class="learning-path-header">
         <div>
             <div class="section-kicker">GUIDED ROADMAP</div>
-            <h2>.NET Zones</h2>
+            <h2>.NET Roadmap</h2>
             <p>
                 Follow articles from C# foundations to architecture, Azure,
                 CI/CD and advanced backend engineering.
@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    @if (Visualization == LearningPathVisualizationType.PyramidDashboard)
+    @if (Visualization == LearningPathVisualizationType.DotnetPyramid)
     {
         <div class="learning-path-pyramid">
             @foreach (var level in Levels.Reverse())
