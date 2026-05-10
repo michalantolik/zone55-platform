@@ -160,6 +160,9 @@ else
 }
 
 @code {
+    private const string DotnetStandardView = "Standard";
+    private const string DotnetRoadmapView = "Roadmap";
+
     [SupplyParameterFromQuery(Name = "category")]
     public string? Category { get; set; }
 
@@ -178,12 +181,12 @@ else
             true);
 
     private bool IsLearningPathView =>
-        string.Equals(CurrentView, "path", StringComparison.OrdinalIgnoreCase);
+        string.Equals(CurrentView, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase);
 
     private string CurrentView =>
-        string.Equals(View, "path", StringComparison.OrdinalIgnoreCase)
-            ? "path"
-            : "latest";
+        NormalizeBlogDisplayMode(View)
+        ?? NormalizeBlogDisplayMode(Configuration["Features:EnableBlogDisplayMode"])
+        ?? DotnetStandardView;
 
     private string PageTitleText =>
         string.IsNullOrWhiteSpace(Category)
@@ -208,6 +211,21 @@ else
         _learningPathLevels = LearningPathCatalog.Build(homeContent.Posts);
 
         _isLoading = false;
+    }
+
+    private static string? NormalizeBlogDisplayMode(string? value)
+    {
+        if (string.Equals(value, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase))
+        {
+            return DotnetRoadmapView;
+        }
+
+        if (string.Equals(value, DotnetStandardView, StringComparison.OrdinalIgnoreCase))
+        {
+            return DotnetStandardView;
+        }
+
+        return null;
     }
 
     private LearningPathVisualizationType ReadLearningPathVisualization()

@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <a class="learning-path-latest-link" href="/?view=latest">
+        <a class="learning-path-latest-link" href="/?view=DotnetStandard">
             Back to latest articles →
         </a>
     </div>
@@ -118,7 +118,7 @@
         var firstPost = step.Posts.FirstOrDefault();
 
         return firstPost is null
-            ? "/?view=path"
+            ? "/?view=DotnetRoadmap"
             : $"/articles/{firstPost.Slug}";
     }
 }
