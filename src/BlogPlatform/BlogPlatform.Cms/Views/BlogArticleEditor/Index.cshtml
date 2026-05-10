@@ -1,4 +1,6 @@
-﻿@{
+@using System.Text.Json
+@using BlogPlatform.Contracts.DotnetRoadmap
+@{
     Layout = null;
 
     var previewUrl =
@@ -397,6 +399,12 @@
                 <label class="field-label" for="articleCategory">Category</label>
                 <select id="articleCategory"></select>
 
+                <label class="field-label" for="dotnetZone">Dotnet Zone</label>
+                <select id="dotnetZone"></select>
+
+                <label class="field-label" for="dotnetZoneStep">Dotnet Zone Step</label>
+                <select id="dotnetZoneStep"></select>
+
                 <label class="field-label" for="tags">Tags comma-separated</label>
                 <input id="tags" type="text" />
             </section>
@@ -539,6 +547,12 @@
                 }
             ];
 
+            const dotnetZones = @Html.Raw(JsonSerializer.Serialize(
+                DotnetRoadmapCatalog.ZoneDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
+
+            const dotnetZoneSteps = @Html.Raw(JsonSerializer.Serialize(
+                DotnetRoadmapCatalog.StepDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
+
             const frame = document.getElementById("previewFrame");
 
             const fieldIds = [
@@ -546,6 +560,8 @@
                 "slug",
                 "summary",
                 "articleCategory",
+                "dotnetZone",
+                "dotnetZoneStep",
                 "tags",
                 "bodyMarkdown"
             ];
@@ -556,6 +572,7 @@
                 initializeResizablePanes();
 
                 await loadCategories();
+                loadDotnetRoadmapOptions();
 
                 attachFieldListeners();
 
@@ -681,6 +698,25 @@
                 }
             }
 
+            function loadDotnetRoadmapOptions() {
+                fillSelect("dotnetZone", dotnetZones);
+                fillSelect("dotnetZoneStep", dotnetZoneSteps);
+            }
+
+            function fillSelect(id, items) {
+                const select = document.getElementById(id);
+
+                select.innerHTML = "";
+
+                for (const item of items) {
+                    select.innerHTML += `
+                        <option value="${escapeHtml(item.key)}">
+                            ${escapeHtml(item.name)}
+                        </option>
+                    `;
+                }
+            }
+
             async function loadExistingArticle(articleKey) {
                 const response =
                     await fetch(`/api/blog-content/articles/${encodeURIComponent(articleKey)}`);
@@ -715,6 +751,8 @@
                 setValue("slug", article.slug);
                 setValue("summary", article.summary);
                 setValue("articleCategory", article.categorySlug);
+                setValue("dotnetZone", article.dotnetZone || "foundation");
+                setValue("dotnetZoneStep", article.dotnetZoneStep || "basic-syntax");
                 setValue("tags", article.tags);
                 setValue("bodyMarkdown", article.bodyBlocks);
 
@@ -730,6 +768,8 @@
                 setValue("title", "Example article title");
                 setValue("slug", "example-article");
                 setValue("summary", "Short article summary.");
+                setValue("dotnetZone", "foundation");
+                setValue("dotnetZoneStep", "basic-syntax");
                 setValue("tags", ".NET, Architecture, Azure");
 
                 bodyBlocks = [
@@ -793,6 +833,8 @@
                     slug: value("slug"),
                     summary: value("summary"),
                     categorySlug: value("articleCategory"),
+                    dotnetZone: value("dotnetZone"),
+                    dotnetZoneStep: value("dotnetZoneStep"),
                     tags: value("tags"),
                     bodyMarkdown: value("bodyMarkdown"),
                     level: currentLevel,
@@ -811,6 +853,8 @@
                     categorySlug: value("articleCategory"),
                     level: currentLevel,
                     focus: currentFocus,
+                    dotnetZone: value("dotnetZone"),
+                    dotnetZoneStep: value("dotnetZoneStep"),
                     tags:
                         value("tags")
                             .split(",")
@@ -1310,6 +1354,8 @@
                     value("slug").trim() &&
                     value("summary").trim() &&
                     value("articleCategory").trim() &&
+                    value("dotnetZone").trim() &&
+                    value("dotnetZoneStep").trim() &&
                     value("tags").trim() &&
                     value("bodyMarkdown").trim());
             }
@@ -1338,7 +1384,9 @@
                     tags: value("tags"),
                     bodyBlocks: getBodyBlocksForSave(),
                     level: currentLevel,
-                    focus: currentFocus
+                    focus: currentFocus,
+                    dotnetZone: value("dotnetZone"),
+                    dotnetZoneStep: value("dotnetZoneStep")
                 };
 
                 let response;

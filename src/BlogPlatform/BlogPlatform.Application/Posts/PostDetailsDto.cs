@@ -1,4 +1,4 @@
-﻿namespace BlogPlatform.Application.Posts;
+namespace BlogPlatform.Application.Posts;
 
 public sealed record PostDetailsDto(
     string Slug,
@@ -8,6 +8,8 @@ public sealed record PostDetailsDto(
     string CategorySlug,
     string Level,
     string Focus,
+    string? DotnetZone,
+    string? DotnetZoneStep,
     IReadOnlyCollection<string> Tags,
     DateTimeOffset? PublishedDate,
     string BodyHtml);

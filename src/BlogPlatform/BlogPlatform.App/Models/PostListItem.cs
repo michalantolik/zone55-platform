@@ -1,4 +1,4 @@
-﻿namespace BlogPlatform.App.Models;
+namespace BlogPlatform.App.Models;
 
 public sealed record PostListItem(
     string Slug,
@@ -8,5 +8,7 @@ public sealed record PostListItem(
     string CategorySlug,
     string Level,
     string Focus,
+    string? DotnetZone,
+    string? DotnetZoneStep,
     IReadOnlyCollection<string> Tags,
     DateTimeOffset? PublishedDate);

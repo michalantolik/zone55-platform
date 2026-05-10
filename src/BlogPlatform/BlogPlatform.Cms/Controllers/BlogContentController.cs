@@ -1,9 +1,10 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using BlogPlatform.Cms.Seeding;
+using BlogPlatform.Contracts.DotnetRoadmap;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Umbraco.Cms.Core.Models;
@@ -109,11 +110,12 @@ public sealed class BlogContentController : ControllerBase
             category.Slug,
             GetString(article, BlogContentAliases.Level) ?? "Draft",
             GetString(article, BlogContentAliases.Focus) ?? "Preview",
+            GetString(article, BlogContentAliases.DotnetZone) ?? DotnetZoneKeys.Foundation,
+            GetString(article, BlogContentAliases.DotnetZoneStep) ?? DotnetZoneStepKeys.BasicSyntax,
             GetString(article, BlogContentAliases.Tags) ?? string.Empty,
             GetString(article, BlogContentAliases.BodyBlocks) ?? string.Empty,
             true));
     }
-
 
     [HttpDelete("categories/{key:guid}")]
     public IActionResult DeleteCategory(Guid key)
@@ -222,6 +224,11 @@ public sealed class BlogContentController : ControllerBase
                 "Category not found."));
         }
 
+        if (!IsValidDotnetRoadmapAssignment(request, out var validationMessage))
+        {
+            return BadRequest(new CmsSaveArticleResponse(false, Guid.Empty, validationMessage));
+        }
+
         var article = _contentService.Create(
             request.Title,
             -1,
@@ -265,6 +272,11 @@ public sealed class BlogContentController : ControllerBase
                 "Category not found."));
         }
 
+        if (!IsValidDotnetRoadmapAssignment(request, out var validationMessage))
+        {
+            return BadRequest(new CmsSaveArticleResponse(false, key, validationMessage));
+        }
+
         ApplyArticleValues(article, request, category);
 
         _contentService.Save(article);
@@ -305,6 +317,8 @@ public sealed class BlogContentController : ControllerBase
             category.Slug,
             GetString(content, BlogContentAliases.Level) ?? "Intermediate",
             GetString(content, BlogContentAliases.Focus) ?? "Practical",
+            GetString(content, BlogContentAliases.DotnetZone) ?? DotnetZoneKeys.Foundation,
+            GetString(content, BlogContentAliases.DotnetZoneStep) ?? DotnetZoneStepKeys.BasicSyntax,
             tags,
             GetDateTimeOffset(content, BlogContentAliases.PublishedDate),
             GetString(content, BlogContentAliases.BodyBlocks) ?? string.Empty,
@@ -327,6 +341,8 @@ public sealed class BlogContentController : ControllerBase
         article.SetValue(BlogContentAliases.Summary, request.Summary ?? string.Empty);
         article.SetValue(BlogContentAliases.Level, request.Level ?? "Draft");
         article.SetValue(BlogContentAliases.Focus, request.Focus ?? "Preview");
+        article.SetValue(BlogContentAliases.DotnetZone, request.DotnetZone ?? DotnetZoneKeys.Foundation);
+        article.SetValue(BlogContentAliases.DotnetZoneStep, request.DotnetZoneStep ?? DotnetZoneStepKeys.BasicSyntax);
         article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
         article.SetValue(BlogContentAliases.BodyBlocks, request.BodyBlocks ?? string.Empty);
 
@@ -338,6 +354,26 @@ public sealed class BlogContentController : ControllerBase
         {
             article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
         }
+    }
+
+    private static bool IsValidDotnetRoadmapAssignment(
+        CmsSaveArticleRequest request,
+        out string validationMessage)
+    {
+        if (!DotnetRoadmapCatalog.IsAllowedZoneKey(request.DotnetZone))
+        {
+            validationMessage = $"Invalid Dotnet Zone: {request.DotnetZone}";
+            return false;
+        }
+
+        if (!DotnetRoadmapCatalog.IsAllowedStepKey(request.DotnetZoneStep))
+        {
+            validationMessage = $"Invalid Dotnet Zone Step: {request.DotnetZoneStep}";
+            return false;
+        }
+
+        validationMessage = string.Empty;
+        return true;
     }
 
     private int GetContentCount(string contentTypeAlias)
@@ -413,7 +449,6 @@ public sealed class BlogContentController : ControllerBase
         return new CmsCategoryDto("uncategorized", "Uncategorized");
     }
 
-
     private static bool IsArticleAssignedToCategory(IContent article, Guid categoryKey)
     {
         var rawCategory = GetString(article, BlogContentAliases.Category);
@@ -481,6 +516,8 @@ public sealed class BlogContentController : ControllerBase
         string CategorySlug,
         string Level,
         string Focus,
+        string? DotnetZone,
+        string? DotnetZoneStep,
         IReadOnlyCollection<string> Tags,
         DateTimeOffset? PublishedDate,
         string BodyHtml,
@@ -495,6 +532,8 @@ public sealed class BlogContentController : ControllerBase
         string CategorySlug,
         string Level,
         string Focus,
+        string? DotnetZone,
+        string? DotnetZoneStep,
         string Tags,
         string BodyBlocks,
         bool IsExistingArticle);
@@ -507,7 +546,9 @@ public sealed class BlogContentController : ControllerBase
         string Tags,
         string BodyBlocks,
         string? Level,
-        string? Focus);
+        string? Focus,
+        string? DotnetZone,
+        string? DotnetZoneStep);
 
     public sealed record CmsSaveArticleResponse(
         bool Success,
@@ -518,4 +559,3 @@ public sealed class BlogContentController : ControllerBase
         bool Success,
         string Message);
 }
-

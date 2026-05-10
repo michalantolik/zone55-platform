@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
@@ -171,6 +171,8 @@ public sealed class BlogContentSeeder
         await AddPropertyAsync(contentType, BlogContentAliases.Category, "Category", "Content Picker", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Level, "Level", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Focus, "Focus", "Textstring", "Content");
+        await AddPropertyAsync(contentType, BlogContentAliases.DotnetZone, "Dotnet Zone", "Textstring", "Content");
+        await AddPropertyAsync(contentType, BlogContentAliases.DotnetZoneStep, "Dotnet Zone Step", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Tags, "Tags", "Tags", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.PublishedDate, "Published Date", "Date Picker", "Content");
 
@@ -1006,7 +1008,9 @@ public sealed class BlogContentSeeder
         string focus,
         string summary,
         string[] tags,
-        List<SeedBlock> bodyBlocks)
+        List<SeedBlock> bodyBlocks,
+        string dotnetZone = "foundation",
+        string dotnetZoneStep = "basic-syntax")
     {
         var article = _contentService
             .GetRootContent()
@@ -1039,6 +1043,8 @@ public sealed class BlogContentSeeder
 
         article.SetValue(BlogContentAliases.Level, level);
         article.SetValue(BlogContentAliases.Focus, focus);
+        article.SetValue(BlogContentAliases.DotnetZone, dotnetZone);
+        article.SetValue(BlogContentAliases.DotnetZoneStep, dotnetZoneStep);
         article.SetValue(BlogContentAliases.Tags, string.Join(", ", tags));
         article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
 

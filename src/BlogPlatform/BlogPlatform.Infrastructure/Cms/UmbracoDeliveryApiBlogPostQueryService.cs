@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Json;
 using BlogPlatform.Application.Posts;
 using Microsoft.Extensions.Caching.Memory;
@@ -56,6 +56,8 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
                 post.CategorySlug,
                 post.Level,
                 post.Focus,
+                post.DotnetZone,
+                post.DotnetZoneStep,
                 post.Tags,
                 post.PublishedDate))
             .ToList();

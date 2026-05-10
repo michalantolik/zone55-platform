@@ -1,4 +1,4 @@
-﻿namespace BlogPlatform.Cms.Seeding;
+namespace BlogPlatform.Cms.Seeding;
 
 public static class BlogContentAliases
 {
@@ -18,6 +18,8 @@ public static class BlogContentAliases
     public const string Category = "category";
     public const string Level = "level";
     public const string Focus = "focus";
+    public const string DotnetZone = "dotnetZone";
+    public const string DotnetZoneStep = "dotnetZoneStep";
     public const string Tags = "tags";
     public const string PublishedDate = "publishedDate";
 
