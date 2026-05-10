@@ -2,9 +2,15 @@
 @implements IDisposable
 @inject IBlogApiClient BlogApi
 @inject NavigationManager Navigation
+@inject IConfiguration Configuration
 
 <div class="site-shell">
-    <header class="top-nav container-xl">
+    @if (EnableStickyTopNav)
+    {
+        <div class="top-nav-sticky-sentinel"></div>
+    }
+
+    <header class="top-nav container-xl @(EnableStickyTopNav ? "top-nav-sticky" : "")">
         <a class="brand" href="/">
             <span class="brand-icon">&lt;/&gt;</span>
             <span>
@@ -37,6 +43,9 @@
 
 @code {
     private IReadOnlyCollection<CategoryItem> _categories = [];
+
+    private bool EnableStickyTopNav =>
+        Configuration.GetValue<bool>("Features:EnableStickyTopNav");
 
     protected override async Task OnInitializedAsync()
     {

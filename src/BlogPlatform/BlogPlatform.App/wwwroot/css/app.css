@@ -1437,3 +1437,27 @@ button {
     font-family: Consolas, monospace;
     font-size: 13px;
 }
+
+.top-nav-sticky-sentinel {
+    height: 1px;
+}
+
+.top-nav-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #081a33;
+    opacity: 1;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: border-radius .18s ease, box-shadow .18s ease;
+}
+
+html:not(.top-nav-is-stuck) .top-nav-sticky {
+    border-radius: 22px;
+}
+
+html.top-nav-is-stuck .top-nav-sticky {
+    border-radius: 0 0 22px 22px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .28);
+}
