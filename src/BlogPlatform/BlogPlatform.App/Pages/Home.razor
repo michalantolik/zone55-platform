@@ -160,8 +160,8 @@ else
 }
 
 @code {
-    private const string DotnetStandardView = "Standard";
-    private const string DotnetRoadmapView = "Roadmap";
+    private const string DotnetStandardView = "DotnetStandard";
+    private const string DotnetRoadmapView = "DotnetRoadmap";
 
     [SupplyParameterFromQuery(Name = "category")]
     public string? Category { get; set; }
@@ -215,12 +215,16 @@ else
 
     private static string? NormalizeBlogDisplayMode(string? value)
     {
-        if (string.Equals(value, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(value, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Roadmap", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Path", StringComparison.OrdinalIgnoreCase))
         {
             return DotnetRoadmapView;
         }
 
-        if (string.Equals(value, DotnetStandardView, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(value, DotnetStandardView, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Standard", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Latest", StringComparison.OrdinalIgnoreCase))
         {
             return DotnetStandardView;
         }

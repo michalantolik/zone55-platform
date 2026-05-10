@@ -17,7 +17,7 @@
 
     <div class="content-view-selector-buttons">
         <a class="content-view-button @(CurrentView == DotnetStandardView ? "active" : null)"
-               href="/?view=DotnetStandard">
+           href="/?view=DotnetStandard">
 
             <div class="content-view-button-top">
                 <span class="content-view-indicator"></span>
@@ -33,7 +33,7 @@
         </a>
 
         <a class="content-view-button @(CurrentView == DotnetRoadmapView ? "active" : null)"
-               href="/?view=DotnetRoadmap">
+           href="/?view=DotnetRoadmap">
 
             <div class="content-view-button-top">
                 <span class="content-view-indicator"></span>
@@ -51,8 +51,8 @@
 </section>
 
 @code {
-    private const string DotnetStandardView = "Standard";
-    private const string DotnetRoadmapView = "Roadmap";
+    private const string DotnetStandardView = "DotnetStandard";
+    private const string DotnetRoadmapView = "DotnetRoadmap";
 
     [Parameter]
     public string CurrentView { get; set; } = DotnetStandardView;
