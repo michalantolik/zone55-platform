@@ -66,6 +66,22 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent Category => this.Value<global::Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>(_publishedValueFallback, "category");
 
 		///<summary>
+		/// Dotnet Zone
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.3.5+1486121")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("dotnetZone")]
+		public virtual string DotnetZone => this.Value<string>(_publishedValueFallback, "dotnetZone");
+
+		///<summary>
+		/// Dotnet Zone Step
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.3.5+1486121")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("dotnetZoneStep")]
+		public virtual string DotnetZoneStep => this.Value<string>(_publishedValueFallback, "dotnetZoneStep");
+
+		///<summary>
 		/// Focus
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.3.5+1486121")]

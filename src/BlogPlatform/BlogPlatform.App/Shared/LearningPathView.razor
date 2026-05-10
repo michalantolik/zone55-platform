@@ -39,29 +39,30 @@
         <div class="learning-path-journey">
             @foreach (var level in Levels)
             {
-                <section class="learning-path-zone">
-                    <div class="learning-path-zone-header @level.AccentClass">
-                        <span>Zone @level.Number</span>
-                        <h3>@level.Title</h3>
-                    </div>
+                <div class="learning-path-zone-header @level.AccentClass">
+                    <span>Zone @level.Number</span>
+                    <h3>@level.Title</h3>
+                </div>
+            }
 
-                    <div class="learning-path-zone-steps">
-                        @foreach (var step in level.Steps)
-                        {
-                            <a class="learning-path-zone-step" href="@GetFirstPostUrl(step)">
-                                <span>@step.StepOrder</span>
+            @foreach (var level in Levels)
+            {
+                <div class="learning-path-zone-steps">
+                    @foreach (var step in level.Steps)
+                    {
+                        <a class="learning-path-zone-step" href="@GetFirstPostUrl(step)">
+                            <span>@step.StepOrder</span>
 
-                                <strong>@step.Title</strong>
+                            <strong>@step.Title</strong>
 
-                                <small>
-                                    @(step.Posts.Count == 0
-                                        ? "No articles yet"
-                                        : $"{step.Posts.Count} article(s)")
-                                </small>
-                            </a>
-                        }
-                    </div>
-                </section>
+                            <small>
+                                @(step.Posts.Count == 0
+                                    ? "No articles yet"
+                                    : $"{step.Posts.Count} article(s)")
+                            </small>
+                        </a>
+                    }
+                </div>
             }
         </div>
     }

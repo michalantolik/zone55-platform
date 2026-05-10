@@ -12,7 +12,7 @@
     gap: 28px;
     padding: 26px;
     border-radius: 28px;
-    background: linear-gradient( 180deg, rgba(18, 33, 58, 0.95), rgba(8, 18, 35, 0.98) );
+    background: linear-gradient(180deg, rgba(18, 33, 58, 0.95), rgba(8, 18, 35, 0.98));
     border: 1px solid rgba(72, 108, 161, 0.22);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.03);
 }
@@ -60,7 +60,7 @@
     padding: 18px 20px;
     border-radius: 22px;
     color: rgba(225, 235, 248, 0.9);
-    background: linear-gradient( 180deg, rgba(24, 39, 67, 0.95), rgba(12, 24, 43, 0.98) );
+    background: linear-gradient(180deg, rgba(24, 39, 67, 0.95), rgba(12, 24, 43, 0.98));
     border: 1px solid rgba(91, 126, 177, 0.18);
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
@@ -74,7 +74,7 @@
     .content-view-button.active {
         color: #ffffff;
         border-color: rgba(70, 196, 255, 0.52);
-        background: linear-gradient( 180deg, rgba(16, 116, 184, 0.92), rgba(7, 72, 124, 0.98) );
+        background: linear-gradient(180deg, rgba(16, 116, 184, 0.92), rgba(7, 72, 124, 0.98));
         box-shadow: 0 12px 30px rgba(0,0,0,0.34), 0 0 0 1px rgba(76,180,255,0.18);
     }
 
@@ -411,7 +411,8 @@
 .learning-path-journey {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 22px;
+    gap: 16px 22px;
+    align-items: stretch;
     padding: 36px;
     border-radius: 30px;
     background: var(--post-card-bg);
@@ -419,14 +420,11 @@
     box-shadow: var(--shadow-card);
 }
 
-.learning-path-zone {
-    display: grid;
-    align-content: start;
-    gap: 16px;
-}
-
 .learning-path-zone-header {
-    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
     padding: 24px;
     border-radius: 24px;
     color: #ffffff;
@@ -440,6 +438,7 @@
 
 .learning-path-zone-steps {
     display: grid;
+    align-content: start;
     gap: 12px;
 }
 
@@ -502,9 +501,52 @@
 }
 
 @media (max-width: 1120px) {
-    .learning-path-step-grid,
+    .learning-path-step-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .learning-path-journey {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .learning-path-zone-header:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .learning-path-zone-header:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .learning-path-zone-header:nth-child(3) {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    .learning-path-zone-header:nth-child(4) {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    .learning-path-zone-steps:nth-child(5) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .learning-path-zone-steps:nth-child(6) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .learning-path-zone-steps:nth-child(7) {
+        grid-column: 1;
+        grid-row: 4;
+    }
+
+    .learning-path-zone-steps:nth-child(8) {
+        grid-column: 2;
+        grid-row: 4;
     }
 
     .learning-path-pyramid-row,
@@ -554,6 +596,43 @@
     .learning-path-journey {
         grid-template-columns: 1fr;
     }
+
+    .learning-path-zone-header,
+    .learning-path-zone-steps {
+        grid-column: 1;
+    }
+
+        .learning-path-zone-header:nth-child(1) {
+            grid-row: 1;
+        }
+
+        .learning-path-zone-steps:nth-child(5) {
+            grid-row: 2;
+        }
+
+        .learning-path-zone-header:nth-child(2) {
+            grid-row: 3;
+        }
+
+        .learning-path-zone-steps:nth-child(6) {
+            grid-row: 4;
+        }
+
+        .learning-path-zone-header:nth-child(3) {
+            grid-row: 5;
+        }
+
+        .learning-path-zone-steps:nth-child(7) {
+            grid-row: 6;
+        }
+
+        .learning-path-zone-header:nth-child(4) {
+            grid-row: 7;
+        }
+
+        .learning-path-zone-steps:nth-child(8) {
+            grid-row: 8;
+        }
 
     .learning-path-pyramid {
         padding: 22px;
