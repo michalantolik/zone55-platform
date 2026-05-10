@@ -1,18 +1,39 @@
 ﻿@using Microsoft.JSInterop
 @inject IJSRuntime JS
 
-<div class="theme-selector">
-    @* <label for="blog-theme-select">Theme</label> *@
-    <select id="blog-theme-select" value="@_selectedTheme" @onchange="OnThemeChangedAsync" aria-label="Select blog theme">
-        @foreach (var theme in Themes)
-        {
-            <option value="@theme.Id">@theme.Name</option>
-        }
-    </select>
+<div class="theme-selector" @onkeydown="OnKeyDown">
+    <button type="button"
+            class="theme-selector__button @(_isOpen ? "theme-selector__button--open" : null)"
+            @onclick="ToggleThemeMenu"
+            aria-haspopup="listbox"
+            aria-expanded="@_isOpen"
+            aria-label="Select blog theme">
+        <span class="theme-selector__glow"></span>
+        <span class="theme-selector__text">@SelectedThemeName</span>
+        <span class="theme-selector__chevron" aria-hidden="true">⌄</span>
+    </button>
+
+    @if (_isOpen)
+    {
+        <div class="theme-selector__menu" role="listbox" aria-label="Blog theme options">
+            @foreach (var theme in Themes)
+            {
+                <button type="button"
+                        class="theme-selector__option @(theme.Id == _selectedTheme ? "theme-selector__option--active" : null)"
+                        role="option"
+                        aria-selected="@(theme.Id == _selectedTheme)"
+                        @onclick="() => SelectThemeAsync(theme)">
+                    <span class="theme-selector__option-dot"></span>
+                    <span>@theme.Name</span>
+                </button>
+            }
+        </div>
+    }
 </div>
 
 @code {
     private string _selectedTheme = DefaultThemeId;
+    private bool _isOpen;
 
     private const string DefaultThemeId = "engineering-blue-dark";
 
@@ -21,6 +42,10 @@
         new BlogThemeOption(DefaultThemeId, "Engineering Blue Dark"),
         new BlogThemeOption("engineering-blue", "Engineering Blue")
     ];
+
+    private string SelectedThemeName =>
+        Themes.FirstOrDefault(theme => theme.Id == _selectedTheme)?.Name
+        ?? Themes.First(theme => theme.Id == DefaultThemeId).Name;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -33,11 +58,26 @@
         StateHasChanged();
     }
 
-    private async Task OnThemeChangedAsync(ChangeEventArgs args)
+    private void ToggleThemeMenu()
     {
-        _selectedTheme = args.Value?.ToString() ?? DefaultThemeId;
+        _isOpen = !_isOpen;
+    }
+
+    private async Task SelectThemeAsync(BlogThemeOption theme)
+    {
+        _selectedTheme = theme.Id;
+        _isOpen = false;
+
         await JS.InvokeVoidAsync("blogPlatformTheme.applyTheme", _selectedTheme);
         await JS.InvokeVoidAsync("blogPlatformArticle.refreshDiagramTheme");
+    }
+
+    private void OnKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            _isOpen = false;
+        }
     }
 
     private sealed record BlogThemeOption(string Id, string Name);
