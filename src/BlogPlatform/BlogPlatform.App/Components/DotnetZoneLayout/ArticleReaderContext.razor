@@ -1,4 +1,5 @@
-﻿@using BlogPlatform.App.Models
+﻿@using BlogPlatform.App.Components.Articles
+@using BlogPlatform.App.Models
 @using BlogPlatform.App.Services
 
 @if (Article is not null && _activeLevel is not null && _activeStep is not null)
@@ -39,23 +40,7 @@
             </aside>
 
             <div class="article-reader-main-context">
-                <div class="article-reader-kicker">
-                    @_activeStep.Title
-                </div>
-
-                <div class="article-reader-title-row">
-                    <h1>@Article.Title</h1>
-                </div>
-
-                <div class="article-reader-tags">
-                    <span>@Article.Level</span>
-                    <span>@Article.Focus</span>
-                    <span>@_activeLevel.Title</span>
-                </div>
-
-                <div class="article-reader-summary-card">
-                    @Article.Summary
-                </div>
+                <ArticleRenderer Article="Article" />
 
                 <div class="article-reader-navigation">
                     <a class="article-reader-nav-button" href="/?view=DotnetRoadmap">
