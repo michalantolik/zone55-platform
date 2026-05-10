@@ -10,7 +10,13 @@
             aria-label="Select blog theme">
         <span class="theme-selector__glow"></span>
         <span class="theme-selector__text">@SelectedThemeName</span>
-        <span class="theme-selector__chevron" aria-hidden="true">⌄</span>
+
+        <span class="theme-selector__indicator" aria-hidden="true">
+            <span class="theme-selector__indicator-ring">
+                <span class="theme-selector__indicator-line theme-selector__indicator-line--left"></span>
+                <span class="theme-selector__indicator-line theme-selector__indicator-line--right"></span>
+            </span>
+        </span>
     </button>
 
     @if (_isOpen)
