@@ -25,7 +25,7 @@
                     <div class="learning-path-pyramid-tags">
                         @foreach (var step in level.Steps.Take(3))
                         {
-                            <a href="@GetFirstPostUrl(step)">
+                            <a href="@GetFirstPostUrl(step, includeDotnetZonesContext: false)">
                                 @step.Title
                             </a>
                         }
@@ -50,7 +50,7 @@
                 <div class="learning-path-zone-steps">
                     @foreach (var step in level.Steps)
                     {
-                        <a class="learning-path-zone-step" href="@GetFirstPostUrl(step)">
+                        <a class="learning-path-zone-step" href="@GetFirstPostUrl(step, includeDotnetZonesContext: true)">
                             <span>@step.StepOrder</span>
 
                             <strong>@step.Title</strong>
@@ -109,12 +109,22 @@
     [Parameter]
     public LearningPathVisualizationType Visualization { get; set; }
 
-    private string GetFirstPostUrl(LearningPathStep step)
+    private string GetFirstPostUrl(
+        LearningPathStep step,
+        bool includeDotnetZonesContext)
     {
         var firstPost = step.Posts.FirstOrDefault();
 
-        return firstPost is null
-            ? "/?view=DotnetRoadmap"
-            : $"/articles/{firstPost.Slug}";
+        if (firstPost is null)
+        {
+            return "/?view=DotnetRoadmap";
+        }
+
+        if (includeDotnetZonesContext)
+        {
+            return $"/articles/{firstPost.Slug}?visualization={LearningPathVisualizationType.DotnetZones}";
+        }
+
+        return $"/articles/{firstPost.Slug}";
     }
 }

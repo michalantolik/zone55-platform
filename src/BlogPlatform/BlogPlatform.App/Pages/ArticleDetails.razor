@@ -1,4 +1,5 @@
 ﻿@page "/articles/{Slug}"
+@using BlogPlatform.App.Components.DotnetZoneLayout
 @using BlogPlatform.App.Components.Articles
 @inject IBlogApiClient BlogApi
 
@@ -29,17 +30,24 @@ else
     <PageTitle>@_article.Title | .NET Backend & Cloud Engineering Notes</PageTitle>
 
     <section class="article-shell container-xl">
-        <div class="article-top">
-            <div class="breadcrumbs">
-                <a href="/">← All notes</a>
-                <span>›</span>
-                <a href="/?category=@_article.CategorySlug">@_article.Category</a>
-                <span>›</span>
-                <strong>@_article.Title</strong>
-            </div>
+        @if (IsDotnetZonesArticleContext)
+        {
+            <ArticleReaderContext Article="_article" Posts="_posts" />
+        }
+        else
+        {
+            <div class="article-top">
+                <div class="breadcrumbs">
+                    <a href="/">← All notes</a>
+                    <span>›</span>
+                    <a href="/?category=@_article.CategorySlug">@_article.Category</a>
+                    <span>›</span>
+                    <strong>@_article.Title</strong>
+                </div>
 
-            <a class="browse-button" href="/">Browse all notes</a>
-        </div>
+                <a class="browse-button" href="/">Browse all notes</a>
+            </div>
+        }
 
         <ArticleRenderer Article="_article" />
     </section>
@@ -49,13 +57,29 @@ else
     [Parameter]
     public string Slug { get; set; } = string.Empty;
 
+    [SupplyParameterFromQuery(Name = "visualization")]
+    public string? Visualization { get; set; }
+
     private PostDetails? _article;
+    private IReadOnlyCollection<PostListItem> _posts = [];
     private bool _isLoading = true;
+
+    private bool IsDotnetZonesArticleContext =>
+        string.Equals(
+            Visualization,
+            nameof(LearningPathVisualizationType.DotnetZones),
+            StringComparison.OrdinalIgnoreCase);
 
     protected override async Task OnParametersSetAsync()
     {
         _isLoading = true;
+
         _article = await BlogApi.GetPostBySlugAsync(Slug);
+
+        _posts = IsDotnetZonesArticleContext
+            ? await BlogApi.GetPostsAsync(null)
+            : [];
+
         _isLoading = false;
     }
 }
