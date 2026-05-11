@@ -1,11 +1,18 @@
-﻿<article class="post-card">
+﻿@inject NavigationManager Navigation
+
+<article class="post-card"
+         role="link"
+         tabindex="0"
+         style="cursor: pointer;"
+         @onclick="OpenArticle"
+         @onkeydown="OpenArticleFromKeyboard">
     <div class="post-card-top">
         <span class="badge badge-primary">@Category</span>
         <span class="badge">@Level</span>
     </div>
 
     <h3 class="post-title">
-        <a href="@Url">@Title</a>
+        <a href="@Url" @onclick:stopPropagation="true">@Title</a>
     </h3>
 
     <p class="post-summary">@Summary</p>
@@ -22,7 +29,11 @@
 
     <div class="post-footer">
         <span>@Focus</span>
-        <a href="@Url" class="read-btn">Read →</a>
+        <a href="@Url"
+               class="read-btn"
+               @onclick:stopPropagation="true">
+            Read →
+        </a>
     </div>
 </article>
 
@@ -34,4 +45,20 @@
     [Parameter] public string Focus { get; set; } = "Practical";
     [Parameter] public string Url { get; set; } = "#";
     [Parameter] public IEnumerable<string>? TechStack { get; set; }
+
+    private void OpenArticle()
+    {
+        if (!string.IsNullOrWhiteSpace(Url) && Url != "#")
+        {
+            Navigation.NavigateTo(Url);
+        }
+    }
+
+    private void OpenArticleFromKeyboard(KeyboardEventArgs args)
+    {
+        if (args.Key is "Enter" or " ")
+        {
+            OpenArticle();
+        }
+    }
 }
