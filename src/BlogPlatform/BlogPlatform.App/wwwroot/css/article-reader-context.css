@@ -1,5 +1,4 @@
 ﻿.article-reader-context-shell {
-    --article-reader-sticky-top: 96px;
     --article-reader-top-height: 72px;
     margin-bottom: 28px;
     overflow: visible;
@@ -61,16 +60,10 @@
 }
 
 .article-reader-sidebar {
-    position: sticky;
-    top: var(--article-reader-sticky-top);
-    z-index: 20;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: calc(100vh - var(--article-reader-sticky-top) - 24px);
-    overflow-y: auto;
     padding-right: 4px;
-    scrollbar-width: thin;
 }
 
 .article-reader-step-link {
@@ -173,20 +166,13 @@
 }
 
 @media (max-width: 900px) {
-    .article-reader-context-shell {
-        --article-reader-sticky-top: 76px;
-    }
-
     .article-reader-context-body {
         grid-template-columns: 1fr;
     }
 
     .article-reader-sidebar {
-        position: static;
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        max-height: none;
-        overflow: visible;
         padding-right: 0;
     }
 }
