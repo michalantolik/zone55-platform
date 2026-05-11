@@ -42,6 +42,8 @@
 </div>
 
 @code {
+    private const string DotnetStandardView = "DotnetStandard";
+
     private IReadOnlyCollection<CategoryItem> _categories = [];
 
     private bool EnableStickyTopNav =>
@@ -56,7 +58,7 @@
 
     private static string GetCategoryUrl(string slug)
     {
-        return $"/?category={Uri.EscapeDataString(slug)}";
+        return $"/?view={DotnetStandardView}&category={Uri.EscapeDataString(slug)}";
     }
 
     private string GetHomeCssClass()
