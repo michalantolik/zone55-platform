@@ -211,7 +211,6 @@ button {
     display: grid;
     gap: 14px;
     align-content: start;
-    margin-top: 58px;
 }
 
 .signal-card {
@@ -367,6 +366,7 @@ button {
     border-top: 0;
     background: var(--content-frame-bg);
     box-shadow: var(--shadow-soft);
+    padding-top: 32px;
 }
 
 .sidebar {
@@ -463,6 +463,7 @@ button {
     padding: 36px 40px 42px;
     color: var(--text-dark);
     background: var(--posts-area-bg);
+    border-radius: 16px;
 }
 
 .section-header {
