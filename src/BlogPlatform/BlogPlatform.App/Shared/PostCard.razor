@@ -8,7 +8,7 @@
          @onclick="OpenArticle"
          @onkeydown="OpenArticleFromKeyboard">
     <div class="post-card-top">
-        <span class="badge badge-primary">@Category</span>
+        <span class="post-card-category-pill">@Category</span>
 
         @if (IsExtensiveArticleCard)
         {
@@ -67,12 +67,38 @@
                 color: rgba(226, 239, 255, .88);
             }
 
+            .post-card:hover .post-card-category-pill {
+                border-color: rgba(125, 211, 252, .48);
+                background: rgba(18, 63, 102, .30);
+                color: rgba(220, 238, 255, .92);
+            }
+
         .post-card:focus-visible {
             outline: 2px solid rgba(125, 211, 252, .85);
             outline-offset: 4px;
             border-color: rgba(125, 211, 252, .70);
             box-shadow: 0 10px 40px rgba(59, 130, 246, .12), 0 0 0 4px rgba(56, 189, 248, .16);
         }
+
+    .post-card-top {
+        margin-bottom: 10px;
+    }
+
+    .post-card-category-pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 4px 10px;
+        border: 1px solid rgba(125, 211, 252, .34);
+        border-radius: 999px;
+        background: rgba(14, 47, 78, .24);
+        color: rgba(190, 220, 250, .82);
+        font-size: .78rem;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: .01em;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+    }
 
     .post-card-compact .post-summary {
         margin-bottom: 0;
