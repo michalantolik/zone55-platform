@@ -1,0 +1,68 @@
+﻿@using BlogPlatform.Contracts.DotnetRoadmap
+
+<div class="sidebar-inner dotnet-step-sidebar-inner">
+    <div class="dotnet-step-sidebar-heading">
+        <span>@SelectedLevelTitle</span>
+        <strong>Choose a step</strong>
+    </div>
+
+    @foreach (var step in Steps.OrderBy(step => step.StepOrder))
+    {
+        <a class="dotnet-step-pill @(IsActive(step) ? "active" : null)"
+               href="@GetStepUrl(step)">
+            <span class="dotnet-step-number">@step.StepOrder</span>
+            <span class="dotnet-step-copy">
+                <strong>@step.Title</strong>
+                <small>
+                    @(step.Posts.Count == 0
+                        ? "No articles yet"
+                        : $"{step.Posts.Count} article(s)")
+                </small>
+            </span>
+        </a>
+    }
+
+    <div class="author-card dotnet-zone-context-card">
+        <small>About this zone</small>
+        <h5>@SelectedLevelTitle</h5>
+        <p>@SelectedLevelDescription</p>
+    </div>
+</div>
+
+@code {
+    private const string DotnetStandardView = "DotnetStandard";
+
+    [Parameter]
+    public LearningPathLevel? SelectedLevel { get; set; }
+
+    [Parameter]
+    public LearningPathStep? SelectedStep { get; set; }
+
+    private IReadOnlyCollection<LearningPathStep> Steps => SelectedLevel?.Steps ?? [];
+
+    private string SelectedLevelTitle => SelectedLevel?.Title ?? "Foundation";
+
+    private string SelectedLevelDescription =>
+        SelectedLevel?.Description ?? "Core building blocks of C# and .NET development.";
+
+    private bool IsActive(LearningPathStep step) =>
+        SelectedStep is not null &&
+        string.Equals(SelectedStep.Key, step.Key, StringComparison.OrdinalIgnoreCase);
+
+    private string GetStepUrl(LearningPathStep step)
+    {
+        var zoneKey = GetZoneKey(SelectedLevel);
+
+        return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}&step={Uri.EscapeDataString(step.Key)}";
+    }
+
+    private static string GetZoneKey(LearningPathLevel? level) =>
+        level?.Number switch
+        {
+            1 => DotnetZoneKeys.Foundation,
+            2 => DotnetZoneKeys.WebAppDevelopment,
+            3 => DotnetZoneKeys.ArchitectureData,
+            4 => DotnetZoneKeys.CloudAdvanced,
+            _ => DotnetZoneKeys.Foundation
+        };
+}

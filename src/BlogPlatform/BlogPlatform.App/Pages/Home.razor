@@ -1,141 +1,163 @@
 ﻿@page "/"
 @page "/articles"
+@using BlogPlatform.Contracts.DotnetRoadmap
 @inject IBlogApiClient BlogApi
 @inject IConfiguration Configuration
 
 <PageTitle>.NET Backend & Cloud Engineering Notes</PageTitle>
 
-<section class="hero container-xl">
-    <div class="hero-main">
-        <div class="eyebrow">
-            <span></span>
-            Portfolio blog · .NET backend · cloud-ready systems
-        </div>
-
-        <h1>
-            .NET Backend Engineer<br />
-            <span>building cloud-ready systems</span>
-        </h1>
-
-        <p>
-            I design and build APIs, backend services, and cloud solutions using .NET and Azure.
-            This blog documents practical engineering decisions, patterns, and real-world implementations.
-        </p>
-
-        <div class="hero-tags">
-            <span>.NET</span>
-            <span>ASP.NET Core</span>
-            <span>Azure</span>
-            <span>CI/CD</span>
-            <span>Architecture</span>
-        </div>
-    </div>
-
-    <div class="hero-side">
-        <div class="signal-card">
-            <small>Primary focus</small>
-            <strong>.NET Backend + Cloud</strong>
-        </div>
-
-        <div class="signal-card">
-            <small>Engineering signal</small>
-            <strong>APIs · DevOps · Architecture</strong>
-        </div>
-
-        <div class="author-visual-card">
-            <div class="author-visual-image">
-                <img src="/images/michal-cartoon.png"
-                     alt="Cartoon-style photo representing the blog author working with technology" />
-            </div>
-
-            <div class="author-visual-text">
-                <small>Personal engineering notebook</small>
-                <strong>Practical notes from real implementation work</strong>
-            </div>
-        </div>
-    </div>
-</section>
-
-@if (IsBlogDisplayModeSwitchEnabled)
+@if (IsLearningPathView)
 {
-    <section class="container-xl blog-view-switch-section">
-        <ViewModeSwitch CurrentView="@CurrentView" />
-    </section>
-}
+    @if (_isLoading)
+    {
+        <section class="content-frame loading-content-frame container-xl"
+                 aria-live="polite"
+                 aria-busy="true">
+            <div class="blog-loading-panel">
+                <div class="blog-loading-orb" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
 
-@if (_isLoading)
-{
-    <section class="content-frame loading-content-frame container-xl"
-             aria-live="polite"
-             aria-busy="true">
-        <div class="blog-loading-panel">
-            <div class="blog-loading-orb" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+                <div class="blog-loading-copy">
+                    <div class="section-kicker">LOADING CONTENT</div>
+                    <h2>Preparing engineering notes</h2>
+                    <p>Loading posts from Umbraco CMS...</p>
+                </div>
 
-            <div class="blog-loading-copy">
-                <div class="section-kicker">LOADING CONTENT</div>
-                <h2>Preparing engineering notes</h2>
-                <p>Loading posts from Umbraco CMS...</p>
+                <div class="blog-loading-skeleton" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
-
-            <div class="blog-loading-skeleton" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </section>
-}
-else if (IsLearningPathView)
-{
-    <section class="content-frame content-frame-learning-path container-xl">
-        <LearningPathView Levels="@_learningPathLevels"
-                          Visualization="@_learningPathVisualization" />
-    </section>
+        </section>
+    }
+    else
+    {
+        <section class="content-frame content-frame-learning-path container-xl">
+            <LearningPathView Levels="@_learningPathLevels"
+                              Visualization="@_learningPathVisualization" />
+        </section>
+    }
 }
 else
 {
-    <section class="content-frame container-xl">
-        <aside class="sidebar">
-            <CategorySidebar ActiveSlug="@Category"
-                             Categories="@_categories" />
-        </aside>
-
-        <section class="posts-area">
-            <div class="section-header">
-                <div>
-                    <div class="section-kicker">LATEST CONTENT</div>
-                    <h2>@PageTitleText</h2>
-                    <p>@Subtitle</p>
-                </div>
-
-                <a href="/articles">Browse all posts</a>
+    <section class="hero container-xl dotnet-standard-hero">
+        <div class="hero-main">
+            <div class="eyebrow">
+                <span></span>
+                Domain → Step → Article
             </div>
 
-            @if (_posts.Count == 0)
-            {
-                <p>No posts found.</p>
-            }
-            else
-            {
-                <div class="post-grid">
-                    @foreach (var post in _posts)
-                    {
-                        <PostCard Title="@post.Title"
-                                  Summary="@post.Summary"
-                                  Category="@post.Category"
-                                  Level="@post.Level"
-                                  Focus="@post.Focus"
-                                  Url="@($"/articles/{post.Slug}")"
-                                  TechStack="@post.Tags" />
-                    }
+            <h1>
+                @SelectedStepTitle
+                <span>@SelectedLevelTitle</span>
+            </h1>
+
+            <p>@SelectedStepDescription</p>
+
+            <div class="hero-tags">
+                <span>.NET</span>
+                <span>C#</span>
+                <span>@SelectedLevelTitle</span>
+                <span>@SelectedStepTitle</span>
+            </div>
+        </div>
+
+        <div class="hero-side">
+            <div class="author-visual-card">
+                <div class="author-visual-image">
+                    <img src="/images/michal-cartoon.png"
+                         alt="Cartoon-style photo representing the blog author working with technology" />
                 </div>
-            }
-        </section>
+
+                <div class="author-visual-text">
+                    <small>Personal engineering notebook</small>
+                    <strong>Practical notes from real implementation work</strong>
+                </div>
+            </div>
+        </div>
     </section>
+
+    @if (IsBlogDisplayModeSwitchEnabled)
+    {
+        <section class="container-xl blog-view-switch-section">
+            <ViewModeSwitch CurrentView="@CurrentView" />
+        </section>
+    }
+
+    @if (_isLoading)
+    {
+        <section class="content-frame loading-content-frame container-xl"
+                 aria-live="polite"
+                 aria-busy="true">
+            <div class="blog-loading-panel">
+                <div class="blog-loading-orb" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <div class="blog-loading-copy">
+                    <div class="section-kicker">LOADING CONTENT</div>
+                    <h2>Preparing engineering notes</h2>
+                    <p>Loading posts from Umbraco CMS...</p>
+                </div>
+
+                <div class="blog-loading-skeleton" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="content-frame container-xl dotnet-standard-frame">
+            <aside class="sidebar dotnet-step-sidebar">
+                <DotnetStepSidebar SelectedLevel="@SelectedLevel"
+                                   SelectedStep="@SelectedStep" />
+            </aside>
+
+            <section class="posts-area dotnet-standard-posts-area">
+                <div class="section-header dotnet-standard-section-header">
+                    <div>
+                        <div class="section-kicker">ARTICLES IN THIS STEP</div>
+                        <h2>@SelectedStepTitle</h2>
+                        <p>@SelectedStepDescription</p>
+                    </div>
+
+                    <a href="/?view=DotnetRoadmap">Open full roadmap</a>
+                </div>
+
+                @if (_posts.Count == 0)
+                {
+                    <div class="dotnet-empty-step-card">
+                        <strong>No articles yet</strong>
+                        <p>This step is ready in the roadmap. New implementation notes can be assigned to it from the CMS by using the matching .NET zone step key.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="post-grid">
+                        @foreach (var post in _posts)
+                        {
+                            <PostCard Title="@post.Title"
+                                      Summary="@post.Summary"
+                                      Category="@post.Category"
+                                      Level="@post.Level"
+                                      Focus="@post.Focus"
+                                      Url="@($"/articles/{post.Slug}?visualization={LearningPathVisualizationType.DotnetZones}")"
+                                      TechStack="@post.Tags" />
+                        }
+                    </div>
+                }
+            </section>
+        </section>
+    }
 }
 
 @code {
@@ -147,6 +169,12 @@ else
 
     [SupplyParameterFromQuery(Name = "view")]
     public string? View { get; set; }
+
+    [SupplyParameterFromQuery(Name = "zone")]
+    public string? Zone { get; set; }
+
+    [SupplyParameterFromQuery(Name = "step")]
+    public string? Step { get; set; }
 
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<CategoryItem> _categories = [];
@@ -167,15 +195,44 @@ else
         ?? NormalizeBlogDisplayMode(Configuration["Features:EnableBlogDisplayMode"])
         ?? DotnetStandardView;
 
-    private string PageTitleText =>
-        string.IsNullOrWhiteSpace(Category)
-            ? "Recent engineering notes"
-            : _categories.FirstOrDefault(x => x.Slug == Category)?.Name ?? "Recent engineering notes";
+    private LearningPathLevel? SelectedLevel =>
+        _learningPathLevels.FirstOrDefault(level =>
+            string.Equals(GetZoneKey(level), SelectedZoneKey, StringComparison.OrdinalIgnoreCase))
+        ?? _learningPathLevels.FirstOrDefault();
 
-    private string Subtitle =>
-        string.IsNullOrWhiteSpace(Category)
-            ? "Compact notes focused on backend systems, cloud deployment, and architecture."
-            : "Filtered notes for this engineering area.";
+    private LearningPathStep? SelectedStep =>
+        SelectedLevel?.Steps.FirstOrDefault(step =>
+            string.Equals(step.Key, SelectedStepKey, StringComparison.OrdinalIgnoreCase))
+        ?? SelectedLevel?.Steps.OrderBy(step => step.StepOrder).FirstOrDefault();
+
+    private string SelectedZoneKey =>
+        DotnetRoadmapCatalog.IsAllowedZoneKey(Zone)
+            ? Zone!
+            : DotnetZoneKeys.Foundation;
+
+    private string SelectedStepKey
+    {
+        get
+        {
+            if (DotnetRoadmapCatalog.IsAllowedStepKey(Step))
+            {
+                return Step!;
+            }
+
+            var selectedLevel = _learningPathLevels.FirstOrDefault(level =>
+                string.Equals(GetZoneKey(level), SelectedZoneKey, StringComparison.OrdinalIgnoreCase));
+
+            return selectedLevel?.Steps.OrderBy(step => step.StepOrder).FirstOrDefault()?.Key
+                   ?? DotnetZoneStepKeys.BasicSyntax;
+        }
+    }
+
+    private string SelectedLevelTitle => SelectedLevel?.Title ?? "Foundation";
+
+    private string SelectedStepTitle => SelectedStep?.Title ?? "Basic Syntax";
+
+    private string SelectedStepDescription =>
+        SelectedStep?.Description ?? "Understand the fundamental syntax rules of C# and how to write your first lines of code.";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -183,14 +240,27 @@ else
 
         _learningPathVisualization = ReadLearningPathVisualization();
 
-        var homeContent = await BlogApi.GetHomeContentAsync(Category);
+        var homeContent = await BlogApi.GetHomeContentAsync(IsLearningPathView ? Category : null);
 
         _categories = homeContent.Categories;
-        _posts = homeContent.Posts;
         _learningPathLevels = LearningPathCatalog.Build(homeContent.Posts);
+
+        _posts = IsLearningPathView
+            ? homeContent.Posts
+            : SelectedStep?.Posts ?? [];
 
         _isLoading = false;
     }
+
+    private static string GetZoneKey(LearningPathLevel level) =>
+        level.Number switch
+        {
+            1 => DotnetZoneKeys.Foundation,
+            2 => DotnetZoneKeys.WebAppDevelopment,
+            3 => DotnetZoneKeys.ArchitectureData,
+            4 => DotnetZoneKeys.CloudAdvanced,
+            _ => DotnetZoneKeys.Foundation
+        };
 
     private static string? NormalizeBlogDisplayMode(string? value)
     {

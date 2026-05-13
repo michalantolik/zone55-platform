@@ -1,0 +1,89 @@
+﻿@using BlogPlatform.Contracts.DotnetRoadmap
+@inject NavigationManager Navigation
+
+<nav class="dotnet-zone-top-nav" aria-label=".NET roadmap zones">
+    @foreach (var level in Levels)
+    {
+        <a class="dotnet-zone-tab @level.AccentClass @(IsActive(level) ? "active" : null)"
+               href="@GetZoneUrl(level)">
+            <span class="dotnet-zone-tab-number">@level.Number.ToString("00")</span>
+            <strong>@GetShortTitle(level.Title)</strong>
+        </a>
+    }
+</nav>
+
+@code {
+    private const string DotnetStandardView = "DotnetStandard";
+
+    [Parameter]
+    public IReadOnlyCollection<LearningPathLevel> Levels { get; set; } = [];
+
+    private bool IsActive(LearningPathLevel level)
+    {
+        var selectedZone = GetQueryValue("zone");
+
+        if (string.IsNullOrWhiteSpace(selectedZone))
+        {
+            selectedZone = DotnetZoneKeys.Foundation;
+        }
+
+        return string.Equals(GetZoneKey(level), selectedZone, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetZoneUrl(LearningPathLevel level)
+    {
+        var firstStep = level.Steps.OrderBy(step => step.StepOrder).FirstOrDefault();
+        var zoneKey = GetZoneKey(level);
+
+        if (firstStep is null)
+        {
+            return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}";
+        }
+
+        return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}&step={Uri.EscapeDataString(firstStep.Key)}";
+    }
+
+    private static string GetZoneKey(LearningPathLevel level) =>
+        level.Number switch
+        {
+            1 => DotnetZoneKeys.Foundation,
+            2 => DotnetZoneKeys.WebAppDevelopment,
+            3 => DotnetZoneKeys.ArchitectureData,
+            4 => DotnetZoneKeys.CloudAdvanced,
+            _ => DotnetZoneKeys.Foundation
+        };
+
+    private static string GetShortTitle(string title) =>
+        title switch
+        {
+            "Web & App Development" => "Web & App",
+            _ => title
+        };
+
+    private string? GetQueryValue(string name)
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+        if (string.IsNullOrWhiteSpace(uri.Query))
+        {
+            return null;
+        }
+
+        foreach (var parameter in uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = parameter.Split('=', 2);
+            var parameterName = Uri.UnescapeDataString(parts[0]);
+
+            if (!string.Equals(parameterName, name, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return parts.Length == 2
+                ? Uri.UnescapeDataString(parts[1])
+                : null;
+        }
+
+        return null;
+    }
+}

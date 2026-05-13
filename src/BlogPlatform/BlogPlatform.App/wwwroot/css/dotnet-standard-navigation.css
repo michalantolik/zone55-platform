@@ -1,0 +1,290 @@
+﻿.dotnet-platform-top-nav {
+    display: grid;
+    grid-template-columns: minmax(260px, 330px) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px;
+}
+
+.dotnet-zone-top-nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(118px, 1fr));
+    gap: 10px;
+    align-items: center;
+}
+
+.dotnet-zone-tab {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    min-height: 58px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    color: rgba(235, 244, 255, .78);
+    background: linear-gradient(180deg, rgba(21, 34, 56, .86), rgba(10, 21, 38, .92));
+    border: 1px solid rgba(100, 136, 190, .16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+    .dotnet-zone-tab::after {
+        content: "";
+        position: absolute;
+        right: -9px;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        transform: translateY(-50%);
+        background: rgba(116, 205, 255, .58);
+        box-shadow: 0 0 14px rgba(116, 205, 255, .35);
+    }
+
+    .dotnet-zone-tab:last-child::after {
+        display: none;
+    }
+
+    .dotnet-zone-tab:hover,
+    .dotnet-zone-tab.active {
+        transform: translateY(-2px);
+        color: #ffffff;
+        border-color: rgba(125, 211, 252, .42);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, .26), 0 0 0 1px rgba(125, 211, 252, .11), inset 0 1px 0 rgba(255, 255, 255, .10);
+        filter: brightness(1.06);
+    }
+
+    .dotnet-zone-tab.learning-path-accent-foundation.active,
+    .dotnet-zone-tab.learning-path-accent-foundation:hover {
+        background: linear-gradient(135deg, #10b981, #0f9f8d);
+    }
+
+    .dotnet-zone-tab.learning-path-accent-web.active,
+    .dotnet-zone-tab.learning-path-accent-web:hover {
+        background: linear-gradient(135deg, #0ea5e9, #0891b2);
+    }
+
+    .dotnet-zone-tab.learning-path-accent-architecture.active,
+    .dotnet-zone-tab.learning-path-accent-architecture:hover {
+        background: linear-gradient(135deg, #6366f1, #2563eb);
+    }
+
+    .dotnet-zone-tab.learning-path-accent-cloud.active,
+    .dotnet-zone-tab.learning-path-accent-cloud:hover {
+        background: linear-gradient(135deg, #334155, #0f172a);
+    }
+
+.dotnet-zone-tab-number {
+    display: block;
+    color: rgba(255, 255, 255, .92);
+    font-size: .82rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .04em;
+}
+
+.dotnet-zone-tab strong {
+    color: inherit;
+    font-size: .9rem;
+    line-height: 1.1;
+    font-weight: 900;
+}
+
+.utility-menu {
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.dotnet-standard-hero {
+    grid-template-columns: minmax(0, 1fr) 330px;
+    margin-bottom: 0;
+}
+
+    .dotnet-standard-hero .hero-main h1 {
+        font-size: clamp(2.6rem, 5.2vw, 4.2rem);
+    }
+
+.dotnet-standard-frame {
+    grid-template-columns: 310px minmax(0, 1fr);
+}
+
+.dotnet-step-sidebar {
+    background: linear-gradient(180deg, rgba(10, 22, 40, .96), rgba(8, 18, 35, .98));
+}
+
+.dotnet-step-sidebar-inner {
+    padding-top: 0;
+}
+
+.dotnet-step-sidebar-heading {
+    margin-bottom: 16px;
+    padding: 18px 18px 16px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(18, 35, 60, .92), rgba(10, 23, 42, .95));
+    border: 1px solid rgba(98, 139, 196, .20);
+}
+
+    .dotnet-step-sidebar-heading span {
+        display: block;
+        color: var(--section-kicker-text);
+        text-transform: uppercase;
+        letter-spacing: .14em;
+        font-size: .72rem;
+        font-weight: 900;
+    }
+
+    .dotnet-step-sidebar-heading strong {
+        display: block;
+        margin-top: 8px;
+        color: #ffffff;
+        font-size: 1.1rem;
+        line-height: 1.1;
+    }
+
+.dotnet-step-pill {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 13px;
+    align-items: center;
+    min-height: 70px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 17px;
+    color: rgba(230, 239, 255, .86);
+    background: linear-gradient(180deg, rgba(23, 39, 65, .88), rgba(13, 27, 48, .94));
+    border: 1px solid rgba(93, 128, 178, .22);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+    .dotnet-step-pill:hover,
+    .dotnet-step-pill.active {
+        transform: translateY(-2px);
+        color: #ffffff;
+        background: linear-gradient(135deg, rgba(18, 185, 129, .78), rgba(17, 126, 147, .72));
+        border-color: rgba(125, 211, 252, .50);
+        box-shadow: 0 12px 26px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .10);
+    }
+
+.dotnet-step-number {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 15px;
+    color: #dff6ff;
+    background: rgba(36, 91, 128, .54);
+    border: 1px solid rgba(125, 211, 252, .24);
+    font-weight: 900;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.dotnet-step-pill.active .dotnet-step-number,
+.dotnet-step-pill:hover .dotnet-step-number {
+    color: #062033;
+    background: rgba(255, 255, 255, .92);
+    border-color: rgba(255, 255, 255, .42);
+}
+
+.dotnet-step-copy strong {
+    display: block;
+    color: inherit;
+    font-size: .95rem;
+    line-height: 1.15;
+}
+
+.dotnet-step-copy small {
+    display: block;
+    margin-top: 4px;
+    color: rgba(190, 221, 255, .78);
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.dotnet-step-pill.active .dotnet-step-copy small,
+.dotnet-step-pill:hover .dotnet-step-copy small {
+    color: rgba(236, 253, 245, .88);
+}
+
+.dotnet-zone-context-card {
+    margin-top: 26px;
+}
+
+    .dotnet-zone-context-card h5 {
+        font-size: 1.25rem;
+        line-height: 1.12;
+    }
+
+.dotnet-standard-posts-area {
+    background: linear-gradient(180deg, rgba(16, 31, 53, .98), rgba(11, 24, 43, .99));
+}
+
+.dotnet-standard-section-header {
+    padding: 26px;
+    margin-bottom: 26px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(20, 48, 82, .78), rgba(10, 28, 54, .94));
+    border: 1px solid rgba(88, 131, 190, .20);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.dotnet-empty-step-card {
+    padding: 28px;
+    border-radius: 20px;
+    color: var(--post-card-text);
+    background: var(--post-card-bg);
+    border: 1px solid var(--post-card-border);
+    box-shadow: var(--shadow-card);
+}
+
+    .dotnet-empty-step-card strong {
+        display: block;
+        color: var(--post-title-text);
+        font-size: 1.35rem;
+    }
+
+    .dotnet-empty-step-card p {
+        max-width: 760px;
+        margin: 10px 0 0;
+        color: var(--post-summary-text);
+        line-height: 1.7;
+    }
+
+@media (max-width: 1280px) {
+    .dotnet-platform-top-nav {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .dotnet-zone-top-nav {
+        order: 3;
+    }
+
+    .utility-menu {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 980px) {
+    .dotnet-zone-top-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dotnet-standard-frame {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .dotnet-zone-top-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .dotnet-zone-tab::after {
+        display: none;
+    }
+
+    .dotnet-step-sidebar-heading,
+    .dotnet-standard-section-header {
+        padding: 20px;
+    }
+}

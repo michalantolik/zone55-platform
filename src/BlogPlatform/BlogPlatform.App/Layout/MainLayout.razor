@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 @implements IDisposable
-@inject IBlogApiClient BlogApi
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
 
@@ -10,8 +9,8 @@
         <div class="top-nav-sticky-sentinel"></div>
     }
 
-    <header class="top-nav container-xl @(EnableStickyTopNav ? "top-nav-sticky" : "")">
-        <a class="brand" href="/">
+    <header class="top-nav container-xl dotnet-platform-top-nav @(EnableStickyTopNav ? "top-nav-sticky" : "")">
+        <a class="brand" href="/?view=DotnetStandard">
             <span class="brand-icon">&lt;/&gt;</span>
             <span>
                 <strong>.NET Backend &amp; Cloud Notes</strong>
@@ -19,21 +18,8 @@
             </span>
         </a>
 
-        <nav class="main-menu">
-            <a class="@GetHomeCssClass()" href="/">Home</a>
+        <DotnetZoneTopNav Levels="@_levels" />
 
-            @foreach (var category in _categories)
-            {
-                <a class="@GetCategoryCssClass(category.Slug)"
-                       href="@GetCategoryUrl(category.Slug)">
-                    @category.Name
-                </a>
-            }
-
-            <NavLink href="/projects">Projects</NavLink>
-            <NavLink href="/about">About</NavLink>
-            <ThemeSelector />
-        </nav>
     </header>
 
     <main>
@@ -42,84 +28,15 @@
 </div>
 
 @code {
-    private const string DotnetStandardView = "DotnetStandard";
-
-    private IReadOnlyCollection<CategoryItem> _categories = [];
+    private IReadOnlyCollection<LearningPathLevel> _levels = [];
 
     private bool EnableStickyTopNav =>
         Configuration.GetValue<bool>("Features:EnableStickyTopNav");
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Navigation.LocationChanged += HandleLocationChanged;
-
-        _categories = await BlogApi.GetCategoriesAsync();
-    }
-
-    private static string GetCategoryUrl(string slug)
-    {
-        return $"/?view={DotnetStandardView}&category={Uri.EscapeDataString(slug)}";
-    }
-
-    private string GetHomeCssClass()
-    {
-        var currentPath = GetCurrentPath();
-        var currentCategory = GetCurrentCategorySlug();
-
-        return currentPath == "/" && string.IsNullOrWhiteSpace(currentCategory)
-            ? "active"
-            : string.Empty;
-    }
-
-    private string GetCategoryCssClass(string slug)
-    {
-        var currentPath = GetCurrentPath();
-        var currentCategory = GetCurrentCategorySlug();
-
-        return currentPath == "/" &&
-               string.Equals(currentCategory, slug, StringComparison.OrdinalIgnoreCase)
-            ? "active"
-            : string.Empty;
-    }
-
-    private string GetCurrentPath()
-    {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-
-        return string.IsNullOrWhiteSpace(uri.AbsolutePath)
-            ? "/"
-            : uri.AbsolutePath;
-    }
-
-    private string? GetCurrentCategorySlug()
-    {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-
-        if (string.IsNullOrWhiteSpace(uri.Query))
-        {
-            return null;
-        }
-
-        var query = uri.Query.TrimStart('?');
-        var parameters = query.Split('&', StringSplitOptions.RemoveEmptyEntries);
-
-        foreach (var parameter in parameters)
-        {
-            var parts = parameter.Split('=', 2);
-
-            var name = Uri.UnescapeDataString(parts[0]);
-
-            if (!string.Equals(name, "category", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            return parts.Length == 2
-                ? Uri.UnescapeDataString(parts[1])
-                : null;
-        }
-
-        return null;
+        _levels = LearningPathCatalog.Build([]);
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
