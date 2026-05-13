@@ -1,7 +1,7 @@
 ﻿@inject NavigationManager Navigation
 @inject IConfiguration Configuration
 
-<article class="post-card"
+<article class="post-card @(IsExtensiveArticleCard ? "post-card-extensive" : "post-card-compact")"
          role="link"
          tabindex="0"
          style="cursor: pointer;"
@@ -37,13 +37,19 @@
         <div class="post-footer">
             <span>@Focus</span>
             <a href="@Url"
-               class="read-btn"
-               @onclick:stopPropagation="true">
+                   class="read-btn"
+                   @onclick:stopPropagation="true">
                 Read →
             </a>
         </div>
     }
 </article>
+
+<style>
+    .post-card-compact .post-summary {
+        margin-bottom: 0;
+    }
+</style>
 
 @code {
     [Parameter] public string Title { get; set; } = string.Empty;
