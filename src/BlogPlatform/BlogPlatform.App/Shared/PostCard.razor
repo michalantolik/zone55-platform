@@ -46,8 +46,46 @@
 </article>
 
 <style>
+    .post-card {
+        transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease, background .28s ease, filter .28s ease;
+        will-change: transform;
+    }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(125, 211, 252, .60);
+            background: linear-gradient(135deg, #152943 0%, #16304f 42%, #112842 100%);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, .12), 0 0 0 1px rgba(125, 211, 252, .18), inset 0 1px 0 rgba(255, 255, 255, .08);
+            filter: brightness(1.03);
+        }
+
+            .post-card:hover .post-title a {
+                color: #ffffff;
+            }
+
+            .post-card:hover .post-summary {
+                color: rgba(226, 239, 255, .88);
+            }
+
+        .post-card:focus-visible {
+            outline: 2px solid rgba(125, 211, 252, .85);
+            outline-offset: 4px;
+            border-color: rgba(125, 211, 252, .70);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, .12), 0 0 0 4px rgba(56, 189, 248, .16);
+        }
+
     .post-card-compact .post-summary {
         margin-bottom: 0;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .post-card {
+            transition: none;
+        }
+
+            .post-card:hover {
+                transform: none;
+            }
     }
 </style>
 
