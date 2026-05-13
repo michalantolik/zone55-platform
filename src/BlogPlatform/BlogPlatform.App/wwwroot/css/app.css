@@ -515,13 +515,18 @@ button {
     border-radius: 18px;
     border: 1px solid var(--post-card-border);
     box-shadow: var(--shadow-card);
-    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
     .post-card:hover {
         transform: translateY(-3px);
-        border-color: var(--post-card-hover-border);
-        box-shadow: var(--post-card-hover-shadow);
+        border-color: rgba(85, 199, 255, .70);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .10), 0 0 0 3px rgba(85, 182, 255, .14), 0 14px 32px rgba(0, 0, 0, .24);
+    }
+
+    .post-card:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 3px;
     }
 
 .post-card-top {

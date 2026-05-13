@@ -1,4 +1,5 @@
 ﻿@inject NavigationManager Navigation
+@inject IConfiguration Configuration
 
 <article class="post-card"
          role="link"
@@ -8,7 +9,11 @@
          @onkeydown="OpenArticleFromKeyboard">
     <div class="post-card-top">
         <span class="badge badge-primary">@Category</span>
-        <span class="badge">@Level</span>
+
+        @if (IsExtensiveArticleCard)
+        {
+            <span class="badge">@Level</span>
+        }
     </div>
 
     <h3 class="post-title">
@@ -17,7 +22,7 @@
 
     <p class="post-summary">@Summary</p>
 
-    @if (TechStack?.Any() == true)
+    @if (IsExtensiveArticleCard && TechStack?.Any() == true)
     {
         <div class="post-tech">
             @foreach (var tech in TechStack.Take(4))
@@ -27,14 +32,17 @@
         </div>
     }
 
-    <div class="post-footer">
-        <span>@Focus</span>
-        <a href="@Url"
+    @if (IsExtensiveArticleCard)
+    {
+        <div class="post-footer">
+            <span>@Focus</span>
+            <a href="@Url"
                class="read-btn"
                @onclick:stopPropagation="true">
-            Read →
-        </a>
-    </div>
+                Read →
+            </a>
+        </div>
+    }
 </article>
 
 @code {
@@ -45,6 +53,9 @@
     [Parameter] public string Focus { get; set; } = "Practical";
     [Parameter] public string Url { get; set; } = "#";
     [Parameter] public IEnumerable<string>? TechStack { get; set; }
+
+    private bool IsExtensiveArticleCard =>
+        Configuration.GetValue<bool>("Features:ExtensiveStandardArticleCard");
 
     private void OpenArticle()
     {
