@@ -135,6 +135,9 @@ else
     [SupplyParameterFromQuery(Name = "step")]
     public string? Step { get; set; }
 
+    [SupplyParameterFromQuery(Name = "visualization")]
+    public string? Visualization { get; set; }
+
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<CategoryItem> _categories = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
@@ -242,14 +245,22 @@ else
 
     private LearningPathVisualizationType ReadLearningPathVisualization()
     {
+        if (Enum.TryParse<LearningPathVisualizationType>(
+                Visualization,
+                ignoreCase: true,
+                out var queryVisualization))
+        {
+            return queryVisualization;
+        }
+
         var configuredValue = Configuration["LearningPath:Visualization"];
 
         if (Enum.TryParse<LearningPathVisualizationType>(
                 configuredValue,
                 ignoreCase: true,
-                out var visualization))
+                out var configuredVisualization))
         {
-            return visualization;
+            return configuredVisualization;
         }
 
         return LearningPathVisualizationType.DotnetVertical;
