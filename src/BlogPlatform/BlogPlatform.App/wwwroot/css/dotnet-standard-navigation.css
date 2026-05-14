@@ -111,28 +111,59 @@
     }
 
     .dotnet-zone-tab.learning-path-accent-foundation {
+        --zone-active-glow: rgba(16, 185, 129, .44);
         background: linear-gradient(135deg, #10b981, #0f8f7f);
     }
 
     .dotnet-zone-tab.learning-path-accent-web {
+        --zone-active-glow: rgba(14, 165, 233, .44);
         background: linear-gradient(135deg, #0ea5e9, #087fa9);
     }
 
     .dotnet-zone-tab.learning-path-accent-architecture {
+        --zone-active-glow: rgba(99, 102, 241, .52);
         background: linear-gradient(135deg, #6366f1, #4338ca);
     }
 
     .dotnet-zone-tab.learning-path-accent-cloud {
+        --zone-active-glow: rgba(125, 211, 252, .32);
         background: linear-gradient(135deg, #263449, #111827);
     }
 
-    .dotnet-zone-tab:hover,
-    .dotnet-zone-tab.active {
+    .dotnet-zone-tab:hover {
         transform: translateY(-2px);
-        border-color: rgba(191, 232, 255, .52);
-        box-shadow: 0 16px 34px rgba(0, 0, 0, .30), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 26px rgba(56, 189, 248, .12), inset 0 1px 0 rgba(255, 255, 255, .14);
-        filter: brightness(1.07);
+        border-color: rgba(191, 232, 255, .50);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, .30), 0 0 0 1px rgba(125, 211, 252, .12), 0 0 22px rgba(56, 189, 248, .12), inset 0 1px 0 rgba(255, 255, 255, .16);
+        filter: brightness(1.06) saturate(1.04);
     }
+
+    .dotnet-zone-tab.active {
+        transform: translateY(-6px) scale(1.035);
+        border-color: rgba(255, 255, 255, .72);
+        box-shadow: 0 24px 54px rgba(0, 0, 0, .46), 0 0 0 1px rgba(255, 255, 255, .18), 0 0 34px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .26);
+        filter: brightness(1.11) saturate(1.08);
+        z-index: 4;
+    }
+
+        .dotnet-zone-tab.active::after {
+            content: "";
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 8px;
+            height: 3px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .82);
+            box-shadow: 0 0 20px rgba(255, 255, 255, .55);
+            pointer-events: none;
+        }
+
+        .dotnet-zone-tab.active:hover {
+            transform: translateY(-7px) scale(1.04);
+            border-color: rgba(255, 255, 255, .82);
+            box-shadow: 0 28px 62px rgba(0, 0, 0, .50), 0 0 0 1px rgba(255, 255, 255, .22), 0 0 42px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .30);
+            filter: brightness(1.14) saturate(1.10);
+        }
 
 .dotnet-zone-tab-number {
     position: relative;
@@ -149,8 +180,6 @@
     flex-wrap: nowrap;
     align-items: center;
 }
-
-------
 
 .dotnet-standard-hero-eyebrow {
     gap: 0;
