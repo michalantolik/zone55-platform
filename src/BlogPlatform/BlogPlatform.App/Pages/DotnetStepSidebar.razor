@@ -1,30 +1,30 @@
 ﻿@using BlogPlatform.Contracts.DotnetRoadmap
 
 <div class="sidebar-inner dotnet-step-sidebar-inner">
-    <div class="dotnet-step-sidebar-heading @SelectedLevelAccentClass">
-        <span>@SelectedLevelTitle</span>
-    </div>
+    <div class="dotnet-step-sidebar-panel">
+        <div class="dotnet-step-sidebar-heading @SelectedLevelAccentClass">
+            <span>@SelectedLevelTitle</span>
+        </div>
 
-    @foreach (var step in Steps.OrderBy(step => step.StepOrder))
-    {
-        <a class="dotnet-step-pill @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
-           href="@GetStepUrl(step)">
-            <span class="dotnet-step-number">@step.StepOrder</span>
-            <span class="dotnet-step-copy">
-                <strong>@step.Title</strong>
-                <small>
-                    @(step.Posts.Count == 0
-                        ? "No articles yet"
-                        : $"{step.Posts.Count} article(s)")
-                </small>
-            </span>
-        </a>
-    }
+        <nav class="dotnet-step-list" aria-label="@($"{SelectedLevelTitle} steps")">
+            @foreach (var step in Steps.OrderBy(step => step.StepOrder))
+            {
+                <a class="dotnet-step-list-item @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
+                   href="@GetStepUrl(step)">
+                    <span class="dotnet-step-number">@step.StepOrder</span>
+                    <span class="dotnet-step-title">@step.Title</span>
+                </a>
+            }
+        </nav>
 
-    <div class="author-card dotnet-zone-context-card">
-        <small>About this zone</small>
-        <h5>@SelectedLevelTitle</h5>
-        <p>@SelectedLevelDescription</p>
+        <div class="dotnet-zone-context-card">
+            <div>
+                <small>About this zone</small>
+                <p>@SelectedLevelDescription</p>
+            </div>
+
+            <span class="dotnet-zone-context-icon" aria-hidden="true">▱</span>
+        </div>
     </div>
 </div>
 

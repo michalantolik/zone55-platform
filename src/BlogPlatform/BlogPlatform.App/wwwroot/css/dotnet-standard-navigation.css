@@ -110,19 +110,23 @@
     padding-top: 0;
 }
 
+.dotnet-step-sidebar-panel {
+    padding: 20px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(16, 32, 55, .82), rgba(8, 20, 38, .92));
+    border: 1px solid rgba(93, 128, 178, .28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px rgba(0, 0, 0, .18);
+}
+
 .dotnet-step-sidebar-heading {
-    margin-bottom: 16px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: transparent;
-    border: 0;
+    margin-bottom: 18px;
 }
 
     .dotnet-step-sidebar-heading span {
         display: block;
         text-transform: uppercase;
         letter-spacing: .16em;
-        font-size: .76rem;
+        font-size: .78rem;
         font-weight: 950;
         line-height: 1;
     }
@@ -143,97 +147,105 @@
         color: #cbd5e1;
     }
 
-.dotnet-step-pill {
+.dotnet-step-list {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 13px;
-    align-items: center;
-    min-height: 70px;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-    border-radius: 17px;
-    color: rgba(230, 239, 255, .86);
-    background: linear-gradient(180deg, rgba(23, 39, 65, .88), rgba(13, 27, 48, .94));
-    border: 1px solid rgba(93, 128, 178, .22);
-    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    gap: 8px;
 }
 
-    .dotnet-step-pill:hover,
-    .dotnet-step-pill.active {
-        transform: translateY(-2px);
+.dotnet-step-list-item {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    min-height: 44px;
+    padding: 7px 10px;
+    border-radius: 12px;
+    color: rgba(222, 235, 255, .84);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: transform .18s ease, color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+    .dotnet-step-list-item:hover,
+    .dotnet-step-list-item.active {
+        transform: translateX(2px);
         color: #ffffff;
-        border-color: rgba(125, 211, 252, .50);
-        box-shadow: 0 12px 26px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .10);
+        border-color: rgba(255, 255, 255, .12);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 10px 24px rgba(0, 0, 0, .16);
     }
 
-    .dotnet-step-pill.learning-path-accent-foundation:hover,
-    .dotnet-step-pill.learning-path-accent-foundation.active {
-        background: linear-gradient(135deg, rgba(18, 185, 129, .78), rgba(17, 126, 147, .72));
+    .dotnet-step-list-item.learning-path-accent-foundation:hover,
+    .dotnet-step-list-item.learning-path-accent-foundation.active {
+        background: linear-gradient(135deg, rgba(16, 185, 129, .86), rgba(15, 159, 141, .76));
     }
 
-    .dotnet-step-pill.learning-path-accent-web:hover,
-    .dotnet-step-pill.learning-path-accent-web.active {
-        background: linear-gradient(135deg, rgba(14, 165, 233, .78), rgba(8, 145, 178, .72));
+    .dotnet-step-list-item.learning-path-accent-web:hover,
+    .dotnet-step-list-item.learning-path-accent-web.active {
+        background: linear-gradient(135deg, rgba(14, 165, 233, .86), rgba(8, 145, 178, .76));
     }
 
-    .dotnet-step-pill.learning-path-accent-architecture:hover,
-    .dotnet-step-pill.learning-path-accent-architecture.active {
-        background: linear-gradient(135deg, rgba(99, 102, 241, .78), rgba(37, 99, 235, .72));
+    .dotnet-step-list-item.learning-path-accent-architecture:hover,
+    .dotnet-step-list-item.learning-path-accent-architecture.active {
+        background: linear-gradient(135deg, rgba(99, 102, 241, .86), rgba(37, 99, 235, .76));
     }
 
-    .dotnet-step-pill.learning-path-accent-cloud:hover,
-    .dotnet-step-pill.learning-path-accent-cloud.active {
-        background: linear-gradient(135deg, rgba(51, 65, 85, .86), rgba(15, 23, 42, .80));
+    .dotnet-step-list-item.learning-path-accent-cloud:hover,
+    .dotnet-step-list-item.learning-path-accent-cloud.active {
+        background: linear-gradient(135deg, rgba(51, 65, 85, .9), rgba(15, 23, 42, .82));
     }
 
 .dotnet-step-number {
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 15px;
-    color: #dff6ff;
-    background: rgba(36, 91, 128, .54);
-    border: 1px solid rgba(125, 211, 252, .24);
-    font-weight: 900;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    color: #0f2238;
+    background: rgba(255, 255, 255, .94);
+    border: 1px solid rgba(255, 255, 255, .52);
+    font-size: .86rem;
+    font-weight: 950;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, .18);
 }
 
-.dotnet-step-pill.active .dotnet-step-number,
-.dotnet-step-pill:hover .dotnet-step-number {
-    color: #062033;
-    background: rgba(255, 255, 255, .92);
-    border-color: rgba(255, 255, 255, .42);
-}
-
-.dotnet-step-copy strong {
-    display: block;
+.dotnet-step-title {
     color: inherit;
     font-size: .95rem;
+    font-weight: 850;
     line-height: 1.15;
 }
 
-.dotnet-step-copy small {
-    display: block;
-    margin-top: 4px;
-    color: rgba(190, 221, 255, .78);
-    font-size: .78rem;
-    font-weight: 800;
-}
-
-.dotnet-step-pill.active .dotnet-step-copy small,
-.dotnet-step-pill:hover .dotnet-step-copy small {
-    color: rgba(236, 253, 245, .88);
-}
-
 .dotnet-zone-context-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
     margin-top: 26px;
+    padding: 20px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(18, 40, 70, .54), rgba(11, 28, 52, .68));
+    border: 1px solid rgba(93, 128, 178, .30);
 }
 
-    .dotnet-zone-context-card h5 {
-        font-size: 1.25rem;
-        line-height: 1.12;
+    .dotnet-zone-context-card small {
+        display: block;
+        margin-bottom: 8px;
+        color: #7dd3fc;
+        font-size: .88rem;
+        font-weight: 850;
     }
+
+    .dotnet-zone-context-card p {
+        margin: 0;
+        color: rgba(210, 226, 250, .82);
+        font-size: .92rem;
+        line-height: 1.5;
+    }
+
+.dotnet-zone-context-icon {
+    color: rgba(219, 234, 254, .86);
+    font-size: 1.7rem;
+    line-height: 1;
+}
 
 .dotnet-standard-posts-area {
     background: linear-gradient(180deg, rgba(16, 31, 53, .98), rgba(11, 24, 43, .99));
