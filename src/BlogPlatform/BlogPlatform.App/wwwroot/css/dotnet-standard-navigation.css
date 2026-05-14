@@ -253,6 +253,7 @@
 
 .dotnet-standard-frame {
     grid-template-columns: 310px minmax(0, 1fr);
+    min-height: calc(100vh - 340px);
 }
 
 .dotnet-step-sidebar {
@@ -377,6 +378,7 @@
 }
 
 .dotnet-standard-posts-area {
+    min-height: 320px;
     background: linear-gradient(180deg, rgba(16, 31, 53, .98), rgba(11, 24, 43, .99));
 }
 
@@ -389,6 +391,9 @@
 }
 
 .dotnet-empty-step-card {
+    display: flex;
+    align-items: center;
+    min-height: 92px;
     padding: 28px;
     border-radius: 20px;
     color: var(--post-card-text);
