@@ -2,13 +2,20 @@
 @inject NavigationManager Navigation
 
 <nav class="dotnet-zone-top-nav" aria-label=".NET roadmap zones">
-    @foreach (var level in Levels)
+    @foreach (var level in Levels.OrderBy(level => level.Number))
     {
-        <a class="dotnet-zone-tab @level.AccentClass @(IsActive(level) ? "active" : null)"
+        <div class="dotnet-zone-tab-shell">
+            <a class="dotnet-zone-tab @level.AccentClass @(IsActive(level) ? "active" : null)"
                href="@GetZoneUrl(level)">
-            <span class="dotnet-zone-tab-number">@level.Number.ToString("00")</span>
-            <strong>@GetShortTitle(level.Title)</strong>
-        </a>
+                <span class="dotnet-zone-tab-number">@level.Number.ToString("00")</span>
+                <strong>@GetShortTitle(level.Title)</strong>
+            </a>
+
+            @if (!IsLast(level))
+            {
+                <span class="dotnet-zone-connector" aria-hidden="true"></span>
+            }
+        </div>
     }
 </nav>
 
@@ -28,6 +35,15 @@
         }
 
         return string.Equals(GetZoneKey(level), selectedZone, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool IsLast(LearningPathLevel level)
+    {
+        var lastLevel = Levels
+            .OrderBy(item => item.Number)
+            .LastOrDefault();
+
+        return lastLevel is not null && lastLevel.Number == level.Number;
     }
 
     private static string GetZoneUrl(LearningPathLevel level)
