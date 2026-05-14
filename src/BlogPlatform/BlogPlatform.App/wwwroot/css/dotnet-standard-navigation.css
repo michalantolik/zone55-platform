@@ -6,22 +6,25 @@
 }
 
 .dotnet-zone-top-nav {
+    --zone-tab-width: 148px;
+    --zone-gap: 50px;
+    --journey-dot-size: 10px;
     --journey-line: rgba(125, 211, 252, .38);
     --journey-glow: rgba(56, 189, 248, .28);
     position: relative;
     display: grid;
-    grid-template-columns: repeat(4, minmax(118px, 138px));
+    grid-template-columns: repeat(4, var(--zone-tab-width));
     justify-content: center;
     align-items: stretch;
-    gap: 50px;
+    column-gap: var(--zone-gap);
     isolation: isolate;
 }
 
     .dotnet-zone-top-nav::before {
         content: "";
         position: absolute;
-        left: calc(12.5% + 42px);
-        right: calc(12.5% + 42px);
+        left: calc(var(--zone-tab-width) / 2);
+        right: calc(var(--zone-tab-width) / 2);
         top: 50%;
         height: 2px;
         border-radius: 999px;
@@ -39,10 +42,10 @@
 
 .dotnet-zone-connector {
     position: absolute;
-    left: calc(100% + 16px);
+    left: calc(100% + (var(--zone-gap) / 2) - (var(--journey-dot-size) / 2));
     top: 50%;
-    width: 10px;
-    height: 10px;
+    width: var(--journey-dot-size);
+    height: var(--journey-dot-size);
     border-radius: 999px;
     transform: translateY(-50%);
     background: rgba(125, 211, 252, .92);
@@ -52,11 +55,26 @@
     pointer-events: none;
 }
 
+    .dotnet-zone-connector::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        transform: translate(-50%, -50%);
+        background: var(--journey-node);
+        border: 2px solid rgba(8, 22, 42, .98);
+        box-shadow: 0 0 0 5px rgba(125, 211, 252, .08), 0 0 18px rgba(125, 211, 252, .42);
+    }
+
 .dotnet-zone-tab {
     position: relative;
     display: grid;
     align-content: center;
     justify-items: start;
+    width: 100%;
     min-height: 78px;
     padding: 14px 18px 15px;
     border-radius: 14px;
@@ -441,14 +459,8 @@
 
     .dotnet-zone-top-nav {
         order: 3;
-        grid-template-columns: repeat(4, minmax(106px, 132px));
         justify-content: flex-start;
     }
-
-        .dotnet-zone-top-nav::before {
-            left: 48px;
-            right: calc(100% - 626px);
-        }
 
     .utility-menu {
         justify-content: flex-start;
@@ -461,10 +473,9 @@
         gap: 12px;
     }
 
-        .dotnet-zone-top-nav::before,
-        .dotnet-zone-connector {
-            display: none;
-        }
+    .dotnet-zone-connector {
+        display: none;
+    }
 
     .dotnet-standard-frame {
         grid-template-columns: 1fr;
