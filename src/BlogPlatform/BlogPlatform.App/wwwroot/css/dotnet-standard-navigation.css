@@ -120,10 +120,18 @@
 
 .dotnet-step-sidebar-heading {
     margin-bottom: 18px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
 }
 
     .dotnet-step-sidebar-heading span {
         display: block;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
         text-transform: uppercase;
         letter-spacing: .16em;
         font-size: .78rem;
@@ -316,7 +324,6 @@
         display: none;
     }
 
-    .dotnet-step-sidebar-heading,
     .dotnet-standard-section-header {
         padding: 20px;
     }
