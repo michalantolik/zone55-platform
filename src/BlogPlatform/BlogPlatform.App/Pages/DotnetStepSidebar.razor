@@ -16,15 +16,6 @@
                 </a>
             }
         </nav>
-
-        <div class="dotnet-zone-context-card">
-            <div>
-                <small>About this zone</small>
-                <p>@SelectedLevelDescription</p>
-            </div>
-
-            <span class="dotnet-zone-context-icon" aria-hidden="true">▱</span>
-        </div>
     </div>
 </div>
 
@@ -40,9 +31,6 @@
     private IReadOnlyCollection<LearningPathStep> Steps => SelectedLevel?.Steps ?? [];
 
     private string SelectedLevelTitle => SelectedLevel?.Title ?? "Foundation";
-
-    private string SelectedLevelDescription =>
-        SelectedLevel?.Description ?? "Core building blocks of C# and .NET development.";
 
     private string SelectedLevelAccentClass =>
         SelectedLevel?.AccentClass ?? "learning-path-accent-foundation";

@@ -98,6 +98,33 @@
         font-size: clamp(2.6rem, 5.2vw, 4.2rem);
     }
 
+.dotnet-standard-hero-actions {
+    margin-top: 22px;
+}
+
+    .dotnet-standard-hero-actions a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 11px 16px;
+        border-radius: 14px;
+        color: #7dd3fc;
+        background: rgba(8, 22, 42, .58);
+        border: 1px solid rgba(125, 211, 252, .34);
+        font-size: .92rem;
+        font-weight: 900;
+        text-decoration: none;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+        .dotnet-standard-hero-actions a:hover {
+            transform: translateY(-1px);
+            color: #ffffff;
+            background: rgba(14, 45, 78, .72);
+            border-color: rgba(125, 211, 252, .58);
+        }
+
 .dotnet-standard-frame {
     grid-template-columns: 310px minmax(0, 1fr);
 }
@@ -223,49 +250,16 @@
     line-height: 1.15;
 }
 
-.dotnet-zone-context-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 14px;
-    margin-top: 26px;
-    padding: 20px;
-    border-radius: 18px;
-    background: linear-gradient(180deg, rgba(18, 40, 70, .54), rgba(11, 28, 52, .68));
-    border: 1px solid rgba(93, 128, 178, .30);
-}
-
-    .dotnet-zone-context-card small {
-        display: block;
-        margin-bottom: 8px;
-        color: #7dd3fc;
-        font-size: .88rem;
-        font-weight: 850;
-    }
-
-    .dotnet-zone-context-card p {
-        margin: 0;
-        color: rgba(210, 226, 250, .82);
-        font-size: .92rem;
-        line-height: 1.5;
-    }
-
-.dotnet-zone-context-icon {
-    color: rgba(219, 234, 254, .86);
-    font-size: 1.7rem;
-    line-height: 1;
-}
-
 .dotnet-standard-posts-area {
     background: linear-gradient(180deg, rgba(16, 31, 53, .98), rgba(11, 24, 43, .99));
 }
 
 .dotnet-standard-section-header {
-    padding: 26px;
-    margin-bottom: 26px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(20, 48, 82, .78), rgba(10, 28, 54, .94));
-    border: 1px solid rgba(88, 131, 190, .20);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    padding: 0;
+    margin-bottom: 18px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
 }
 
 .dotnet-empty-step-card {
@@ -322,9 +316,5 @@
 
     .dotnet-zone-tab::after {
         display: none;
-    }
-
-    .dotnet-standard-section-header {
-        padding: 20px;
     }
 }
