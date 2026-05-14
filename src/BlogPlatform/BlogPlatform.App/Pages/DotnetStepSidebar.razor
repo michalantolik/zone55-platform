@@ -1,15 +1,14 @@
 ﻿@using BlogPlatform.Contracts.DotnetRoadmap
 
 <div class="sidebar-inner dotnet-step-sidebar-inner">
-    <div class="dotnet-step-sidebar-heading">
+    <div class="dotnet-step-sidebar-heading @SelectedLevelAccentClass">
         <span>@SelectedLevelTitle</span>
-        <strong>Choose a step</strong>
     </div>
 
     @foreach (var step in Steps.OrderBy(step => step.StepOrder))
     {
         <a class="dotnet-step-pill @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
-               href="@GetStepUrl(step)">
+           href="@GetStepUrl(step)">
             <span class="dotnet-step-number">@step.StepOrder</span>
             <span class="dotnet-step-copy">
                 <strong>@step.Title</strong>

@@ -112,27 +112,35 @@
 
 .dotnet-step-sidebar-heading {
     margin-bottom: 16px;
-    padding: 18px 18px 16px;
-    border-radius: 20px;
-    background: linear-gradient(180deg, rgba(18, 35, 60, .92), rgba(10, 23, 42, .95));
-    border: 1px solid rgba(98, 139, 196, .20);
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: transparent;
+    border: 0;
 }
 
     .dotnet-step-sidebar-heading span {
         display: block;
-        color: var(--section-kicker-text);
         text-transform: uppercase;
-        letter-spacing: .14em;
-        font-size: .72rem;
-        font-weight: 900;
+        letter-spacing: .16em;
+        font-size: .76rem;
+        font-weight: 950;
+        line-height: 1;
     }
 
-    .dotnet-step-sidebar-heading strong {
-        display: block;
-        margin-top: 8px;
-        color: #ffffff;
-        font-size: 1.1rem;
-        line-height: 1.1;
+    .dotnet-step-sidebar-heading.learning-path-accent-foundation span {
+        color: #34d399;
+    }
+
+    .dotnet-step-sidebar-heading.learning-path-accent-web span {
+        color: #38bdf8;
+    }
+
+    .dotnet-step-sidebar-heading.learning-path-accent-architecture span {
+        color: #818cf8;
+    }
+
+    .dotnet-step-sidebar-heading.learning-path-accent-cloud span {
+        color: #cbd5e1;
     }
 
 .dotnet-step-pill {
