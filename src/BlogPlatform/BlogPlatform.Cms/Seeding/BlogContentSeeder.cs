@@ -452,12 +452,12 @@ public sealed class BlogContentSeeder
             bodyBlocks: CreateArchitectureArticleBlocks());
 
         CreateOrUpdateArticle(
-            name: "ASP.NET Core Web API Fundamentals: Getting Acquainted with ASP.NET Core",
+            name: "ASP.NET Core Web API Fundamentals",
             slug: "aspnet-core-web-api-fundamentals-getting-acquainted",
             categorySlug: "backend-dotnet",
             level: "Beginner",
             focus: "Course Notes",
-            summary: "A standalone study note explaining the ASP.NET Core Web API project structure, hosting model, dependency injection, middleware pipeline, environments, Swagger, CLI usage, and MVC vs Minimal API approaches.",
+            summary: "A standalone study note explaining the ASP.NET Core Web API.",
             tags: new[] { ".NET", "ASP.NET Core", "Web API", "Middleware", "Swagger", "Dependency Injection" },
             bodyBlocks: new List<SeedBlock>
             {
