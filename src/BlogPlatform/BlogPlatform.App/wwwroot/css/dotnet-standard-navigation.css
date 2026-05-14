@@ -1,9 +1,17 @@
 ﻿.dotnet-platform-top-nav {
     display: grid;
-    grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+    grid-template-columns: minmax(390px, 420px) minmax(0, 1fr);
     align-items: center;
     gap: 22px;
 }
+
+    .dotnet-platform-top-nav .brand {
+        min-width: 0;
+    }
+
+        .dotnet-platform-top-nav .brand strong {
+            white-space: nowrap;
+        }
 
 .dotnet-zone-top-nav {
     --zone-tab-width: 148px;
