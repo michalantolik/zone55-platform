@@ -8,7 +8,7 @@
 
     @foreach (var step in Steps.OrderBy(step => step.StepOrder))
     {
-        <a class="dotnet-step-pill @(IsActive(step) ? "active" : null)"
+        <a class="dotnet-step-pill @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
                href="@GetStepUrl(step)">
             <span class="dotnet-step-number">@step.StepOrder</span>
             <span class="dotnet-step-copy">
@@ -44,6 +44,9 @@
 
     private string SelectedLevelDescription =>
         SelectedLevel?.Description ?? "Core building blocks of C# and .NET development.";
+
+    private string SelectedLevelAccentClass =>
+        SelectedLevel?.AccentClass ?? "learning-path-accent-foundation";
 
     private bool IsActive(LearningPathStep step) =>
         SelectedStep is not null &&
