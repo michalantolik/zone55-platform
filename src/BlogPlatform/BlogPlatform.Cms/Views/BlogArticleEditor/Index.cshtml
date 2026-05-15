@@ -396,9 +396,6 @@
                 <label class="field-label" for="summary">Summary</label>
                 <textarea id="summary"></textarea>
 
-                <label class="field-label" for="articleCategory">Category</label>
-                <select id="articleCategory"></select>
-
                 <label class="field-label" for="dotnetZone">Dotnet Zone</label>
                 <select id="dotnetZone"></select>
 
@@ -548,10 +545,10 @@
             ];
 
             const dotnetZones = @Html.Raw(JsonSerializer.Serialize(
-                DotnetRoadmapCatalog.ZoneDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
+                            DotnetRoadmapCatalog.ZoneDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
 
             const dotnetZoneSteps = @Html.Raw(JsonSerializer.Serialize(
-                DotnetRoadmapCatalog.StepDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
+                            DotnetRoadmapCatalog.StepDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
 
             const frame = document.getElementById("previewFrame");
 
@@ -559,7 +556,6 @@
                 "title",
                 "slug",
                 "summary",
-                "articleCategory",
                 "dotnetZone",
                 "dotnetZoneStep",
                 "tags",
@@ -571,7 +567,6 @@
             document.addEventListener("DOMContentLoaded", async () => {
                 initializeResizablePanes();
 
-                await loadCategories();
                 loadDotnetRoadmapOptions();
 
                 attachFieldListeners();
@@ -682,22 +677,6 @@
                 setTimeout(sendPreviewUpdate, 1500);
             }
 
-            async function loadCategories() {
-                const response = await fetch("/api/blog-content/categories");
-                const categories = await response.json();
-                const articleCategory = document.getElementById("articleCategory");
-
-                articleCategory.innerHTML = "";
-
-                for (const category of categories) {
-                    articleCategory.innerHTML += `
-                        <option value="${escapeHtml(category.slug)}">
-                            ${escapeHtml(category.name)}
-                        </option>
-                    `;
-                }
-            }
-
             function loadDotnetRoadmapOptions() {
                 fillSelect("dotnetZone", dotnetZones);
                 fillSelect("dotnetZoneStep", dotnetZoneSteps);
@@ -750,7 +729,6 @@
                 setValue("title", article.title);
                 setValue("slug", article.slug);
                 setValue("summary", article.summary);
-                setValue("articleCategory", article.categorySlug);
                 setValue("dotnetZone", article.dotnetZone || "foundation");
                 setValue("dotnetZoneStep", article.dotnetZoneStep || "basic-syntax");
                 setValue("tags", article.tags);
@@ -832,7 +810,6 @@
                     title: value("title"),
                     slug: value("slug"),
                     summary: value("summary"),
-                    categorySlug: value("articleCategory"),
                     dotnetZone: value("dotnetZone"),
                     dotnetZoneStep: value("dotnetZoneStep"),
                     tags: value("tags"),
@@ -849,8 +826,7 @@
                     slug: value("slug"),
                     title: value("title"),
                     summary: value("summary"),
-                    category: selectedText("articleCategory"),
-                    categorySlug: value("articleCategory"),
+                    category: selectedText("dotnetZoneStep"),
                     level: currentLevel,
                     focus: currentFocus,
                     dotnetZone: value("dotnetZone"),
@@ -1353,7 +1329,6 @@
                     value("title").trim() &&
                     value("slug").trim() &&
                     value("summary").trim() &&
-                    value("articleCategory").trim() &&
                     value("dotnetZone").trim() &&
                     value("dotnetZoneStep").trim() &&
                     value("tags").trim() &&
@@ -1380,7 +1355,6 @@
                     title: value("title"),
                     slug: value("slug"),
                     summary: value("summary"),
-                    categorySlug: value("articleCategory"),
                     tags: value("tags"),
                     bodyBlocks: getBodyBlocksForSave(),
                     level: currentLevel,

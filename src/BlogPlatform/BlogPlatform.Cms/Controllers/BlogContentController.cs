@@ -73,13 +73,8 @@ public sealed class BlogContentController : ControllerBase
     public ActionResult<IReadOnlyCollection<CmsArticleListItemDto>> GetArticles(
         [FromQuery] string? categorySlug = null)
     {
-        var categories = GetCategoryDictionary();
-
         var posts = GetRootArticles()
-            .Select(content => MapArticleListItem(content, categories))
-            .Where(article =>
-                string.IsNullOrWhiteSpace(categorySlug) ||
-                string.Equals(article.CategorySlug, categorySlug, StringComparison.OrdinalIgnoreCase))
+            .Select(MapArticleListItem)
             .OrderByDescending(article => article.PublishedDate)
             .ThenBy(article => article.Title)
             .ToList();
@@ -98,16 +93,11 @@ public sealed class BlogContentController : ControllerBase
             return NotFound();
         }
 
-        var categories = GetCategoryDictionary();
-        var category = ResolveCategory(article, categories);
-
         return Ok(new CmsArticleEditorDto(
             article.Key,
             GetString(article, BlogContentAliases.Title) ?? article.Name ?? "Untitled",
             GetString(article, BlogContentAliases.Slug) ?? CreateSlug(article.Name ?? "article"),
             GetString(article, BlogContentAliases.Summary) ?? string.Empty,
-            category.Name,
-            category.Slug,
             GetString(article, BlogContentAliases.Level) ?? "Draft",
             GetString(article, BlogContentAliases.Focus) ?? "Preview",
             GetString(article, BlogContentAliases.DotnetZone) ?? DotnetZoneKeys.Foundation,
@@ -128,15 +118,6 @@ public sealed class BlogContentController : ControllerBase
             return NotFound(new CmsDeleteResponse(false, "Category not found."));
         }
 
-        var articlesUsingCategory = GetRootArticles()
-            .Count(article => IsArticleAssignedToCategory(article, key));
-
-        if (articlesUsingCategory > 0)
-        {
-            return BadRequest(new CmsDeleteResponse(
-                false,
-                $"Cannot delete category because {articlesUsingCategory} article{(articlesUsingCategory == 1 ? string.Empty : "s")} still use it."));
-        }
 
         try
         {
@@ -214,15 +195,6 @@ public sealed class BlogContentController : ControllerBase
     public ActionResult<CmsSaveArticleResponse> CreateArticle(
         [FromBody] CmsSaveArticleRequest request)
     {
-        var category = FindCategoryBySlug(request.CategorySlug);
-
-        if (category is null)
-        {
-            return BadRequest(new CmsSaveArticleResponse(
-                false,
-                Guid.Empty,
-                "Category not found."));
-        }
 
         if (!IsValidDotnetRoadmapAssignment(request, out var validationMessage))
         {
@@ -234,7 +206,7 @@ public sealed class BlogContentController : ControllerBase
             -1,
             BlogContentAliases.BlogArticle);
 
-        ApplyArticleValues(article, request, category);
+        ApplyArticleValues(article, request);
 
         _contentService.Save(article);
         var result = _contentService.Publish(article, new[] { "*" });
@@ -262,22 +234,13 @@ public sealed class BlogContentController : ControllerBase
             return NotFound();
         }
 
-        var category = FindCategoryBySlug(request.CategorySlug);
-
-        if (category is null)
-        {
-            return BadRequest(new CmsSaveArticleResponse(
-                false,
-                key,
-                "Category not found."));
-        }
 
         if (!IsValidDotnetRoadmapAssignment(request, out var validationMessage))
         {
             return BadRequest(new CmsSaveArticleResponse(false, key, validationMessage));
         }
 
-        ApplyArticleValues(article, request, category);
+        ApplyArticleValues(article, request);
 
         _contentService.Save(article);
         var result = _contentService.Publish(article, new[] { "*" });
@@ -292,12 +255,8 @@ public sealed class BlogContentController : ControllerBase
                 : "Unable to update article."));
     }
 
-    private CmsArticleListItemDto MapArticleListItem(
-        IContent content,
-        IReadOnlyDictionary<Guid, CmsCategoryDto> categories)
+    private CmsArticleListItemDto MapArticleListItem(IContent content)
     {
-        var category = ResolveCategory(content, categories);
-
         var tags = GetString(content, BlogContentAliases.Tags)?
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(tag => !string.IsNullOrWhiteSpace(tag))
@@ -312,9 +271,6 @@ public sealed class BlogContentController : ControllerBase
             GetString(content, BlogContentAliases.Slug) ?? CreateSlug(title),
             title,
             GetString(content, BlogContentAliases.Summary) ?? string.Empty,
-            category.Name,
-            category.Name,
-            category.Slug,
             GetString(content, BlogContentAliases.Level) ?? "Intermediate",
             GetString(content, BlogContentAliases.Focus) ?? "Practical",
             GetString(content, BlogContentAliases.DotnetZone) ?? DotnetZoneKeys.Foundation,
@@ -327,8 +283,7 @@ public sealed class BlogContentController : ControllerBase
 
     private void ApplyArticleValues(
         IContent article,
-        CmsSaveArticleRequest request,
-        IContent category)
+        CmsSaveArticleRequest request)
     {
         var title = string.IsNullOrWhiteSpace(request.Title)
             ? "Untitled article"
@@ -346,9 +301,6 @@ public sealed class BlogContentController : ControllerBase
         article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
         article.SetValue(BlogContentAliases.BodyBlocks, request.BodyBlocks ?? string.Empty);
 
-        article.SetValue(
-            BlogContentAliases.Category,
-            $"umb://document/{category.Key:N}");
 
         if (!article.GetValue<DateTime?>(BlogContentAliases.PublishedDate).HasValue)
         {
@@ -402,69 +354,6 @@ public sealed class BlogContentController : ControllerBase
             .ToList();
     }
 
-    private IReadOnlyDictionary<Guid, CmsCategoryDto> GetCategoryDictionary()
-    {
-        return GetRootCategories()
-            .ToDictionary(
-                content => content.Key,
-                content => new CmsCategoryDto(
-                    GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "uncategorized"),
-                    GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Uncategorized"));
-    }
-
-    private IContent? FindCategoryBySlug(string? categorySlug)
-    {
-        if (string.IsNullOrWhiteSpace(categorySlug))
-        {
-            return null;
-        }
-
-        return GetRootCategories()
-            .FirstOrDefault(content =>
-                string.Equals(
-                    GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? string.Empty),
-                    categorySlug,
-                    StringComparison.OrdinalIgnoreCase));
-    }
-
-    private static CmsCategoryDto ResolveCategory(
-        IContent content,
-        IReadOnlyDictionary<Guid, CmsCategoryDto> categories)
-    {
-        var rawCategory = GetString(content, BlogContentAliases.Category);
-
-        if (!string.IsNullOrWhiteSpace(rawCategory))
-        {
-            var guidText = rawCategory
-                .Replace("umb://document/", string.Empty, StringComparison.OrdinalIgnoreCase)
-                .Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase);
-
-            if (Guid.TryParse(guidText, out var categoryKey) &&
-                categories.TryGetValue(categoryKey, out var category))
-            {
-                return category;
-            }
-        }
-
-        return new CmsCategoryDto("uncategorized", "Uncategorized");
-    }
-
-    private static bool IsArticleAssignedToCategory(IContent article, Guid categoryKey)
-    {
-        var rawCategory = GetString(article, BlogContentAliases.Category);
-
-        if (string.IsNullOrWhiteSpace(rawCategory))
-        {
-            return false;
-        }
-
-        var guidText = rawCategory
-            .Replace("umb://document/", string.Empty, StringComparison.OrdinalIgnoreCase)
-            .Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase);
-
-        return Guid.TryParse(guidText, out var resolvedCategoryKey) &&
-            resolvedCategoryKey == categoryKey;
-    }
 
     private static string? GetString(IContent content, string alias)
     {
@@ -511,9 +400,6 @@ public sealed class BlogContentController : ControllerBase
         string Slug,
         string Title,
         string Summary,
-        string Category,
-        string CategoryName,
-        string CategorySlug,
         string Level,
         string Focus,
         string? DotnetZone,
@@ -528,8 +414,6 @@ public sealed class BlogContentController : ControllerBase
         string Title,
         string Slug,
         string Summary,
-        string CategoryName,
-        string CategorySlug,
         string Level,
         string Focus,
         string? DotnetZone,
@@ -542,7 +426,6 @@ public sealed class BlogContentController : ControllerBase
         string Title,
         string Slug,
         string Summary,
-        string CategorySlug,
         string Tags,
         string BodyBlocks,
         string? Level,

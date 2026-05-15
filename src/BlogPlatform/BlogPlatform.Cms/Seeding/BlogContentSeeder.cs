@@ -99,7 +99,6 @@ public sealed class BlogContentSeeder
             CreateOrUpdateArticle(
                 name: article.Name,
                 slug: article.Slug,
-                categorySlug: article.CategorySlug,
                 level: article.Level,
                 focus: article.Focus,
                 summary: article.Summary,
@@ -254,11 +253,11 @@ public sealed class BlogContentSeeder
         }
 
         await RemovePropertyIfExistsAsync(contentType, ObsoleteBodyJsonAlias);
+        await RemovePropertyIfExistsAsync(contentType, "category");
 
         await AddPropertyAsync(contentType, BlogContentAliases.Title, "Title", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Slug, "Slug", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Summary, "Summary", "Textarea", "Content");
-        await AddPropertyAsync(contentType, BlogContentAliases.Category, "Category", "Content Picker", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Level, "Level", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Focus, "Focus", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.DotnetZone, "Dotnet Zone", "Textstring", "Content");
@@ -516,7 +515,6 @@ public sealed class BlogContentSeeder
     private void CreateOrUpdateArticle(
         string name,
         string slug,
-        string categorySlug,
         string level,
         string focus,
         string summary,
@@ -538,21 +536,10 @@ public sealed class BlogContentSeeder
 
         article ??= _contentService.Create(name, -1, BlogContentAliases.BlogArticle);
 
-        var category = FindCategoryBySlug(categorySlug);
-
-        if (category is null)
-        {
-            throw new InvalidOperationException($"Category not found: {categorySlug}");
-        }
-
         article.Name = name;
         article.SetValue(BlogContentAliases.Title, name);
         article.SetValue(BlogContentAliases.Slug, slug);
         article.SetValue(BlogContentAliases.Summary, summary);
-
-        article.SetValue(
-            BlogContentAliases.Category,
-            Udi.Create(Constants.UdiEntityType.Document, category.Key).ToString());
 
         article.SetValue(BlogContentAliases.Level, level);
         article.SetValue(BlogContentAliases.Focus, focus);
@@ -621,18 +608,6 @@ public sealed class BlogContentSeeder
         };
 
         return JsonSerializer.Serialize(blockListValue);
-    }
-
-    private IContent? FindCategoryBySlug(string slug)
-    {
-        return _contentService
-            .GetRootContent()
-            .FirstOrDefault(x =>
-                x.ContentType.Alias == BlogContentAliases.BlogCategory &&
-                string.Equals(
-                    x.GetValue<string>(BlogContentAliases.Slug),
-                    slug,
-                    StringComparison.OrdinalIgnoreCase));
     }
 
     private static SeedBlock TextBlock(string text)

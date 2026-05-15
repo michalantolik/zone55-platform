@@ -15,7 +15,6 @@ public static class BlogContentAliases
     public const string Title = "title";
     public const string Slug = "slug";
     public const string Summary = "summary";
-    public const string Category = "category";
     public const string Level = "level";
     public const string Focus = "focus";
     public const string DotnetZone = "dotnetZone";
