@@ -2,15 +2,31 @@
 
 namespace BlogPlatform.Domain.Entities;
 
-public class Post
+public sealed class Post
 {
-    public int Id { get; set; }
+    public string Slug { get; init; } = string.Empty;
 
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; init; } = string.Empty;
 
-    public string Content { get; set; } = string.Empty;
+    public string Summary { get; init; } = string.Empty;
 
-    public DateTime CreatedAt { get; set; }
+    public string Category { get; init; } = string.Empty;
 
-    public PostStatus Status { get; set; }
+    public string CategorySlug { get; init; } = string.Empty;
+
+    public string Level { get; init; } = string.Empty;
+
+    public string Focus { get; init; } = string.Empty;
+
+    public string? DotnetZone { get; init; }
+
+    public string? DotnetZoneStep { get; init; }
+
+    public IReadOnlyCollection<string> Tags { get; init; } = [];
+
+    public DateTimeOffset? PublishedDate { get; init; }
+
+    public string BodyHtml { get; init; } = string.Empty;
+
+    public PostStatus Status { get; init; } = PostStatus.Published;
 }

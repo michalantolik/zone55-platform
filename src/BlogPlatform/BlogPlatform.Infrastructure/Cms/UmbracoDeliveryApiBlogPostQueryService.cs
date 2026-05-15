@@ -1,5 +1,5 @@
 using BlogPlatform.Application.Posts;
-using BlogPlatform.Contracts.Posts;
+using BlogPlatform.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using System.Net.Http.Json;
 
 namespace BlogPlatform.Infrastructure.Cms;
 
-internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQueryService
+internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostRepository
 {
     private const string PostsCacheKey = "cms-post-details";
 
@@ -31,66 +31,13 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
         _cache = cache;
     }
 
-    public async Task<IReadOnlyCollection<PostListItemDto>> GetPublishedPostsAsync(
-        string? categorySlug,
+    public async Task<IReadOnlyCollection<Post>> GetPublishedPostsAsync(
         CancellationToken cancellationToken)
     {
-        var posts = await LoadPostDetailsAsync(cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(categorySlug))
-        {
-            posts = posts
-                .Where(post => string.Equals(
-                    post.CategorySlug,
-                    categorySlug,
-                    StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
-
-        return posts
-            .OrderByDescending(post => post.PublishedDate)
-            .Select(post => new PostListItemDto(
-                post.Slug,
-                post.Title,
-                post.Summary,
-                post.Category,
-                post.CategorySlug,
-                post.Level,
-                post.Focus,
-                post.DotnetZone,
-                post.DotnetZoneStep,
-                post.Tags,
-                post.PublishedDate))
-            .ToList();
+        return await LoadPostsAsync(cancellationToken);
     }
 
-    public async Task<PostDetailsDto?> GetPostBySlugAsync(
-        string slug,
-        CancellationToken cancellationToken)
-    {
-        var posts = await LoadPostDetailsAsync(cancellationToken);
-
-        return posts.FirstOrDefault(post =>
-            string.Equals(post.Slug, slug, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public async Task<IReadOnlyCollection<CategoryDto>> GetCategoriesAsync(
-        CancellationToken cancellationToken)
-    {
-        var posts = await LoadPostDetailsAsync(cancellationToken);
-
-        return posts
-            .GroupBy(post => new { post.CategorySlug, post.Category })
-            .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
-            .Select(group => new CategoryDto(
-                group.Key.CategorySlug,
-                group.Key.Category,
-                group.Count()))
-            .OrderBy(category => category.Name)
-            .ToList();
-    }
-
-    private async Task<List<PostDetailsDto>> LoadPostDetailsAsync(
+    private async Task<List<Post>> LoadPostsAsync(
         CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
@@ -99,7 +46,9 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
             cachedEntry is not null &&
             cachedEntry.FreshUntil > now)
         {
-            _logger.LogDebug("API CMS posts fresh cache hit. Count: {Count}", cachedEntry.Posts.Count);
+            _logger.LogDebug(
+                "API CMS posts fresh cache hit. Count: {Count}",
+                cachedEntry.Posts.Count);
 
             return cachedEntry.Posts;
         }
@@ -167,7 +116,7 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
         }
     }
 
-    private async Task<List<PostDetailsDto>> FetchPostsFromCmsAsync(
+    private async Task<List<Post>> FetchPostsFromCmsAsync(
         Stopwatch stopwatch,
         CancellationToken cancellationToken)
     {
@@ -189,11 +138,48 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostQuerySer
             response.EnsureSuccessStatusCode();
         }
 
-        return await response.Content.ReadFromJsonAsync<List<PostDetailsDto>>(
+        var posts = await response.Content.ReadFromJsonAsync<List<CmsPostDto>>(
             cancellationToken: cancellationToken) ?? [];
+
+        return posts
+            .Select(ToDomainPost)
+            .ToList();
+    }
+
+    private static Post ToDomainPost(CmsPostDto post)
+    {
+        return new Post
+        {
+            Slug = post.Slug,
+            Title = post.Title,
+            Summary = post.Summary,
+            Category = post.Category,
+            CategorySlug = post.CategorySlug,
+            Level = post.Level,
+            Focus = post.Focus,
+            DotnetZone = post.DotnetZone,
+            DotnetZoneStep = post.DotnetZoneStep,
+            Tags = post.Tags,
+            PublishedDate = post.PublishedDate,
+            BodyHtml = post.BodyHtml
+        };
     }
 
     private sealed record PostsCacheEntry(
-        List<PostDetailsDto> Posts,
+        List<Post> Posts,
         DateTimeOffset FreshUntil);
+
+    private sealed record CmsPostDto(
+        string Slug,
+        string Title,
+        string Summary,
+        string Category,
+        string CategorySlug,
+        string Level,
+        string Focus,
+        string? DotnetZone,
+        string? DotnetZoneStep,
+        IReadOnlyCollection<string> Tags,
+        DateTimeOffset? PublishedDate,
+        string BodyHtml);
 }

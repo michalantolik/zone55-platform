@@ -31,7 +31,7 @@ public static class DependencyInjection
                 "UmbracoDeliveryApi:TimeoutSeconds must be greater than zero.")
             .ValidateOnStart();
 
-        services.AddHttpClient<IBlogPostQueryService, UmbracoDeliveryApiBlogPostQueryService>(
+        services.AddHttpClient<IBlogPostRepository, UmbracoDeliveryApiBlogPostQueryService>(
             (serviceProvider, client) =>
             {
                 var options = serviceProvider
