@@ -38,8 +38,7 @@
     else
     {
         <section class="content-frame content-frame-learning-path container-xl">
-            <LearningPathView Levels="@_learningPathLevels"
-                              Visualization="@_learningPathVisualization" />
+            <LearningPathView Levels="@_learningPathLevels" />
         </section>
     }
 }
@@ -176,13 +175,9 @@ else
     [SupplyParameterFromQuery(Name = "article")]
     public string? ArticleSlug { get; set; }
 
-    [SupplyParameterFromQuery(Name = "visualization")]
-    public string? Visualization { get; set; }
-
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<CategoryItem> _categories = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
-    private LearningPathVisualizationType _learningPathVisualization;
     private PostDetails? _selectedArticle;
     private bool _isLoading = true;
     private int _currentArticlePage = 1;
@@ -269,14 +264,12 @@ else
                 ?.Index + 1 ?? 1;
 
     private string SelectedStepUrl =>
-        $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&visualization={LearningPathVisualizationType.DotnetZones}";
+        $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}";
 
     protected override async Task OnParametersSetAsync()
     {
         _isLoading = true;
         _selectedArticle = null;
-
-        _learningPathVisualization = ReadLearningPathVisualization();
 
         var homeContent = await BlogApi.GetHomeContentAsync(IsLearningPathView ? Category : null);
 
@@ -321,7 +314,7 @@ else
 
     private string GetInlineArticleUrl(string slug)
     {
-        return $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&article={Uri.EscapeDataString(slug)}&visualization={LearningPathVisualizationType.DotnetZones}";
+        return $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&article={Uri.EscapeDataString(slug)}";
     }
 
     private static string GetZoneKey(LearningPathLevel level) =>
@@ -351,29 +344,6 @@ else
         }
 
         return null;
-    }
-
-    private LearningPathVisualizationType ReadLearningPathVisualization()
-    {
-        if (Enum.TryParse<LearningPathVisualizationType>(
-                Visualization,
-                ignoreCase: true,
-                out var queryVisualization))
-        {
-            return queryVisualization;
-        }
-
-        var configuredValue = Configuration["LearningPath:Visualization"];
-
-        if (Enum.TryParse<LearningPathVisualizationType>(
-                configuredValue,
-                ignoreCase: true,
-                out var configuredVisualization))
-        {
-            return configuredVisualization;
-        }
-
-        return LearningPathVisualizationType.DotnetVertical;
     }
 }
 

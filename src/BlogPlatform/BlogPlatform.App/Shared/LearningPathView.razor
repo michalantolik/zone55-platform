@@ -1,5 +1,4 @@
-﻿@using BlogPlatform.App.Models
-@using BlogPlatform.Contracts.DotnetRoadmap
+﻿@using BlogPlatform.Contracts.DotnetRoadmap
 
 <section class="learning-path-shell">
     <div class="learning-path-header">
@@ -12,86 +11,46 @@
         </a>
     </div>
 
-    @if (Visualization == LearningPathVisualizationType.DotnetZones)
-    {
-        <div class="learning-path-journey">
-            @foreach (var level in Levels)
-            {
-                <div class="learning-path-zone-header @level.AccentClass">
-                    <span>Zone @level.Number</span>
-                    <h3>@level.Title</h3>
-                </div>
-            }
+    <div class="learning-path-journey">
+        @foreach (var level in Levels)
+        {
+            <div class="learning-path-zone-header @level.AccentClass">
+                <span>Zone @level.Number</span>
+                <h3>@level.Title</h3>
+            </div>
+        }
 
-            @foreach (var level in Levels)
-            {
-                <div class="learning-path-zone-steps">
-                    @foreach (var step in level.Steps)
-                    {
-                        <a class="learning-path-zone-step" href="@GetStepUrl(level, step)">
-                            <span>@step.StepOrder</span>
+        @foreach (var level in Levels)
+        {
+            <div class="learning-path-zone-steps">
+                @foreach (var step in level.Steps)
+                {
+                    <a class="learning-path-zone-step" href="@GetStepUrl(level, step)">
+                        <span>@step.StepOrder</span>
 
-                            <strong>@step.Title</strong>
+                        <strong>@step.Title</strong>
 
-                            <small>
-                                @(step.Posts.Count == 0
-                                    ? "No articles yet"
-                                    : $"{step.Posts.Count} article(s)")
-                            </small>
-                        </a>
-                    }
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="learning-path-vertical">
-            @foreach (var level in Levels)
-            {
-                <section class="learning-path-level" id="level-@level.Number">
-                    <div class="learning-path-level-marker @level.AccentClass">
-                        @level.Number
-                    </div>
-
-                    <div class="learning-path-level-card">
-                        <div class="learning-path-level-top">
-                            <div>
-                                <span>Level @level.Number</span>
-                                <h3>@level.Title</h3>
-                                <p>@level.Description</p>
-                            </div>
-
-                            <a href="#level-@level.Number" class="learning-path-open-button">
-                                Open Level
-                            </a>
-                        </div>
-
-                        <div class="learning-path-step-grid">
-                            @foreach (var step in level.Steps)
-                            {
-                                <RenderStepCard Step="step" />
-                            }
-                        </div>
-                    </div>
-                </section>
-            }
-        </div>
-    }
+                        <small>
+                            @(step.Posts.Count == 0
+                                ? "No articles yet"
+                                : $"{step.Posts.Count} article(s)")
+                        </small>
+                    </a>
+                }
+            </div>
+        }
+    </div>
 </section>
 
 @code {
     [Parameter]
     public IReadOnlyCollection<LearningPathLevel> Levels { get; set; } = [];
 
-    [Parameter]
-    public LearningPathVisualizationType Visualization { get; set; }
-
     private static string GetStepUrl(
         LearningPathLevel level,
         LearningPathStep step)
     {
-        return $"/?zone={Uri.EscapeDataString(GetZoneKey(level))}&step={Uri.EscapeDataString(step.Key)}&visualization={LearningPathVisualizationType.DotnetZones}";
+        return $"/?zone={Uri.EscapeDataString(GetZoneKey(level))}&step={Uri.EscapeDataString(step.Key)}";
     }
 
     private static string GetZoneKey(LearningPathLevel level) =>
