@@ -7,22 +7,24 @@
          style="cursor: pointer;"
          @onclick="OpenArticle"
          @onkeydown="OpenArticleFromKeyboard">
-    @if (ArticleOrder is not null)
-    {
-        <span class="post-card-order-badge"
-              aria-label="Article @ArticleOrder in this step">
-            @ArticleOrder
-        </span>
-    }
-
-    <div class="post-card-top">
+    <div class="post-card-meta">
         <span class="post-card-category-pill">@Category</span>
 
-        @if (IsExtensiveArticleCard)
+        @if (ArticleOrder is not null)
         {
-            <span class="badge">@Level</span>
+            <span class="post-card-order-badge"
+                  aria-label="Article @ArticleOrder in this step">
+                @ArticleOrder
+            </span>
         }
     </div>
+
+    @if (IsExtensiveArticleCard)
+    {
+        <div class="post-card-top">
+            <span class="badge">@Level</span>
+        </div>
+    }
 
     <h3 class="post-title">
         <a href="@Url" @onclick:stopPropagation="true">@Title</a>
@@ -96,15 +98,27 @@
             box-shadow: 0 10px 40px rgba(59, 130, 246, .12), 0 0 0 4px rgba(56, 189, 248, .16);
         }
 
-    .post-card-top {
-        margin-bottom: 10px;
-        padding-right: 42px;
-    }
-
-    .post-card-order-badge {
+    .post-card-meta {
         position: absolute;
         top: 18px;
         right: 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 1;
+    }
+
+    .post-card-top {
+        margin-bottom: 10px;
+        padding-right: 190px;
+    }
+
+    .post-title,
+    .post-summary {
+        padding-right: 190px;
+    }
+
+    .post-card-order-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -134,11 +148,27 @@
         font-weight: 600;
         line-height: 1;
         letter-spacing: .01em;
+        white-space: nowrap;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+        transition: border-color .22s ease, background .22s ease, color .22s ease;
     }
 
     .post-card-compact .post-summary {
         margin-bottom: 0;
+    }
+
+    @@media (max-width: 700px) {
+        .post-card-meta {
+            position: static;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .post-card-top,
+        .post-title,
+        .post-summary {
+            padding-right: 0;
+        }
     }
 
     @@media (prefers-reduced-motion: reduce) {
