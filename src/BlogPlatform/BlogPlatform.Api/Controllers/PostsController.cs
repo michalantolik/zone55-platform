@@ -29,7 +29,7 @@ public sealed class PostsController : ControllerBase
     {
         var posts = await _posts.GetPublishedPostsAsync(category, cancellationToken);
 
-        return Ok(posts);
+        return Ok(posts.Select(ToDto).ToList());
     }
 
     [HttpGet("home")]
@@ -45,12 +45,16 @@ public sealed class PostsController : ControllerBase
             category,
             cancellationToken);
 
+        var dto = new BlogHomeContentDto(
+            result.Categories.Select(ToDto).ToList(),
+            result.Posts.Select(ToDto).ToList());
+
         _logger.LogInformation(
             "API loaded home content. Categories: {CategoryCount}. Posts: {PostCount}",
-            result.Categories.Count,
-            result.Posts.Count);
+            dto.Categories.Count,
+            dto.Posts.Count);
 
-        return Ok(result);
+        return Ok(dto);
     }
 
     [HttpGet("categories")]
@@ -59,7 +63,7 @@ public sealed class PostsController : ControllerBase
     {
         var categories = await _posts.GetCategoriesAsync(cancellationToken);
 
-        return Ok(categories);
+        return Ok(categories.Select(ToDto).ToList());
     }
 
     [HttpGet("{slug}")]
@@ -71,6 +75,47 @@ public sealed class PostsController : ControllerBase
 
         return post is null
             ? NotFound()
-            : Ok(post);
+            : Ok(ToDto(post));
+    }
+
+    private static CategoryDto ToDto(CategorySummary category)
+    {
+        return new CategoryDto(
+            category.Slug,
+            category.Name,
+            category.Count);
+    }
+
+    private static PostListItemDto ToDto(PostListItem post)
+    {
+        return new PostListItemDto(
+            post.Slug,
+            post.Title,
+            post.Summary,
+            post.Category,
+            post.CategorySlug,
+            post.Level,
+            post.Focus,
+            post.DotnetZone,
+            post.DotnetZoneStep,
+            post.Tags,
+            post.PublishedDate);
+    }
+
+    private static PostDetailsDto ToDto(PostDetails post)
+    {
+        return new PostDetailsDto(
+            post.Slug,
+            post.Title,
+            post.Summary,
+            post.Category,
+            post.CategorySlug,
+            post.Level,
+            post.Focus,
+            post.DotnetZone,
+            post.DotnetZoneStep,
+            post.Tags,
+            post.PublishedDate,
+            post.BodyHtml);
     }
 }

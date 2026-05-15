@@ -1,17 +1,15 @@
-﻿using BlogPlatform.Contracts.Posts;
-
-namespace BlogPlatform.Application.Posts;
+﻿namespace BlogPlatform.Application.Posts;
 
 public interface IBlogPostQueryService
 {
-    Task<IReadOnlyCollection<PostListItemDto>> GetPublishedPostsAsync(
+    Task<IReadOnlyCollection<PostListItem>> GetPublishedPostsAsync(
         string? categorySlug,
         CancellationToken cancellationToken);
 
-    Task<PostDetailsDto?> GetPostBySlugAsync(
+    Task<PostDetails?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<CategoryDto>> GetCategoriesAsync(
+    Task<IReadOnlyCollection<CategorySummary>> GetCategoriesAsync(
         CancellationToken cancellationToken);
 }

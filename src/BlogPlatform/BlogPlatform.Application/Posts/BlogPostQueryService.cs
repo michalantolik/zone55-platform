@@ -1,5 +1,4 @@
-﻿using BlogPlatform.Contracts.Posts;
-using BlogPlatform.Domain.Entities;
+﻿using BlogPlatform.Domain.Entities;
 
 namespace BlogPlatform.Application.Posts;
 
@@ -12,7 +11,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
         _posts = posts;
     }
 
-    public async Task<IReadOnlyCollection<PostListItemDto>> GetPublishedPostsAsync(
+    public async Task<IReadOnlyCollection<PostListItem>> GetPublishedPostsAsync(
         string? categorySlug,
         CancellationToken cancellationToken)
     {
@@ -30,11 +29,11 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
 
         return posts
             .OrderByDescending(post => post.PublishedDate)
-            .Select(ToListItemDto)
+            .Select(ToListItem)
             .ToList();
     }
 
-    public async Task<PostDetailsDto?> GetPostBySlugAsync(
+    public async Task<PostDetails?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken)
     {
@@ -45,10 +44,10 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
 
         return post is null
             ? null
-            : ToDetailsDto(post);
+            : ToDetails(post);
     }
 
-    public async Task<IReadOnlyCollection<CategoryDto>> GetCategoriesAsync(
+    public async Task<IReadOnlyCollection<CategorySummary>> GetCategoriesAsync(
         CancellationToken cancellationToken)
     {
         var posts = await _posts.GetPublishedPostsAsync(cancellationToken);
@@ -56,7 +55,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
         return posts
             .GroupBy(post => new { post.CategorySlug, post.Category })
             .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
-            .Select(group => new CategoryDto(
+            .Select(group => new CategorySummary(
                 group.Key.CategorySlug,
                 group.Key.Category,
                 group.Count()))
@@ -64,9 +63,9 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
             .ToList();
     }
 
-    private static PostListItemDto ToListItemDto(Post post)
+    private static PostListItem ToListItem(Post post)
     {
-        return new PostListItemDto(
+        return new PostListItem(
             post.Slug,
             post.Title,
             post.Summary,
@@ -80,9 +79,9 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
             post.PublishedDate);
     }
 
-    private static PostDetailsDto ToDetailsDto(Post post)
+    private static PostDetails ToDetails(Post post)
     {
-        return new PostDetailsDto(
+        return new PostDetails(
             post.Slug,
             post.Title,
             post.Summary,

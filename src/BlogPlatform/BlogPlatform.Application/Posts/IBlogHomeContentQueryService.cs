@@ -1,10 +1,8 @@
-﻿using BlogPlatform.Contracts.Posts;
-
-namespace BlogPlatform.Application.Posts;
+﻿namespace BlogPlatform.Application.Posts;
 
 public interface IBlogHomeContentQueryService
 {
-    Task<BlogHomeContentDto> GetHomeContentAsync(
+    Task<BlogHomeContent> GetHomeContentAsync(
         string? categorySlug,
         CancellationToken cancellationToken);
 }

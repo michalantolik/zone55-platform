@@ -1,6 +1,4 @@
-﻿using BlogPlatform.Contracts.Posts;
-
-namespace BlogPlatform.Application.Posts;
+﻿namespace BlogPlatform.Application.Posts;
 
 internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
 {
@@ -11,7 +9,7 @@ internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
         _posts = posts;
     }
 
-    public async Task<BlogHomeContentDto> GetHomeContentAsync(
+    public async Task<BlogHomeContent> GetHomeContentAsync(
         string? categorySlug,
         CancellationToken cancellationToken)
     {
@@ -20,7 +18,7 @@ internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
 
         await Task.WhenAll(categoriesTask, postsTask);
 
-        return new BlogHomeContentDto(
+        return new BlogHomeContent(
             await categoriesTask,
             await postsTask);
     }
