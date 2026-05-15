@@ -1,14 +1,17 @@
 ﻿@inject NavigationManager Navigation
 @inject IConfiguration Configuration
 
-<article class="post-card @(IsExtensiveArticleCard ? "post-card-extensive" : "post-card-compact")"
+<article class="@PostCardCssClass"
          role="link"
          tabindex="0"
          style="cursor: pointer;"
          @onclick="OpenArticle"
          @onkeydown="OpenArticleFromKeyboard">
     <div class="post-card-meta">
-        <span class="post-card-category-pill">@Category</span>
+        @if (ShouldShowArticleCardTag)
+        {
+            <span class="post-card-category-pill">@Category</span>
+        }
 
         @if (ArticleOrder is not null)
         {
@@ -118,6 +121,12 @@
         padding-right: 190px;
     }
 
+    .post-card-tag-collapsed .post-card-top,
+    .post-card-tag-collapsed .post-title,
+    .post-card-tag-collapsed .post-summary {
+        padding-right: 56px;
+    }
+
     .post-card-order-badge {
         display: inline-flex;
         align-items: center;
@@ -166,7 +175,10 @@
 
         .post-card-top,
         .post-title,
-        .post-summary {
+        .post-summary,
+        .post-card-tag-collapsed .post-card-top,
+        .post-card-tag-collapsed .post-title,
+        .post-card-tag-collapsed .post-summary {
             padding-right: 0;
         }
     }
@@ -194,6 +206,15 @@
 
     private bool IsExtensiveArticleCard =>
         Configuration.GetValue<bool>("Features:ExtensiveStandardArticleCard");
+
+    private bool ShouldCollapseArticleCardTag =>
+        Configuration.GetValue<bool>("Features:CollapseArticleCardTagByDefault");
+
+    private bool ShouldShowArticleCardTag =>
+        !ShouldCollapseArticleCardTag && !string.IsNullOrWhiteSpace(Category);
+
+    private string PostCardCssClass =>
+        $"post-card {(IsExtensiveArticleCard ? "post-card-extensive" : "post-card-compact")} {(ShouldShowArticleCardTag ? string.Empty : "post-card-tag-collapsed")}";
 
     private void OpenArticle()
     {
