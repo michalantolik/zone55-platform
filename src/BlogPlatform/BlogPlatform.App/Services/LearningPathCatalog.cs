@@ -29,9 +29,44 @@ public static class LearningPathCatalog
     {
         return posts
             .Where(post => IsMatch(step, post))
-            .OrderByDescending(post => post.PublishedDate)
+            .OrderBy(post => GetLevelOrder(post.Level))
+            .ThenByDescending(post => post.PublishedDate)
             .ThenBy(post => post.Title)
             .ToArray();
+    }
+
+    private static int GetLevelOrder(string? level)
+    {
+        if (string.IsNullOrWhiteSpace(level))
+        {
+            return 50;
+        }
+
+        var normalizedLevel = level.Trim();
+
+        if (normalizedLevel.Contains("beginner", StringComparison.OrdinalIgnoreCase)
+            || normalizedLevel.Contains("basic", StringComparison.OrdinalIgnoreCase)
+            || normalizedLevel.Contains("fundamental", StringComparison.OrdinalIgnoreCase))
+        {
+            return 10;
+        }
+
+        if (normalizedLevel.Contains("intermediate", StringComparison.OrdinalIgnoreCase))
+        {
+            return 20;
+        }
+
+        if (normalizedLevel.Contains("advanced", StringComparison.OrdinalIgnoreCase))
+        {
+            return 30;
+        }
+
+        if (normalizedLevel.Contains("expert", StringComparison.OrdinalIgnoreCase))
+        {
+            return 40;
+        }
+
+        return 50;
     }
 
     private static bool IsMatch(LearningPathStep step, PostListItem post)

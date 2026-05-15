@@ -8,6 +8,11 @@
          @onclick="OpenArticle"
          @onkeydown="OpenArticleFromKeyboard">
     <div class="post-card-top">
+        @if (ArticleOrder is not null)
+        {
+            <span class="post-card-order-chip" aria-label="Article @ArticleOrder in this step">@ArticleOrder</span>
+        }
+
         <span class="post-card-category-pill">@Category</span>
 
         @if (IsExtensiveArticleCard)
@@ -37,8 +42,8 @@
         <div class="post-footer">
             <span>@Focus</span>
             <a href="@Url"
-                   class="read-btn"
-                   @onclick:stopPropagation="true">
+               class="read-btn"
+               @onclick:stopPropagation="true">
                 Read →
             </a>
         </div>
@@ -84,6 +89,23 @@
         margin-bottom: 10px;
     }
 
+    .post-card-order-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 25px;
+        height: 25px;
+        border-radius: 999px;
+        color: #0f2238;
+        background: rgba(255, 255, 255, .96);
+        border: 1px solid rgba(255, 255, 255, .62);
+        font-size: .78rem;
+        font-weight: 950;
+        line-height: 1;
+        box-shadow: 0 5px 14px rgba(0, 0, 0, .18);
+    }
+
     .post-card-category-pill {
         display: inline-flex;
         align-items: center;
@@ -123,6 +145,7 @@
     [Parameter] public string Focus { get; set; } = "Practical";
     [Parameter] public string Url { get; set; } = "#";
     [Parameter] public IEnumerable<string>? TechStack { get; set; }
+    [Parameter] public int? ArticleOrder { get; set; }
 
     private bool IsExtensiveArticleCard =>
         Configuration.GetValue<bool>("Features:ExtensiveStandardArticleCard");

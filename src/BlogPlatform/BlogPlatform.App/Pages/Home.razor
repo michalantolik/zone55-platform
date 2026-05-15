@@ -93,27 +93,55 @@ else
             </aside>
 
             <section class="posts-area dotnet-standard-posts-area">
-                @if (_posts.Count == 0)
-                {
-                    <div class="dotnet-empty-step-card">
-                        <strong>No articles yet</strong>
-                    </div>
-                }
-                else
-                {
-                    <div class="post-grid">
-                        @foreach (var post in _posts)
-                        {
-                            <PostCard Title="@post.Title"
-                                      Summary="@post.Summary"
-                                      Category="@post.Category"
-                                      Level="@post.Level"
-                                      Focus="@post.Focus"
-                                      Url="@($"/articles/{post.Slug}?visualization={LearningPathVisualizationType.DotnetZones}")"
-                                      TechStack="@post.Tags" />
-                        }
-                    </div>
-                }
+         @if (_posts.Count == 0)
+{
+    <div class="dotnet-empty-step-card">
+        <strong>No articles yet</strong>
+    </div>
+}
+else
+{
+    <div class="post-grid">
+        @foreach (var article in PagedPosts.Select((post, index) => new
+        {
+            Post = post,
+            Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
+        }))
+        {
+            <PostCard Title="@article.Post.Title"
+                      Summary="@article.Post.Summary"
+                      Category="@article.Post.Category"
+                      Level="@article.Post.Level"
+                      Focus="@article.Post.Focus"
+                      Url="@($"/articles/{article.Post.Slug}?visualization={LearningPathVisualizationType.DotnetZones}")"
+                      TechStack="@article.Post.Tags"
+                      ArticleOrder="@article.Order" />
+        }
+    </div>
+
+    @if (ShouldShowArticlePager)
+    {
+        <nav class="dotnet-article-pager" aria-label="Step articles pages">
+            <button type="button"
+                    class="dotnet-article-pager-button"
+                    disabled="@IsFirstArticlePage"
+                    @onclick="GoToPreviousArticlePage">
+                <span aria-hidden="true">‹</span> Previous
+            </button>
+
+            <span class="dotnet-article-pager-status">
+                Page @_currentArticlePage of @TotalArticlePages
+            </span>
+
+            <button type="button"
+                    class="dotnet-article-pager-button"
+                    disabled="@IsLastArticlePage"
+                    @onclick="GoToNextArticlePage">
+                Next <span aria-hidden="true">›</span>
+            </button>
+        </nav>
+    }
+}
             </section>
         </section>
     }
@@ -172,6 +200,44 @@ else
             ? Zone!
             : DotnetZoneKeys.Foundation;
 
+    private int _currentArticlePage = 1;
+
+private int ArticlesPerStepPage =>
+    Math.Max(1, Configuration.GetValue<int?>("LearningPath:ArticlesPerStepPage") ?? 3);
+
+private int TotalArticlePages =>
+    Math.Max(1, (int)Math.Ceiling(_posts.Count / (double)ArticlesPerStepPage));
+
+private bool ShouldShowArticlePager =>
+    _posts.Count > ArticlesPerStepPage;
+
+private bool IsFirstArticlePage =>
+    _currentArticlePage <= 1;
+
+private bool IsLastArticlePage =>
+    _currentArticlePage >= TotalArticlePages;
+
+private IEnumerable<PostListItem> PagedPosts =>
+    _posts
+        .Skip((_currentArticlePage - 1) * ArticlesPerStepPage)
+        .Take(ArticlesPerStepPage);
+
+private void GoToPreviousArticlePage()
+{
+    if (!IsFirstArticlePage)
+    {
+        _currentArticlePage--;
+    }
+}
+
+private void GoToNextArticlePage()
+{
+    if (!IsLastArticlePage)
+    {
+        _currentArticlePage++;
+    }
+}
+
     private string SelectedStepKey
     {
         get
@@ -210,6 +276,8 @@ else
         _posts = IsLearningPathView
             ? homeContent.Posts
             : SelectedStep?.Posts ?? [];
+
+        _currentArticlePage = 1;
 
         _isLoading = false;
     }
@@ -266,3 +334,77 @@ else
         return LearningPathVisualizationType.DotnetVertical;
     }
 }
+
+<style>
+    .dotnet-article-pager {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border: 1px solid rgba(117, 154, 197, .18);
+        border-radius: 18px;
+        background: rgba(4, 13, 26, .28);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .dotnet-article-pager-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: fit-content;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid rgba(125, 211, 252, .24);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .05);
+        color: rgba(238, 246, 255, .95);
+        font-size: .9rem;
+        font-weight: 850;
+        cursor: pointer;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+    }
+
+        .dotnet-article-pager-button:last-child {
+            justify-self: end;
+        }
+
+        .dotnet-article-pager-button:hover:not(:disabled),
+        .dotnet-article-pager-button:focus-visible:not(:disabled) {
+            transform: translateY(-1px);
+            border-color: rgba(125, 211, 252, .52);
+            background: rgba(14, 47, 78, .34);
+            color: #ffffff;
+        }
+
+        .dotnet-article-pager-button:disabled {
+            cursor: not-allowed;
+            opacity: .38;
+        }
+
+    .dotnet-article-pager-status {
+        color: rgba(238, 246, 255, .96);
+        font-size: .9rem;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    @@media (max-width: 680px) {
+        .dotnet-article-pager {
+            grid-template-columns: 1fr;
+            justify-items: stretch;
+        }
+
+        .dotnet-article-pager-button,
+        .dotnet-article-pager-button:last-child {
+            width: 100%;
+            justify-self: stretch;
+        }
+
+        .dotnet-article-pager-status {
+            text-align: center;
+        }
+    }
+</style>
