@@ -12,6 +12,7 @@ public static class DotnetRoadmapCatalog
 
     public static readonly IReadOnlyCollection<string> AllowedStepKeys =
     [
+        DotnetZoneStepKeys.CSharpDotnet,
         DotnetZoneStepKeys.BasicSyntax,
         DotnetZoneStepKeys.TypesOperators,
         DotnetZoneStepKeys.FunctionsClasses,
@@ -47,6 +48,7 @@ public static class DotnetRoadmapCatalog
     public static readonly IReadOnlyDictionary<string, string> StepDisplayNames =
         new Dictionary<string, string>
         {
+            [DotnetZoneStepKeys.CSharpDotnet] = "C# & .NET",
             [DotnetZoneStepKeys.BasicSyntax] = "Basic Syntax",
             [DotnetZoneStepKeys.TypesOperators] = "Types & Operators",
             [DotnetZoneStepKeys.FunctionsClasses] = "Functions & Classes",
@@ -89,6 +91,7 @@ public static class DotnetZoneKeys
 
 public static class DotnetZoneStepKeys
 {
+    public const string CSharpDotnet = "csharp-dotnet";
     public const string BasicSyntax = "basic-syntax";
     public const string TypesOperators = "types-operators";
     public const string FunctionsClasses = "functions-classes";

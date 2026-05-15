@@ -1,4 +1,5 @@
 ﻿@using BlogPlatform.App.Models
+@using BlogPlatform.Contracts.DotnetRoadmap
 
 <section class="learning-path-shell">
     <div class="learning-path-header">
@@ -25,7 +26,7 @@
                     <div class="learning-path-pyramid-tags">
                         @foreach (var step in level.Steps.Take(3))
                         {
-                            <a href="@GetFirstPostUrl(step, includeDotnetZonesContext: false)">
+                            <a href="@GetStepUrl(level, step)">
                                 @step.Title
                             </a>
                         }
@@ -50,7 +51,7 @@
                 <div class="learning-path-zone-steps">
                     @foreach (var step in level.Steps)
                     {
-                        <a class="learning-path-zone-step" href="@GetFirstPostUrl(step, includeDotnetZonesContext: true)">
+                        <a class="learning-path-zone-step" href="@GetStepUrl(level, step)">
                             <span>@step.StepOrder</span>
 
                             <strong>@step.Title</strong>
@@ -109,22 +110,20 @@
     [Parameter]
     public LearningPathVisualizationType Visualization { get; set; }
 
-    private string GetFirstPostUrl(
-        LearningPathStep step,
-        bool includeDotnetZonesContext)
+    private static string GetStepUrl(
+        LearningPathLevel level,
+        LearningPathStep step)
     {
-        var firstPost = step.Posts.FirstOrDefault();
-
-        if (firstPost is null)
-        {
-            return "/?view=DotnetRoadmap";
-        }
-
-        if (includeDotnetZonesContext)
-        {
-            return $"/articles/{firstPost.Slug}?visualization={LearningPathVisualizationType.DotnetZones}";
-        }
-
-        return $"/articles/{firstPost.Slug}";
+        return $"/?zone={Uri.EscapeDataString(GetZoneKey(level))}&step={Uri.EscapeDataString(step.Key)}&visualization={LearningPathVisualizationType.DotnetZones}";
     }
+
+    private static string GetZoneKey(LearningPathLevel level) =>
+        level.Number switch
+        {
+            1 => DotnetZoneKeys.Foundation,
+            2 => DotnetZoneKeys.WebAppDevelopment,
+            3 => DotnetZoneKeys.ArchitectureData,
+            4 => DotnetZoneKeys.CloudAdvanced,
+            _ => DotnetZoneKeys.Foundation
+        };
 }
