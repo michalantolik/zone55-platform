@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using BlogPlatform.Api.Controllers;
+using BlogPlatform.Application;
 using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
@@ -35,6 +36,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<ClientLoggingOptions>(
     builder.Configuration.GetSection("ClientLogging"));
 
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddRateLimiter(options =>

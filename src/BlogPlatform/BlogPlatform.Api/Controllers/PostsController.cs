@@ -8,13 +8,16 @@ namespace BlogPlatform.Api.Controllers;
 public sealed class PostsController : ControllerBase
 {
     private readonly IBlogPostQueryService _posts;
+    private readonly IBlogHomeContentQueryService _homeContent;
     private readonly ILogger<PostsController> _logger;
 
     public PostsController(
         IBlogPostQueryService posts,
+        IBlogHomeContentQueryService homeContent,
         ILogger<PostsController> logger)
     {
         _posts = posts;
+        _homeContent = homeContent;
         _logger = logger;
     }
 
@@ -37,14 +40,9 @@ public sealed class PostsController : ControllerBase
             "API loading home content. Category slug: {CategorySlug}",
             category);
 
-        var categoriesTask = _posts.GetCategoriesAsync(cancellationToken);
-        var postsTask = _posts.GetPublishedPostsAsync(category, cancellationToken);
-
-        await Task.WhenAll(categoriesTask, postsTask);
-
-        var result = new BlogHomeContentDto(
-            await categoriesTask,
-            await postsTask);
+        var result = await _homeContent.GetHomeContentAsync(
+            category,
+            cancellationToken);
 
         _logger.LogInformation(
             "API loaded home content. Categories: {CategoryCount}. Posts: {PostCount}",
@@ -75,7 +73,3 @@ public sealed class PostsController : ControllerBase
             : Ok(post);
     }
 }
-
-public sealed record BlogHomeContentDto(
-    IReadOnlyCollection<CategoryDto> Categories,
-    IReadOnlyCollection<PostListItemDto> Posts);
