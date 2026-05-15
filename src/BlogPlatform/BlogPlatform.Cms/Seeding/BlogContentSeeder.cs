@@ -452,6 +452,36 @@ public sealed class BlogContentSeeder
             bodyBlocks: CreateArchitectureArticleBlocks());
 
         CreateOrUpdateArticle(
+            name: "C# Variables and Simple Values",
+            slug: "csharp-variables-and-simple-values",
+            categorySlug: "backend-dotnet",
+            level: "Beginner",
+            focus: "C# Basics",
+            summary: "Learn how variables store text, numbers, booleans, and simple program state.",
+            tags: new[] { "C#", "Variables", "Syntax", "Fundamentals" },
+            bodyBlocks: CreateCSharpVariablesArticleBlocks());
+
+        CreateOrUpdateArticle(
+            name: "C# Conditions and Branching",
+            slug: "csharp-conditions-and-branching",
+            categorySlug: "backend-dotnet",
+            level: "Beginner",
+            focus: "C# Basics",
+            summary: "Use if statements, comparisons, and boolean logic to control program decisions.",
+            tags: new[] { "C#", "Conditions", "Boolean Logic", "Control Flow" },
+            bodyBlocks: CreateCSharpConditionsArticleBlocks());
+
+        CreateOrUpdateArticle(
+            name: "C# Loops and Repeated Work",
+            slug: "csharp-loops-and-repeated-work",
+            categorySlug: "backend-dotnet",
+            level: "Beginner",
+            focus: "C# Basics",
+            summary: "Repeat work with for, while, and foreach loops without duplicating code.",
+            tags: new[] { "C#", "Loops", "foreach", "Control Flow" },
+            bodyBlocks: CreateCSharpLoopsArticleBlocks());
+
+        CreateOrUpdateArticle(
             name: "ASP.NET Core Web API Fundamentals",
             slug: "aspnet-core-web-api-fundamentals-getting-acquainted",
             categorySlug: "backend-dotnet",
@@ -912,6 +942,184 @@ public sealed class BlogContentSeeder
                         E --> F[HTTP Response]
                     """)
             });
+    }
+
+    private List<SeedBlock> CreateCSharpVariablesArticleBlocks()
+    {
+        return new List<SeedBlock>
+        {
+            HeadingBlock(2, "Why variables matter"),
+
+            TextBlock(
+                "Variables give names to values that your program needs to remember. They make code readable, allow calculations to be reused, and create a small working memory for each part of the program."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "Variables.cs",
+                code:
+                """
+                string name = "Michał";
+                int articleCount = 6;
+                bool isPublished = true;
+
+                Console.WriteLine(name);
+                Console.WriteLine(articleCount);
+                Console.WriteLine(isPublished);
+                """),
+
+            TextBlock(
+                "The type describes what kind of value a variable can hold. A string stores text, an int stores a whole number, and a bool stores true or false."),
+
+            MermaidDiagramBlock(
+                """
+                flowchart LR
+                    A[Value] --> B[Variable name]
+                    B --> C[Use later in code]
+                """),
+
+            CalloutBlock(
+                kind: "tip",
+                text: "Use clear names that explain the meaning of the value, not only the type of value."),
+
+            HeadingBlock(2, "Small syntax rules"),
+
+            TextBlock(
+                "Most simple statements in C# end with a semicolon. Variable names are case-sensitive, so score and Score are two different names."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "Naming.cs",
+                code:
+                """
+                int score = 10;
+                int bonus = 5;
+                int totalScore = score + bonus;
+
+                Console.WriteLine(totalScore);
+                """),
+
+            TextBlock(
+                "Start with explicit types while learning. Later, var can reduce repetition when the assigned value already makes the type obvious.")
+        };
+    }
+
+    private List<SeedBlock> CreateCSharpConditionsArticleBlocks()
+    {
+        return new List<SeedBlock>
+        {
+            HeadingBlock(2, "Making decisions in code"),
+
+            TextBlock(
+                "Conditions allow a program to choose one path or another. The most common tool is an if statement, which runs a block only when a boolean expression is true."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "Conditions.cs",
+                code:
+                """
+                int points = 80;
+
+                if (points >= 60)
+                {
+                    Console.WriteLine("Passed");
+                }
+                else
+                {
+                    Console.WriteLine("Try again");
+                }
+                """),
+
+            TextBlock(
+                "Comparison operators create true or false results. You can compare numbers, check equality, and combine multiple checks with logical operators."),
+
+            MermaidDiagramBlock(
+                """
+                flowchart TD
+                    A[Start] --> B{points >= 60?}
+                    B -->|true| C[Print Passed]
+                    B -->|false| D[Print Try again]
+                """),
+
+            HeadingBlock(2, "Boolean logic"),
+
+            TextBlock(
+                "Use && when both conditions must be true. Use || when at least one condition must be true. Use ! when you want to reverse a boolean value."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "BooleanLogic.cs",
+                code:
+                """
+                bool isLoggedIn = true;
+                bool hasAccess = false;
+
+                if (isLoggedIn && hasAccess)
+                {
+                    Console.WriteLine("Open dashboard");
+                }
+                """),
+
+            CalloutBlock(
+                kind: "note",
+                text: "Good conditions read almost like business rules. Keep them short and name complex checks clearly.")
+        };
+    }
+
+    private List<SeedBlock> CreateCSharpLoopsArticleBlocks()
+    {
+        return new List<SeedBlock>
+        {
+            HeadingBlock(2, "Repeating work safely"),
+
+            TextBlock(
+                "Loops repeat a block of code without copying the same statements many times. They are useful for lists, counters, searches, validations, and small automation tasks."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "ForLoop.cs",
+                code:
+                """
+                for (int i = 1; i <= 3; i++)
+                {
+                    Console.WriteLine($"Step {i}");
+                }
+                """),
+
+            TextBlock(
+                "A for loop is useful when you know how many times the work should run. It usually contains a counter, a condition, and a change applied after each iteration."),
+
+            MermaidDiagramBlock(
+                """
+                flowchart LR
+                    A[Start loop] --> B{Condition true?}
+                    B -->|yes| C[Run body]
+                    C --> D[Update counter]
+                    D --> B
+                    B -->|no| E[Continue program]
+                """),
+
+            HeadingBlock(2, "foreach for collections"),
+
+            TextBlock(
+                "A foreach loop is often the cleanest option when you want to process every item in a collection and do not need to manage the index yourself."),
+
+            CodeSnippetBlock(
+                language: "csharp",
+                fileName: "ForeachLoop.cs",
+                code:
+                """
+                string[] topics = ["syntax", "types", "loops"];
+
+                foreach (string topic in topics)
+                {
+                    Console.WriteLine(topic);
+                }
+                """),
+
+            CalloutBlock(
+                kind: "warning",
+                text: "Every while loop needs a condition that eventually becomes false. Otherwise the program can run forever.")
+        };
     }
 
     private List<SeedBlock> CreateConfigurationArticleBlocks()
