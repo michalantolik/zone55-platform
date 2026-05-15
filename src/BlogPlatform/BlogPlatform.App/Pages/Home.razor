@@ -108,14 +108,14 @@ else
             Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
         }))
         {
-            <PostCard Title="@article.Post.Title"
-                      Summary="@article.Post.Summary"
-                      Category="@article.Post.Category"
-                      Level="@article.Post.Level"
-                      Focus="@article.Post.Focus"
-                      Url="@($"/articles/{article.Post.Slug}?visualization={LearningPathVisualizationType.DotnetZones}")"
-                      TechStack="@article.Post.Tags"
-                      ArticleOrder="@article.Order" />
+<PostCard Title="@article.Post.Title"
+          Summary="@article.Post.Summary"
+          Category="@SelectedStepTitle"
+          Level="@article.Post.Level"
+          Focus="@article.Post.Focus"
+          Url="@($"/articles/{article.Post.Slug}?visualization={LearningPathVisualizationType.DotnetZones}")"
+          TechStack="@article.Post.Tags"
+          ArticleOrder="@article.Order" />
         }
     </div>
 
