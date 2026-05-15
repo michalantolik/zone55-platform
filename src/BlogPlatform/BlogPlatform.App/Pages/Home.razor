@@ -1,10 +1,11 @@
 ﻿@page "/"
 @page "/articles"
+@using BlogPlatform.App.Components.Articles
 @using BlogPlatform.Contracts.DotnetRoadmap
 @inject IBlogApiClient BlogApi
 @inject IConfiguration Configuration
 
-<PageTitle>.NET Backend & Cloud Engineering Notes</PageTitle>
+<PageTitle>@PageTitleText</PageTitle>
 
 @if (IsLearningPathView)
 {
@@ -93,55 +94,71 @@ else
             </aside>
 
             <section class="posts-area dotnet-standard-posts-area">
-         @if (_posts.Count == 0)
-{
-    <div class="dotnet-empty-step-card">
-        <strong>No articles yet</strong>
-    </div>
-}
-else
-{
-    <div class="post-grid">
-        @foreach (var article in PagedPosts.Select((post, index) => new
-        {
-            Post = post,
-            Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
-        }))
-        {
-<PostCard Title="@article.Post.Title"
-          Summary="@article.Post.Summary"
-          Category="@SelectedStepTitle"
-          Level="@article.Post.Level"
-          Focus="@article.Post.Focus"
-          Url="@($"/articles/{article.Post.Slug}?visualization={LearningPathVisualizationType.DotnetZones}")"
-          TechStack="@article.Post.Tags"
-          ArticleOrder="@article.Order" />
-        }
-    </div>
+                @if (IsArticleReaderMode)
+                {
+                    <div class="dotnet-inline-article-reader">
+                        <div class="dotnet-inline-article-reader-top">
+                            <a class="dotnet-inline-article-back" href="@SelectedStepUrl">
+                                ← Back to @SelectedStepTitle
+                            </a>
 
-    @if (ShouldShowArticlePager)
-    {
-        <nav class="dotnet-article-pager" aria-label="Step articles pages">
-            <button type="button"
-                    class="dotnet-article-pager-button"
-                    disabled="@IsFirstArticlePage"
-                    @onclick="GoToPreviousArticlePage">
-                <span aria-hidden="true">‹</span> Previous
-            </button>
+                            <span class="dotnet-inline-article-pill">
+                                Article @SelectedArticleOrder of @_posts.Count
+                            </span>
+                        </div>
 
-            <span class="dotnet-article-pager-status">
-                Page @_currentArticlePage of @TotalArticlePages
-            </span>
+                        <ArticleRenderer Article="_selectedArticle" />
+                    </div>
+                }
+                else if (_posts.Count == 0)
+                {
+                    <div class="dotnet-empty-step-card">
+                        <strong>No articles yet</strong>
+                    </div>
+                }
+                else
+                {
+                    <div class="post-grid">
+                        @foreach (var article in PagedPosts.Select((post, index) => new
+                        {
+                            Post = post,
+                            Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
+                        }))
+                        {
+                            <PostCard Title="@article.Post.Title"
+                                      Summary="@article.Post.Summary"
+                                      Category="@SelectedStepTitle"
+                                      Level="@article.Post.Level"
+                                      Focus="@article.Post.Focus"
+                                      Url="@GetInlineArticleUrl(article.Post.Slug)"
+                                      TechStack="@article.Post.Tags"
+                                      ArticleOrder="@article.Order" />
+                        }
+                    </div>
 
-            <button type="button"
-                    class="dotnet-article-pager-button"
-                    disabled="@IsLastArticlePage"
-                    @onclick="GoToNextArticlePage">
-                Next <span aria-hidden="true">›</span>
-            </button>
-        </nav>
-    }
-}
+                    @if (ShouldShowArticlePager)
+                    {
+                        <nav class="dotnet-article-pager" aria-label="Step articles pages">
+                            <button type="button"
+                                    class="dotnet-article-pager-button"
+                                    disabled="@IsFirstArticlePage"
+                                    @onclick="GoToPreviousArticlePage">
+                                <span aria-hidden="true">‹</span> Previous
+                            </button>
+
+                            <span class="dotnet-article-pager-status">
+                                Page @_currentArticlePage of @TotalArticlePages
+                            </span>
+
+                            <button type="button"
+                                    class="dotnet-article-pager-button"
+                                    disabled="@IsLastArticlePage"
+                                    @onclick="GoToNextArticlePage">
+                                Next <span aria-hidden="true">›</span>
+                            </button>
+                        </nav>
+                    }
+                }
             </section>
         </section>
     }
@@ -163,6 +180,9 @@ else
     [SupplyParameterFromQuery(Name = "step")]
     public string? Step { get; set; }
 
+    [SupplyParameterFromQuery(Name = "article")]
+    public string? ArticleSlug { get; set; }
+
     [SupplyParameterFromQuery(Name = "visualization")]
     public string? Visualization { get; set; }
 
@@ -170,7 +190,9 @@ else
     private IReadOnlyCollection<CategoryItem> _categories = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
     private LearningPathVisualizationType _learningPathVisualization;
+    private PostDetails? _selectedArticle;
     private bool _isLoading = true;
+    private int _currentArticlePage = 1;
 
     private bool IsBlogDisplayModeSwitchEnabled =>
         Configuration.GetValue<bool>(
@@ -180,10 +202,18 @@ else
     private bool IsLearningPathView =>
         string.Equals(CurrentView, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase);
 
+    private bool IsArticleReaderMode =>
+        _selectedArticle is not null;
+
     private string CurrentView =>
         NormalizeBlogDisplayMode(View)
         ?? NormalizeBlogDisplayMode(Configuration["Features:EnableBlogDisplayMode"])
         ?? DotnetStandardView;
+
+    private string PageTitleText =>
+        _selectedArticle is null
+            ? ".NET Backend & Cloud Engineering Notes"
+            : $"{_selectedArticle.Title} | .NET Backend & Cloud Engineering Notes";
 
     private LearningPathLevel? SelectedLevel =>
         _learningPathLevels.FirstOrDefault(level =>
@@ -200,43 +230,25 @@ else
             ? Zone!
             : DotnetZoneKeys.Foundation;
 
-    private int _currentArticlePage = 1;
+    private int ArticlesPerStepPage =>
+        Math.Max(1, Configuration.GetValue<int?>("LearningPath:ArticlesPerStepPage") ?? 3);
 
-private int ArticlesPerStepPage =>
-    Math.Max(1, Configuration.GetValue<int?>("LearningPath:ArticlesPerStepPage") ?? 3);
+    private int TotalArticlePages =>
+        Math.Max(1, (int)Math.Ceiling(_posts.Count / (double)ArticlesPerStepPage));
 
-private int TotalArticlePages =>
-    Math.Max(1, (int)Math.Ceiling(_posts.Count / (double)ArticlesPerStepPage));
+    private bool ShouldShowArticlePager =>
+        _posts.Count > ArticlesPerStepPage;
 
-private bool ShouldShowArticlePager =>
-    _posts.Count > ArticlesPerStepPage;
+    private bool IsFirstArticlePage =>
+        _currentArticlePage <= 1;
 
-private bool IsFirstArticlePage =>
-    _currentArticlePage <= 1;
+    private bool IsLastArticlePage =>
+        _currentArticlePage >= TotalArticlePages;
 
-private bool IsLastArticlePage =>
-    _currentArticlePage >= TotalArticlePages;
-
-private IEnumerable<PostListItem> PagedPosts =>
-    _posts
-        .Skip((_currentArticlePage - 1) * ArticlesPerStepPage)
-        .Take(ArticlesPerStepPage);
-
-private void GoToPreviousArticlePage()
-{
-    if (!IsFirstArticlePage)
-    {
-        _currentArticlePage--;
-    }
-}
-
-private void GoToNextArticlePage()
-{
-    if (!IsLastArticlePage)
-    {
-        _currentArticlePage++;
-    }
-}
+    private IEnumerable<PostListItem> PagedPosts =>
+        _posts
+            .Skip((_currentArticlePage - 1) * ArticlesPerStepPage)
+            .Take(ArticlesPerStepPage);
 
     private string SelectedStepKey
     {
@@ -255,16 +267,26 @@ private void GoToNextArticlePage()
         }
     }
 
-    private string SelectedLevelTitle => SelectedLevel?.Title ?? "Foundation";
-
     private string SelectedStepTitle => SelectedStep?.Title ?? "Basic Syntax";
 
     private string SelectedStepDescription =>
         SelectedStep?.Description ?? "Understand the fundamental syntax rules of C# and how to write your first lines of code.";
 
+    private int SelectedArticleOrder =>
+        _selectedArticle is null
+            ? 0
+            : _posts
+                .Select((Post, Index) => new { Post, Index })
+                .FirstOrDefault(item => string.Equals(item.Post.Slug, _selectedArticle.Slug, StringComparison.OrdinalIgnoreCase))
+                ?.Index + 1 ?? 1;
+
+    private string SelectedStepUrl =>
+        $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&visualization={LearningPathVisualizationType.DotnetZones}";
+
     protected override async Task OnParametersSetAsync()
     {
         _isLoading = true;
+        _selectedArticle = null;
 
         _learningPathVisualization = ReadLearningPathVisualization();
 
@@ -279,7 +301,39 @@ private void GoToNextArticlePage()
 
         _currentArticlePage = 1;
 
+        if (!IsLearningPathView && !string.IsNullOrWhiteSpace(ArticleSlug))
+        {
+            var articleBelongsToSelectedStep = _posts.Any(post =>
+                string.Equals(post.Slug, ArticleSlug, StringComparison.OrdinalIgnoreCase));
+
+            if (articleBelongsToSelectedStep)
+            {
+                _selectedArticle = await BlogApi.GetPostBySlugAsync(ArticleSlug);
+            }
+        }
+
         _isLoading = false;
+    }
+
+    private void GoToPreviousArticlePage()
+    {
+        if (!IsFirstArticlePage)
+        {
+            _currentArticlePage--;
+        }
+    }
+
+    private void GoToNextArticlePage()
+    {
+        if (!IsLastArticlePage)
+        {
+            _currentArticlePage++;
+        }
+    }
+
+    private string GetInlineArticleUrl(string slug)
+    {
+        return $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&article={Uri.EscapeDataString(slug)}&visualization={LearningPathVisualizationType.DotnetZones}";
     }
 
     private static string GetZoneKey(LearningPathLevel level) =>
@@ -336,6 +390,64 @@ private void GoToNextArticlePage()
 }
 
 <style>
+    .dotnet-inline-article-reader {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        min-width: 0;
+    }
+
+    .dotnet-inline-article-reader-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border: 1px solid rgba(117, 154, 197, .18);
+        border-radius: 18px;
+        background: rgba(4, 13, 26, .28);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .dotnet-inline-article-back {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        color: rgba(238, 246, 255, .94);
+        font-size: .9rem;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+        .dotnet-inline-article-back:hover,
+        .dotnet-inline-article-back:focus-visible {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+    .dotnet-inline-article-pill {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border: 1px solid rgba(125, 211, 252, .24);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .05);
+        color: rgba(238, 246, 255, .95);
+        font-size: .82rem;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .dotnet-inline-article-reader .article-card {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
     .dotnet-article-pager {
         display: grid;
         grid-template-columns: 1fr auto 1fr;
@@ -392,9 +504,18 @@ private void GoToNextArticlePage()
     }
 
     @@media (max-width: 680px) {
+        .dotnet-inline-article-reader-top,
         .dotnet-article-pager {
             grid-template-columns: 1fr;
             justify-items: stretch;
+        }
+
+        .dotnet-inline-article-reader-top {
+            display: grid;
+        }
+
+        .dotnet-inline-article-pill {
+            width: 100%;
         }
 
         .dotnet-article-pager-button,

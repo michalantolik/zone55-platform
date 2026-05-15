@@ -5,6 +5,5 @@ public enum DotnetZoneLayoutType
     StepJourneyPage,
     HorizontalLearningTrack,
     MissionAchievement,
-    MasterDetailNavigation,
-    ArticleReaderContext
+    MasterDetailNavigation
 }
