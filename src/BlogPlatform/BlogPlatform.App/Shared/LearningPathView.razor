@@ -12,30 +12,7 @@
         </a>
     </div>
 
-    @if (Visualization == LearningPathVisualizationType.DotnetPyramid)
-    {
-        <div class="learning-path-pyramid">
-            @foreach (var level in Levels.Reverse())
-            {
-                <section class="learning-path-pyramid-row @level.AccentClass">
-                    <div>
-                        <span>Level @level.Number</span>
-                        <h3>@level.Title</h3>
-                    </div>
-
-                    <div class="learning-path-pyramid-tags">
-                        @foreach (var step in level.Steps.Take(3))
-                        {
-                            <a href="@GetStepUrl(level, step)">
-                                @step.Title
-                            </a>
-                        }
-                    </div>
-                </section>
-            }
-        </div>
-    }
-    else if (Visualization == LearningPathVisualizationType.DotnetZones)
+    @if (Visualization == LearningPathVisualizationType.DotnetZones)
     {
         <div class="learning-path-journey">
             @foreach (var level in Levels)

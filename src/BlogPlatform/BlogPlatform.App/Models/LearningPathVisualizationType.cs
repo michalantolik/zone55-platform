@@ -3,6 +3,5 @@
 public enum LearningPathVisualizationType
 {
     DotnetVertical,
-    DotnetPyramid,
     DotnetZones
 }
