@@ -158,7 +158,9 @@
 
         .card-actions,
         .article-actions,
-        .document-type-actions {
+        .document-type-actions,
+        .zone-admin-actions,
+        .step-admin-actions {
             display: flex;
             align-items: center;
             justify-content: flex-end;
@@ -238,7 +240,7 @@
 
         .zone-step-row {
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: auto 1fr auto auto;
             gap: 12px;
             align-items: center;
             border: 1px solid rgba(36, 64, 95, 0.86);
@@ -547,6 +549,16 @@
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
         }
 
+        .field-label {
+            display: block;
+            margin: 16px 0 8px 0;
+            color: #aac2de;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
         .modal h2 { margin: 0 0 12px 0; }
         .modal p { margin: 0; color: #c8d8ef; line-height: 1.6; }
         .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
@@ -583,6 +595,13 @@
             </section>
 
             <section id="zonesPanel" class="panel active">
+                <div class="articles-action-bar">
+                    <button class="new-article-button" type="button" onclick="openCreateZoneModal()">
+                        <span class="new-article-button-mark">+</span>
+                        <span>Create zone</span>
+                    </button>
+                </div>
+
                 <div id="zonesGrid" class="zones-grid"></div>
             </section>
 
@@ -638,6 +657,27 @@
         </div>
     </div>
 
+    <div id="roadmapModal" class="modal-backdrop">
+        <div class="modal">
+            <h2 id="roadmapModalTitle">Create item</h2>
+
+            <label class="field-label" for="roadmapNameInput">Name</label>
+            <input id="roadmapNameInput" class="search" type="text" />
+
+            <label class="field-label" for="roadmapKeyInput">Key</label>
+            <input id="roadmapKeyInput" class="search" type="text" />
+
+            <p id="roadmapKeyHint" style="margin-top:12px;">
+                Key is used by articles. Keep it stable after creation.
+            </p>
+
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" type="button" onclick="closeRoadmapModal()">Cancel</button>
+                <button id="saveRoadmapButton" class="btn btn-success" type="button" onclick="saveRoadmapItem()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <div id="closeInlineEditorModal" class="modal-backdrop">
@@ -665,6 +705,7 @@
         let inlineEditorIsValid = false;
         let inlineEditorTitle = "Article editor";
         let pendingDelete = null;
+        let roadmapModalState = null;
         let toastTimeout = null;
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -768,7 +809,12 @@
                             <div class="zone-key">${escapeHtml(zone.key)}</div>
                         </div>
 
-                        <span class="zone-badge zone-count">${zoneCountText}</span>
+                        <div class="zone-admin-actions">
+                            <span class="zone-badge zone-count">${zoneCountText}</span>
+                            <button class="btn btn-secondary btn-icon" type="button" title="Add step" onclick="openCreateStepModal('${escapeJs(zone.key)}')">+</button>
+                            <button class="btn btn-secondary btn-icon" type="button" title="Edit zone" onclick="openEditZoneModal('${escapeJs(zone.key)}')">✎</button>
+                            ${renderDeleteButton("Delete", `requestDelete('zone', '${escapeJs(zone.key)}')`, "Delete zone")}
+                        </div>
                     </div>
 
                     <div class="zone-steps">
@@ -793,6 +839,11 @@
                     </div>
 
                     <span class="step-badge">${stepCountText}</span>
+
+                    <div class="step-admin-actions">
+                        <button class="btn btn-secondary btn-icon" type="button" title="Edit step" onclick="openEditStepModal('${escapeJs(zone.key)}', '${escapeJs(step.key)}')">✎</button>
+                        ${renderDeleteButton("Delete", `requestDelete('step', '${escapeJs(zone.key)}|${escapeJs(step.key)}')`, "Delete step")}
+                    </div>
                 </div>
             `;
         }
@@ -997,6 +1048,40 @@
                 };
             }
 
+            if (type === "zone") {
+                const zone = dotnetRoadmap.find(item => item.key === key);
+
+                if (!zone) {
+                    return null;
+                }
+
+                return {
+                    type,
+                    key,
+                    endpoint: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(key)}`,
+                    title: "Delete zone?",
+                    message: `Delete zone "${zone.name}"? Zones with articles are protected and will not be deleted.`
+                };
+            }
+
+            if (type === "step") {
+                const [zoneKey, stepKey] = key.split("|");
+                const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+                const step = zone?.steps.find(item => item.key === stepKey);
+
+                if (!zone || !step) {
+                    return null;
+                }
+
+                return {
+                    type,
+                    key,
+                    endpoint: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(zoneKey)}/steps/${encodeURIComponent(stepKey)}`,
+                    title: "Delete step?",
+                    message: `Delete step "${step.name}"? Steps with articles are protected and will not be deleted.`
+                };
+            }
+
             return null;
         }
 
@@ -1068,6 +1153,145 @@
             }, 4200);
         }
 
+
+        function openCreateZoneModal() {
+            roadmapModalState = { mode: "create-zone" };
+            openRoadmapModal("Create zone", "", "", false);
+        }
+
+        function openEditZoneModal(zoneKey) {
+            const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+
+            if (!zone) {
+                showToast("Zone not found.", "error");
+                return;
+            }
+
+            roadmapModalState = { mode: "edit-zone", zoneKey };
+            openRoadmapModal("Edit zone", zone.name, zone.key, true);
+        }
+
+        function openCreateStepModal(zoneKey) {
+            const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+
+            if (!zone) {
+                showToast("Zone not found.", "error");
+                return;
+            }
+
+            roadmapModalState = { mode: "create-step", zoneKey };
+            openRoadmapModal(`Create step in ${zone.name}`, "", "", false);
+        }
+
+        function openEditStepModal(zoneKey, stepKey) {
+            const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+            const step = zone?.steps.find(item => item.key === stepKey);
+
+            if (!zone || !step) {
+                showToast("Step not found.", "error");
+                return;
+            }
+
+            roadmapModalState = { mode: "edit-step", zoneKey, stepKey };
+            openRoadmapModal("Edit step", step.name, step.key, true);
+        }
+
+        function openRoadmapModal(title, name, key, keyReadonly) {
+            const keyInput = document.getElementById("roadmapKeyInput");
+
+            document.getElementById("roadmapModalTitle").innerText = title;
+            document.getElementById("roadmapNameInput").value = name;
+            keyInput.value = key;
+            keyInput.readOnly = keyReadonly;
+            keyInput.style.opacity = keyReadonly ? "0.62" : "1";
+            document.getElementById("roadmapModal").style.display = "flex";
+        }
+
+        function closeRoadmapModal() {
+            document.getElementById("roadmapModal").style.display = "none";
+            roadmapModalState = null;
+        }
+
+        async function saveRoadmapItem() {
+            if (!roadmapModalState) {
+                return;
+            }
+
+            const name = document.getElementById("roadmapNameInput").value.trim();
+            const key = document.getElementById("roadmapKeyInput").value.trim();
+
+            if (!name) {
+                showToast("Name is required.", "error");
+                return;
+            }
+
+            const button = document.getElementById("saveRoadmapButton");
+            button.disabled = true;
+            button.innerText = "Saving...";
+
+            try {
+                const request = {
+                    name,
+                    key: key || null
+                };
+
+                const endpoint = getRoadmapSaveEndpoint();
+                const response = await fetch(endpoint.url, {
+                    method: endpoint.method,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(request)
+                });
+
+                const result = await readJsonResponse(response);
+
+                if (!response.ok || result.success === false) {
+                    showToast(result.message || "Unable to save roadmap item.", "error");
+                    return;
+                }
+
+                closeRoadmapModal();
+                showToast(result.message || "Roadmap item saved.", "success");
+                await loadContent();
+            }
+            catch (error) {
+                console.error(error);
+                showToast("Unable to save roadmap item.", "error");
+            }
+            finally {
+                button.disabled = false;
+                button.innerText = "Save";
+            }
+        }
+
+        function getRoadmapSaveEndpoint() {
+            if (roadmapModalState.mode === "create-zone") {
+                return {
+                    method: "POST",
+                    url: "/api/blog-content/dotnet-roadmap/zones"
+                };
+            }
+
+            if (roadmapModalState.mode === "edit-zone") {
+                return {
+                    method: "PUT",
+                    url: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(roadmapModalState.zoneKey)}`
+                };
+            }
+
+            if (roadmapModalState.mode === "create-step") {
+                return {
+                    method: "POST",
+                    url: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(roadmapModalState.zoneKey)}/steps`
+                };
+            }
+
+            return {
+                method: "PUT",
+                url: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(roadmapModalState.zoneKey)}/steps/${encodeURIComponent(roadmapModalState.stepKey)}`
+            };
+        }
         function openArticleEditorInArticlesTab(articleKey) {
             const article = articles.find(item => item.key === articleKey);
 

@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using BlogPlatform.Cms.Admin.Roadmap;
 using BlogPlatform.Cms.Seeding;
 using BlogPlatform.Contracts.DotnetRoadmap;
 using Microsoft.AspNetCore.Mvc;
@@ -23,17 +24,20 @@ public sealed class BlogContentController : ControllerBase
     private readonly IContentTypeService _contentTypeService;
     private readonly ILogger<BlogContentController> _logger;
     private readonly IMemoryCache _cache;
+    private readonly AdminRoadmapStore _roadmapStore;
 
     public BlogContentController(
         IContentService contentService,
         IContentTypeService contentTypeService,
         ILogger<BlogContentController> logger,
-        IMemoryCache cache)
+        IMemoryCache cache,
+        AdminRoadmapStore roadmapStore)
     {
         _contentService = contentService;
         _contentTypeService = contentTypeService;
         _logger = logger;
         _cache = cache;
+        _roadmapStore = roadmapStore;
     }
 
     [HttpGet("categories")]
@@ -51,37 +55,225 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpGet("dotnet-roadmap")]
-    public ActionResult<IReadOnlyCollection<CmsDotnetZoneListItemDto>> GetDotnetRoadmap()
+    public async Task<ActionResult<IReadOnlyCollection<CmsDotnetZoneListItemDto>>> GetDotnetRoadmap()
     {
         var articles = GetRootArticles()
             .Select(MapArticleListItem)
             .ToList();
 
-        var zones = DotnetRoadmapCatalog.AllowedZoneKeys
-            .Select((zoneKey, zoneIndex) =>
-            {
-                var zoneArticleCount = articles.Count(article => article.DotnetZone == zoneKey);
+        var roadmap = await _roadmapStore.GetAsync();
 
-                var steps = DotnetRoadmapCatalog.ZoneStepKeys[zoneKey]
-                    .Select((stepKey, stepIndex) => new CmsDotnetZoneStepListItemDto(
-                        stepKey,
-                        DotnetRoadmapCatalog.StepDisplayNames[stepKey],
-                        stepIndex + 1,
+        var zones = roadmap.Zones
+            .OrderBy(zone => zone.Order)
+            .Select(zone =>
+            {
+                var zoneArticleCount = articles.Count(article => article.DotnetZone == zone.Key);
+
+                var steps = zone.Steps
+                    .OrderBy(step => step.Order)
+                    .Select(step => new CmsDotnetZoneStepListItemDto(
+                        step.Key,
+                        step.Name,
+                        step.Order,
                         articles.Count(article =>
-                            article.DotnetZone == zoneKey &&
-                            article.DotnetZoneStep == stepKey)))
+                            article.DotnetZone == zone.Key &&
+                            article.DotnetZoneStep == step.Key)))
                     .ToList();
 
                 return new CmsDotnetZoneListItemDto(
-                    zoneKey,
-                    DotnetRoadmapCatalog.ZoneDisplayNames[zoneKey],
-                    zoneIndex + 1,
+                    zone.Key,
+                    zone.Name,
+                    zone.Order,
                     zoneArticleCount,
                     steps);
             })
             .ToList();
 
         return Ok(zones);
+    }
+
+    [HttpPost("dotnet-roadmap/zones")]
+    public async Task<ActionResult<CmsSaveRoadmapResponse>> CreateZone(
+        [FromBody] CmsSaveRoadmapZoneRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new CmsSaveRoadmapResponse(false, "Zone name is required."));
+        }
+
+        var roadmap = await _roadmapStore.GetAsync();
+        var key = CreateSlug(string.IsNullOrWhiteSpace(request.Key) ? request.Name : request.Key);
+
+        if (roadmap.Zones.Any(zone => zone.Key == key))
+        {
+            return BadRequest(new CmsSaveRoadmapResponse(false, "Zone key already exists."));
+        }
+
+        roadmap.Zones.Add(new AdminRoadmapZoneDto
+        {
+            Key = key,
+            Name = request.Name.Trim(),
+            Order = roadmap.Zones.Count + 1,
+            Steps = []
+        });
+
+        await _roadmapStore.SaveAsync(roadmap);
+        ClearCaches();
+
+        return Ok(new CmsSaveRoadmapResponse(true, "Zone created successfully."));
+    }
+
+    [HttpPut("dotnet-roadmap/zones/{zoneKey}")]
+    public async Task<ActionResult<CmsSaveRoadmapResponse>> UpdateZone(
+        string zoneKey,
+        [FromBody] CmsSaveRoadmapZoneRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new CmsSaveRoadmapResponse(false, "Zone name is required."));
+        }
+
+        var roadmap = await _roadmapStore.GetAsync();
+        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
+
+        if (zone is null)
+        {
+            return NotFound(new CmsSaveRoadmapResponse(false, "Zone not found."));
+        }
+
+        zone.Name = request.Name.Trim();
+
+        await _roadmapStore.SaveAsync(roadmap);
+        ClearCaches();
+
+        return Ok(new CmsSaveRoadmapResponse(true, "Zone updated successfully."));
+    }
+
+    [HttpDelete("dotnet-roadmap/zones/{zoneKey}")]
+    public async Task<ActionResult<CmsDeleteResponse>> DeleteZone(string zoneKey)
+    {
+        var articlesUsingZone = GetRootArticles()
+            .Select(MapArticleListItem)
+            .Count(article => article.DotnetZone == zoneKey);
+
+        if (articlesUsingZone > 0)
+        {
+            return BadRequest(new CmsDeleteResponse(false, "Cannot delete zone because articles still use it."));
+        }
+
+        var roadmap = await _roadmapStore.GetAsync();
+        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
+
+        if (zone is null)
+        {
+            return NotFound(new CmsDeleteResponse(false, "Zone not found."));
+        }
+
+        roadmap.Zones.Remove(zone);
+        ReorderZones(roadmap);
+
+        await _roadmapStore.SaveAsync(roadmap);
+        ClearCaches();
+
+        return Ok(new CmsDeleteResponse(true, "Zone deleted successfully."));
+    }
+
+    [HttpPost("dotnet-roadmap/zones/{zoneKey}/steps")]
+    public async Task<ActionResult<CmsSaveRoadmapResponse>> CreateStep(
+        string zoneKey,
+        [FromBody] CmsSaveRoadmapStepRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new CmsSaveRoadmapResponse(false, "Step name is required."));
+        }
+
+        var roadmap = await _roadmapStore.GetAsync();
+        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
+
+        if (zone is null)
+        {
+            return NotFound(new CmsSaveRoadmapResponse(false, "Zone not found."));
+        }
+
+        var key = CreateSlug(string.IsNullOrWhiteSpace(request.Key) ? request.Name : request.Key);
+
+        if (roadmap.Zones.SelectMany(item => item.Steps).Any(step => step.Key == key))
+        {
+            return BadRequest(new CmsSaveRoadmapResponse(false, "Step key already exists."));
+        }
+
+        zone.Steps.Add(new AdminRoadmapStepDto
+        {
+            Key = key,
+            Name = request.Name.Trim(),
+            Order = zone.Steps.Count + 1
+        });
+
+        await _roadmapStore.SaveAsync(roadmap);
+        ClearCaches();
+
+        return Ok(new CmsSaveRoadmapResponse(true, "Step created successfully."));
+    }
+
+    [HttpPut("dotnet-roadmap/zones/{zoneKey}/steps/{stepKey}")]
+    public async Task<ActionResult<CmsSaveRoadmapResponse>> UpdateStep(
+        string zoneKey,
+        string stepKey,
+        [FromBody] CmsSaveRoadmapStepRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new CmsSaveRoadmapResponse(false, "Step name is required."));
+        }
+
+        var roadmap = await _roadmapStore.GetAsync();
+        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
+        var step = zone?.Steps.FirstOrDefault(item => item.Key == stepKey);
+
+        if (zone is null || step is null)
+        {
+            return NotFound(new CmsSaveRoadmapResponse(false, "Step not found."));
+        }
+
+        step.Name = request.Name.Trim();
+
+        await _roadmapStore.SaveAsync(roadmap);
+        ClearCaches();
+
+        return Ok(new CmsSaveRoadmapResponse(true, "Step updated successfully."));
+    }
+
+    [HttpDelete("dotnet-roadmap/zones/{zoneKey}/steps/{stepKey}")]
+    public async Task<ActionResult<CmsDeleteResponse>> DeleteStep(
+        string zoneKey,
+        string stepKey)
+    {
+        var articlesUsingStep = GetRootArticles()
+            .Select(MapArticleListItem)
+            .Count(article => article.DotnetZone == zoneKey && article.DotnetZoneStep == stepKey);
+
+        if (articlesUsingStep > 0)
+        {
+            return BadRequest(new CmsDeleteResponse(false, "Cannot delete step because articles still use it."));
+        }
+
+        var roadmap = await _roadmapStore.GetAsync();
+        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
+        var step = zone?.Steps.FirstOrDefault(item => item.Key == stepKey);
+
+        if (zone is null || step is null)
+        {
+            return NotFound(new CmsDeleteResponse(false, "Step not found."));
+        }
+
+        zone.Steps.Remove(step);
+        ReorderSteps(zone);
+
+        await _roadmapStore.SaveAsync(roadmap);
+        ClearCaches();
+
+        return Ok(new CmsDeleteResponse(true, "Step deleted successfully."));
     }
 
     [HttpGet("document-types")]
@@ -226,13 +418,15 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpPost("articles")]
-    public ActionResult<CmsSaveArticleResponse> CreateArticle(
+    public async Task<ActionResult<CmsSaveArticleResponse>> CreateArticle(
         [FromBody] CmsSaveArticleRequest request)
     {
 
-        if (!IsValidDotnetRoadmapAssignment(request, out var validationMessage))
+        var roadmapValidation = await ValidateDotnetRoadmapAssignmentAsync(request);
+
+        if (!roadmapValidation.IsValid)
         {
-            return BadRequest(new CmsSaveArticleResponse(false, Guid.Empty, validationMessage));
+            return BadRequest(new CmsSaveArticleResponse(false, Guid.Empty, roadmapValidation.Message));
         }
 
         var article = _contentService.Create(
@@ -256,7 +450,7 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpPut("articles/{key:guid}")]
-    public ActionResult<CmsSaveArticleResponse> UpdateArticle(
+    public async Task<ActionResult<CmsSaveArticleResponse>> UpdateArticle(
         Guid key,
         [FromBody] CmsSaveArticleRequest request)
     {
@@ -269,9 +463,11 @@ public sealed class BlogContentController : ControllerBase
         }
 
 
-        if (!IsValidDotnetRoadmapAssignment(request, out var validationMessage))
+        var roadmapValidation = await ValidateDotnetRoadmapAssignmentAsync(request);
+
+        if (!roadmapValidation.IsValid)
         {
-            return BadRequest(new CmsSaveArticleResponse(false, key, validationMessage));
+            return BadRequest(new CmsSaveArticleResponse(false, key, roadmapValidation.Message));
         }
 
         ApplyArticleValues(article, request);
@@ -342,30 +538,47 @@ public sealed class BlogContentController : ControllerBase
         }
     }
 
-    private static bool IsValidDotnetRoadmapAssignment(
-        CmsSaveArticleRequest request,
-        out string validationMessage)
+    private async Task<RoadmapValidationResult> ValidateDotnetRoadmapAssignmentAsync(
+        CmsSaveArticleRequest request)
     {
-        if (!DotnetRoadmapCatalog.IsAllowedZoneKey(request.DotnetZone))
+        var roadmap = await _roadmapStore.GetAsync();
+        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == request.DotnetZone);
+
+        if (zone is null)
         {
-            validationMessage = $"Invalid Dotnet Zone: {request.DotnetZone}";
-            return false;
+            return new RoadmapValidationResult(
+                false,
+                $"Invalid Dotnet Zone: {request.DotnetZone}");
         }
 
-        if (!DotnetRoadmapCatalog.IsAllowedStepKey(request.DotnetZoneStep))
+        if (zone.Steps.All(item => item.Key != request.DotnetZoneStep))
         {
-            validationMessage = $"Invalid Dotnet Zone Step: {request.DotnetZoneStep}";
-            return false;
+            return new RoadmapValidationResult(
+                false,
+                $"Dotnet Zone Step '{request.DotnetZoneStep}' does not belong to Dotnet Zone '{request.DotnetZone}'.");
         }
 
-        if (!DotnetRoadmapCatalog.IsAllowedStepForZone(request.DotnetZone, request.DotnetZoneStep))
-        {
-            validationMessage = $"Dotnet Zone Step '{request.DotnetZoneStep}' does not belong to Dotnet Zone '{request.DotnetZone}'.";
-            return false;
-        }
+        return new RoadmapValidationResult(true, string.Empty);
+    }
 
-        validationMessage = string.Empty;
-        return true;
+    private static void ReorderZones(AdminRoadmapDto roadmap)
+    {
+        var index = 1;
+
+        foreach (var zone in roadmap.Zones.OrderBy(zone => zone.Order))
+        {
+            zone.Order = index++;
+        }
+    }
+
+    private static void ReorderSteps(AdminRoadmapZoneDto zone)
+    {
+        var index = 1;
+
+        foreach (var step in zone.Steps.OrderBy(step => step.Order))
+        {
+            step.Order = index++;
+        }
     }
 
     private int GetContentCount(string contentTypeAlias)
@@ -411,7 +624,27 @@ public sealed class BlogContentController : ControllerBase
 
     private static string CreateSlug(string value)
     {
-        return value.Trim().ToLowerInvariant().Replace(" ", "-");
+        var normalized = value.Trim().ToLowerInvariant();
+        var builder = new StringBuilder();
+        var lastWasDash = false;
+
+        foreach (var character in normalized)
+        {
+            if (char.IsLetterOrDigit(character))
+            {
+                builder.Append(character);
+                lastWasDash = false;
+                continue;
+            }
+
+            if (!lastWasDash)
+            {
+                builder.Append('-');
+                lastWasDash = true;
+            }
+        }
+
+        return builder.ToString().Trim('-');
     }
 
     private void ClearCaches()
@@ -489,6 +722,22 @@ public sealed class BlogContentController : ControllerBase
     public sealed record CmsSaveArticleResponse(
         bool Success,
         Guid Key,
+        string Message);
+
+    public sealed record CmsSaveRoadmapZoneRequest(
+        string Name,
+        string? Key);
+
+    public sealed record CmsSaveRoadmapStepRequest(
+        string Name,
+        string? Key);
+
+    public sealed record CmsSaveRoadmapResponse(
+        bool Success,
+        string Message);
+
+    private sealed record RoadmapValidationResult(
+        bool IsValid,
         string Message);
 
     public sealed record CmsDeleteResponse(

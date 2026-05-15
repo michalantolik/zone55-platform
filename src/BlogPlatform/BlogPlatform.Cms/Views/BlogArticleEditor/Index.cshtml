@@ -1,5 +1,3 @@
-@using System.Text.Json
-@using BlogPlatform.Contracts.DotnetRoadmap
 @{
     Layout = null;
 
@@ -544,11 +542,9 @@
                 }
             ];
 
-            const dotnetZones = @Html.Raw(JsonSerializer.Serialize(
-                            DotnetRoadmapCatalog.ZoneDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
-
-            const dotnetZoneSteps = @Html.Raw(JsonSerializer.Serialize(
-                            DotnetRoadmapCatalog.StepDisplayNames.Select(x => new { key = x.Key, name = x.Value })));
+            let dotnetRoadmap = [];
+            let dotnetZones = [];
+            let dotnetZoneSteps = [];
 
             const frame = document.getElementById("previewFrame");
 
@@ -567,7 +563,7 @@
             document.addEventListener("DOMContentLoaded", async () => {
                 initializeResizablePanes();
 
-                loadDotnetRoadmapOptions();
+                await loadDotnetRoadmapOptions();
 
                 attachFieldListeners();
 
@@ -677,9 +673,35 @@
                 setTimeout(sendPreviewUpdate, 1500);
             }
 
-            function loadDotnetRoadmapOptions() {
+            async function loadDotnetRoadmapOptions() {
+                const response = await fetch("/api/blog-content/dotnet-roadmap");
+
+                if (!response.ok) {
+                    console.error("[ARTICLE_EDITOR] failed to load dotnet roadmap:", response.status);
+                    dotnetRoadmap = [];
+                    dotnetZones = [];
+                    dotnetZoneSteps = [];
+                    return;
+                }
+
+                dotnetRoadmap = await response.json();
+                dotnetZones = dotnetRoadmap.map(zone => ({
+                    key: zone.key,
+                    name: zone.name
+                }));
+                dotnetZoneSteps = dotnetRoadmap.flatMap(zone =>
+                    zone.steps.map(step => ({
+                        key: step.key,
+                        name: step.name,
+                        zoneKey: zone.key
+                    })));
+
                 fillSelect("dotnetZone", dotnetZones);
-                fillSelect("dotnetZoneStep", dotnetZoneSteps);
+                fillStepSelectForZone(value("dotnetZone"));
+
+                document.getElementById("dotnetZone").addEventListener("change", () => {
+                    fillStepSelectForZone(value("dotnetZone"));
+                });
             }
 
             function fillSelect(id, items) {
@@ -694,6 +716,24 @@
                         </option>
                     `;
                 }
+            }
+
+            function fillStepSelectForZone(zoneKey) {
+                const currentStep = value("dotnetZoneStep");
+                const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+                const steps = zone?.steps ?? [];
+
+                fillSelect("dotnetZoneStep", steps);
+
+                if (steps.some(step => step.key === currentStep)) {
+                    setValue("dotnetZoneStep", currentStep);
+                }
+            }
+
+            function getFirstStepKey(zoneKey) {
+                const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+
+                return zone?.steps[0]?.key || "";
             }
 
             async function loadExistingArticle(articleKey) {
@@ -729,8 +769,9 @@
                 setValue("title", article.title);
                 setValue("slug", article.slug);
                 setValue("summary", article.summary);
-                setValue("dotnetZone", article.dotnetZone || "foundation");
-                setValue("dotnetZoneStep", article.dotnetZoneStep || "basic-syntax");
+                setValue("dotnetZone", article.dotnetZone || dotnetZones[0]?.key || "");
+                fillStepSelectForZone(value("dotnetZone"));
+                setValue("dotnetZoneStep", article.dotnetZoneStep || getFirstStepKey(value("dotnetZone")));
                 setValue("tags", article.tags);
                 setValue("bodyMarkdown", article.bodyBlocks);
 
@@ -746,8 +787,9 @@
                 setValue("title", "Example article title");
                 setValue("slug", "example-article");
                 setValue("summary", "Short article summary.");
-                setValue("dotnetZone", "foundation");
-                setValue("dotnetZoneStep", "basic-syntax");
+                setValue("dotnetZone", dotnetZones[0]?.key || "");
+                fillStepSelectForZone(value("dotnetZone"));
+                setValue("dotnetZoneStep", getFirstStepKey(value("dotnetZone")));
                 setValue("tags", ".NET, Architecture, Azure");
 
                 bodyBlocks = [
