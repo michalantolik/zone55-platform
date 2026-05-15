@@ -2,7 +2,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BlogPlatform.Application\BlogPlatform.Application.csproj" />
-		<ProjectReference Include="..\BlogPlatform.Domain\BlogPlatform.Domain.csproj" />
+		<ProjectReference Include="..\BlogPlatform.Contracts\BlogPlatform.Contracts.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

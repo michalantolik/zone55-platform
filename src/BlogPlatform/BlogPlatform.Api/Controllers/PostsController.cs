@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.Application.Posts;
+using BlogPlatform.Contracts.Posts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogPlatform.Api.Controllers;

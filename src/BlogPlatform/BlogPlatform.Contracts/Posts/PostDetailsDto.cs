@@ -1,4 +1,4 @@
-namespace BlogPlatform.Application.Posts;
+﻿namespace BlogPlatform.Contracts.Posts;
 
 public sealed record PostDetailsDto(
     string Slug,

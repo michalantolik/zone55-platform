@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<ProjectReference Include="..\BlogPlatform.Domain\BlogPlatform.Domain.csproj" />
+		<ProjectReference Include="..\BlogPlatform.Contracts\BlogPlatform.Contracts.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

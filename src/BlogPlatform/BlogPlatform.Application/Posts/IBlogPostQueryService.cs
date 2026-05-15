@@ -1,4 +1,6 @@
-﻿namespace BlogPlatform.Application.Posts;
+﻿using BlogPlatform.Contracts.Posts;
+
+namespace BlogPlatform.Application.Posts;
 
 public interface IBlogPostQueryService
 {

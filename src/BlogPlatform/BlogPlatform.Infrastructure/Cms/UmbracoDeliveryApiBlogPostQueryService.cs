@@ -1,9 +1,10 @@
-using System.Diagnostics;
-using System.Net.Http.Json;
 using BlogPlatform.Application.Posts;
+using BlogPlatform.Contracts.Posts;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
+using System.Net.Http.Json;
 
 namespace BlogPlatform.Infrastructure.Cms;
 
