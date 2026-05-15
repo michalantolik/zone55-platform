@@ -50,6 +50,40 @@ public sealed class BlogContentController : ControllerBase
         return Ok(categories);
     }
 
+    [HttpGet("dotnet-roadmap")]
+    public ActionResult<IReadOnlyCollection<CmsDotnetZoneListItemDto>> GetDotnetRoadmap()
+    {
+        var articles = GetRootArticles()
+            .Select(MapArticleListItem)
+            .ToList();
+
+        var zones = DotnetRoadmapCatalog.AllowedZoneKeys
+            .Select((zoneKey, zoneIndex) =>
+            {
+                var zoneArticleCount = articles.Count(article => article.DotnetZone == zoneKey);
+
+                var steps = DotnetRoadmapCatalog.ZoneStepKeys[zoneKey]
+                    .Select((stepKey, stepIndex) => new CmsDotnetZoneStepListItemDto(
+                        stepKey,
+                        DotnetRoadmapCatalog.StepDisplayNames[stepKey],
+                        stepIndex + 1,
+                        articles.Count(article =>
+                            article.DotnetZone == zoneKey &&
+                            article.DotnetZoneStep == stepKey)))
+                    .ToList();
+
+                return new CmsDotnetZoneListItemDto(
+                    zoneKey,
+                    DotnetRoadmapCatalog.ZoneDisplayNames[zoneKey],
+                    zoneIndex + 1,
+                    zoneArticleCount,
+                    steps);
+            })
+            .ToList();
+
+        return Ok(zones);
+    }
+
     [HttpGet("document-types")]
     public ActionResult<IReadOnlyCollection<CmsDocumentTypeListItemDto>> GetDocumentTypes()
     {
@@ -324,6 +358,12 @@ public sealed class BlogContentController : ControllerBase
             return false;
         }
 
+        if (!DotnetRoadmapCatalog.IsAllowedStepForZone(request.DotnetZone, request.DotnetZoneStep))
+        {
+            validationMessage = $"Dotnet Zone Step '{request.DotnetZoneStep}' does not belong to Dotnet Zone '{request.DotnetZone}'.";
+            return false;
+        }
+
         validationMessage = string.Empty;
         return true;
     }
@@ -386,6 +426,19 @@ public sealed class BlogContentController : ControllerBase
         Guid Key,
         string Name,
         string Slug);
+
+    public sealed record CmsDotnetZoneListItemDto(
+        string Key,
+        string Name,
+        int Order,
+        int ArticleCount,
+        IReadOnlyCollection<CmsDotnetZoneStepListItemDto> Steps);
+
+    public sealed record CmsDotnetZoneStepListItemDto(
+        string Key,
+        string Name,
+        int Order,
+        int ArticleCount);
 
     public sealed record CmsDocumentTypeListItemDto(
         Guid Key,

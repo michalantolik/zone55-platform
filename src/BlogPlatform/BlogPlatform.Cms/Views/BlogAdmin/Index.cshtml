@@ -166,7 +166,8 @@
             flex-shrink: 0;
         }
 
-        .category-badge {
+        .zone-badge,
+        .step-badge {
             display: inline-flex;
             margin-top: 16px;
             padding: 7px 10px;
@@ -175,6 +176,91 @@
             color: #a7d0ff;
             font-size: 13px;
             font-weight: 800;
+        }
+
+        .zones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 18px;
+        }
+
+        .zone-card {
+            border: 1px solid #24405f;
+            border-radius: 20px;
+            background: rgba(4, 17, 29, 0.9);
+            padding: 20px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+        }
+
+        .zone-card-header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            align-items: start;
+            margin-bottom: 18px;
+        }
+
+        .zone-order-mark,
+        .step-order-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(132, 187, 255, 0.44);
+            background: linear-gradient(180deg, rgba(132, 187, 255, 0.20), rgba(22, 119, 255, 0.08));
+            color: #d7eaff;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .zone-card h2 {
+            margin: 0 0 7px 0;
+            font-size: 22px;
+        }
+
+        .zone-key,
+        .step-key {
+            color: #aac2de;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .zone-count {
+            align-self: start;
+            white-space: nowrap;
+        }
+
+        .zone-steps {
+            display: grid;
+            gap: 10px;
+        }
+
+        .zone-step-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            border: 1px solid rgba(36, 64, 95, 0.86);
+            border-radius: 14px;
+            background: rgba(8, 28, 49, 0.72);
+            padding: 12px 14px;
+        }
+
+        .step-order-mark {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+
+        .step-name {
+            font-weight: 900;
+            margin-bottom: 3px;
+        }
+
+        .step-badge {
+            margin-top: 0;
+            white-space: nowrap;
         }
 
         .category-group { margin-bottom: 26px; }
@@ -476,7 +562,7 @@
             </div>
 
             <nav class="top-nav">
-                <button id="categoriesTab" class="active" type="button" onclick="showPanel('categories')">Categories</button>
+                <button id="zonesTab" class="active" type="button" onclick="showPanel('zones')">Zones &amp; Steps</button>
                 <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
                 <button id="documentTypesTab" type="button" onclick="showPanel('documentTypes')">Document Types</button>
             </nav>
@@ -486,18 +572,18 @@
             <section id="heroSection" class="hero">
                 <h1>Blog content workspace</h1>
                 <p>
-                    Browse Umbraco CMS categories and articles in a clean Blog Platform admin view.
+                    Browse Dotnet Zones, Zone Steps and articles in a clean Blog Platform admin view.
                     Use Open editor from the Articles tab when you want to edit an existing article with live preview.
                 </p>
             </section>
 
             <section id="toolbarSection" class="toolbar">
-                <input id="searchInput" class="search" type="search" placeholder="Search categories, articles or document types..." />
+                <input id="searchInput" class="search" type="search" placeholder="Search zones, steps, articles or document types..." />
                 <div id="statusText" class="status">Loading CMS content...</div>
             </section>
 
-            <section id="categoriesPanel" class="panel active">
-                <div id="categoriesGrid" class="grid"></div>
+            <section id="zonesPanel" class="panel active">
+                <div id="zonesGrid" class="zones-grid"></div>
             </section>
 
             <section id="documentTypesPanel" class="panel">
@@ -569,10 +655,10 @@
     </div>
 
     <script>
-        let categories = [];
+        let dotnetRoadmap = [];
         let articles = [];
         let documentTypes = [];
-        let activePanel = "categories";
+        let activePanel = "zones";
         let inlineEditorIsDirty = false;
         let inlineEditorArticleKey = null;
         let inlineEditorMode = "existing";
@@ -589,30 +675,30 @@
         });
 
         async function loadContent() {
-            const [categoriesResponse, articlesResponse, documentTypesResponse] = await Promise.all([
-                fetch("/api/blog-content/categories"),
+            const [roadmapResponse, articlesResponse, documentTypesResponse] = await Promise.all([
+                fetch("/api/blog-content/dotnet-roadmap"),
                 fetch("/api/blog-content/articles"),
                 fetch("/api/blog-content/document-types")
             ]);
 
-            categories = await categoriesResponse.json();
+            dotnetRoadmap = await roadmapResponse.json();
             articles = await articlesResponse.json();
             documentTypes = await documentTypesResponse.json();
 
             renderActivePanel();
 
             document.getElementById("statusText").innerText =
-                `${categories.length} categories, ${articles.length} articles, ${documentTypes.length} document types`;
+                `${dotnetRoadmap.length} zones, ${getTotalStepCount()} steps, ${articles.length} articles, ${documentTypes.length} document types`;
         }
 
         function showPanel(panel) {
             activePanel = panel;
 
-            document.getElementById("categoriesTab").classList.toggle("active", panel === "categories");
+            document.getElementById("zonesTab").classList.toggle("active", panel === "zones");
             document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
             document.getElementById("documentTypesTab").classList.toggle("active", panel === "documentTypes");
 
-            document.getElementById("categoriesPanel").classList.toggle("active", panel === "categories");
+            document.getElementById("zonesPanel").classList.toggle("active", panel === "zones");
             document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
             document.getElementById("documentTypesPanel").classList.toggle("active", panel === "documentTypes");
 
@@ -627,8 +713,8 @@
         }
 
         function renderActivePanel() {
-            if (activePanel === "categories") {
-                renderCategories();
+            if (activePanel === "zones") {
+                renderZones();
             }
 
             if (activePanel === "articles" && document.getElementById("articlesEditorView").classList.contains("hidden")) {
@@ -640,38 +726,75 @@
             }
         }
 
-        function renderCategories() {
+        function renderZones() {
             const search = getSearchText();
-            const filteredCategories = categories
-                .filter(category => category.name.toLowerCase().includes(search) || category.slug.toLowerCase().includes(search))
-                .sort((a, b) => a.name.localeCompare(b.name));
+            const filteredZones = dotnetRoadmap
+                .map(zone => ({
+                    ...zone,
+                    steps: zone.steps.filter(step =>
+                        zone.name.toLowerCase().includes(search) ||
+                        zone.key.toLowerCase().includes(search) ||
+                        step.name.toLowerCase().includes(search) ||
+                        step.key.toLowerCase().includes(search))
+                }))
+                .filter(zone =>
+                    zone.name.toLowerCase().includes(search) ||
+                    zone.key.toLowerCase().includes(search) ||
+                    zone.steps.length > 0)
+                .sort((a, b) => a.order - b.order);
 
-            const grid = document.getElementById("categoriesGrid");
+            const grid = document.getElementById("zonesGrid");
 
-            if (filteredCategories.length === 0) {
-                grid.innerHTML = `<div class="empty">No categories found.</div>`;
+            if (filteredZones.length === 0) {
+                grid.innerHTML = `<div class="empty">No zones or steps found.</div>`;
                 return;
             }
 
-            grid.innerHTML = filteredCategories.map(category => {
-                const count = articles.filter(article => article.categorySlug === category.slug).length;
+            grid.innerHTML = filteredZones.map(renderZoneCard).join("");
+        }
 
-                return `
-                    <article class="card">
-                        <div class="card-header">
-                            <div class="card-main">
-                                <h2>${escapeHtml(category.name)}</h2>
-                                <p>${escapeHtml(category.slug)}</p>
-                                <span class="category-badge">${count} article${count === 1 ? "" : "s"}</span>
-                            </div>
+        function renderZoneCard(zone) {
+            const zoneCountText = zone.articleCount === 1
+                ? "1 article"
+                : `${zone.articleCount} articles`;
 
-                            <div class="card-actions">
-                                ${renderDeleteButton("Delete", `requestDelete('category', '${escapeJs(category.key)}')`, "Delete category")}
-                            </div>
+            return `
+                <article class="zone-card">
+                    <div class="zone-card-header">
+                        <div class="zone-order-mark">${zone.order}</div>
+
+                        <div>
+                            <h2>${escapeHtml(zone.name)}</h2>
+                            <div class="zone-key">${escapeHtml(zone.key)}</div>
                         </div>
-                    </article>
-                `;
-            }).join("");
+
+                        <span class="zone-badge zone-count">${zoneCountText}</span>
+                    </div>
+
+                    <div class="zone-steps">
+                        ${zone.steps.map(step => renderZoneStepRow(zone, step)).join("")}
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderZoneStepRow(zone, step) {
+            const stepCountText = step.articleCount === 1
+                ? "1 article"
+                : `${step.articleCount} articles`;
+
+            return `
+                <div class="zone-step-row">
+                    <div class="step-order-mark">${step.order}</div>
+
+                    <div>
+                        <div class="step-name">${escapeHtml(step.name)}</div>
+                        <div class="step-key">${escapeHtml(step.key)}</div>
+                    </div>
+
+                    <span class="step-badge">${stepCountText}</span>
+                </div>
+            `;
         }
 
         function renderDocumentTypes() {
@@ -732,7 +855,7 @@
                 return "▤";
             }
 
-            if (alias.includes("category") || icon.includes("folder")) {
+            if (alias.includes("zone") || alias.includes("category") || icon.includes("folder")) {
                 return "▰";
             }
 
@@ -765,10 +888,14 @@
                 .filter(article =>
                     article.title.toLowerCase().includes(search) ||
                     article.slug.toLowerCase().includes(search) ||
-                    article.categoryName.toLowerCase().includes(search))
-                .sort((a, b) => a.categoryName.localeCompare(b.categoryName) || a.title.localeCompare(b.title));
+                    getZoneName(article.dotnetZone).toLowerCase().includes(search) ||
+                    getStepName(article.dotnetZoneStep).toLowerCase().includes(search))
+                .sort((a, b) =>
+                    getZoneOrder(a.dotnetZone) - getZoneOrder(b.dotnetZone) ||
+                    getStepOrder(a.dotnetZone, a.dotnetZoneStep) - getStepOrder(b.dotnetZone, b.dotnetZoneStep) ||
+                    a.title.localeCompare(b.title));
 
-            const grouped = groupByCategory(filteredArticles);
+            const grouped = groupByZoneStep(filteredArticles);
             const container = document.getElementById("articlesGrouped");
 
             if (filteredArticles.length === 0) {
@@ -778,15 +905,15 @@
 
             container.innerHTML = Object.keys(grouped)
                 .sort((a, b) => a.localeCompare(b))
-                .map(categoryName => `
+                .map(groupKey => `
                     <section class="category-group">
                         <div class="category-heading">
-                            <span>${escapeHtml(categoryName)}</span>
-                            <span>${grouped[categoryName].length}</span>
+                            <span>${escapeHtml(groupKey)}</span>
+                            <span>${grouped[groupKey].length}</span>
                         </div>
 
                         <div class="article-list">
-                            ${grouped[categoryName].map(renderArticleRow).join("")}
+                            ${grouped[groupKey].map(renderArticleRow).join("")}
                         </div>
                     </section>
                 `)
@@ -799,7 +926,7 @@
                     <div class="article-main">
                         <div class="article-title">${escapeHtml(article.title)}</div>
                         <div class="article-meta">
-                            ${escapeHtml(article.slug)} · ${escapeHtml(article.level)} · ${escapeHtml(article.focus)}
+                            ${escapeHtml(article.slug)} · ${escapeHtml(getZoneName(article.dotnetZone))} · ${escapeHtml(getStepName(article.dotnetZoneStep))} · ${escapeHtml(article.level)}
                         </div>
                     </div>
 
@@ -838,22 +965,6 @@
         }
 
         function resolveDeleteTarget(type, key) {
-            if (type === "category") {
-                const category = categories.find(item => item.key === key);
-
-                if (!category) {
-                    return null;
-                }
-
-                return {
-                    type,
-                    key,
-                    endpoint: `/api/blog-content/categories/${encodeURIComponent(key)}`,
-                    title: "Delete category?",
-                    message: `Delete category "${category.name}"? This action cannot be undone. Categories with assigned articles are protected and will not be deleted.`
-                };
-            }
-
             if (type === "article") {
                 const article = articles.find(item => item.key === key);
 
@@ -1005,7 +1116,7 @@
             saveButton.disabled = !inlineEditorIsValid;
             saveButton.title = inlineEditorIsValid
                 ? `${actionText} article`
-                : "Fill title, slug, summary, category, tags and body before saving.";
+                : "Fill title, slug, summary, Dotnet Zone, Dotnet Zone Step, tags and body before saving.";
 
             context.innerHTML = `
                 <strong>${escapeHtml(inlineEditorTitle || "Article editor")}</strong>
@@ -1091,13 +1202,51 @@
             }
         }
 
-        function groupByCategory(items) {
+        function groupByZoneStep(items) {
             return items.reduce((result, article) => {
-                const categoryName = article.categoryName || "Uncategorized";
-                result[categoryName] ??= [];
-                result[categoryName].push(article);
+                const zoneName = getZoneName(article.dotnetZone);
+                const stepName = getStepName(article.dotnetZoneStep);
+                const groupName = `${zoneName} / ${stepName}`;
+
+                result[groupName] ??= [];
+                result[groupName].push(article);
+
                 return result;
             }, {});
+        }
+
+        function getZoneName(zoneKey) {
+            return dotnetRoadmap.find(zone => zone.key === zoneKey)?.name || "Unassigned zone";
+        }
+
+        function getStepName(stepKey) {
+            for (const zone of dotnetRoadmap) {
+                const step = zone.steps.find(item => item.key === stepKey);
+
+                if (step) {
+                    return step.name;
+                }
+            }
+
+            return "Unassigned step";
+        }
+
+        function getZoneOrder(zoneKey) {
+            return dotnetRoadmap.find(zone => zone.key === zoneKey)?.order ?? Number.MAX_SAFE_INTEGER;
+        }
+
+        function getStepOrder(zoneKey, stepKey) {
+            const zone = dotnetRoadmap.find(item => item.key === zoneKey);
+
+            if (!zone) {
+                return Number.MAX_SAFE_INTEGER;
+            }
+
+            return zone.steps.find(step => step.key === stepKey)?.order ?? Number.MAX_SAFE_INTEGER;
+        }
+
+        function getTotalStepCount() {
+            return dotnetRoadmap.reduce((total, zone) => total + zone.steps.length, 0);
         }
 
         function getSearchText() {

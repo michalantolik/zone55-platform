@@ -45,6 +45,46 @@ public static class DotnetRoadmapCatalog
             [DotnetZoneKeys.CloudAdvanced] = "Cloud & Advanced"
         };
 
+
+    public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> ZoneStepKeys =
+        new Dictionary<string, IReadOnlyCollection<string>>
+        {
+            [DotnetZoneKeys.Foundation] =
+            [
+                DotnetZoneStepKeys.CSharpDotnet,
+                DotnetZoneStepKeys.BasicSyntax,
+                DotnetZoneStepKeys.TypesOperators,
+                DotnetZoneStepKeys.FunctionsClasses,
+                DotnetZoneStepKeys.ConsoleApps
+            ],
+            [DotnetZoneKeys.WebAppDevelopment] =
+            [
+                DotnetZoneStepKeys.AspNetCoreEcosystem,
+                DotnetZoneStepKeys.AspNetCoreMvc,
+                DotnetZoneStepKeys.AspNetCoreWebApi,
+                DotnetZoneStepKeys.LinqCollections,
+                DotnetZoneStepKeys.DependencyInjection,
+                DotnetZoneStepKeys.DesktopApps
+            ],
+            [DotnetZoneKeys.ArchitectureData] =
+            [
+                DotnetZoneStepKeys.SqlFundamentals,
+                DotnetZoneStepKeys.EntityFrameworkCore,
+                DotnetZoneStepKeys.AsyncProgramming,
+                DotnetZoneStepKeys.Testing,
+                DotnetZoneStepKeys.CleanArchitecture,
+                DotnetZoneStepKeys.DesignPatterns
+            ],
+            [DotnetZoneKeys.CloudAdvanced] =
+            [
+                DotnetZoneStepKeys.Microservices,
+                DotnetZoneStepKeys.AzureIntegration,
+                DotnetZoneStepKeys.CicdPipelines,
+                DotnetZoneStepKeys.PerformanceTuning,
+                DotnetZoneStepKeys.AdvancedCSharp
+            ]
+        };
+
     public static readonly IReadOnlyDictionary<string, string> StepDisplayNames =
         new Dictionary<string, string>
         {
@@ -79,6 +119,12 @@ public static class DotnetRoadmapCatalog
     public static bool IsAllowedStepKey(string? value) =>
         !string.IsNullOrWhiteSpace(value) &&
         AllowedStepKeys.Contains(value);
+
+    public static bool IsAllowedStepForZone(string? zoneKey, string? stepKey) =>
+        !string.IsNullOrWhiteSpace(zoneKey) &&
+        !string.IsNullOrWhiteSpace(stepKey) &&
+        ZoneStepKeys.TryGetValue(zoneKey, out var stepKeys) &&
+        stepKeys.Contains(stepKey);
 }
 
 public static class DotnetZoneKeys
