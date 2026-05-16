@@ -124,11 +124,8 @@ public sealed class BlogContentController : ControllerBase
         string zoneKey,
         CancellationToken cancellationToken)
     {
-        var hasAssignedArticles = HasArticlesAssignedToZone(zoneKey);
-
         var result = await _roadmapCommands.DeleteZoneAsync(
             zoneKey,
-            hasAssignedArticles,
             cancellationToken);
 
         return ToDeleteActionResult(result);
@@ -171,12 +168,9 @@ public sealed class BlogContentController : ControllerBase
         string stepKey,
         CancellationToken cancellationToken)
     {
-        var hasAssignedArticles = HasArticlesAssignedToStep(zoneKey, stepKey);
-
         var result = await _roadmapCommands.DeleteStepAsync(
             zoneKey,
             stepKey,
-            hasAssignedArticles,
             cancellationToken);
 
         return ToDeleteActionResult(result);
@@ -565,23 +559,6 @@ public sealed class BlogContentController : ControllerBase
             new CmsSaveRoadmapResponse(
                 true,
                 result.Message));
-    }
-
-    private bool HasArticlesAssignedToZone(string zoneKey)
-    {
-        return GetRootArticles()
-            .Select(MapArticleListItem)
-            .Any(article =>
-                string.Equals(article.DotnetZone, zoneKey, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private bool HasArticlesAssignedToStep(string zoneKey, string stepKey)
-    {
-        return GetRootArticles()
-            .Select(MapArticleListItem)
-            .Any(article =>
-                string.Equals(article.DotnetZone, zoneKey, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(article.DotnetZoneStep, stepKey, StringComparison.OrdinalIgnoreCase));
     }
 
     private ActionResult<CmsDeleteResponse> ToDeleteActionResult(

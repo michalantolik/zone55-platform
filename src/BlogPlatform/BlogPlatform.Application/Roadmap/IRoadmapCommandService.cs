@@ -14,7 +14,6 @@ public interface IRoadmapCommandService
 
     Task<RoadmapOperationResult> DeleteZoneAsync(
         string zoneKey,
-        bool hasAssignedArticles,
         CancellationToken cancellationToken = default);
 
     Task<RoadmapOperationResult> CreateStepAsync(
@@ -32,6 +31,5 @@ public interface IRoadmapCommandService
     Task<RoadmapOperationResult> DeleteStepAsync(
         string zoneKey,
         string stepKey,
-        bool hasAssignedArticles,
         CancellationToken cancellationToken = default);
 }

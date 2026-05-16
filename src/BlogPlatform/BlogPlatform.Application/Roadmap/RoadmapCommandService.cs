@@ -3,10 +3,14 @@
 public sealed class RoadmapCommandService : IRoadmapCommandService
 {
     private readonly IDotnetRoadmapStore _roadmapStore;
+    private readonly IRoadmapArticleAssignmentChecker _assignmentChecker;
 
-    public RoadmapCommandService(IDotnetRoadmapStore roadmapStore)
+    public RoadmapCommandService(
+        IDotnetRoadmapStore roadmapStore,
+        IRoadmapArticleAssignmentChecker assignmentChecker)
     {
         _roadmapStore = roadmapStore;
+        _assignmentChecker = assignmentChecker;
     }
 
     public async Task<RoadmapOperationResult> CreateZoneAsync(
@@ -60,10 +64,9 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
 
     public async Task<RoadmapOperationResult> DeleteZoneAsync(
         string zoneKey,
-        bool hasAssignedArticles,
         CancellationToken cancellationToken = default)
     {
-        if (hasAssignedArticles)
+        if (await _assignmentChecker.HasArticlesAssignedToZoneAsync(zoneKey, cancellationToken))
         {
             return new RoadmapOperationResult(false, "Cannot delete zone because articles still use it.");
         }
@@ -142,10 +145,9 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     public async Task<RoadmapOperationResult> DeleteStepAsync(
         string zoneKey,
         string stepKey,
-        bool hasAssignedArticles,
         CancellationToken cancellationToken = default)
     {
-        if (hasAssignedArticles)
+        if (await _assignmentChecker.HasArticlesAssignedToStepAsync(zoneKey, stepKey, cancellationToken))
         {
             return new RoadmapOperationResult(false, "Cannot delete step because articles still use it.");
         }

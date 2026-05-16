@@ -1,7 +1,9 @@
 ﻿using BlogPlatform.Application.Posts;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure.Cms;
+using BlogPlatform.Infrastructure.Persistence;
 using BlogPlatform.Infrastructure.Roadmap;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -43,6 +45,27 @@ public static class DependencyInjection
                 client.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
                 client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
             });
+
+        return services;
+    }
+
+    public static IServiceCollection AddSqlServerRoadmapStorage(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("umbracoDbDSN");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'umbracoDbDSN' is missing.");
+        }
+
+        services.AddDbContext<BlogPlatformDbContext>(options =>
+        {
+            options.UseSqlServer(connectionString);
+        });
+
+        services.AddScoped<IDotnetRoadmapStore, SqlDotnetRoadmapStore>();
 
         return services;
     }

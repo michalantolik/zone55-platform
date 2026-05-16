@@ -1,6 +1,9 @@
 using BlogPlatform.Application;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Infrastructure.Database;
+using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
+using BlogPlatform.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Events;
 
@@ -21,7 +24,7 @@ Log.Logger = new LoggerConfiguration()
         sharedLogFilePath,
         rollingInterval: RollingInterval.Day,
         shared: true,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{App}] {Message:lj}{NewLine}{Exception}")
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -56,13 +59,8 @@ try
     builder.Services.AddControllers();
 
     builder.Services.AddApplicationRoadmap();
-
-    builder.Services.AddFileSystemRoadmapStorage(
-        Path.Combine(
-            builder.Environment.ContentRootPath,
-            "Admin",
-            "Roadmap",
-            "dotnet-roadmap.admin.json"));
+    builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
+    builder.Services.AddScoped<IRoadmapArticleAssignmentChecker, CmsRoadmapArticleAssignmentChecker>();
 
     builder.CreateUmbracoBuilder()
         .AddBackOffice()
@@ -72,6 +70,8 @@ try
         .Build();
 
     WebApplication app = builder.Build();
+
+    await BlogPlatformDbInitializer.EnsureBlogPlatformSchemaAsync(app.Services);
 
     Log.Information("CMS application built.");
     Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);
