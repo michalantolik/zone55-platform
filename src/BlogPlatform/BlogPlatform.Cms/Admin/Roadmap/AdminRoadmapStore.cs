@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Contracts.DotnetRoadmap;
 
 namespace BlogPlatform.Cms.Admin.Roadmap;
 
-public sealed class AdminRoadmapStore
+public sealed class AdminRoadmapStore : IDotnetRoadmapStore
 {
     private readonly string _filePath;
     private readonly SemaphoreSlim _lock = new(1, 1);
@@ -17,17 +18,20 @@ public sealed class AdminRoadmapStore
             "dotnet-roadmap.admin.json");
     }
 
-    public async Task<AdminRoadmapDto> GetAsync()
+    public async Task<DotnetRoadmap> GetAsync(
+        CancellationToken cancellationToken = default)
     {
-        await _lock.WaitAsync();
+        await _lock.WaitAsync(cancellationToken);
 
         try
         {
-            await EnsureFileExistsAsync();
+            await EnsureFileExistsAsync(cancellationToken);
 
-            var json = await File.ReadAllTextAsync(_filePath);
+            var json = await File.ReadAllTextAsync(
+                _filePath,
+                cancellationToken);
 
-            return JsonSerializer.Deserialize<AdminRoadmapDto>(json, JsonOptions())
+            return JsonSerializer.Deserialize<DotnetRoadmap>(json, JsonOptions())
                 ?? CreateDefault();
         }
         finally
@@ -36,16 +40,22 @@ public sealed class AdminRoadmapStore
         }
     }
 
-    public async Task SaveAsync(AdminRoadmapDto roadmap)
+    public async Task SaveAsync(
+        DotnetRoadmap roadmap,
+        CancellationToken cancellationToken = default)
     {
-        await _lock.WaitAsync();
+        await _lock.WaitAsync(cancellationToken);
 
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
 
             var json = JsonSerializer.Serialize(roadmap, JsonOptions());
-            await File.WriteAllTextAsync(_filePath, json);
+
+            await File.WriteAllTextAsync(
+                _filePath,
+                json,
+                cancellationToken);
         }
         finally
         {
@@ -53,7 +63,8 @@ public sealed class AdminRoadmapStore
         }
     }
 
-    private async Task EnsureFileExistsAsync()
+    private async Task EnsureFileExistsAsync(
+        CancellationToken cancellationToken)
     {
         if (File.Exists(_filePath))
         {
@@ -65,19 +76,22 @@ public sealed class AdminRoadmapStore
         var roadmap = CreateDefault();
         var json = JsonSerializer.Serialize(roadmap, JsonOptions());
 
-        await File.WriteAllTextAsync(_filePath, json);
+        await File.WriteAllTextAsync(
+            _filePath,
+            json,
+            cancellationToken);
     }
 
-    private static AdminRoadmapDto CreateDefault()
+    private static DotnetRoadmap CreateDefault()
     {
         var zones = DotnetRoadmapCatalog.AllowedZoneKeys
-            .Select((zoneKey, zoneIndex) => new AdminRoadmapZoneDto
+            .Select((zoneKey, zoneIndex) => new DotnetRoadmapZone
             {
                 Key = zoneKey,
                 Name = DotnetRoadmapCatalog.ZoneDisplayNames[zoneKey],
                 Order = zoneIndex + 1,
                 Steps = DotnetRoadmapCatalog.ZoneStepKeys[zoneKey]
-                    .Select((stepKey, stepIndex) => new AdminRoadmapStepDto
+                    .Select((stepKey, stepIndex) => new DotnetRoadmapStep
                     {
                         Key = stepKey,
                         Name = DotnetRoadmapCatalog.StepDisplayNames[stepKey],
@@ -87,7 +101,7 @@ public sealed class AdminRoadmapStore
             })
             .ToList();
 
-        return new AdminRoadmapDto
+        return new DotnetRoadmap
         {
             Zones = zones
         };
@@ -99,24 +113,4 @@ public sealed class AdminRoadmapStore
             WriteIndented = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-}
-
-public sealed class AdminRoadmapDto
-{
-    public List<AdminRoadmapZoneDto> Zones { get; set; } = [];
-}
-
-public sealed class AdminRoadmapZoneDto
-{
-    public string Key { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public int Order { get; set; }
-    public List<AdminRoadmapStepDto> Steps { get; set; } = [];
-}
-
-public sealed class AdminRoadmapStepDto
-{
-    public string Key { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public int Order { get; set; }
 }

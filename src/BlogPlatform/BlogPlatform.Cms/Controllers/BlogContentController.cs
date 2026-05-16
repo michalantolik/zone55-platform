@@ -1,13 +1,9 @@
-using System.IO.Compression;
-using System.Net;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using BlogPlatform.Cms.Admin.Roadmap;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Seeding;
 using BlogPlatform.Contracts.DotnetRoadmap;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 
@@ -24,14 +20,14 @@ public sealed class BlogContentController : ControllerBase
     private readonly IContentTypeService _contentTypeService;
     private readonly ILogger<BlogContentController> _logger;
     private readonly IMemoryCache _cache;
-    private readonly AdminRoadmapStore _roadmapStore;
+    private readonly IDotnetRoadmapStore _roadmapStore;
 
     public BlogContentController(
         IContentService contentService,
         IContentTypeService contentTypeService,
         ILogger<BlogContentController> logger,
         IMemoryCache cache,
-        AdminRoadmapStore roadmapStore)
+        IDotnetRoadmapStore roadmapStore)
     {
         _contentService = contentService;
         _contentTypeService = contentTypeService;
@@ -109,7 +105,7 @@ public sealed class BlogContentController : ControllerBase
             return BadRequest(new CmsSaveRoadmapResponse(false, "Zone key already exists."));
         }
 
-        roadmap.Zones.Add(new AdminRoadmapZoneDto
+        roadmap.Zones.Add(new DotnetRoadmapZone
         {
             Key = key,
             Name = request.Name.Trim(),
@@ -203,7 +199,7 @@ public sealed class BlogContentController : ControllerBase
             return BadRequest(new CmsSaveRoadmapResponse(false, "Step key already exists."));
         }
 
-        zone.Steps.Add(new AdminRoadmapStepDto
+        zone.Steps.Add(new DotnetRoadmapStep
         {
             Key = key,
             Name = request.Name.Trim(),
@@ -561,7 +557,7 @@ public sealed class BlogContentController : ControllerBase
         return new RoadmapValidationResult(true, string.Empty);
     }
 
-    private static void ReorderZones(AdminRoadmapDto roadmap)
+    private static void ReorderZones(DotnetRoadmap roadmap)
     {
         var index = 1;
 
@@ -571,7 +567,7 @@ public sealed class BlogContentController : ControllerBase
         }
     }
 
-    private static void ReorderSteps(AdminRoadmapZoneDto zone)
+    private static void ReorderSteps(DotnetRoadmapZone zone)
     {
         var index = 1;
 

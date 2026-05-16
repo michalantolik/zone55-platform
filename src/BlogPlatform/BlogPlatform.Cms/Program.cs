@@ -1,3 +1,4 @@
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Admin.Roadmap;
 using BlogPlatform.Cms.Infrastructure.Database;
 using Serilog;
@@ -53,7 +54,7 @@ try
 
     builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
-    builder.Services.AddSingleton<AdminRoadmapStore>();
+    builder.Services.AddSingleton<IDotnetRoadmapStore, AdminRoadmapStore>();
 
     builder.CreateUmbracoBuilder()
         .AddBackOffice()

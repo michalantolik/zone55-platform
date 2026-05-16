@@ -27,6 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\BlogPlatform.Application\BlogPlatform.Application.csproj" />
 		<ProjectReference Include="..\BlogPlatform.Contracts\BlogPlatform.Contracts.csproj" />
 	</ItemGroup>
 
