@@ -3,7 +3,6 @@ using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Infrastructure.Database;
 using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
-using BlogPlatform.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Events;
 
@@ -62,8 +61,12 @@ try
     builder.Services.AddApplicationRoadmapQueries();
     builder.Services.AddApplicationRoadmapCommands();
 
-    builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddInfrastructurePosts(builder.Configuration);
     builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
+
+    builder.Services.AddScoped<
+        IRoadmapArticleAssignmentChecker,
+        CmsRoadmapArticleAssignmentChecker>();
 
     builder.Services.AddScoped<
         IRoadmapArticleAssignmentChecker,
@@ -78,7 +81,7 @@ try
 
     WebApplication app = builder.Build();
 
-    await BlogPlatformDbInitializer.EnsureBlogPlatformSchemaAsync(app.Services);
+    await app.Services.InitializeBlogPlatformDatabaseAsync();
 
     Log.Information("CMS application built.");
     Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);

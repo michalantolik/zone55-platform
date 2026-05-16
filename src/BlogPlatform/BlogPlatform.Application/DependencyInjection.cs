@@ -6,16 +6,6 @@ namespace BlogPlatform.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(
-        this IServiceCollection services)
-    {
-        services.AddApplicationPosts();
-        services.AddApplicationRoadmapQueries();
-        services.AddApplicationRoadmapCommands();
-
-        return services;
-    }
-
     public static IServiceCollection AddApplicationPosts(
         this IServiceCollection services)
     {

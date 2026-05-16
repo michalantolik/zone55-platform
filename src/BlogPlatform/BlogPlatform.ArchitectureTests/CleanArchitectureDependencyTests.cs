@@ -1,6 +1,7 @@
 ﻿using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application.Posts;
 using BlogPlatform.Cms.Controllers;
+using BlogPlatform.Contracts.Posts;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Cms;
 using NetArchTest.Rules;
@@ -39,6 +40,24 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Cms",
                 "BlogPlatform.App",
                 "BlogPlatform.Contracts")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Contracts_Should_Not_Depend_On_Application_Domain_Or_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(PostListItemDto).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "BlogPlatform.Application",
+                "BlogPlatform.Domain",
+                "BlogPlatform.Infrastructure",
+                "BlogPlatform.Api",
+                "BlogPlatform.Cms",
+                "BlogPlatform.App")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -85,6 +104,21 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Api",
                 "BlogPlatform.App",
                 "BlogPlatform.Domain")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Presentation_Should_Not_Depend_On_Infrastructure_Persistence_Details()
+    {
+        var result = Types
+            .InAssemblies([
+                typeof(PostsController).Assembly,
+                typeof(BlogContentController).Assembly
+            ])
+            .ShouldNot()
+            .HaveDependencyOn("BlogPlatform.Infrastructure.Persistence")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));

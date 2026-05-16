@@ -16,6 +16,16 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddInfrastructurePosts(configuration);
+        services.AddSqlServerRoadmapStorage(configuration);
+
+        return services;
+    }
+
+    public static IServiceCollection AddInfrastructurePosts(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
         services.AddMemoryCache();
 
         services
@@ -68,5 +78,14 @@ public static class DependencyInjection
         services.AddScoped<IDotnetRoadmapStore, SqlDotnetRoadmapStore>();
 
         return services;
+    }
+
+    public static Task InitializeBlogPlatformDatabaseAsync(
+        this IServiceProvider services,
+        CancellationToken cancellationToken = default)
+    {
+        return BlogPlatformDbInitializer.EnsureBlogPlatformSchemaAsync(
+            services,
+            cancellationToken);
     }
 }

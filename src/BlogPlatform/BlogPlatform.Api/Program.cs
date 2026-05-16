@@ -1,7 +1,6 @@
 using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application;
 using BlogPlatform.Infrastructure;
-using BlogPlatform.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Events;
 using System.Threading.RateLimiting;
@@ -85,7 +84,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-await BlogPlatformDbInitializer.EnsureBlogPlatformSchemaAsync(app.Services);
+await app.Services.InitializeBlogPlatformDatabaseAsync();
 
 app.UseSerilogRequestLogging();
 
