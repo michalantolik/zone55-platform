@@ -28,7 +28,11 @@ public sealed class PostsController : ControllerBase
         [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
-        var posts = await _posts.GetPublishedPostsAsync(category, cancellationToken);
+        var query = new GetPublishedPostsQuery(category);
+
+        var posts = await _posts.GetPublishedPostsAsync(
+            query,
+            cancellationToken);
 
         return Ok(posts.Select(PostContractMapper.ToDto).ToList());
     }
@@ -72,7 +76,9 @@ public sealed class PostsController : ControllerBase
         string slug,
         CancellationToken cancellationToken)
     {
-        var post = await _posts.GetPostBySlugAsync(slug, cancellationToken);
+        var post = await _posts.GetPostBySlugAsync(
+            slug,
+            cancellationToken);
 
         return post is null
             ? NotFound()

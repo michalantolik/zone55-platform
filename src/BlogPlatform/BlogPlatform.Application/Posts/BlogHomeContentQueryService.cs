@@ -16,7 +16,7 @@ internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
         var categories = await _posts.GetCategoriesAsync(cancellationToken);
 
         var posts = await _posts.GetPublishedPostsAsync(
-            categorySlug,
+            new GetPublishedPostsQuery(categorySlug),
             cancellationToken);
 
         return new BlogHomeContent(categories, posts);

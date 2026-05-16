@@ -3,7 +3,7 @@
 public interface IBlogPostQueryService
 {
     Task<IReadOnlyCollection<PostListItem>> GetPublishedPostsAsync(
-        string? categorySlug,
+        GetPublishedPostsQuery query,
         CancellationToken cancellationToken);
 
     Task<PostDetails?> GetPostBySlugAsync(
