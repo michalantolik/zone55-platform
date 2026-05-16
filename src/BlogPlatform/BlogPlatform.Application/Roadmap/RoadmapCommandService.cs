@@ -1,6 +1,4 @@
-﻿using BlogPlatform.Domain.ValueObjects;
-
-namespace BlogPlatform.Application.Roadmap;
+﻿namespace BlogPlatform.Application.Roadmap;
 
 public sealed class RoadmapCommandService : IRoadmapCommandService
 {
@@ -22,20 +20,14 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var key = CreateSlug(string.IsNullOrWhiteSpace(requestedKey) ? name : requestedKey);
+        var key = CreateComparisonKey(requestedKey ?? name);
 
-        if (roadmap.Zones.Any(zone => zone.Key == key))
+        if (roadmap.ContainsZone(key))
         {
             return new RoadmapOperationResult(false, "Zone key already exists.");
         }
 
-        roadmap.Zones.Add(new DotnetRoadmapZone
-        {
-            Key = key,
-            Name = name.Trim(),
-            Order = roadmap.Zones.Count + 1,
-            Steps = []
-        });
+        roadmap.AddZone(name, requestedKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
@@ -53,14 +45,13 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
 
-        if (zone is null)
+        if (!roadmap.ContainsZone(zoneKey))
         {
             return new RoadmapOperationResult(false, "Zone not found.");
         }
 
-        zone.Name = name.Trim();
+        roadmap.RenameZone(zoneKey, name);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
@@ -78,15 +69,13 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
 
-        if (zone is null)
+        if (!roadmap.ContainsZone(zoneKey))
         {
             return new RoadmapOperationResult(false, "Zone not found.");
         }
 
-        roadmap.Zones.Remove(zone);
-        ReorderZones(roadmap);
+        roadmap.DeleteZone(zoneKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
@@ -105,26 +94,20 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
 
-        if (zone is null)
+        if (!roadmap.ContainsZone(zoneKey))
         {
             return new RoadmapOperationResult(false, "Zone not found.");
         }
 
-        var key = CreateSlug(string.IsNullOrWhiteSpace(requestedKey) ? name : requestedKey);
+        var key = CreateComparisonKey(requestedKey ?? name);
 
-        if (roadmap.Zones.SelectMany(item => item.Steps).Any(step => step.Key == key))
+        if (roadmap.ContainsStep(key))
         {
             return new RoadmapOperationResult(false, "Step key already exists.");
         }
 
-        zone.Steps.Add(new DotnetRoadmapStep
-        {
-            Key = key,
-            Name = name.Trim(),
-            Order = zone.Steps.Count + 1
-        });
+        roadmap.AddStep(zoneKey, name, requestedKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
@@ -143,15 +126,13 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-        var step = zone?.Steps.FirstOrDefault(item => item.Key == stepKey);
 
-        if (zone is null || step is null)
+        if (!roadmap.IsValidAssignment(zoneKey, stepKey))
         {
             return new RoadmapOperationResult(false, "Step not found.");
         }
 
-        step.Name = name.Trim();
+        roadmap.RenameStep(zoneKey, stepKey, name);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
@@ -170,44 +151,21 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-        var step = zone?.Steps.FirstOrDefault(item => item.Key == stepKey);
 
-        if (zone is null || step is null)
+        if (!roadmap.IsValidAssignment(zoneKey, stepKey))
         {
             return new RoadmapOperationResult(false, "Step not found.");
         }
 
-        zone.Steps.Remove(step);
-        ReorderSteps(zone);
+        roadmap.DeleteStep(zoneKey, stepKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
         return new RoadmapOperationResult(true, "Step deleted successfully.");
     }
 
-    private static void ReorderZones(DotnetRoadmap roadmap)
+    private static string CreateComparisonKey(string value)
     {
-        var index = 1;
-
-        foreach (var zone in roadmap.Zones.OrderBy(zone => zone.Order))
-        {
-            zone.Order = index++;
-        }
-    }
-
-    private static void ReorderSteps(DotnetRoadmapZone zone)
-    {
-        var index = 1;
-
-        foreach (var step in zone.Steps.OrderBy(step => step.Order))
-        {
-            step.Order = index++;
-        }
-    }
-
-    private static string CreateSlug(string value)
-    {
-        return Slug.Create(value).Value;
+        return BlogPlatform.Domain.ValueObjects.Slug.Create(value).Value;
     }
 }

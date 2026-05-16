@@ -1,4 +1,6 @@
-﻿namespace BlogPlatform.Application.Roadmap;
+﻿using BlogPlatform.Domain.Entities;
+
+namespace BlogPlatform.Application.Roadmap;
 
 public interface IDotnetRoadmapStore
 {

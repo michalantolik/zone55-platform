@@ -9,7 +9,7 @@ public sealed class RoadmapQueryService : IRoadmapQueryService
         _roadmapStore = roadmapStore;
     }
 
-    public Task<DotnetRoadmap> GetRoadmapAsync(
+    public Task<BlogPlatform.Domain.Entities.DotnetRoadmap> GetRoadmapAsync(
         CancellationToken cancellationToken = default)
     {
         return _roadmapStore.GetAsync(cancellationToken);
@@ -31,14 +31,13 @@ public sealed class RoadmapQueryService : IRoadmapQueryService
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
 
-        if (zone is null)
+        if (!roadmap.ContainsZone(zoneKey))
         {
             return new RoadmapOperationResult(false, $"Invalid Dotnet Zone: {zoneKey}");
         }
 
-        if (zone.Steps.All(item => item.Key != stepKey))
+        if (!roadmap.IsValidAssignment(zoneKey, stepKey))
         {
             return new RoadmapOperationResult(false, $"Dotnet Zone Step '{stepKey}' does not belong to Dotnet Zone '{zoneKey}'.");
         }

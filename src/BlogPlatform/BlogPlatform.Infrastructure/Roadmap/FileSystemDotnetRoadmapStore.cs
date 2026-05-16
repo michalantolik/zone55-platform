@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Domain.Entities;
 using Microsoft.Extensions.Options;
 
 namespace BlogPlatform.Infrastructure.Roadmap;
