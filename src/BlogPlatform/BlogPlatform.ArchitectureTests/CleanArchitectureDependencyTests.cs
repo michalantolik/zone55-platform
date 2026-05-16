@@ -61,28 +61,30 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Api_Should_Not_Depend_On_Cms_Or_App()
+    public void Api_Should_Not_Depend_On_Cms_App_Or_Domain()
     {
         var result = Types
             .InAssembly(typeof(PostsController).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Cms",
-                "BlogPlatform.App")
+                "BlogPlatform.App",
+                "BlogPlatform.Domain")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
     }
 
     [Fact]
-    public void Cms_Should_Not_Depend_On_Api_Or_App()
+    public void Cms_Should_Not_Depend_On_Api_App_Or_Domain()
     {
         var result = Types
             .InAssembly(typeof(BlogContentController).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Api",
-                "BlogPlatform.App")
+                "BlogPlatform.App",
+                "BlogPlatform.Domain")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));

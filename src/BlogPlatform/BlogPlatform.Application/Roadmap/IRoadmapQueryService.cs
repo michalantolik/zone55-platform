@@ -1,10 +1,8 @@
-﻿using BlogPlatform.Domain.Entities;
-
-namespace BlogPlatform.Application.Roadmap;
+﻿namespace BlogPlatform.Application.Roadmap;
 
 public interface IRoadmapQueryService
 {
-    Task<DotnetRoadmap> GetRoadmapAsync(
+    Task<IReadOnlyCollection<RoadmapZoneModel>> GetRoadmapAsync(
         CancellationToken cancellationToken = default);
 
     Task<RoadmapOperationResult> ValidateStepAsync(

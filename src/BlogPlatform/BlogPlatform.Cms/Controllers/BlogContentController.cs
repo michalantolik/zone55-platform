@@ -63,7 +63,7 @@ public sealed class BlogContentController : ControllerBase
 
         var roadmap = await _roadmapQueries.GetRoadmapAsync();
 
-        var zones = roadmap.Zones
+        var zones = roadmap
             .OrderBy(zone => zone.Order)
             .Select(zone =>
             {

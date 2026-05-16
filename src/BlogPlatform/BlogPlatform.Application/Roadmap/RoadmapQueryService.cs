@@ -9,10 +9,25 @@ public sealed class RoadmapQueryService : IRoadmapQueryService
         _roadmapStore = roadmapStore;
     }
 
-    public Task<BlogPlatform.Domain.Entities.DotnetRoadmap> GetRoadmapAsync(
+    public async Task<IReadOnlyCollection<RoadmapZoneModel>> GetRoadmapAsync(
         CancellationToken cancellationToken = default)
     {
-        return _roadmapStore.GetAsync(cancellationToken);
+        var roadmap = await _roadmapStore.GetAsync(cancellationToken);
+
+        return roadmap.Zones
+            .OrderBy(zone => zone.Order)
+            .Select(zone => new RoadmapZoneModel(
+                zone.Key,
+                zone.Name,
+                zone.Order,
+                zone.Steps
+                    .OrderBy(step => step.Order)
+                    .Select(step => new RoadmapStepModel(
+                        step.Key,
+                        step.Name,
+                        step.Order))
+                    .ToList()))
+            .ToList();
     }
 
     public async Task<RoadmapOperationResult> ValidateStepAsync(
