@@ -1,4 +1,6 @@
 using System.Text.Json;
+using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
@@ -24,6 +26,7 @@ public sealed class BlogContentSeeder
     private readonly IShortStringHelper _shortStringHelper;
     private readonly ILogger<BlogContentSeeder> _logger;
     private readonly IWebHostEnvironment _environment;
+    private readonly IDotnetRoadmapStore _roadmapStore;
     private readonly BlogContentSeederOptions _options;
 
     public BlogContentSeeder(
@@ -34,6 +37,7 @@ public sealed class BlogContentSeeder
         IConfigurationEditorJsonSerializer configurationEditorJsonSerializer,
         IShortStringHelper shortStringHelper,
         IWebHostEnvironment environment,
+        IDotnetRoadmapStore roadmapStore,
         IOptions<BlogContentSeederOptions> options,
         ILogger<BlogContentSeeder> logger)
     {
@@ -44,6 +48,7 @@ public sealed class BlogContentSeeder
         _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
         _shortStringHelper = shortStringHelper;
         _environment = environment;
+        _roadmapStore = roadmapStore;
         _options = options.Value;
         _logger = logger;
     }
@@ -56,6 +61,7 @@ public sealed class BlogContentSeeder
         var seedContent = await LoadSeedContentAsync();
 
         SeedCategories(seedContent.Categories);
+        await SeedRoadmapAsync(seedContent.RoadmapZones);
         SeedArticles(seedContent.Articles);
     }
 
@@ -90,6 +96,37 @@ public sealed class BlogContentSeeder
         {
             CreateCategory(category.Name, category.Slug);
         }
+    }
+
+    private async Task SeedRoadmapAsync(IEnumerable<BlogSeedRoadmapZone> roadmapZones)
+    {
+        var zones = roadmapZones
+            .OrderBy(zone => zone.Order)
+            .Select(zone => DotnetRoadmapZone.Create(
+                zone.Key,
+                zone.Name,
+                zone.Order,
+                zone.Steps
+                    .OrderBy(step => step.Order)
+                    .Select(step => DotnetRoadmapStep.Create(
+                        step.Key,
+                        step.Name,
+                        step.Order))))
+            .ToList();
+
+        if (zones.Count == 0)
+        {
+            _logger.LogInformation(
+                "No roadmap zones found in blog seed content. Roadmap seeding skipped.");
+
+            return;
+        }
+
+        await _roadmapStore.SaveAsync(DotnetRoadmap.Create(zones));
+
+        _logger.LogInformation(
+            "Seeded {ZoneCount} roadmap zones from blog seed content.",
+            zones.Count);
     }
 
     private void SeedArticles(IEnumerable<BlogSeedArticle> articles)
@@ -688,3 +725,4 @@ public sealed class BlogContentSeeder
         string ElementTypeAlias,
         Dictionary<string, object?> Properties);
 }
+

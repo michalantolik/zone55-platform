@@ -3,6 +3,7 @@
 public sealed class BlogSeedContent
 {
     public List<BlogSeedCategory> Categories { get; set; } = [];
+    public List<BlogSeedRoadmapZone> RoadmapZones { get; set; } = [];
     public List<BlogSeedArticle> Articles { get; set; } = [];
 }
 
@@ -10,6 +11,21 @@ public sealed class BlogSeedCategory
 {
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
+}
+
+public sealed class BlogSeedRoadmapZone
+{
+    public string Key { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Order { get; set; }
+    public List<BlogSeedRoadmapStep> Steps { get; set; } = [];
+}
+
+public sealed class BlogSeedRoadmapStep
+{
+    public string Key { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int Order { get; set; }
 }
 
 public sealed class BlogSeedArticle

@@ -9,6 +9,151 @@
       "slug": "architecture"
     }
   ],
+  "roadmapZones": [
+    {
+      "key": "foundation",
+      "name": "Foundation",
+      "order": 1,
+      "steps": [
+        {
+          "key": "csharp-dotnet",
+          "name": "C# & .NET",
+          "order": 1
+        },
+        {
+          "key": "basic-syntax",
+          "name": "Basic Syntax",
+          "order": 2
+        },
+        {
+          "key": "types-operators",
+          "name": "Types & Operators",
+          "order": 3
+        },
+        {
+          "key": "functions-classes",
+          "name": "Functions & Classes",
+          "order": 4
+        },
+        {
+          "key": "console-apps",
+          "name": "Console Apps",
+          "order": 5
+        },
+        {
+          "key": "sth",
+          "name": "Something",
+          "order": 6
+        }
+      ]
+    },
+    {
+      "key": "web-app-development",
+      "name": "Web & App Development",
+      "order": 2,
+      "steps": [
+        {
+          "key": "aspnet-core-ecosystem",
+          "name": "ASP.NET Core Ecosystem",
+          "order": 1
+        },
+        {
+          "key": "aspnet-core-mvc",
+          "name": "ASP.NET Core MVC",
+          "order": 2
+        },
+        {
+          "key": "aspnet-core-web-api",
+          "name": "ASP.NET Core Web API",
+          "order": 3
+        },
+        {
+          "key": "linq-collections",
+          "name": "LINQ & Collections",
+          "order": 4
+        },
+        {
+          "key": "dependency-injection",
+          "name": "Dependency Injection",
+          "order": 5
+        },
+        {
+          "key": "desktop-apps",
+          "name": "Desktop Apps",
+          "order": 6
+        }
+      ]
+    },
+    {
+      "key": "architecture-data",
+      "name": "Architecture & Data",
+      "order": 3,
+      "steps": [
+        {
+          "key": "sql-fundamentals",
+          "name": "SQL Fundamentals",
+          "order": 1
+        },
+        {
+          "key": "entity-framework-core",
+          "name": "Entity Framework Core",
+          "order": 2
+        },
+        {
+          "key": "async-programming",
+          "name": "Async Programming",
+          "order": 3
+        },
+        {
+          "key": "testing",
+          "name": "Testing",
+          "order": 4
+        },
+        {
+          "key": "clean-architecture",
+          "name": "Clean Architecture",
+          "order": 5
+        },
+        {
+          "key": "design-patterns",
+          "name": "Design Patterns",
+          "order": 6
+        }
+      ]
+    },
+    {
+      "key": "cloud-advanced",
+      "name": "Cloud & Advanced",
+      "order": 4,
+      "steps": [
+        {
+          "key": "microservices",
+          "name": "Microservices",
+          "order": 1
+        },
+        {
+          "key": "azure-integration",
+          "name": "Azure Integration",
+          "order": 2
+        },
+        {
+          "key": "cicd-pipelines",
+          "name": "CI/CD Pipelines",
+          "order": 3
+        },
+        {
+          "key": "performance-tuning",
+          "name": "Performance Tuning",
+          "order": 4
+        },
+        {
+          "key": "advanced-csharp",
+          "name": "Advanced C#",
+          "order": 5
+        }
+      ]
+    }
+  ],
   "articles": [
     {
       "name": "How I Structure Configuration in ASP.NET Core",
@@ -134,7 +279,7 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Variables.cs",
-          "code": "string name = \"Michał\";\nint articleCount = 6;\nbool isPublished = true;\n\nConsole.WriteLine(name);\nConsole.WriteLine(articleCount);\nConsole.WriteLine(isPublished);\n"
+          "code": "string name = \"Micha\u0142\";\nint articleCount = 6;\nbool isPublished = true;\n\nConsole.WriteLine(name);\nConsole.WriteLine(articleCount);\nConsole.WriteLine(isPublished);\n"
         },
         {
           "type": "text",

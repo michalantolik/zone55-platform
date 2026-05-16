@@ -25,7 +25,7 @@ public sealed class SqlDotnetRoadmapStore : IDotnetRoadmapStore
 
         if (zones.Count == 0)
         {
-            return DotnetRoadmapDefaults.Create();
+            return DotnetRoadmap.Create([]);
         }
 
         return DotnetRoadmap.Create(

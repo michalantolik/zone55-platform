@@ -1,6 +1,4 @@
-﻿using BlogPlatform.Application.Roadmap;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,12 +15,6 @@ public static class BlogPlatformDbInitializer
         var dbContext = scope.ServiceProvider
             .GetRequiredService<BlogPlatformDbContext>();
 
-        var roadmapStore = scope.ServiceProvider
-            .GetRequiredService<IDotnetRoadmapStore>();
-
-        var configuration = scope.ServiceProvider
-            .GetRequiredService<IConfiguration>();
-
         var logger = scope.ServiceProvider
             .GetRequiredService<ILogger<BlogPlatformDbContext>>();
 
@@ -32,35 +24,6 @@ public static class BlogPlatformDbInitializer
         await EnsureSchemaAsync(dbContext, cancellationToken);
 
         await EnsureTablesAsync(dbContext, cancellationToken);
-
-        var syncDefaultRoadmapOnStartup = configuration.GetValue<bool>(
-            "Roadmap:SyncDefaultRoadmapOnStartup");
-
-        var hasZones = await dbContext.RoadmapZones
-            .AsNoTracking()
-            .AnyAsync(cancellationToken);
-
-        if (syncDefaultRoadmapOnStartup)
-        {
-            logger.LogInformation(
-                "Syncing default roadmap data into SQL storage.");
-
-            await roadmapStore.SaveAsync(
-                DotnetRoadmapDefaults.Create(),
-                cancellationToken);
-
-            return;
-        }
-
-        if (!hasZones)
-        {
-            logger.LogInformation(
-                "Seeding default roadmap data into empty SQL storage.");
-
-            await roadmapStore.SaveAsync(
-                DotnetRoadmapDefaults.Create(),
-                cancellationToken);
-        }
     }
 
     private static async Task EnsureSchemaAsync(
