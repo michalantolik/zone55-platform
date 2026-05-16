@@ -10,11 +10,10 @@ public sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
     }
 
     public async Task<BlogHomeContent> GetHomeContentAsync(
-        string? categorySlug,
         CancellationToken cancellationToken)
     {
         var posts = await _posts.GetPublishedPostsAsync(
-            new GetPublishedPostsQuery(categorySlug),
+            GetPublishedPostsQuery.All,
             cancellationToken);
 
         return new BlogHomeContent(posts);

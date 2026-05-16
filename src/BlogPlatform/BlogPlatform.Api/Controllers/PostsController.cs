@@ -25,11 +25,10 @@ public sealed class PostsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyCollection<PostListItemDto>>> GetPosts(
-        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
         var posts = await _posts.GetPublishedPostsAsync(
-            new GetPublishedPostsQuery(category),
+            GetPublishedPostsQuery.All,
             cancellationToken);
 
         return Ok(posts.Select(PostContractMapper.ToDto).ToList());
@@ -61,12 +60,9 @@ public sealed class PostsController : ControllerBase
 
     [HttpGet("home")]
     public async Task<ActionResult<BlogHomeContentDto>> GetHomeContent(
-        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
-        var result = await _homeContent.GetHomeContentAsync(
-            category,
-            cancellationToken);
+        var result = await _homeContent.GetHomeContentAsync(cancellationToken);
 
         var dto = new BlogHomeContentDto(
             result.Posts.Select(PostContractMapper.ToDto).ToList());

@@ -32,25 +32,15 @@ public sealed class Post
     }
 
     public string Slug { get; }
-
     public string Title { get; }
-
     public string Summary { get; }
-
     public string Level { get; }
-
     public string Focus { get; }
-
     public string? DotnetZone { get; }
-
     public string? DotnetZoneStep { get; }
-
     public IReadOnlyCollection<string> Tags { get; }
-
     public DateTimeOffset? PublishedDate { get; }
-
     public string BodyHtml { get; }
-
     public PostStatus Status { get; }
 
     public bool IsPublished => Status == PostStatus.Published;
@@ -71,10 +61,7 @@ public sealed class Post
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(Level))
-            {
-                return 50;
-            }
+            if (string.IsNullOrWhiteSpace(Level)) return 50;
 
             if (Level.Contains("beginner", StringComparison.OrdinalIgnoreCase) ||
                 Level.Contains("basic", StringComparison.OrdinalIgnoreCase) ||
@@ -83,15 +70,8 @@ public sealed class Post
                 return 10;
             }
 
-            if (Level.Contains("intermediate", StringComparison.OrdinalIgnoreCase))
-            {
-                return 20;
-            }
-
-            if (Level.Contains("advanced", StringComparison.OrdinalIgnoreCase))
-            {
-                return 30;
-            }
+            if (Level.Contains("intermediate", StringComparison.OrdinalIgnoreCase)) return 20;
+            if (Level.Contains("advanced", StringComparison.OrdinalIgnoreCase)) return 30;
 
             return 50;
         }
@@ -162,20 +142,15 @@ public sealed class Post
 
     private static string NormalizeOptionalAsEmpty(string? value)
     {
-        return string.IsNullOrWhiteSpace(value)
-            ? string.Empty
-            : value.Trim();
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
     }
 
     private static string? NormalizeOptional(string? value)
     {
-        return string.IsNullOrWhiteSpace(value)
-            ? null
-            : value.Trim();
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
-    private static IReadOnlyCollection<string> NormalizeTags(
-        IReadOnlyCollection<string>? tags)
+    private static IReadOnlyCollection<string> NormalizeTags(IReadOnlyCollection<string>? tags)
     {
         return tags?
             .Where(tag => !string.IsNullOrWhiteSpace(tag))

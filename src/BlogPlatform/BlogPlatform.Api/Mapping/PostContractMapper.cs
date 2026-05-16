@@ -5,14 +5,6 @@ namespace BlogPlatform.Api.Mapping;
 
 internal static class PostContractMapper
 {
-    public static CategoryDto ToDto(CategorySummary category)
-    {
-        return new CategoryDto(
-            category.Slug,
-            category.Name,
-            category.Count);
-    }
-
     public static PostListItemDto ToDto(PostListItem post)
     {
         return new PostListItemDto(

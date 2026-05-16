@@ -32,12 +32,4 @@ internal static class BlogPostApplicationMapper
             post.PublishedDate,
             post.BodyHtml);
     }
-
-    public static CategorySummary ToCategorySummary(
-        string slug,
-        string name,
-        int count)
-    {
-        return new CategorySummary(slug, name, count);
-    }
 }

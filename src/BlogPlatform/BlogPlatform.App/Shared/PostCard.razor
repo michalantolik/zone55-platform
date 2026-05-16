@@ -10,7 +10,7 @@
     <div class="post-card-meta">
         @if (ShouldShowArticleCardTag)
         {
-            <span class="post-card-category-pill">@Category</span>
+            <span class="post-card-category-pill">@StepTitle</span>
         }
 
         @if (ArticleOrder is not null)
@@ -197,7 +197,7 @@
 @code {
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string Summary { get; set; } = string.Empty;
-    [Parameter] public string Category { get; set; } = string.Empty;
+    [Parameter] public string StepTitle { get; set; } = string.Empty;
     [Parameter] public string Level { get; set; } = "Intermediate";
     [Parameter] public string Focus { get; set; } = "Practical";
     [Parameter] public string Url { get; set; } = "#";
@@ -211,7 +211,8 @@
         Configuration.GetValue<bool>("Features:CollapseArticleCardTagByDefault");
 
     private bool ShouldShowArticleCardTag =>
-        !ShouldCollapseArticleCardTag && !string.IsNullOrWhiteSpace(Category);
+        !ShouldCollapseArticleCardTag &&
+        !string.IsNullOrWhiteSpace(StepTitle);
 
     private string PostCardCssClass =>
         $"post-card {(IsExtensiveArticleCard ? "post-card-extensive" : "post-card-compact")} {(ShouldShowArticleCardTag ? string.Empty : "post-card-tag-collapsed")}";

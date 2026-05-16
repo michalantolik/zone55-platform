@@ -148,7 +148,6 @@
     {
       "name": "How I Structure Configuration in ASP.NET Core",
       "slug": "aspnet-core-configuration-cloud-ready",
-      "categorySlug": "backend-dotnet",
       "level": "Intermediate",
       "focus": "Practical",
       "summary": "A practical approach to appsettings, environments, Options pattern, and cloud-ready configuration.",
@@ -194,7 +193,6 @@
     {
       "name": "Using PlantUML to Document Software Architecture",
       "slug": "plantuml-for-software-architecture",
-      "categorySlug": "architecture",
       "level": "Beginner",
       "focus": "Documentation",
       "summary": "Simple diagrams that explain system context, components, deployment, and data flow.",
@@ -245,7 +243,6 @@
     {
       "name": "C# Variables and Simple Values",
       "slug": "csharp-variables-and-simple-values",
-      "categorySlug": "backend-dotnet",
       "level": "Beginner",
       "focus": "C# Basics",
       "summary": "Learn how variables store text, numbers, booleans, and simple program state.",
@@ -310,7 +307,6 @@
     {
       "name": "C# Conditions and Branching",
       "slug": "csharp-conditions-and-branching",
-      "categorySlug": "backend-dotnet",
       "level": "Beginner",
       "focus": "C# Basics",
       "summary": "Use if statements, comparisons, and boolean logic to control program decisions.",
@@ -371,7 +367,6 @@
     {
       "name": "C# Loops and Repeated Work",
       "slug": "csharp-loops-and-repeated-work",
-      "categorySlug": "backend-dotnet",
       "level": "Beginner",
       "focus": "C# Basics",
       "summary": "Repeat work with for, while, and foreach loops without duplicating code.",
@@ -432,7 +427,6 @@
     {
       "name": "ASP.NET Core Web API Fundamentals",
       "slug": "aspnet-core-web-api-fundamentals-getting-acquainted",
-      "categorySlug": "backend-dotnet",
       "level": "Beginner",
       "focus": "Course Notes",
       "summary": "A standalone study note explaining the ASP.NET Core Web API.",
