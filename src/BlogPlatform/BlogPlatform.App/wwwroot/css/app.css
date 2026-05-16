@@ -402,7 +402,7 @@ button {
     line-height: 1.55;
 }
 
-.category-pill {
+.zone-pill {
     display: grid;
     grid-template-columns: 22px 1fr auto;
     gap: 12px;
@@ -411,37 +411,37 @@ button {
     padding: 12px 14px;
     margin-bottom: 12px;
     border-radius: 16px;
-    color: var(--category-pill-text);
-    background: var(--category-pill-bg);
-    border: 1px solid var(--category-pill-border);
+    color: var(--zone-pill-text);
+    background: var(--zone-pill-bg);
+    border: 1px solid var(--zone-pill-border);
     transition: .18s ease;
 }
 
-    .category-pill:hover,
-    .category-pill.active {
-        background: var(--category-pill-active-bg);
-        border-color: var(--category-pill-active-border);
+    .zone-pill:hover,
+    .zone-pill.active {
+        background: var(--zone-pill-active-bg);
+        border-color: var(--zone-pill-active-border);
     }
 
-.category-icon {
+.zone-icon {
     width: 18px;
     height: 18px;
     border-radius: 6px;
     background: linear-gradient(135deg, var(--accent-cyan), var(--primary));
 }
 
-.category-pill strong {
+.zone-pill strong {
     font-size: .92rem;
     line-height: 1.1;
 }
 
-.category-pill em {
+.zone-pill em {
     min-width: 32px;
     padding: 7px 9px;
     border-radius: 999px;
     text-align: center;
-    color: var(--category-count-text);
-    background: var(--category-count-bg);
+    color: var(--zone-count-text);
+    background: var(--zone-count-bg);
     font-style: normal;
     font-weight: 800;
     font-size: .82rem;

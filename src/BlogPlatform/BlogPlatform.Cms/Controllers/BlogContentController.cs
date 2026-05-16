@@ -14,7 +14,6 @@ namespace BlogPlatform.Cms.Controllers;
 public sealed class BlogContentController : ControllerBase
 {
     private const string ArticlesCacheKey = "cms-blog-articles";
-    private const string CategoriesCacheKey = "cms-blog-categories";
     private const string DefaultDotnetZone = "foundation";
     private const string DefaultDotnetZoneStep = "basic-syntax";
 
@@ -183,8 +182,7 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpGet("articles")]
-    public ActionResult<IReadOnlyCollection<CmsArticleListItemDto>> GetArticles(
-        [FromQuery] string? categorySlug = null)
+    public ActionResult<IReadOnlyCollection<CmsArticleListItemDto>> GetArticles()
     {
         var posts = GetRootArticles()
             .Select(MapArticleListItem)
@@ -491,7 +489,6 @@ public sealed class BlogContentController : ControllerBase
     private void ClearCaches()
     {
         _cache.Remove(ArticlesCacheKey);
-        _cache.Remove(CategoriesCacheKey);
     }
 
     private ActionResult<CmsSaveRoadmapResponse> ToRoadmapActionResult(
@@ -526,12 +523,6 @@ public sealed class BlogContentController : ControllerBase
         return Ok(new CmsDeleteResponse(true, result.Message));
     }
 
-    private sealed record CmsCategoryDto(string Slug, string Name);
-
-    public sealed record CmsCategoryListItemDto(
-        Guid Key,
-        string Name,
-        string Slug);
 
     public sealed record CmsDotnetZoneListItemDto(
         string Key,

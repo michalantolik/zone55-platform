@@ -26,10 +26,9 @@ public sealed class BlogApiClient : IBlogApiClient
     }
 
     public async Task<BlogHomeContent> GetHomeContentAsync(
-        string? categorySlug,
         CancellationToken cancellationToken = default)
     {
-        var cacheKey = CreateCategoryCacheKey(categorySlug);
+        const string cacheKey = "__home__";
 
         if (_homeCache.TryGetValue(cacheKey, out var cachedHome) &&
             cachedHome.ExpiresAt > DateTimeOffset.UtcNow)
@@ -40,7 +39,7 @@ public sealed class BlogApiClient : IBlogApiClient
         var request = _homeRequests.GetOrAdd(
             cacheKey,
             _ => new Lazy<Task<BlogHomeContent>>(
-                () => LoadHomeContentAsync(categorySlug, cacheKey, cancellationToken)));
+                () => LoadHomeContentAsync(cacheKey, cancellationToken)));
 
         try
         {
@@ -53,10 +52,9 @@ public sealed class BlogApiClient : IBlogApiClient
     }
 
     public async Task<IReadOnlyCollection<PostListItem>> GetPostsAsync(
-        string? categorySlug,
         CancellationToken cancellationToken = default)
     {
-        var homeContent = await GetHomeContentAsync(categorySlug, cancellationToken);
+        var homeContent = await GetHomeContentAsync(cancellationToken);
 
         return homeContent.Posts;
     }
@@ -164,13 +162,10 @@ public sealed class BlogApiClient : IBlogApiClient
     }
 
     private async Task<BlogHomeContent> LoadHomeContentAsync(
-        string? categorySlug,
         string cacheKey,
         CancellationToken cancellationToken)
     {
-        var url = string.IsNullOrWhiteSpace(categorySlug)
-            ? "api/posts/home"
-            : $"api/posts/home?category={Uri.EscapeDataString(categorySlug)}";
+        const string url = "api/posts/home";
 
         try
         {
@@ -200,12 +195,6 @@ public sealed class BlogApiClient : IBlogApiClient
         }
     }
 
-    private static string CreateCategoryCacheKey(string? categorySlug)
-    {
-        return string.IsNullOrWhiteSpace(categorySlug)
-            ? "__all__"
-            : categorySlug.Trim().ToLowerInvariant();
-    }
 
     private static string GetAccentClass(int order)
     {

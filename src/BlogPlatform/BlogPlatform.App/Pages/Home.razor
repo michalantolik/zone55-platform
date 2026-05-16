@@ -159,8 +159,6 @@ else
     private const string DotnetStandardView = "DotnetStandard";
     private const string DotnetRoadmapView = "DotnetRoadmap";
 
-    [SupplyParameterFromQuery(Name = "category")]
-    public string? Category { get; set; }
 
     [SupplyParameterFromQuery(Name = "view")]
     public string? View { get; set; }
@@ -286,7 +284,7 @@ else
         _isLoading = true;
         _selectedArticle = null;
 
-        var homeContent = await BlogApi.GetHomeContentAsync(IsLearningPathView ? Category : null);
+        var homeContent = await BlogApi.GetHomeContentAsync();
 
         _learningPathLevels = await BlogApi.GetDotnetRoadmapAsync(
             homeContent.Posts,

@@ -5,7 +5,6 @@ namespace BlogPlatform.App.Services;
 public interface IBlogApiClient
 {
     Task<BlogHomeContent> GetHomeContentAsync(
-        string? categorySlug,
         CancellationToken cancellationToken = default);
 
     Task<PostDetails?> GetPostBySlugAsync(
@@ -13,7 +12,6 @@ public interface IBlogApiClient
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<PostListItem>> GetPostsAsync(
-        string? categorySlug,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<PostListItem>> GetPostsByStepAsync(

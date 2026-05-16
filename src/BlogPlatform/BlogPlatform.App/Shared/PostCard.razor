@@ -10,7 +10,7 @@
     <div class="post-card-meta">
         @if (ShouldShowArticleCardTag)
         {
-            <span class="post-card-category-pill">@StepTitle</span>
+            <span class="post-card-step-pill">@StepTitle</span>
         }
 
         @if (ArticleOrder is not null)
@@ -50,8 +50,8 @@
         <div class="post-footer">
             <span>@Focus</span>
             <a href="@Url"
-               class="read-btn"
-               @onclick:stopPropagation="true">
+                   class="read-btn"
+                   @onclick:stopPropagation="true">
                 Read →
             </a>
         </div>
@@ -81,7 +81,7 @@
                 color: rgba(226, 239, 255, .88);
             }
 
-            .post-card:hover .post-card-category-pill {
+            .post-card:hover .post-card-step-pill {
                 border-color: rgba(125, 211, 252, .48);
                 background: rgba(18, 63, 102, .30);
                 color: rgba(220, 238, 255, .92);
@@ -144,7 +144,7 @@
         transition: border-color .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease;
     }
 
-    .post-card-category-pill {
+    .post-card-step-pill {
         display: inline-flex;
         align-items: center;
         width: fit-content;

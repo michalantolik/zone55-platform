@@ -265,9 +265,9 @@
             white-space: nowrap;
         }
 
-        .category-group { margin-bottom: 26px; }
+        .zone-step-group { margin-bottom: 26px; }
 
-        .category-heading {
+        .zone-step-heading {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -906,7 +906,7 @@
                 return "▤";
             }
 
-            if (alias.includes("zone") || alias.includes("category") || icon.includes("folder")) {
+            if (alias.includes("zone") || icon.includes("folder")) {
                 return "▰";
             }
 
@@ -957,8 +957,8 @@
             container.innerHTML = Object.keys(grouped)
                 .sort((a, b) => a.localeCompare(b))
                 .map(groupKey => `
-                    <section class="category-group">
-                        <div class="category-heading">
+                    <section class="zone-step-group">
+                        <div class="zone-step-heading">
                             <span>${escapeHtml(groupKey)}</span>
                             <span>${grouped[groupKey].length}</span>
                         </div>
