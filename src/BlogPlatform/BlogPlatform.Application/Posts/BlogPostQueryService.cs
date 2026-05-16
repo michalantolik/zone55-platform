@@ -18,7 +18,6 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
         var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         return posts
-            .Where(post => post.MatchesCategorySlug(query.NormalizedCategorySlug))
             .OrderByDescending(post => post.PublishedDate)
             .Select(BlogPostApplicationMapper.ToListItem)
             .ToList();
@@ -60,14 +59,6 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
             : BlogPostApplicationMapper.ToDetails(post);
     }
 
-    public async Task<IReadOnlyCollection<CategorySummary>> GetCategoriesAsync(
-        CancellationToken cancellationToken)
-    {
-        var posts = await GetPublishedDomainPostsAsync(cancellationToken);
-
-        return posts.ToCategorySummaries();
-    }
-
     private async Task<IReadOnlyCollection<Post>> GetPublishedDomainPostsAsync(
         CancellationToken cancellationToken)
     {
@@ -75,23 +66,6 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
 
         return posts
             .Where(post => post.IsPublished)
-            .ToList();
-    }
-}
-
-internal static class BlogPostQueryExtensions
-{
-    public static IReadOnlyCollection<CategorySummary> ToCategorySummaries(
-        this IEnumerable<Post> posts)
-    {
-        return posts
-            .GroupBy(post => new { post.CategorySlug, post.Category })
-            .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
-            .Select(group => BlogPostApplicationMapper.ToCategorySummary(
-                group.Key.CategorySlug,
-                group.Key.Category,
-                group.Count()))
-            .OrderBy(category => category.Name)
             .ToList();
     }
 }

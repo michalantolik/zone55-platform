@@ -13,7 +13,4 @@ public interface IBlogPostQueryService
     Task<PostDetails?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken);
-
-    Task<IReadOnlyCollection<CategorySummary>> GetCategoriesAsync(
-        CancellationToken cancellationToken);
 }

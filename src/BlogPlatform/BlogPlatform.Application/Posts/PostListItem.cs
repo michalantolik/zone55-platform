@@ -4,8 +4,6 @@ public sealed record PostListItem(
     string Slug,
     string Title,
     string Summary,
-    string Category,
-    string CategorySlug,
     string Level,
     string Focus,
     string? DotnetZone,

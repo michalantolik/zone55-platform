@@ -13,12 +13,10 @@ public sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
         string? categorySlug,
         CancellationToken cancellationToken)
     {
-        var categories = await _posts.GetCategoriesAsync(cancellationToken);
-
         var posts = await _posts.GetPublishedPostsAsync(
             new GetPublishedPostsQuery(categorySlug),
             cancellationToken);
 
-        return new BlogHomeContent(categories, posts);
+        return new BlogHomeContent(posts);
     }
 }

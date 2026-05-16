@@ -175,7 +175,6 @@ else
     public string? ArticleSlug { get; set; }
 
     private IReadOnlyCollection<PostListItem> _posts = [];
-    private IReadOnlyCollection<CategoryItem> _categories = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
     private PostDetails? _selectedArticle;
     private bool _isLoading = true;
@@ -288,8 +287,6 @@ else
         _selectedArticle = null;
 
         var homeContent = await BlogApi.GetHomeContentAsync(IsLearningPathView ? Category : null);
-
-        _categories = homeContent.Categories;
 
         _learningPathLevels = await BlogApi.GetDotnetRoadmapAsync(
             homeContent.Posts,

@@ -115,14 +115,6 @@ public sealed class BlogApiClient : IBlogApiClient
         }
     }
 
-    public async Task<IReadOnlyCollection<CategoryItem>> GetCategoriesAsync(
-        CancellationToken cancellationToken = default)
-    {
-        var homeContent = await GetHomeContentAsync(null, cancellationToken);
-
-        return homeContent.Categories;
-    }
-
     public async Task<IReadOnlyCollection<PostListItem>> GetPostsByStepAsync(
         string zone,
         string step,
@@ -184,7 +176,7 @@ public sealed class BlogApiClient : IBlogApiClient
         {
             var content = await _httpClient.GetFromJsonAsync<BlogHomeContent>(
                 url,
-                cancellationToken) ?? new BlogHomeContent([], []);
+                cancellationToken) ?? new BlogHomeContent([]);
 
             _homeCache[cacheKey] = new HomeCacheEntry(
                 content,

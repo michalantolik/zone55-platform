@@ -9,8 +9,6 @@ public sealed class Post
         string slug,
         string title,
         string summary,
-        string category,
-        string categorySlug,
         string level,
         string focus,
         string? dotnetZone,
@@ -23,8 +21,6 @@ public sealed class Post
         Slug = slug;
         Title = title;
         Summary = summary;
-        Category = category;
-        CategorySlug = categorySlug;
         Level = level;
         Focus = focus;
         DotnetZone = dotnetZone;
@@ -40,10 +36,6 @@ public sealed class Post
     public string Title { get; }
 
     public string Summary { get; }
-
-    public string Category { get; }
-
-    public string CategorySlug { get; }
 
     public string Level { get; }
 
@@ -62,19 +54,6 @@ public sealed class Post
     public PostStatus Status { get; }
 
     public bool IsPublished => Status == PostStatus.Published;
-
-    public bool MatchesCategorySlug(string? categorySlug)
-    {
-        if (string.IsNullOrWhiteSpace(categorySlug))
-        {
-            return true;
-        }
-
-        return string.Equals(
-            CategorySlug,
-            categorySlug.Trim(),
-            StringComparison.OrdinalIgnoreCase);
-    }
 
     public bool MatchesDotnetStep(string? dotnetZone, string? dotnetZoneStep)
     {
@@ -122,8 +101,6 @@ public sealed class Post
         string? slug,
         string? title,
         string? summary,
-        string? category,
-        string? categorySlug,
         string? level,
         string? focus,
         string? dotnetZone,
@@ -137,8 +114,6 @@ public sealed class Post
             BlogPlatform.Domain.ValueObjects.Slug.Create(slug).Value,
             NormalizeRequired(title),
             NormalizeOptionalAsEmpty(summary),
-            NormalizeOptionalAsEmpty(category),
-            NormalizeOptionalAsEmpty(categorySlug),
             NormalizeOptionalAsEmpty(level),
             NormalizeOptionalAsEmpty(focus),
             NormalizeOptional(dotnetZone),
@@ -153,8 +128,6 @@ public sealed class Post
         string? slug,
         string? title,
         string? summary,
-        string? category,
-        string? categorySlug,
         string? level,
         string? focus,
         string? dotnetZone,
@@ -167,8 +140,6 @@ public sealed class Post
             slug,
             title,
             summary,
-            category,
-            categorySlug,
             level,
             focus,
             dotnetZone,

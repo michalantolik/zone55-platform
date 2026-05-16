@@ -8,9 +8,6 @@ public interface IBlogApiClient
         string? categorySlug,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<CategoryItem>> GetCategoriesAsync(
-        CancellationToken cancellationToken = default);
-
     Task<PostDetails?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken = default);

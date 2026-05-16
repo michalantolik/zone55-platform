@@ -169,8 +169,6 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
             post.Slug,
             post.Title,
             post.Summary,
-            post.Category,
-            post.CategorySlug,
             post.Level,
             post.Focus,
             post.DotnetZone,
@@ -196,10 +194,5 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         IReadOnlyCollection<string>? Tags,
         DateTimeOffset? PublishedDate,
         string? BodyHtml,
-        DateTime UpdatedUtc)
-    {
-        public string Category => DotnetZoneStep ?? string.Empty;
-
-        public string CategorySlug => DotnetZoneStep ?? string.Empty;
-    }
+        DateTime UpdatedUtc);
 }

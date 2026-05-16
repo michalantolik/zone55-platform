@@ -69,19 +69,9 @@ public sealed class PostsController : ControllerBase
             cancellationToken);
 
         var dto = new BlogHomeContentDto(
-            result.Categories.Select(PostContractMapper.ToDto).ToList(),
             result.Posts.Select(PostContractMapper.ToDto).ToList());
 
         return Ok(dto);
-    }
-
-    [HttpGet("categories")]
-    public async Task<ActionResult<IReadOnlyCollection<CategoryDto>>> GetCategories(
-        CancellationToken cancellationToken)
-    {
-        var categories = await _posts.GetCategoriesAsync(cancellationToken);
-
-        return Ok(categories.Select(PostContractMapper.ToDto).ToList());
     }
 
     [HttpGet("{slug}")]
