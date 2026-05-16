@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.App.Models;
+using BlogPlatform.Contracts.DotnetRoadmap;
 
 namespace BlogPlatform.App.Services;
 
@@ -19,7 +20,6 @@ public interface IBlogApiClient
         string step,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<LearningPathLevel>> GetDotnetRoadmapAsync(
-        IReadOnlyCollection<PostListItem> posts,
+    Task<IReadOnlyCollection<RoadmapZoneDto>> GetDotnetRoadmapAsync(
         CancellationToken cancellationToken = default);
 }

@@ -58,9 +58,11 @@ try
     builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
 
+    builder.Services.AddApplicationPosts();
     builder.Services.AddApplicationRoadmapQueries();
     builder.Services.AddApplicationRoadmapCommands();
 
+    builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
 
     builder.Services.AddScoped<
@@ -87,7 +89,6 @@ try
     Log.Information("CMS Umbraco boot completed.");
 
     app.UseSerilogRequestLogging();
-
     app.UseHttpsRedirection();
 
     app.MapControllers();

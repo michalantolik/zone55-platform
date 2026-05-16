@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BlogPlatform.Api\BlogPlatform.Api.csproj" />
     <ProjectReference Include="..\BlogPlatform.Application\BlogPlatform.Application.csproj" />
+    <ProjectReference Include="..\BlogPlatform.App\BlogPlatform.App.csproj" />
     <ProjectReference Include="..\BlogPlatform.Cms\BlogPlatform.Cms.csproj" />
     <ProjectReference Include="..\BlogPlatform.Domain\BlogPlatform.Domain.csproj" />
     <ProjectReference Include="..\BlogPlatform.Infrastructure\BlogPlatform.Infrastructure.csproj" />

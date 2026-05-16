@@ -1,12 +1,10 @@
-using System.Threading.RateLimiting;
 using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application;
 using BlogPlatform.Infrastructure;
 using BlogPlatform.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Events;
-using BlogPlatform.Infrastructure;
-using BlogPlatform.Infrastructure.Persistence;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 

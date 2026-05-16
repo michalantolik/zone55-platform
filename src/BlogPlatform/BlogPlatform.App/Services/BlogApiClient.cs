@@ -1,8 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using BlogPlatform.App.Models;
+using BlogPlatform.Contracts.DotnetRoadmap;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
-using BlogPlatform.App.Models;
-using BlogPlatform.Contracts.DotnetRoadmap;
 
 namespace BlogPlatform.App.Services;
 
@@ -23,6 +23,14 @@ public sealed class BlogApiClient : IBlogApiClient
     {
         _httpClient = httpClient;
         _logger = logger;
+    }
+
+    public async Task<IReadOnlyCollection<RoadmapZoneDto>> GetDotnetRoadmapAsync(
+    CancellationToken cancellationToken = default)
+    {
+        return await _httpClient.GetFromJsonAsync<IReadOnlyCollection<RoadmapZoneDto>>(
+            "api/roadmap/dotnet",
+            cancellationToken) ?? [];
     }
 
     public async Task<BlogHomeContent> GetHomeContentAsync(
@@ -125,42 +133,6 @@ public sealed class BlogApiClient : IBlogApiClient
             url,
             cancellationToken) ?? [];
     }
-
-    public async Task<IReadOnlyCollection<LearningPathLevel>> GetDotnetRoadmapAsync(
-        IReadOnlyCollection<PostListItem> posts,
-        CancellationToken cancellationToken = default)
-    {
-        var zones = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<RoadmapZoneDto>>(
-            "api/roadmap/dotnet",
-            cancellationToken) ?? [];
-
-        return zones
-            .OrderBy(zone => zone.Order)
-            .Select(zone => new LearningPathLevel(
-                zone.Key,
-                zone.Order,
-                zone.Name,
-                $"Follow the {zone.Name} learning path.",
-                GetAccentClass(zone.Order),
-                zone.Steps
-                    .OrderBy(step => step.Order)
-                    .Select(step => new LearningPathStep(
-                        GlobalOrder: step.Order,
-                        StepOrder: step.Order,
-                        Key: step.Key,
-                        Title: step.Name,
-                        Description: $"Learn {step.Name}.",
-                        Difficulty: "Guided",
-                        Keywords: [],
-                        Posts: posts
-                            .Where(post =>
-                                string.Equals(post.DotnetZone, zone.Key, StringComparison.OrdinalIgnoreCase) &&
-                                string.Equals(post.DotnetZoneStep, step.Key, StringComparison.OrdinalIgnoreCase))
-                            .ToList()))
-                    .ToList()))
-            .ToList();
-    }
-
     private async Task<BlogHomeContent> LoadHomeContentAsync(
         string cacheKey,
         CancellationToken cancellationToken)
@@ -193,19 +165,6 @@ public sealed class BlogApiClient : IBlogApiClient
             _logger.LogError(ex, "APP failed to get home content from API. Url: {Url}", url);
             throw;
         }
-    }
-
-
-    private static string GetAccentClass(int order)
-    {
-        return order switch
-        {
-            1 => "learning-path-accent-foundation",
-            2 => "learning-path-accent-web",
-            3 => "learning-path-accent-architecture",
-            4 => "learning-path-accent-cloud",
-            _ => "learning-path-accent-foundation"
-        };
     }
 
     private sealed record HomeCacheEntry(

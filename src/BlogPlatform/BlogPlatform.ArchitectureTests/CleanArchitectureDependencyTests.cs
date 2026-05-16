@@ -107,6 +107,23 @@ public sealed class CleanArchitectureDependencyTests
         Assert.True(result.IsSuccessful, BuildMessage(result));
     }
 
+    [Fact]
+    public void App_Should_Not_Depend_On_Inner_Implementation_Layers()
+    {
+        var result = Types
+            .InAssembly(typeof(BlogPlatform.App.Services.IBlogApiClient).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "BlogPlatform.Domain",
+                "BlogPlatform.Application",
+                "BlogPlatform.Infrastructure",
+                "BlogPlatform.Api",
+                "BlogPlatform.Cms")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
     private static string BuildMessage(TestResult result)
     {
         if (result.FailingTypeNames is null || !result.FailingTypeNames.Any())

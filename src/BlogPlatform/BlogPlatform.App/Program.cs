@@ -26,6 +26,7 @@ builder.Logging.AddProvider(
     new ApiClientLoggerProvider(apiHttpClient));
 
 builder.Services.AddScoped<IBlogApiClient, BlogApiClient>();
+builder.Services.AddScoped<IRoadmapViewService, RoadmapViewService>();
 builder.Services.AddScoped<IPreviewDiagnosticsClient, PreviewDiagnosticsClient>();
 
 var host = builder.Build();

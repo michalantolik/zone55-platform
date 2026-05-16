@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
 @inject IBlogApiClient BlogApi
+@inject IRoadmapViewService RoadmapView
 
 <div class="site-shell">
     @if (EnableStickyTopNav)
@@ -37,7 +38,7 @@
     {
         Navigation.LocationChanged += HandleLocationChanged;
 
-        _levels = await BlogApi.GetDotnetRoadmapAsync(
+        _levels = await RoadmapView.GetDotnetRoadmapAsync(
             posts: [],
             cancellationToken: default);
     }

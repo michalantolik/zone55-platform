@@ -1,7 +1,10 @@
 ﻿@page "/"
 @page "/articles"
+
 @using BlogPlatform.App.Components.Articles
+
 @inject IBlogApiClient BlogApi
+@inject IRoadmapViewService RoadmapView
 @inject IConfiguration Configuration
 
 <PageTitle>@PageTitleText</PageTitle>
@@ -286,7 +289,7 @@ else
 
         var homeContent = await BlogApi.GetHomeContentAsync();
 
-        _learningPathLevels = await BlogApi.GetDotnetRoadmapAsync(
+        _learningPathLevels = await RoadmapView.GetDotnetRoadmapAsync(
             homeContent.Posts,
             cancellationToken: default);
 
