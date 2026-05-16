@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using BlogPlatform.Domain.ValueObjects;
 
 namespace BlogPlatform.Application.Roadmap;
 
@@ -208,26 +208,6 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
 
     private static string CreateSlug(string value)
     {
-        var normalized = value.Trim().ToLowerInvariant();
-        var builder = new StringBuilder();
-        var lastWasDash = false;
-
-        foreach (var character in normalized)
-        {
-            if (char.IsLetterOrDigit(character))
-            {
-                builder.Append(character);
-                lastWasDash = false;
-                continue;
-            }
-
-            if (!lastWasDash)
-            {
-                builder.Append('-');
-                lastWasDash = true;
-            }
-        }
-
-        return builder.ToString().Trim('-');
+        return Slug.Create(value).Value;
     }
 }

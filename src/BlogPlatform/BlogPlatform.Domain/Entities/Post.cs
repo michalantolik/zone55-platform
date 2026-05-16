@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.Domain.Enums;
+using BlogPlatform.Domain.ValueObjects;
 
 namespace BlogPlatform.Domain.Entities;
 
@@ -62,6 +63,61 @@ public sealed class Post
 
     public bool IsPublished => Status == PostStatus.Published;
 
+    public bool MatchesCategorySlug(string? categorySlug)
+    {
+        if (string.IsNullOrWhiteSpace(categorySlug))
+        {
+            return true;
+        }
+
+        return string.Equals(
+            CategorySlug,
+            categorySlug.Trim(),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    public bool MatchesDotnetStep(string? dotnetZone, string? dotnetZoneStep)
+    {
+        if (string.IsNullOrWhiteSpace(dotnetZone) ||
+            string.IsNullOrWhiteSpace(dotnetZoneStep))
+        {
+            return false;
+        }
+
+        return string.Equals(DotnetZone, dotnetZone.Trim(), StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(DotnetZoneStep, dotnetZoneStep.Trim(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    public int LevelSortOrder
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Level))
+            {
+                return 50;
+            }
+
+            if (Level.Contains("beginner", StringComparison.OrdinalIgnoreCase) ||
+                Level.Contains("basic", StringComparison.OrdinalIgnoreCase) ||
+                Level.Contains("fundamental", StringComparison.OrdinalIgnoreCase))
+            {
+                return 10;
+            }
+
+            if (Level.Contains("intermediate", StringComparison.OrdinalIgnoreCase))
+            {
+                return 20;
+            }
+
+            if (Level.Contains("advanced", StringComparison.OrdinalIgnoreCase))
+            {
+                return 30;
+            }
+
+            return 50;
+        }
+    }
+
     public static Post Create(
         string? slug,
         string? title,
@@ -78,7 +134,7 @@ public sealed class Post
         PostStatus status)
     {
         return new Post(
-            NormalizeRequired(slug),
+            BlogPlatform.Domain.ValueObjects.Slug.Create(slug).Value,
             NormalizeRequired(title),
             NormalizeOptionalAsEmpty(summary),
             NormalizeOptionalAsEmpty(category),

@@ -18,7 +18,7 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
         var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         return posts
-            .FilterByCategorySlug(query.NormalizedCategorySlug)
+            .Where(post => post.MatchesCategorySlug(query.NormalizedCategorySlug))
             .OrderByDescending(post => post.PublishedDate)
             .Select(BlogPostApplicationMapper.ToListItem)
             .ToList();
@@ -31,10 +31,10 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
         var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         return posts
-            .Where(post =>
-                string.Equals(post.DotnetZone, query.NormalizedDotnetZone, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(post.DotnetZoneStep, query.NormalizedDotnetZoneStep, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(post => GetLevelOrder(post.Level))
+            .Where(post => post.MatchesDotnetStep(
+                query.NormalizedDotnetZone,
+                query.NormalizedDotnetZoneStep))
+            .OrderBy(post => post.LevelSortOrder)
             .ThenByDescending(post => post.PublishedDate)
             .ThenBy(post => post.Title)
             .Select(BlogPostApplicationMapper.ToListItem)
@@ -77,52 +77,10 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
             .Where(post => post.IsPublished)
             .ToList();
     }
-
-    private static int GetLevelOrder(string? level)
-    {
-        if (string.IsNullOrWhiteSpace(level))
-        {
-            return 50;
-        }
-
-        if (level.Contains("beginner", StringComparison.OrdinalIgnoreCase) ||
-            level.Contains("basic", StringComparison.OrdinalIgnoreCase) ||
-            level.Contains("fundamental", StringComparison.OrdinalIgnoreCase))
-        {
-            return 10;
-        }
-
-        if (level.Contains("intermediate", StringComparison.OrdinalIgnoreCase))
-        {
-            return 20;
-        }
-
-        if (level.Contains("advanced", StringComparison.OrdinalIgnoreCase))
-        {
-            return 30;
-        }
-
-        return 50;
-    }
 }
 
 internal static class BlogPostQueryExtensions
 {
-    public static IEnumerable<Post> FilterByCategorySlug(
-        this IEnumerable<Post> posts,
-        string? categorySlug)
-    {
-        if (string.IsNullOrWhiteSpace(categorySlug))
-        {
-            return posts;
-        }
-
-        return posts.Where(post => string.Equals(
-            post.CategorySlug,
-            categorySlug,
-            StringComparison.OrdinalIgnoreCase));
-    }
-
     public static IReadOnlyCollection<CategorySummary> ToCategorySummaries(
         this IEnumerable<Post> posts)
     {
