@@ -4,6 +4,6 @@ namespace BlogPlatform.Application.Posts;
 
 public interface IBlogPostRepository
 {
-    Task<IReadOnlyCollection<Post>> GetPublishedPostsAsync(
+    Task<IReadOnlyCollection<Post>> GetPostsAsync(
         CancellationToken cancellationToken);
 }

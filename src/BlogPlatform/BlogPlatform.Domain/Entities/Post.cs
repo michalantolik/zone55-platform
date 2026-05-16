@@ -4,29 +4,156 @@ namespace BlogPlatform.Domain.Entities;
 
 public sealed class Post
 {
-    public string Slug { get; init; } = string.Empty;
+    private Post(
+        string slug,
+        string title,
+        string summary,
+        string category,
+        string categorySlug,
+        string level,
+        string focus,
+        string? dotnetZone,
+        string? dotnetZoneStep,
+        IReadOnlyCollection<string> tags,
+        DateTimeOffset? publishedDate,
+        string bodyHtml,
+        PostStatus status)
+    {
+        Slug = slug;
+        Title = title;
+        Summary = summary;
+        Category = category;
+        CategorySlug = categorySlug;
+        Level = level;
+        Focus = focus;
+        DotnetZone = dotnetZone;
+        DotnetZoneStep = dotnetZoneStep;
+        Tags = tags;
+        PublishedDate = publishedDate;
+        BodyHtml = bodyHtml;
+        Status = status;
+    }
 
-    public string Title { get; init; } = string.Empty;
+    public string Slug { get; }
 
-    public string Summary { get; init; } = string.Empty;
+    public string Title { get; }
 
-    public string Category { get; init; } = string.Empty;
+    public string Summary { get; }
 
-    public string CategorySlug { get; init; } = string.Empty;
+    public string Category { get; }
 
-    public string Level { get; init; } = string.Empty;
+    public string CategorySlug { get; }
 
-    public string Focus { get; init; } = string.Empty;
+    public string Level { get; }
 
-    public string? DotnetZone { get; init; }
+    public string Focus { get; }
 
-    public string? DotnetZoneStep { get; init; }
+    public string? DotnetZone { get; }
 
-    public IReadOnlyCollection<string> Tags { get; init; } = [];
+    public string? DotnetZoneStep { get; }
 
-    public DateTimeOffset? PublishedDate { get; init; }
+    public IReadOnlyCollection<string> Tags { get; }
 
-    public string BodyHtml { get; init; } = string.Empty;
+    public DateTimeOffset? PublishedDate { get; }
 
-    public PostStatus Status { get; init; } = PostStatus.Published;
+    public string BodyHtml { get; }
+
+    public PostStatus Status { get; }
+
+    public bool IsPublished => Status == PostStatus.Published;
+
+    public static Post Create(
+        string? slug,
+        string? title,
+        string? summary,
+        string? category,
+        string? categorySlug,
+        string? level,
+        string? focus,
+        string? dotnetZone,
+        string? dotnetZoneStep,
+        IReadOnlyCollection<string>? tags,
+        DateTimeOffset? publishedDate,
+        string? bodyHtml,
+        PostStatus status)
+    {
+        return new Post(
+            NormalizeRequired(slug),
+            NormalizeRequired(title),
+            NormalizeOptionalAsEmpty(summary),
+            NormalizeOptionalAsEmpty(category),
+            NormalizeOptionalAsEmpty(categorySlug),
+            NormalizeOptionalAsEmpty(level),
+            NormalizeOptionalAsEmpty(focus),
+            NormalizeOptional(dotnetZone),
+            NormalizeOptional(dotnetZoneStep),
+            NormalizeTags(tags),
+            publishedDate,
+            NormalizeOptionalAsEmpty(bodyHtml),
+            status);
+    }
+
+    public static Post CreatePublished(
+        string? slug,
+        string? title,
+        string? summary,
+        string? category,
+        string? categorySlug,
+        string? level,
+        string? focus,
+        string? dotnetZone,
+        string? dotnetZoneStep,
+        IReadOnlyCollection<string>? tags,
+        DateTimeOffset? publishedDate,
+        string? bodyHtml)
+    {
+        return Create(
+            slug,
+            title,
+            summary,
+            category,
+            categorySlug,
+            level,
+            focus,
+            dotnetZone,
+            dotnetZoneStep,
+            tags,
+            publishedDate,
+            bodyHtml,
+            PostStatus.Published);
+    }
+
+    private static string NormalizeRequired(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException("Required post value cannot be empty.");
+        }
+
+        return value.Trim();
+    }
+
+    private static string NormalizeOptionalAsEmpty(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? string.Empty
+            : value.Trim();
+    }
+
+    private static string? NormalizeOptional(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : value.Trim();
+    }
+
+    private static IReadOnlyCollection<string> NormalizeTags(
+        IReadOnlyCollection<string>? tags)
+    {
+        return tags?
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Select(tag => tag.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList() ?? [];
+    }
 }

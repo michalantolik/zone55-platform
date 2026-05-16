@@ -31,7 +31,7 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostReposito
         _cache = cache;
     }
 
-    public async Task<IReadOnlyCollection<Post>> GetPublishedPostsAsync(
+    public async Task<IReadOnlyCollection<Post>> GetPostsAsync(
         CancellationToken cancellationToken)
     {
         return await LoadPostsAsync(cancellationToken);
@@ -148,21 +148,19 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostReposito
 
     private static Post ToDomainPost(CmsPostDto post)
     {
-        return new Post
-        {
-            Slug = post.Slug,
-            Title = post.Title,
-            Summary = post.Summary,
-            Category = post.Category,
-            CategorySlug = post.CategorySlug,
-            Level = post.Level,
-            Focus = post.Focus,
-            DotnetZone = post.DotnetZone,
-            DotnetZoneStep = post.DotnetZoneStep,
-            Tags = post.Tags,
-            PublishedDate = post.PublishedDate,
-            BodyHtml = post.BodyHtml
-        };
+        return Post.CreatePublished(
+            post.Slug,
+            post.Title,
+            post.Summary,
+            post.Category,
+            post.CategorySlug,
+            post.Level,
+            post.Focus,
+            post.DotnetZone,
+            post.DotnetZoneStep,
+            post.Tags,
+            post.PublishedDate,
+            post.BodyHtml);
     }
 
     private sealed record PostsCacheEntry(
@@ -170,16 +168,16 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostReposito
         DateTimeOffset FreshUntil);
 
     private sealed record CmsPostDto(
-        string Slug,
-        string Title,
-        string Summary,
-        string Category,
-        string CategorySlug,
-        string Level,
-        string Focus,
+        string? Slug,
+        string? Title,
+        string? Summary,
+        string? Category,
+        string? CategorySlug,
+        string? Level,
+        string? Focus,
         string? DotnetZone,
         string? DotnetZoneStep,
-        IReadOnlyCollection<string> Tags,
+        IReadOnlyCollection<string>? Tags,
         DateTimeOffset? PublishedDate,
-        string BodyHtml);
+        string? BodyHtml);
 }

@@ -15,7 +15,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
         string? categorySlug,
         CancellationToken cancellationToken)
     {
-        var posts = await _posts.GetPublishedPostsAsync(cancellationToken);
+        var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(categorySlug))
         {
@@ -37,7 +37,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
         string slug,
         CancellationToken cancellationToken)
     {
-        var posts = await _posts.GetPublishedPostsAsync(cancellationToken);
+        var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         var post = posts.FirstOrDefault(item =>
             string.Equals(item.Slug, slug, StringComparison.OrdinalIgnoreCase));
@@ -50,7 +50,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
     public async Task<IReadOnlyCollection<CategorySummary>> GetCategoriesAsync(
         CancellationToken cancellationToken)
     {
-        var posts = await _posts.GetPublishedPostsAsync(cancellationToken);
+        var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         return posts
             .GroupBy(post => new { post.CategorySlug, post.Category })
@@ -60,6 +60,16 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
                 group.Key.Category,
                 group.Count()))
             .OrderBy(category => category.Name)
+            .ToList();
+    }
+
+    private async Task<IReadOnlyCollection<Post>> GetPublishedDomainPostsAsync(
+        CancellationToken cancellationToken)
+    {
+        var posts = await _posts.GetPostsAsync(cancellationToken);
+
+        return posts
+            .Where(post => post.IsPublished)
             .ToList();
     }
 
