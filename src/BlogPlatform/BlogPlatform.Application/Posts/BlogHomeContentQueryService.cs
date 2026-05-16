@@ -1,10 +1,12 @@
-﻿namespace BlogPlatform.Application.Posts;
+﻿using BlogPlatform.Domain.Entities;
+
+namespace BlogPlatform.Application.Posts;
 
 internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
 {
-    private readonly IBlogPostQueryService _posts;
+    private readonly IBlogPostRepository _posts;
 
-    public BlogHomeContentQueryService(IBlogPostQueryService posts)
+    public BlogHomeContentQueryService(IBlogPostRepository posts)
     {
         _posts = posts;
     }
@@ -13,13 +15,59 @@ internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
         string? categorySlug,
         CancellationToken cancellationToken)
     {
-        var categoriesTask = _posts.GetCategoriesAsync(cancellationToken);
-        var postsTask = _posts.GetPublishedPostsAsync(categorySlug, cancellationToken);
+        var publishedPosts = await GetPublishedPostsAsync(cancellationToken);
 
-        await Task.WhenAll(categoriesTask, postsTask);
+        var categories = publishedPosts
+            .GroupBy(post => new { post.CategorySlug, post.Category })
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
+            .Select(group => new CategorySummary(
+                group.Key.CategorySlug,
+                group.Key.Category,
+                group.Count()))
+            .OrderBy(category => category.Name)
+            .ToList();
 
-        return new BlogHomeContent(
-            await categoriesTask,
-            await postsTask);
+        if (!string.IsNullOrWhiteSpace(categorySlug))
+        {
+            publishedPosts = publishedPosts
+                .Where(post => string.Equals(
+                    post.CategorySlug,
+                    categorySlug,
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        var posts = publishedPosts
+            .OrderByDescending(post => post.PublishedDate)
+            .Select(ToListItem)
+            .ToList();
+
+        return new BlogHomeContent(categories, posts);
+    }
+
+    private async Task<IReadOnlyCollection<Post>> GetPublishedPostsAsync(
+        CancellationToken cancellationToken)
+    {
+        var posts = await _posts.GetPostsAsync(cancellationToken);
+
+        return posts
+            .Where(post => post.IsPublished)
+            .ToList();
+    }
+
+    private static PostListItem ToListItem(Post post)
+    {
+        return new PostListItem(
+            post.Slug,
+            post.Title,
+            post.Summary,
+            post.Category,
+            post.CategorySlug,
+            post.Level,
+            post.Focus,
+            post.DotnetZone,
+            post.DotnetZoneStep,
+            post.Tags,
+            post.PublishedDate);
     }
 }
