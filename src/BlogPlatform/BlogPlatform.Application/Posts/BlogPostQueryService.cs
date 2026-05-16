@@ -17,19 +17,10 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
     {
         var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(categorySlug))
-        {
-            posts = posts
-                .Where(post => string.Equals(
-                    post.CategorySlug,
-                    categorySlug,
-                    StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
-
         return posts
+            .FilterByCategorySlug(categorySlug)
             .OrderByDescending(post => post.PublishedDate)
-            .Select(ToListItem)
+            .Select(BlogPostApplicationMapper.ToListItem)
             .ToList();
     }
 
@@ -37,6 +28,11 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
         string slug,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(slug))
+        {
+            return null;
+        }
+
         var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         var post = posts.FirstOrDefault(item =>
@@ -44,7 +40,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
 
         return post is null
             ? null
-            : ToDetails(post);
+            : BlogPostApplicationMapper.ToDetails(post);
     }
 
     public async Task<IReadOnlyCollection<CategorySummary>> GetCategoriesAsync(
@@ -53,14 +49,7 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
         var posts = await GetPublishedDomainPostsAsync(cancellationToken);
 
         return posts
-            .GroupBy(post => new { post.CategorySlug, post.Category })
-            .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
-            .Select(group => new CategorySummary(
-                group.Key.CategorySlug,
-                group.Key.Category,
-                group.Count()))
-            .OrderBy(category => category.Name)
-            .ToList();
+            .ToCategorySummaries();
     }
 
     private async Task<IReadOnlyCollection<Post>> GetPublishedDomainPostsAsync(
@@ -72,37 +61,36 @@ internal sealed class BlogPostQueryService : IBlogPostQueryService
             .Where(post => post.IsPublished)
             .ToList();
     }
+}
 
-    private static PostListItem ToListItem(Post post)
+internal static class BlogPostQueryExtensions
+{
+    public static IEnumerable<Post> FilterByCategorySlug(
+        this IEnumerable<Post> posts,
+        string? categorySlug)
     {
-        return new PostListItem(
-            post.Slug,
-            post.Title,
-            post.Summary,
-            post.Category,
+        if (string.IsNullOrWhiteSpace(categorySlug))
+        {
+            return posts;
+        }
+
+        return posts.Where(post => string.Equals(
             post.CategorySlug,
-            post.Level,
-            post.Focus,
-            post.DotnetZone,
-            post.DotnetZoneStep,
-            post.Tags,
-            post.PublishedDate);
+            categorySlug,
+            StringComparison.OrdinalIgnoreCase));
     }
 
-    private static PostDetails ToDetails(Post post)
+    public static IReadOnlyCollection<CategorySummary> ToCategorySummaries(
+        this IEnumerable<Post> posts)
     {
-        return new PostDetails(
-            post.Slug,
-            post.Title,
-            post.Summary,
-            post.Category,
-            post.CategorySlug,
-            post.Level,
-            post.Focus,
-            post.DotnetZone,
-            post.DotnetZoneStep,
-            post.Tags,
-            post.PublishedDate,
-            post.BodyHtml);
+        return posts
+            .GroupBy(post => new { post.CategorySlug, post.Category })
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key.CategorySlug))
+            .Select(group => BlogPostApplicationMapper.ToCategorySummary(
+                group.Key.CategorySlug,
+                group.Key.Category,
+                group.Count()))
+            .OrderBy(category => category.Name)
+            .ToList();
     }
 }
