@@ -23,4 +23,8 @@ public interface IBlogApiClient
         string zone,
         string step,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<LearningPathLevel>> GetDotnetRoadmapAsync(
+        IReadOnlyCollection<PostListItem> posts,
+        CancellationToken cancellationToken = default);
 }

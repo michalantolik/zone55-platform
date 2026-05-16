@@ -15,20 +15,18 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddApplicationRoadmap(
+    public static IServiceCollection AddApplicationRoadmapQueries(
         this IServiceCollection services)
     {
         services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
-        services.AddScoped<IRoadmapCommandService, RoadmapCommandService>();
 
         return services;
     }
 
-    public static IServiceCollection AddApplication(
+    public static IServiceCollection AddApplicationRoadmapCommands(
         this IServiceCollection services)
     {
-        services.AddApplicationPosts();
-        services.AddApplicationRoadmap();
+        services.AddScoped<IRoadmapCommandService, RoadmapCommandService>();
 
         return services;
     }

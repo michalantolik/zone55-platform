@@ -1,6 +1,4 @@
-﻿@using BlogPlatform.Contracts.DotnetRoadmap
-
-<div class="sidebar-inner dotnet-step-sidebar-inner">
+﻿<div class="sidebar-inner dotnet-step-sidebar-inner">
     <div class="dotnet-step-sidebar-panel">
         <div class="dotnet-step-sidebar-heading @SelectedLevelAccentClass">
             <span>@SelectedLevelTitle</span>
@@ -10,7 +8,7 @@
             @foreach (var step in Steps.OrderBy(step => step.StepOrder))
             {
                 <a class="dotnet-step-list-item @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
-                   href="@GetStepUrl(step)">
+                       href="@GetStepUrl(step)">
                     <span class="dotnet-step-number">@step.StepOrder</span>
                     <span class="dotnet-step-title">@step.Title</span>
                 </a>
@@ -41,18 +39,8 @@
 
     private string GetStepUrl(LearningPathStep step)
     {
-        var zoneKey = GetZoneKey(SelectedLevel);
+        var zoneKey = SelectedLevel?.Key ?? string.Empty;
 
         return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}&step={Uri.EscapeDataString(step.Key)}";
     }
-
-    private static string GetZoneKey(LearningPathLevel? level) =>
-        level?.Number switch
-        {
-            1 => DotnetZoneKeys.Foundation,
-            2 => DotnetZoneKeys.WebAppDevelopment,
-            3 => DotnetZoneKeys.ArchitectureData,
-            4 => DotnetZoneKeys.CloudAdvanced,
-            _ => DotnetZoneKeys.Foundation
-        };
 }

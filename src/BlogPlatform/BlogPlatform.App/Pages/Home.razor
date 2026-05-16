@@ -1,7 +1,6 @@
 ﻿@page "/"
 @page "/articles"
 @using BlogPlatform.App.Components.Articles
-@using BlogPlatform.Contracts.DotnetRoadmap
 @inject IBlogApiClient BlogApi
 @inject IConfiguration Configuration
 
@@ -200,7 +199,7 @@ else
 
     private LearningPathLevel? SelectedLevel =>
         _learningPathLevels.FirstOrDefault(level =>
-            string.Equals(GetZoneKey(level), SelectedZoneKey, StringComparison.OrdinalIgnoreCase))
+            string.Equals(level.Key, SelectedZoneKey, StringComparison.OrdinalIgnoreCase))
         ?? _learningPathLevels.FirstOrDefault();
 
     private LearningPathStep? SelectedStep =>
@@ -208,10 +207,23 @@ else
             string.Equals(step.Key, SelectedStepKey, StringComparison.OrdinalIgnoreCase))
         ?? SelectedLevel?.Steps.OrderBy(step => step.StepOrder).FirstOrDefault();
 
-    private string SelectedZoneKey =>
-        DotnetRoadmapCatalog.IsAllowedZoneKey(Zone)
-            ? Zone!
-            : DotnetZoneKeys.Foundation;
+    private string SelectedZoneKey
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(Zone) &&
+                _learningPathLevels.Any(level =>
+                    string.Equals(level.Key, Zone, StringComparison.OrdinalIgnoreCase)))
+            {
+                return Zone!;
+            }
+
+            return _learningPathLevels
+                .OrderBy(level => level.Number)
+                .FirstOrDefault()
+                ?.Key ?? string.Empty;
+        }
+    }
 
     private int ArticlesPerStepPage =>
         Math.Max(1, Configuration.GetValue<int?>("LearningPath:ArticlesPerStepPage") ?? 3);
@@ -237,16 +249,20 @@ else
     {
         get
         {
-            if (DotnetRoadmapCatalog.IsAllowedStepKey(Step))
+            var selectedLevel = _learningPathLevels.FirstOrDefault(level =>
+                string.Equals(level.Key, SelectedZoneKey, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(Step) &&
+                selectedLevel?.Steps.Any(step =>
+                    string.Equals(step.Key, Step, StringComparison.OrdinalIgnoreCase)) == true)
             {
                 return Step!;
             }
 
-            var selectedLevel = _learningPathLevels.FirstOrDefault(level =>
-                string.Equals(GetZoneKey(level), SelectedZoneKey, StringComparison.OrdinalIgnoreCase));
-
-            return selectedLevel?.Steps.OrderBy(step => step.StepOrder).FirstOrDefault()?.Key
-                   ?? DotnetZoneStepKeys.BasicSyntax;
+            return selectedLevel?.Steps
+                .OrderBy(step => step.StepOrder)
+                .FirstOrDefault()
+                ?.Key ?? string.Empty;
         }
     }
 
@@ -274,7 +290,10 @@ else
         var homeContent = await BlogApi.GetHomeContentAsync(IsLearningPathView ? Category : null);
 
         _categories = homeContent.Categories;
-        _learningPathLevels = LearningPathCatalog.Build(homeContent.Posts);
+
+        _learningPathLevels = await BlogApi.GetDotnetRoadmapAsync(
+            homeContent.Posts,
+            cancellationToken: default);
 
         _posts = IsLearningPathView
             ? homeContent.Posts
@@ -318,16 +337,6 @@ else
     {
         return $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&article={Uri.EscapeDataString(slug)}";
     }
-
-    private static string GetZoneKey(LearningPathLevel level) =>
-        level.Number switch
-        {
-            1 => DotnetZoneKeys.Foundation,
-            2 => DotnetZoneKeys.WebAppDevelopment,
-            3 => DotnetZoneKeys.ArchitectureData,
-            4 => DotnetZoneKeys.CloudAdvanced,
-            _ => DotnetZoneKeys.Foundation
-        };
 
     private static string? NormalizeBlogDisplayMode(string? value)
     {

@@ -1,6 +1,5 @@
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Seeding;
-using BlogPlatform.Contracts.DotnetRoadmap;
 using BlogPlatform.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,6 +15,8 @@ public sealed class BlogContentController : ControllerBase
 {
     private const string ArticlesCacheKey = "cms-blog-articles";
     private const string CategoriesCacheKey = "cms-blog-categories";
+    private const string DefaultDotnetZone = "foundation";
+    private const string DefaultDotnetZoneStep = "basic-syntax";
 
     private readonly IContentService _contentService;
     private readonly IContentTypeService _contentTypeService;
@@ -226,8 +227,8 @@ public sealed class BlogContentController : ControllerBase
             GetString(article, BlogContentAliases.Summary) ?? string.Empty,
             GetString(article, BlogContentAliases.Level) ?? "Draft",
             GetString(article, BlogContentAliases.Focus) ?? "Preview",
-            GetString(article, BlogContentAliases.DotnetZone) ?? DotnetZoneKeys.Foundation,
-            GetString(article, BlogContentAliases.DotnetZoneStep) ?? DotnetZoneStepKeys.BasicSyntax,
+            GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+            GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
             GetString(article, BlogContentAliases.Tags) ?? string.Empty,
             GetString(article, BlogContentAliases.BodyBlocks) ?? string.Empty,
             true));
@@ -403,8 +404,8 @@ public sealed class BlogContentController : ControllerBase
             GetString(content, BlogContentAliases.Summary) ?? string.Empty,
             GetString(content, BlogContentAliases.Level) ?? "Intermediate",
             GetString(content, BlogContentAliases.Focus) ?? "Practical",
-            GetString(content, BlogContentAliases.DotnetZone) ?? DotnetZoneKeys.Foundation,
-            GetString(content, BlogContentAliases.DotnetZoneStep) ?? DotnetZoneStepKeys.BasicSyntax,
+            GetString(content, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+            GetString(content, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
             tags,
             GetDateTimeOffset(content, BlogContentAliases.PublishedDate),
             GetString(content, BlogContentAliases.BodyBlocks) ?? string.Empty,
@@ -426,8 +427,8 @@ public sealed class BlogContentController : ControllerBase
         article.SetValue(BlogContentAliases.Summary, request.Summary ?? string.Empty);
         article.SetValue(BlogContentAliases.Level, request.Level ?? "Draft");
         article.SetValue(BlogContentAliases.Focus, request.Focus ?? "Preview");
-        article.SetValue(BlogContentAliases.DotnetZone, request.DotnetZone ?? DotnetZoneKeys.Foundation);
-        article.SetValue(BlogContentAliases.DotnetZoneStep, request.DotnetZoneStep ?? DotnetZoneStepKeys.BasicSyntax);
+        article.SetValue(BlogContentAliases.DotnetZone, request.DotnetZone ?? DefaultDotnetZone);
+        article.SetValue(BlogContentAliases.DotnetZoneStep, request.DotnetZoneStep ?? DefaultDotnetZoneStep);
         article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
         article.SetValue(BlogContentAliases.BodyBlocks, request.BodyBlocks ?? string.Empty);
 

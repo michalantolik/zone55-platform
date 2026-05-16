@@ -58,9 +58,14 @@ try
     builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
 
-    builder.Services.AddApplicationRoadmap();
+    builder.Services.AddApplicationRoadmapQueries();
+    builder.Services.AddApplicationRoadmapCommands();
+
     builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
-    builder.Services.AddScoped<IRoadmapArticleAssignmentChecker, CmsRoadmapArticleAssignmentChecker>();
+
+    builder.Services.AddScoped<
+        IRoadmapArticleAssignmentChecker,
+        CmsRoadmapArticleAssignmentChecker>();
 
     builder.CreateUmbracoBuilder()
         .AddBackOffice()

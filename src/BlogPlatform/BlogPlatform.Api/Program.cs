@@ -2,8 +2,11 @@ using System.Threading.RateLimiting;
 using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application;
 using BlogPlatform.Infrastructure;
+using BlogPlatform.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Events;
+using BlogPlatform.Infrastructure;
+using BlogPlatform.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,11 +36,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddApplicationPosts();
+builder.Services.AddApplicationRoadmapQueries();
+
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
+
 builder.Services.Configure<ClientLoggingOptions>(
     builder.Configuration.GetSection("ClientLogging"));
-
-builder.Services.AddApplicationPosts();
-builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -80,6 +86,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+await BlogPlatformDbInitializer.EnsureBlogPlatformSchemaAsync(app.Services);
 
 app.UseSerilogRequestLogging();
 

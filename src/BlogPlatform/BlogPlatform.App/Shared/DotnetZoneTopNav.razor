@@ -1,12 +1,11 @@
-﻿@using BlogPlatform.Contracts.DotnetRoadmap
-@inject NavigationManager Navigation
+﻿@inject NavigationManager Navigation
 
 <nav class="dotnet-zone-top-nav" aria-label=".NET roadmap zones">
     @foreach (var level in Levels.OrderBy(level => level.Number))
     {
         <div class="dotnet-zone-tab-shell">
             <a class="dotnet-zone-tab @level.AccentClass @(IsActive(level) ? "active" : null)"
-               href="@GetZoneUrl(level)">
+                   href="@GetZoneUrl(level)">
                 <strong>@GetShortTitle(level.Title)</strong>
             </a>
 
@@ -26,14 +25,10 @@
 
     private bool IsActive(LearningPathLevel level)
     {
-        var selectedZone = GetQueryValue("zone");
+        var selectedZone = GetQueryValue("zone")
+            ?? Levels.OrderBy(item => item.Number).FirstOrDefault()?.Key;
 
-        if (string.IsNullOrWhiteSpace(selectedZone))
-        {
-            selectedZone = DotnetZoneKeys.Foundation;
-        }
-
-        return string.Equals(GetZoneKey(level), selectedZone, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(level.Key, selectedZone, StringComparison.OrdinalIgnoreCase);
     }
 
     private bool IsLast(LearningPathLevel level)
@@ -48,25 +43,14 @@
     private static string GetZoneUrl(LearningPathLevel level)
     {
         var firstStep = level.Steps.OrderBy(step => step.StepOrder).FirstOrDefault();
-        var zoneKey = GetZoneKey(level);
 
         if (firstStep is null)
         {
-            return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}";
+            return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(level.Key)}";
         }
 
-        return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}&step={Uri.EscapeDataString(firstStep.Key)}";
+        return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(level.Key)}&step={Uri.EscapeDataString(firstStep.Key)}";
     }
-
-    private static string GetZoneKey(LearningPathLevel level) =>
-        level.Number switch
-        {
-            1 => DotnetZoneKeys.Foundation,
-            2 => DotnetZoneKeys.WebAppDevelopment,
-            3 => DotnetZoneKeys.ArchitectureData,
-            4 => DotnetZoneKeys.CloudAdvanced,
-            _ => DotnetZoneKeys.Foundation
-        };
 
     private static string GetShortTitle(string title) =>
         title switch

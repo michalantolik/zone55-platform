@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject IBlogApiClient BlogApi
 
 <div class="site-shell">
     @if (EnableStickyTopNav)
@@ -32,10 +33,13 @@
     private bool EnableStickyTopNav =>
         Configuration.GetValue<bool>("Features:EnableStickyTopNav");
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Navigation.LocationChanged += HandleLocationChanged;
-        _levels = LearningPathCatalog.Build([]);
+
+        _levels = await BlogApi.GetDotnetRoadmapAsync(
+            posts: [],
+            cancellationToken: default);
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)

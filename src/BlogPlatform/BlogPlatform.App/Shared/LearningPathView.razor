@@ -1,6 +1,4 @@
-﻿@using BlogPlatform.Contracts.DotnetRoadmap
-
-<section class="learning-path-shell">
+﻿<section class="learning-path-shell">
     <div class="learning-path-header">
         <div>
             <div class="section-kicker">GUIDED ROADMAP</div>
@@ -50,16 +48,6 @@
         LearningPathLevel level,
         LearningPathStep step)
     {
-        return $"/?zone={Uri.EscapeDataString(GetZoneKey(level))}&step={Uri.EscapeDataString(step.Key)}";
+        return $"/?zone={Uri.EscapeDataString(level.Key)}&step={Uri.EscapeDataString(step.Key)}";
     }
-
-    private static string GetZoneKey(LearningPathLevel level) =>
-        level.Number switch
-        {
-            1 => DotnetZoneKeys.Foundation,
-            2 => DotnetZoneKeys.WebAppDevelopment,
-            3 => DotnetZoneKeys.ArchitectureData,
-            4 => DotnetZoneKeys.CloudAdvanced,
-            _ => DotnetZoneKeys.Foundation
-        };
 }
