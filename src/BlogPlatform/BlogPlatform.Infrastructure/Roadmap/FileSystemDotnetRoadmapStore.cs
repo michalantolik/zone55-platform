@@ -34,8 +34,11 @@ public sealed class FileSystemDotnetRoadmapStore : IDotnetRoadmapStore
                 _filePath,
                 cancellationToken);
 
-            return JsonSerializer.Deserialize<DotnetRoadmap>(json, JsonOptions())
-                ?? DotnetRoadmapDefaults.Create();
+            var dto = JsonSerializer.Deserialize<RoadmapDocumentDto>(
+                json,
+                JsonOptions());
+
+            return dto?.ToDomain() ?? DotnetRoadmapDefaults.Create();
         }
         finally
         {
@@ -53,7 +56,9 @@ public sealed class FileSystemDotnetRoadmapStore : IDotnetRoadmapStore
         {
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
 
-            var json = JsonSerializer.Serialize(roadmap, JsonOptions());
+            var dto = RoadmapDocumentDto.FromDomain(roadmap);
+
+            var json = JsonSerializer.Serialize(dto, JsonOptions());
 
             await File.WriteAllTextAsync(
                 _filePath,
@@ -76,9 +81,9 @@ public sealed class FileSystemDotnetRoadmapStore : IDotnetRoadmapStore
 
         Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
 
-        var json = JsonSerializer.Serialize(
-            DotnetRoadmapDefaults.Create(),
-            JsonOptions());
+        var dto = RoadmapDocumentDto.FromDomain(DotnetRoadmapDefaults.Create());
+
+        var json = JsonSerializer.Serialize(dto, JsonOptions());
 
         await File.WriteAllTextAsync(
             _filePath,
@@ -90,6 +95,74 @@ public sealed class FileSystemDotnetRoadmapStore : IDotnetRoadmapStore
         new()
         {
             WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
         };
+
+    private sealed class RoadmapDocumentDto
+    {
+        public List<RoadmapZoneDto> Zones { get; set; } = [];
+
+        public DotnetRoadmap ToDomain()
+        {
+            return DotnetRoadmap.Create(
+                Zones
+                    .OrderBy(zone => zone.Order)
+                    .Select(zone => DotnetRoadmapZone.Create(
+                        zone.Key,
+                        zone.Name,
+                        zone.Order,
+                        zone.Steps
+                            .OrderBy(step => step.Order)
+                            .Select(step => DotnetRoadmapStep.Create(
+                                step.Key,
+                                step.Name,
+                                step.Order)))));
+        }
+
+        public static RoadmapDocumentDto FromDomain(DotnetRoadmap roadmap)
+        {
+            return new RoadmapDocumentDto
+            {
+                Zones = roadmap.Zones
+                    .OrderBy(zone => zone.Order)
+                    .Select(zone => new RoadmapZoneDto
+                    {
+                        Key = zone.Key,
+                        Name = zone.Name,
+                        Order = zone.Order,
+                        Steps = zone.Steps
+                            .OrderBy(step => step.Order)
+                            .Select(step => new RoadmapStepDto
+                            {
+                                Key = step.Key,
+                                Name = step.Name,
+                                Order = step.Order
+                            })
+                            .ToList()
+                    })
+                    .ToList()
+            };
+        }
+    }
+
+    private sealed class RoadmapZoneDto
+    {
+        public string Key { get; set; } = string.Empty;
+
+        public string Name { get; set; } = string.Empty;
+
+        public int Order { get; set; }
+
+        public List<RoadmapStepDto> Steps { get; set; } = [];
+    }
+
+    private sealed class RoadmapStepDto
+    {
+        public string Key { get; set; } = string.Empty;
+
+        public string Name { get; set; } = string.Empty;
+
+        public int Order { get; set; }
+    }
 }

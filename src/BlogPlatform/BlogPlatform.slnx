@@ -2,6 +2,7 @@
   <Project Path="BlogPlatform.Api/BlogPlatform.Api.csproj" />
   <Project Path="BlogPlatform.App/BlogPlatform.App.csproj" Id="c06c1de6-2f0e-488f-8be9-a43faefd2448" />
   <Project Path="BlogPlatform.Application/BlogPlatform.Application.csproj" />
+  <Project Path="BlogPlatform.ArchitectureTests/BlogPlatform.ArchitectureTests.csproj" Id="4a2f3aa2-353b-4bb3-a237-0f28c1355df4" />
   <Project Path="BlogPlatform.Cms/BlogPlatform.Cms.csproj" Id="5a0a3eed-f3e6-4e4d-b826-f5e076f6a127" />
   <Project Path="BlogPlatform.Contracts/BlogPlatform.Contracts.csproj" Id="a32e80fa-21bc-4dd9-91b7-98211ce4d140" />
   <Project Path="BlogPlatform.Domain/BlogPlatform.Domain.csproj" />

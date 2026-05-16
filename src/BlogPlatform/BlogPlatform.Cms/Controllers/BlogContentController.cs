@@ -462,7 +462,7 @@ public sealed class BlogContentController : ControllerBase
 
         foreach (var zone in roadmap.Zones.OrderBy(zone => zone.Order))
         {
-            zone.Order = index++;
+            zone.SetOrder(index++);
         }
     }
 
@@ -472,7 +472,7 @@ public sealed class BlogContentController : ControllerBase
 
         foreach (var step in zone.Steps.OrderBy(step => step.Order))
         {
-            step.Order = index++;
+            step.SetOrder(index++);
         }
     }
 

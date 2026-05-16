@@ -4,45 +4,69 @@ namespace BlogPlatform.Domain.Entities;
 
 public sealed class DotnetRoadmap
 {
-    public List<DotnetRoadmapZone> Zones { get; set; } = [];
+    private readonly List<DotnetRoadmapZone> _zones = [];
+
+    public IReadOnlyCollection<DotnetRoadmapZone> Zones =>
+        _zones.OrderBy(zone => zone.Order).ToList();
+
+    public static DotnetRoadmap Create(IEnumerable<DotnetRoadmapZone> zones)
+    {
+        var roadmap = new DotnetRoadmap();
+
+        foreach (var zone in zones.OrderBy(zone => zone.Order))
+        {
+            roadmap._zones.Add(zone);
+        }
+
+        roadmap.ReorderZones();
+
+        return roadmap;
+    }
 
     public DotnetRoadmapZone? FindZone(string? zoneKey)
     {
-        return Zones.FirstOrDefault(zone =>
+        return _zones.FirstOrDefault(zone =>
             string.Equals(zone.Key, zoneKey?.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
-    public bool ContainsZone(string zoneKey)
+    public bool ContainsZone(string? zoneKey)
     {
         return FindZone(zoneKey) is not null;
     }
 
-    public bool ContainsStep(string stepKey)
+    public bool ContainsStep(string? stepKey)
     {
-        return Zones
+        return _zones
             .SelectMany(zone => zone.Steps)
-            .Any(step => string.Equals(step.Key, stepKey, StringComparison.OrdinalIgnoreCase));
+            .Any(step => string.Equals(step.Key, stepKey?.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
     public void AddZone(string name, string? requestedKey)
     {
+        EnsureRequired(name, "Zone name is required.");
+
         var key = CreateKey(string.IsNullOrWhiteSpace(requestedKey) ? name : requestedKey);
 
-        Zones.Add(new DotnetRoadmapZone
+        if (ContainsZone(key))
         {
-            Key = key,
-            Name = name.Trim(),
-            Order = Zones.Count + 1,
-            Steps = []
-        });
+            throw new InvalidOperationException("Zone key already exists.");
+        }
+
+        _zones.Add(DotnetRoadmapZone.Create(
+            key,
+            name.Trim(),
+            _zones.Count + 1,
+            []));
     }
 
     public void RenameZone(string zoneKey, string name)
     {
+        EnsureRequired(name, "Zone name is required.");
+
         var zone = FindZone(zoneKey)
             ?? throw new InvalidOperationException("Zone not found.");
 
-        zone.Name = name.Trim();
+        zone.Rename(name);
     }
 
     public void DeleteZone(string zoneKey)
@@ -50,31 +74,35 @@ public sealed class DotnetRoadmap
         var zone = FindZone(zoneKey)
             ?? throw new InvalidOperationException("Zone not found.");
 
-        Zones.Remove(zone);
+        _zones.Remove(zone);
         ReorderZones();
     }
 
     public void AddStep(string zoneKey, string name, string? requestedKey)
     {
+        EnsureRequired(name, "Step name is required.");
+
         var zone = FindZone(zoneKey)
             ?? throw new InvalidOperationException("Zone not found.");
 
         var key = CreateKey(string.IsNullOrWhiteSpace(requestedKey) ? name : requestedKey);
 
-        zone.Steps.Add(new DotnetRoadmapStep
+        if (ContainsStep(key))
         {
-            Key = key,
-            Name = name.Trim(),
-            Order = zone.Steps.Count + 1
-        });
+            throw new InvalidOperationException("Step key already exists.");
+        }
+
+        zone.AddStep(key, name);
     }
 
     public void RenameStep(string zoneKey, string stepKey, string name)
     {
+        EnsureRequired(name, "Step name is required.");
+
         var step = FindStep(zoneKey, stepKey)
             ?? throw new InvalidOperationException("Step not found.");
 
-        step.Name = name.Trim();
+        step.Rename(name);
     }
 
     public void DeleteStep(string zoneKey, string stepKey)
@@ -82,11 +110,7 @@ public sealed class DotnetRoadmap
         var zone = FindZone(zoneKey)
             ?? throw new InvalidOperationException("Zone not found.");
 
-        var step = zone.FindStep(stepKey)
-            ?? throw new InvalidOperationException("Step not found.");
-
-        zone.Steps.Remove(step);
-        zone.ReorderSteps();
+        zone.DeleteStep(stepKey);
     }
 
     public bool IsValidAssignment(string? zoneKey, string? stepKey)
@@ -100,9 +124,9 @@ public sealed class DotnetRoadmap
     {
         var index = 1;
 
-        foreach (var zone in Zones.OrderBy(zone => zone.Order))
+        foreach (var zone in _zones.OrderBy(zone => zone.Order))
         {
-            zone.Order = index++;
+            zone.SetOrder(index++);
         }
     }
 
@@ -115,21 +139,58 @@ public sealed class DotnetRoadmap
     {
         return Slug.Create(value).Value;
     }
+
+    private static void EnsureRequired(string? value, string message)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(message);
+        }
+    }
 }
 
 public sealed class DotnetRoadmapZone
 {
-    public string Key { get; set; } = string.Empty;
+    private readonly List<DotnetRoadmapStep> _steps = [];
 
-    public string Name { get; set; } = string.Empty;
+    private DotnetRoadmapZone(
+        string key,
+        string name,
+        int order,
+        IEnumerable<DotnetRoadmapStep> steps)
+    {
+        Key = key;
+        Name = name;
+        Order = order;
+        _steps.AddRange(steps.OrderBy(step => step.Order));
+        ReorderSteps();
+    }
 
-    public int Order { get; set; }
+    public string Key { get; }
 
-    public List<DotnetRoadmapStep> Steps { get; set; } = [];
+    public string Name { get; private set; }
+
+    public int Order { get; private set; }
+
+    public IReadOnlyCollection<DotnetRoadmapStep> Steps =>
+        _steps.OrderBy(step => step.Order).ToList();
+
+    public static DotnetRoadmapZone Create(
+        string key,
+        string name,
+        int order,
+        IEnumerable<DotnetRoadmapStep> steps)
+    {
+        return new DotnetRoadmapZone(
+            key.Trim(),
+            name.Trim(),
+            order,
+            steps);
+    }
 
     public DotnetRoadmapStep? FindStep(string? stepKey)
     {
-        return Steps.FirstOrDefault(step =>
+        return _steps.FirstOrDefault(step =>
             string.Equals(step.Key, stepKey?.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
@@ -138,22 +199,74 @@ public sealed class DotnetRoadmapZone
         return FindStep(stepKey) is not null;
     }
 
+    public void AddStep(string key, string name)
+    {
+        _steps.Add(DotnetRoadmapStep.Create(
+            key,
+            name.Trim(),
+            _steps.Count + 1));
+    }
+
+    public void DeleteStep(string stepKey)
+    {
+        var step = FindStep(stepKey)
+            ?? throw new InvalidOperationException("Step not found.");
+
+        _steps.Remove(step);
+        ReorderSteps();
+    }
+
+    public void Rename(string name)
+    {
+        Name = name.Trim();
+    }
+
+    public void SetOrder(int order)
+    {
+        Order = order;
+    }
+
     public void ReorderSteps()
     {
         var index = 1;
 
-        foreach (var step in Steps.OrderBy(step => step.Order))
+        foreach (var step in _steps.OrderBy(step => step.Order))
         {
-            step.Order = index++;
+            step.SetOrder(index++);
         }
     }
 }
 
 public sealed class DotnetRoadmapStep
 {
-    public string Key { get; set; } = string.Empty;
+    private DotnetRoadmapStep(string key, string name, int order)
+    {
+        Key = key.Trim();
+        Name = name.Trim();
+        Order = order;
+    }
 
-    public string Name { get; set; } = string.Empty;
+    public string Key { get; }
 
-    public int Order { get; set; }
+    public string Name { get; private set; }
+
+    public int Order { get; private set; }
+
+    public static DotnetRoadmapStep Create(
+        string key,
+        string name,
+        int order)
+    {
+        return new DotnetRoadmapStep(key, name, order);
+    }
+
+    public void Rename(string name)
+    {
+        Name = name.Trim();
+    }
+
+    public void SetOrder(int order)
+    {
+        Order = order;
+    }
 }
