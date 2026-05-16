@@ -8,7 +8,7 @@ using System.Net.Http.Json;
 
 namespace BlogPlatform.Infrastructure.Cms;
 
-internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostRepository
+internal sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 {
     private const string PostsCacheKey = "cms-post-details";
 
@@ -16,13 +16,13 @@ internal sealed class UmbracoDeliveryApiBlogPostQueryService : IBlogPostReposito
 
     private readonly HttpClient _httpClient;
     private readonly UmbracoDeliveryApiOptions _options;
-    private readonly ILogger<UmbracoDeliveryApiBlogPostQueryService> _logger;
+    private readonly ILogger<UmbracoDeliveryApiBlogPostRepository> _logger;
     private readonly IMemoryCache _cache;
 
-    public UmbracoDeliveryApiBlogPostQueryService(
+    public UmbracoDeliveryApiBlogPostRepository(
         HttpClient httpClient,
         IOptions<UmbracoDeliveryApiOptions> options,
-        ILogger<UmbracoDeliveryApiBlogPostQueryService> logger,
+        ILogger<UmbracoDeliveryApiBlogPostRepository> logger,
         IMemoryCache cache)
     {
         _httpClient = httpClient;
