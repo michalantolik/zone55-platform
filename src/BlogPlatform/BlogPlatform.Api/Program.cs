@@ -36,7 +36,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<ClientLoggingOptions>(
     builder.Configuration.GetSection("ClientLogging"));
 
-builder.Services.AddApplication();
+builder.Services.AddApplicationPosts();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddRateLimiter(options =>

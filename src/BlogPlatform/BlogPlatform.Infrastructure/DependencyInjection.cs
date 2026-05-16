@@ -1,5 +1,7 @@
 ﻿using BlogPlatform.Application.Posts;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure.Cms;
+using BlogPlatform.Infrastructure.Roadmap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -41,6 +43,20 @@ public static class DependencyInjection
                 client.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
                 client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
             });
+
+        return services;
+    }
+
+    public static IServiceCollection AddFileSystemRoadmapStorage(
+        this IServiceCollection services,
+        string filePath)
+    {
+        services.Configure<FileSystemRoadmapStoreOptions>(options =>
+        {
+            options.FilePath = filePath;
+        });
+
+        services.AddSingleton<IDotnetRoadmapStore, FileSystemDotnetRoadmapStore>();
 
         return services;
     }

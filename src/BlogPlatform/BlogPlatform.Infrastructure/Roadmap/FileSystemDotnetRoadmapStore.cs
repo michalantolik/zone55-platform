@@ -1,20 +1,23 @@
 ﻿using System.Text.Json;
 using BlogPlatform.Application.Roadmap;
+using Microsoft.Extensions.Options;
 
-namespace BlogPlatform.Cms.Admin.Roadmap;
+namespace BlogPlatform.Infrastructure.Roadmap;
 
-public sealed class AdminRoadmapStore : IDotnetRoadmapStore
+public sealed class FileSystemDotnetRoadmapStore : IDotnetRoadmapStore
 {
     private readonly string _filePath;
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public AdminRoadmapStore(IWebHostEnvironment environment)
+    public FileSystemDotnetRoadmapStore(
+        IOptions<FileSystemRoadmapStoreOptions> options)
     {
-        _filePath = Path.Combine(
-            environment.ContentRootPath,
-            "Admin",
-            "Roadmap",
-            "dotnet-roadmap.admin.json");
+        if (string.IsNullOrWhiteSpace(options.Value.FilePath))
+        {
+            throw new InvalidOperationException("Roadmap storage file path is missing.");
+        }
+
+        _filePath = options.Value.FilePath;
     }
 
     public async Task<DotnetRoadmap> GetAsync(
@@ -31,7 +34,7 @@ public sealed class AdminRoadmapStore : IDotnetRoadmapStore
                 cancellationToken);
 
             return JsonSerializer.Deserialize<DotnetRoadmap>(json, JsonOptions())
-                ?? CreateDefault();
+                ?? DotnetRoadmapDefaults.Create();
         }
         finally
         {
@@ -72,17 +75,15 @@ public sealed class AdminRoadmapStore : IDotnetRoadmapStore
 
         Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
 
-        var roadmap = CreateDefault();
-        var json = JsonSerializer.Serialize(roadmap, JsonOptions());
+        var json = JsonSerializer.Serialize(
+            DotnetRoadmapDefaults.Create(),
+            JsonOptions());
 
         await File.WriteAllTextAsync(
             _filePath,
             json,
             cancellationToken);
     }
-
-    private static DotnetRoadmap CreateDefault() =>
-        DotnetRoadmapDefaults.Create();
 
     private static JsonSerializerOptions JsonOptions() =>
         new()
