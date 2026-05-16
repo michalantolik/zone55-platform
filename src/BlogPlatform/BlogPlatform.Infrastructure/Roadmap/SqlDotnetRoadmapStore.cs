@@ -49,34 +49,67 @@ public sealed class SqlDotnetRoadmapStore : IDotnetRoadmapStore
             .Include(zone => zone.Steps)
             .ToListAsync(cancellationToken);
 
-        _dbContext.RoadmapZones.RemoveRange(existingZones);
+        var requestedZoneKeys = roadmap.Zones
+            .Select(zone => zone.Key)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var entities = roadmap.Zones
-            .OrderBy(zone => zone.Order)
-            .Select(zone =>
-            {
-                var zoneEntity = new RoadmapZoneEntity
-                {
-                    Key = zone.Key,
-                    Name = zone.Name,
-                    Order = zone.Order
-                };
-
-                foreach (var step in zone.Steps.OrderBy(step => step.Order))
-                {
-                    zoneEntity.Steps.Add(new RoadmapStepEntity
-                    {
-                        Key = step.Key,
-                        Name = step.Name,
-                        Order = step.Order
-                    });
-                }
-
-                return zoneEntity;
-            })
+        var zonesToRemove = existingZones
+            .Where(zone => !requestedZoneKeys.Contains(zone.Key))
             .ToList();
 
-        await _dbContext.RoadmapZones.AddRangeAsync(entities, cancellationToken);
+        _dbContext.RoadmapZones.RemoveRange(zonesToRemove);
+
+        foreach (var zone in roadmap.Zones.OrderBy(zone => zone.Order))
+        {
+            var zoneEntity = existingZones.FirstOrDefault(existing =>
+                string.Equals(existing.Key, zone.Key, StringComparison.OrdinalIgnoreCase));
+
+            if (zoneEntity is null)
+            {
+                zoneEntity = new RoadmapZoneEntity
+                {
+                    Key = zone.Key
+                };
+
+                _dbContext.RoadmapZones.Add(zoneEntity);
+            }
+
+            zoneEntity.Name = zone.Name;
+            zoneEntity.Order = zone.Order;
+
+            var requestedStepKeys = zone.Steps
+                .Select(step => step.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var stepsToRemove = zoneEntity.Steps
+                .Where(step => !requestedStepKeys.Contains(step.Key))
+                .ToList();
+
+            foreach (var stepToRemove in stepsToRemove)
+            {
+                zoneEntity.Steps.Remove(stepToRemove);
+            }
+
+            foreach (var step in zone.Steps.OrderBy(step => step.Order))
+            {
+                var stepEntity = zoneEntity.Steps.FirstOrDefault(existing =>
+                    string.Equals(existing.Key, step.Key, StringComparison.OrdinalIgnoreCase));
+
+                if (stepEntity is null)
+                {
+                    stepEntity = new RoadmapStepEntity
+                    {
+                        Key = step.Key
+                    };
+
+                    zoneEntity.Steps.Add(stepEntity);
+                }
+
+                stepEntity.Name = step.Name;
+                stepEntity.Order = step.Order;
+            }
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

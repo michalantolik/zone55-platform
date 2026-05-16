@@ -28,7 +28,7 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Application_Should_Not_Depend_On_Infrastructure_Or_Presentation()
+    public void Application_Should_Not_Depend_On_Infrastructure_Presentation_Or_Contracts()
     {
         var result = Types
             .InAssembly(typeof(IBlogPostQueryService).Assembly)
@@ -45,7 +45,7 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Infrastructure_Should_Not_Depend_On_Presentation()
+    public void Infrastructure_Should_Not_Depend_On_Presentation_Or_Contracts()
     {
         var result = Types
             .InAssembly(typeof(UmbracoDeliveryApiBlogPostRepository).Assembly)
@@ -85,6 +85,23 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Api",
                 "BlogPlatform.App",
                 "BlogPlatform.Domain")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Controllers_Should_Not_Contain_Domain_Logic()
+    {
+        var result = Types
+            .InAssemblies([
+                typeof(PostsController).Assembly,
+                typeof(BlogContentController).Assembly
+            ])
+            .That()
+            .HaveNameEndingWith("Controller")
+            .ShouldNot()
+            .HaveDependencyOn("BlogPlatform.Domain")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));

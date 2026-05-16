@@ -69,18 +69,4 @@ public static class DependencyInjection
 
         return services;
     }
-
-    public static IServiceCollection AddFileSystemRoadmapStorage(
-        this IServiceCollection services,
-        string filePath)
-    {
-        services.Configure<FileSystemRoadmapStoreOptions>(options =>
-        {
-            options.FilePath = filePath;
-        });
-
-        services.AddSingleton<IDotnetRoadmapStore, FileSystemDotnetRoadmapStore>();
-
-        return services;
-    }
 }
