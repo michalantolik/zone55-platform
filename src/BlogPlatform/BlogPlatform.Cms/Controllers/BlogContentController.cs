@@ -41,20 +41,6 @@ public sealed class BlogContentController : ControllerBase
         _roadmapCommands = roadmapCommands;
     }
 
-    [HttpGet("categories")]
-    public ActionResult<IReadOnlyCollection<CmsCategoryListItemDto>> GetCategories()
-    {
-        var categories = GetRootCategories()
-            .Select(content => new CmsCategoryListItemDto(
-                content.Key,
-                GetString(content, BlogContentAliases.Title) ?? content.Name ?? "Untitled category",
-                GetString(content, BlogContentAliases.Slug) ?? CreateSlug(content.Name ?? "category")))
-            .OrderBy(category => category.Name)
-            .ToList();
-
-        return Ok(categories);
-    }
-
     [HttpGet("dotnet-roadmap")]
     public async Task<ActionResult<IReadOnlyCollection<CmsDotnetZoneListItemDto>>> GetDotnetRoadmap()
     {
@@ -232,32 +218,6 @@ public sealed class BlogContentController : ControllerBase
             GetString(article, BlogContentAliases.Tags) ?? string.Empty,
             GetString(article, BlogContentAliases.BodyBlocks) ?? string.Empty,
             true));
-    }
-
-    [HttpDelete("categories/{key:guid}")]
-    public IActionResult DeleteCategory(Guid key)
-    {
-        var category = _contentService.GetById(key);
-
-        if (category is null ||
-            category.ContentType.Alias != BlogContentAliases.BlogCategory)
-        {
-            return NotFound(new CmsDeleteResponse(false, "Category not found."));
-        }
-
-
-        try
-        {
-            _contentService.Delete(category);
-            ClearCaches();
-
-            return Ok(new CmsDeleteResponse(true, "Category deleted successfully."));
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "Unable to delete CMS category. Key={CategoryKey}", key);
-            return StatusCode(500, new CmsDeleteResponse(false, "Unable to delete category."));
-        }
     }
 
     [HttpDelete("articles/{key:guid}")]
@@ -488,15 +448,6 @@ public sealed class BlogContentController : ControllerBase
             .Where(content => content.ContentType.Alias == BlogContentAliases.BlogArticle)
             .ToList();
     }
-
-    private IReadOnlyCollection<IContent> GetRootCategories()
-    {
-        return _contentService
-            .GetRootContent()
-            .Where(content => content.ContentType.Alias == BlogContentAliases.BlogCategory)
-            .ToList();
-    }
-
 
     private static string? GetString(IContent content, string alias)
     {

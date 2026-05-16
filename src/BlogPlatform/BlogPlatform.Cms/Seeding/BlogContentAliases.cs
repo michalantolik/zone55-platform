@@ -3,7 +3,6 @@ namespace BlogPlatform.Cms.Seeding;
 public static class BlogContentAliases
 {
     public const string BlogArticle = "blogArticle";
-    public const string BlogCategory = "blogCategory";
 
     public const string TextBlock = "textBlock";
     public const string HeadingBlock = "headingBlock";

@@ -1,14 +1,4 @@
 {
-  "categories": [
-    {
-      "name": "Backend (.NET)",
-      "slug": "backend-dotnet"
-    },
-    {
-      "name": "Architecture",
-      "slug": "architecture"
-    }
-  ],
   "roadmapZones": [
     {
       "key": "foundation",
