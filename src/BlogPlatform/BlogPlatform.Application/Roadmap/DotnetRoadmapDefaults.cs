@@ -15,45 +15,48 @@ public static class DotnetRoadmapDefaults
                 [
                     DotnetRoadmapStep.Create("csharp-dotnet", "C# & .NET", 1),
                     DotnetRoadmapStep.Create("basic-syntax", "Basic Syntax", 2),
-                    DotnetRoadmapStep.Create("oop", "Object-Oriented Programming", 3),
-                    DotnetRoadmapStep.Create("collections", "Collections", 4)
+                    DotnetRoadmapStep.Create("types-operators", "Types & Operators", 3),
+                    DotnetRoadmapStep.Create("functions-classes", "Functions & Classes", 4),
+                    DotnetRoadmapStep.Create("console-apps", "Console Apps", 5),
+                    DotnetRoadmapStep.Create("sth", "Something", 6)
                 ]),
+
             DotnetRoadmapZone.Create(
-                "backend",
-                "Backend",
+                "web-app-development",
+                "Web & App Development",
                 2,
                 [
-                    DotnetRoadmapStep.Create("aspnet-core", "ASP.NET Core", 1),
-                    DotnetRoadmapStep.Create("rest-api", "REST API", 2),
-                    DotnetRoadmapStep.Create("authentication", "Authentication", 3),
-                    DotnetRoadmapStep.Create("authorization", "Authorization", 4)
+                    DotnetRoadmapStep.Create("aspnet-core-ecosystem", "ASP.NET Core Ecosystem", 1),
+                    DotnetRoadmapStep.Create("aspnet-core-mvc", "ASP.NET Core MVC", 2),
+                    DotnetRoadmapStep.Create("aspnet-core-web-api", "ASP.NET Core Web API", 3),
+                    DotnetRoadmapStep.Create("linq-collections", "LINQ & Collections", 4),
+                    DotnetRoadmapStep.Create("dependency-injection", "Dependency Injection", 5),
+                    DotnetRoadmapStep.Create("desktop-apps", "Desktop Apps", 6)
                 ]),
+
             DotnetRoadmapZone.Create(
-                "database",
-                "Database",
+                "architecture-data",
+                "Architecture & Data",
                 3,
                 [
-                    DotnetRoadmapStep.Create("sql-server", "SQL Server", 1),
-                    DotnetRoadmapStep.Create("entity-framework", "Entity Framework Core", 2),
-                    DotnetRoadmapStep.Create("migrations", "Migrations", 3)
+                    DotnetRoadmapStep.Create("sql-fundamentals", "SQL Fundamentals", 1),
+                    DotnetRoadmapStep.Create("entity-framework-core", "Entity Framework Core", 2),
+                    DotnetRoadmapStep.Create("async-programming", "Async Programming", 3),
+                    DotnetRoadmapStep.Create("testing", "Testing", 4),
+                    DotnetRoadmapStep.Create("clean-architecture", "Clean Architecture", 5),
+                    DotnetRoadmapStep.Create("design-patterns", "Design Patterns", 6)
                 ]),
+
             DotnetRoadmapZone.Create(
-                "architecture",
-                "Architecture",
+                "cloud-advanced",
+                "Cloud & Advanced",
                 4,
                 [
-                    DotnetRoadmapStep.Create("clean-architecture", "Clean Architecture", 1),
-                    DotnetRoadmapStep.Create("cqrs", "CQRS", 2),
-                    DotnetRoadmapStep.Create("ddd", "DDD", 3)
-                ]),
-            DotnetRoadmapZone.Create(
-                "cloud-devops",
-                "Cloud & DevOps",
-                5,
-                [
-                    DotnetRoadmapStep.Create("azure", "Azure", 1),
-                    DotnetRoadmapStep.Create("docker", "Docker", 2),
-                    DotnetRoadmapStep.Create("ci-cd", "CI/CD", 3)
+                    DotnetRoadmapStep.Create("microservices", "Microservices", 1),
+                    DotnetRoadmapStep.Create("azure-integration", "Azure Integration", 2),
+                    DotnetRoadmapStep.Create("cicd-pipelines", "CI/CD Pipelines", 3),
+                    DotnetRoadmapStep.Create("performance-tuning", "Performance Tuning", 4),
+                    DotnetRoadmapStep.Create("advanced-csharp", "Advanced C#", 5)
                 ])
         ]);
     }
