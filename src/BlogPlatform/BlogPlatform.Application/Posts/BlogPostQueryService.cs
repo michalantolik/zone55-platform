@@ -2,7 +2,7 @@
 
 namespace BlogPlatform.Application.Posts;
 
-internal sealed class BlogPostQueryService : IBlogPostQueryService
+public sealed class BlogPostQueryService : IBlogPostQueryService
 {
     private readonly IBlogPostRepository _posts;
 

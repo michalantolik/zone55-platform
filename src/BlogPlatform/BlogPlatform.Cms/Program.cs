@@ -1,6 +1,10 @@
+using BlogPlatform.Application;
+using BlogPlatform.Application.Posts;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Admin.Roadmap;
 using BlogPlatform.Cms.Infrastructure.Database;
+using BlogPlatform.Infrastructure.Cms;
+using Polly;
 using Serilog;
 using Serilog.Events;
 
@@ -54,6 +58,25 @@ try
 
     builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
+
+    builder.Services.AddApplication();
+
+    builder.Services.AddHttpClient<
+        IBlogPostRepository,
+        UmbracoDeliveryApiBlogPostRepository>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(5);
+        })
+    .AddTransientHttpErrorPolicy(policy =>
+        policy.WaitAndRetryAsync(
+        3,
+        retryAttempt => TimeSpan.FromSeconds(retryAttempt)));
+
+    builder.Services.AddScoped<IBlogPostQueryService, BlogPostQueryService>();
+    builder.Services.AddScoped<IBlogHomeContentQueryService, BlogHomeContentQueryService>();
+
+    builder.Services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
+    builder.Services.AddScoped<IRoadmapCommandService, RoadmapCommandService>();
     builder.Services.AddSingleton<IDotnetRoadmapStore, AdminRoadmapStore>();
 
     builder.CreateUmbracoBuilder()

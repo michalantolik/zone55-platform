@@ -8,7 +8,7 @@ using System.Net.Http.Json;
 
 namespace BlogPlatform.Infrastructure.Cms;
 
-internal sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
+public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 {
     private const string PostsCacheKey = "cms-post-details";
 
@@ -120,30 +120,39 @@ internal sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         Stopwatch stopwatch,
         CancellationToken cancellationToken)
     {
-        using var response = await _httpClient.GetAsync(
-            _options.PostsEndpoint,
-            HttpCompletionOption.ResponseHeadersRead,
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            using var response = await _httpClient.GetAsync(
+                _options.PostsEndpoint,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
 
-            _logger.LogError(
-                "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
-                response.StatusCode,
-                stopwatch.ElapsedMilliseconds,
-                responseBody);
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+                _logger.LogError(
+                    "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
+                    response.StatusCode,
+                    stopwatch.ElapsedMilliseconds,
+                    responseBody);
+
+                response.EnsureSuccessStatusCode();
+            }
+
+            var posts = await response.Content.ReadFromJsonAsync<List<Post>>(
+                cancellationToken: cancellationToken);
+
+            return posts ?? [];
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "CMS unavailable during startup. Returning empty post list.");
 
-        var posts = await response.Content.ReadFromJsonAsync<List<CmsPostDto>>(
-            cancellationToken: cancellationToken) ?? [];
-
-        return posts
-            .Select(ToDomainPost)
-            .ToList();
+            return [];
+        }
     }
 
     private static Post ToDomainPost(CmsPostDto post)

@@ -1,6 +1,6 @@
 ﻿namespace BlogPlatform.Application.Posts;
 
-internal sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
+public sealed class BlogHomeContentQueryService : IBlogHomeContentQueryService
 {
     private readonly IBlogPostQueryService _posts;
 

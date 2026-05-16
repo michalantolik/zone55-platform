@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using BlogPlatform.Application.Roadmap;
-using BlogPlatform.Contracts.DotnetRoadmap;
 
 namespace BlogPlatform.Cms.Admin.Roadmap;
 
@@ -82,30 +81,8 @@ public sealed class AdminRoadmapStore : IDotnetRoadmapStore
             cancellationToken);
     }
 
-    private static DotnetRoadmap CreateDefault()
-    {
-        var zones = DotnetRoadmapCatalog.AllowedZoneKeys
-            .Select((zoneKey, zoneIndex) => new DotnetRoadmapZone
-            {
-                Key = zoneKey,
-                Name = DotnetRoadmapCatalog.ZoneDisplayNames[zoneKey],
-                Order = zoneIndex + 1,
-                Steps = DotnetRoadmapCatalog.ZoneStepKeys[zoneKey]
-                    .Select((stepKey, stepIndex) => new DotnetRoadmapStep
-                    {
-                        Key = stepKey,
-                        Name = DotnetRoadmapCatalog.StepDisplayNames[stepKey],
-                        Order = stepIndex + 1
-                    })
-                    .ToList()
-            })
-            .ToList();
-
-        return new DotnetRoadmap
-        {
-            Zones = zones
-        };
-    }
+    private static DotnetRoadmap CreateDefault() =>
+        DotnetRoadmapDefaults.Create();
 
     private static JsonSerializerOptions JsonOptions() =>
         new()

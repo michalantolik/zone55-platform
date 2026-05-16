@@ -21,7 +21,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "blog-admin/article-editor",
+      "launchUrl": "blog-admin",
       "applicationUrl": "https://localhost:44393;http://localhost:13071",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

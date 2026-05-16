@@ -20,20 +20,23 @@ public sealed class BlogContentController : ControllerBase
     private readonly IContentTypeService _contentTypeService;
     private readonly ILogger<BlogContentController> _logger;
     private readonly IMemoryCache _cache;
-    private readonly IDotnetRoadmapStore _roadmapStore;
+    private readonly IRoadmapQueryService _roadmapQueries;
+    private readonly IRoadmapCommandService _roadmapCommands;
 
     public BlogContentController(
         IContentService contentService,
         IContentTypeService contentTypeService,
         ILogger<BlogContentController> logger,
         IMemoryCache cache,
-        IDotnetRoadmapStore roadmapStore)
+        IRoadmapQueryService roadmapQueries,
+        IRoadmapCommandService roadmapCommands)
     {
         _contentService = contentService;
         _contentTypeService = contentTypeService;
         _logger = logger;
         _cache = cache;
-        _roadmapStore = roadmapStore;
+        _roadmapQueries = roadmapQueries;
+        _roadmapCommands = roadmapCommands;
     }
 
     [HttpGet("categories")]
@@ -57,7 +60,7 @@ public sealed class BlogContentController : ControllerBase
             .Select(MapArticleListItem)
             .ToList();
 
-        var roadmap = await _roadmapStore.GetAsync();
+        var roadmap = await _roadmapQueries.GetRoadmapAsync();
 
         var zones = roadmap.Zones
             .OrderBy(zone => zone.Order)
@@ -90,186 +93,92 @@ public sealed class BlogContentController : ControllerBase
 
     [HttpPost("dotnet-roadmap/zones")]
     public async Task<ActionResult<CmsSaveRoadmapResponse>> CreateZone(
-        [FromBody] CmsSaveRoadmapZoneRequest request)
+        [FromBody] CmsSaveRoadmapZoneRequest request,
+        CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest(new CmsSaveRoadmapResponse(false, "Zone name is required."));
-        }
+        var result = await _roadmapCommands.CreateZoneAsync(
+            request.Name,
+            request.Key,
+            cancellationToken);
 
-        var roadmap = await _roadmapStore.GetAsync();
-        var key = CreateSlug(string.IsNullOrWhiteSpace(request.Key) ? request.Name : request.Key);
-
-        if (roadmap.Zones.Any(zone => zone.Key == key))
-        {
-            return BadRequest(new CmsSaveRoadmapResponse(false, "Zone key already exists."));
-        }
-
-        roadmap.Zones.Add(new DotnetRoadmapZone
-        {
-            Key = key,
-            Name = request.Name.Trim(),
-            Order = roadmap.Zones.Count + 1,
-            Steps = []
-        });
-
-        await _roadmapStore.SaveAsync(roadmap);
-        ClearCaches();
-
-        return Ok(new CmsSaveRoadmapResponse(true, "Zone created successfully."));
+        return ToRoadmapActionResult(result);
     }
 
     [HttpPut("dotnet-roadmap/zones/{zoneKey}")]
     public async Task<ActionResult<CmsSaveRoadmapResponse>> UpdateZone(
         string zoneKey,
-        [FromBody] CmsSaveRoadmapZoneRequest request)
+        [FromBody] CmsSaveRoadmapZoneRequest request,
+        CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest(new CmsSaveRoadmapResponse(false, "Zone name is required."));
-        }
+        var result = await _roadmapCommands.UpdateZoneAsync(
+            zoneKey,
+            request.Name,
+            cancellationToken);
 
-        var roadmap = await _roadmapStore.GetAsync();
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-
-        if (zone is null)
-        {
-            return NotFound(new CmsSaveRoadmapResponse(false, "Zone not found."));
-        }
-
-        zone.Name = request.Name.Trim();
-
-        await _roadmapStore.SaveAsync(roadmap);
-        ClearCaches();
-
-        return Ok(new CmsSaveRoadmapResponse(true, "Zone updated successfully."));
+        return ToRoadmapActionResult(result);
     }
 
     [HttpDelete("dotnet-roadmap/zones/{zoneKey}")]
-    public async Task<ActionResult<CmsDeleteResponse>> DeleteZone(string zoneKey)
+    public async Task<ActionResult<CmsDeleteResponse>> DeleteZone(
+        string zoneKey,
+        CancellationToken cancellationToken)
     {
-        var articlesUsingZone = GetRootArticles()
-            .Select(MapArticleListItem)
-            .Count(article => article.DotnetZone == zoneKey);
+        var hasAssignedArticles = HasArticlesAssignedToZone(zoneKey);
 
-        if (articlesUsingZone > 0)
-        {
-            return BadRequest(new CmsDeleteResponse(false, "Cannot delete zone because articles still use it."));
-        }
+        var result = await _roadmapCommands.DeleteZoneAsync(
+            zoneKey,
+            hasAssignedArticles,
+            cancellationToken);
 
-        var roadmap = await _roadmapStore.GetAsync();
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-
-        if (zone is null)
-        {
-            return NotFound(new CmsDeleteResponse(false, "Zone not found."));
-        }
-
-        roadmap.Zones.Remove(zone);
-        ReorderZones(roadmap);
-
-        await _roadmapStore.SaveAsync(roadmap);
-        ClearCaches();
-
-        return Ok(new CmsDeleteResponse(true, "Zone deleted successfully."));
+        return ToDeleteActionResult(result);
     }
 
     [HttpPost("dotnet-roadmap/zones/{zoneKey}/steps")]
     public async Task<ActionResult<CmsSaveRoadmapResponse>> CreateStep(
         string zoneKey,
-        [FromBody] CmsSaveRoadmapStepRequest request)
+        [FromBody] CmsSaveRoadmapStepRequest request,
+        CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest(new CmsSaveRoadmapResponse(false, "Step name is required."));
-        }
+        var result = await _roadmapCommands.CreateStepAsync(
+            zoneKey,
+            request.Name,
+            request.Key,
+            cancellationToken);
 
-        var roadmap = await _roadmapStore.GetAsync();
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-
-        if (zone is null)
-        {
-            return NotFound(new CmsSaveRoadmapResponse(false, "Zone not found."));
-        }
-
-        var key = CreateSlug(string.IsNullOrWhiteSpace(request.Key) ? request.Name : request.Key);
-
-        if (roadmap.Zones.SelectMany(item => item.Steps).Any(step => step.Key == key))
-        {
-            return BadRequest(new CmsSaveRoadmapResponse(false, "Step key already exists."));
-        }
-
-        zone.Steps.Add(new DotnetRoadmapStep
-        {
-            Key = key,
-            Name = request.Name.Trim(),
-            Order = zone.Steps.Count + 1
-        });
-
-        await _roadmapStore.SaveAsync(roadmap);
-        ClearCaches();
-
-        return Ok(new CmsSaveRoadmapResponse(true, "Step created successfully."));
+        return ToRoadmapActionResult(result);
     }
 
     [HttpPut("dotnet-roadmap/zones/{zoneKey}/steps/{stepKey}")]
     public async Task<ActionResult<CmsSaveRoadmapResponse>> UpdateStep(
         string zoneKey,
         string stepKey,
-        [FromBody] CmsSaveRoadmapStepRequest request)
+        [FromBody] CmsSaveRoadmapStepRequest request,
+        CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest(new CmsSaveRoadmapResponse(false, "Step name is required."));
-        }
+        var result = await _roadmapCommands.UpdateStepAsync(
+            zoneKey,
+            stepKey,
+            request.Name,
+            cancellationToken);
 
-        var roadmap = await _roadmapStore.GetAsync();
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-        var step = zone?.Steps.FirstOrDefault(item => item.Key == stepKey);
-
-        if (zone is null || step is null)
-        {
-            return NotFound(new CmsSaveRoadmapResponse(false, "Step not found."));
-        }
-
-        step.Name = request.Name.Trim();
-
-        await _roadmapStore.SaveAsync(roadmap);
-        ClearCaches();
-
-        return Ok(new CmsSaveRoadmapResponse(true, "Step updated successfully."));
+        return ToRoadmapActionResult(result);
     }
 
     [HttpDelete("dotnet-roadmap/zones/{zoneKey}/steps/{stepKey}")]
     public async Task<ActionResult<CmsDeleteResponse>> DeleteStep(
         string zoneKey,
-        string stepKey)
+        string stepKey,
+        CancellationToken cancellationToken)
     {
-        var articlesUsingStep = GetRootArticles()
-            .Select(MapArticleListItem)
-            .Count(article => article.DotnetZone == zoneKey && article.DotnetZoneStep == stepKey);
+        var hasAssignedArticles = HasArticlesAssignedToStep(zoneKey, stepKey);
 
-        if (articlesUsingStep > 0)
-        {
-            return BadRequest(new CmsDeleteResponse(false, "Cannot delete step because articles still use it."));
-        }
+        var result = await _roadmapCommands.DeleteStepAsync(
+            zoneKey,
+            stepKey,
+            hasAssignedArticles,
+            cancellationToken);
 
-        var roadmap = await _roadmapStore.GetAsync();
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == zoneKey);
-        var step = zone?.Steps.FirstOrDefault(item => item.Key == stepKey);
-
-        if (zone is null || step is null)
-        {
-            return NotFound(new CmsDeleteResponse(false, "Step not found."));
-        }
-
-        zone.Steps.Remove(step);
-        ReorderSteps(zone);
-
-        await _roadmapStore.SaveAsync(roadmap);
-        ClearCaches();
-
-        return Ok(new CmsDeleteResponse(true, "Step deleted successfully."));
+        return ToDeleteActionResult(result);
     }
 
     [HttpGet("document-types")]
@@ -537,24 +446,13 @@ public sealed class BlogContentController : ControllerBase
     private async Task<RoadmapValidationResult> ValidateDotnetRoadmapAssignmentAsync(
         CmsSaveArticleRequest request)
     {
-        var roadmap = await _roadmapStore.GetAsync();
-        var zone = roadmap.Zones.FirstOrDefault(item => item.Key == request.DotnetZone);
+        var result = await _roadmapQueries.ValidateStepAsync(
+            request.DotnetZone,
+            request.DotnetZoneStep);
 
-        if (zone is null)
-        {
-            return new RoadmapValidationResult(
-                false,
-                $"Invalid Dotnet Zone: {request.DotnetZone}");
-        }
-
-        if (zone.Steps.All(item => item.Key != request.DotnetZoneStep))
-        {
-            return new RoadmapValidationResult(
-                false,
-                $"Dotnet Zone Step '{request.DotnetZoneStep}' does not belong to Dotnet Zone '{request.DotnetZone}'.");
-        }
-
-        return new RoadmapValidationResult(true, string.Empty);
+        return new RoadmapValidationResult(
+            result.Success,
+            result.Message);
     }
 
     private static void ReorderZones(DotnetRoadmap roadmap)
@@ -647,6 +545,55 @@ public sealed class BlogContentController : ControllerBase
     {
         _cache.Remove(ArticlesCacheKey);
         _cache.Remove(CategoriesCacheKey);
+    }
+
+    private ActionResult<CmsSaveRoadmapResponse> ToRoadmapActionResult(
+    RoadmapOperationResult result)
+    {
+        if (!result.Success)
+        {
+            return BadRequest(
+                new CmsSaveRoadmapResponse(
+                    false,
+                    result.Message));
+        }
+
+        ClearCaches();
+
+        return Ok(
+            new CmsSaveRoadmapResponse(
+                true,
+                result.Message));
+    }
+
+    private bool HasArticlesAssignedToZone(string zoneKey)
+    {
+        return GetRootArticles()
+            .Select(MapArticleListItem)
+            .Any(article =>
+                string.Equals(article.DotnetZone, zoneKey, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool HasArticlesAssignedToStep(string zoneKey, string stepKey)
+    {
+        return GetRootArticles()
+            .Select(MapArticleListItem)
+            .Any(article =>
+                string.Equals(article.DotnetZone, zoneKey, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(article.DotnetZoneStep, stepKey, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private ActionResult<CmsDeleteResponse> ToDeleteActionResult(
+    RoadmapOperationResult result)
+    {
+        if (!result.Success)
+        {
+            return BadRequest(new CmsDeleteResponse(false, result.Message));
+        }
+
+        ClearCaches();
+
+        return Ok(new CmsDeleteResponse(true, result.Message));
     }
 
     private sealed record CmsCategoryDto(string Slug, string Name);
