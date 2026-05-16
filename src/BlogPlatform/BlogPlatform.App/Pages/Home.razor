@@ -278,7 +278,9 @@ else
 
         _posts = IsLearningPathView
             ? homeContent.Posts
-            : SelectedStep?.Posts ?? [];
+            : await BlogApi.GetPostsByStepAsync(
+                SelectedZoneKey,
+                SelectedStepKey);
 
         _currentArticlePage = 1;
 

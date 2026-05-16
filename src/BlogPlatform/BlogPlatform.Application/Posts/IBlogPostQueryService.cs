@@ -6,6 +6,10 @@ public interface IBlogPostQueryService
         GetPublishedPostsQuery query,
         CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<PostListItem>> GetPublishedPostsForStepAsync(
+        GetPublishedPostsForStepQuery query,
+        CancellationToken cancellationToken);
+
     Task<PostDetails?> GetPostBySlugAsync(
         string slug,
         CancellationToken cancellationToken);

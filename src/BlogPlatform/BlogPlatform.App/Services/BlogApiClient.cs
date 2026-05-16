@@ -122,6 +122,19 @@ public sealed class BlogApiClient : IBlogApiClient
         return homeContent.Categories;
     }
 
+    public async Task<IReadOnlyCollection<PostListItem>> GetPostsByStepAsync(
+    string zone,
+    string step,
+    CancellationToken cancellationToken = default)
+    {
+        var url =
+            $"api/posts/by-step?zone={Uri.EscapeDataString(zone)}&step={Uri.EscapeDataString(step)}";
+
+        return await _httpClient.GetFromJsonAsync<IReadOnlyCollection<PostListItem>>(
+            url,
+            cancellationToken) ?? [];
+    }
+
     private async Task<BlogHomeContent> LoadHomeContentAsync(
         string? categorySlug,
         string cacheKey,

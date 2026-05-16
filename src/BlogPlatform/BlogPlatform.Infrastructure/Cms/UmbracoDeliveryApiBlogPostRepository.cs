@@ -140,16 +140,24 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
                 response.EnsureSuccessStatusCode();
             }
 
-            var posts = await response.Content.ReadFromJsonAsync<List<Post>>(
+            var cmsPosts = await response.Content.ReadFromJsonAsync<List<CmsPostDto>>(
                 cancellationToken: cancellationToken);
 
-            return posts ?? [];
+            var posts = cmsPosts?
+                .Select(ToDomainPost)
+                .ToList() ?? [];
+
+            _logger.LogInformation(
+                "API mapped CMS article DTOs to domain posts. Count: {Count}",
+                posts.Count);
+
+            return posts;
         }
         catch (Exception ex)
         {
             _logger.LogError(
                 ex,
-                "CMS unavailable during startup. Returning empty post list.");
+                "CMS unavailable or CMS article payload invalid. Returning empty post list.");
 
             return [];
         }
@@ -177,16 +185,21 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         DateTimeOffset FreshUntil);
 
     private sealed record CmsPostDto(
+        Guid Key,
         string? Slug,
         string? Title,
         string? Summary,
-        string? Category,
-        string? CategorySlug,
         string? Level,
         string? Focus,
         string? DotnetZone,
         string? DotnetZoneStep,
         IReadOnlyCollection<string>? Tags,
         DateTimeOffset? PublishedDate,
-        string? BodyHtml);
+        string? BodyHtml,
+        DateTime UpdatedUtc)
+    {
+        public string Category => DotnetZoneStep ?? string.Empty;
+
+        public string CategorySlug => DotnetZoneStep ?? string.Empty;
+    }
 }

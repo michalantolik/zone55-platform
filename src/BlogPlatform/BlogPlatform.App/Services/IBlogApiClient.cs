@@ -18,4 +18,9 @@ public interface IBlogApiClient
     Task<IReadOnlyCollection<PostListItem>> GetPostsAsync(
         string? categorySlug,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PostListItem>> GetPostsByStepAsync(
+        string zone,
+        string step,
+        CancellationToken cancellationToken = default);
 }

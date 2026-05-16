@@ -28,11 +28,33 @@ public sealed class PostsController : ControllerBase
         [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
-        var query = new GetPublishedPostsQuery(category);
-
         var posts = await _posts.GetPublishedPostsAsync(
-            query,
+            new GetPublishedPostsQuery(category),
             cancellationToken);
+
+        return Ok(posts.Select(PostContractMapper.ToDto).ToList());
+    }
+
+    [HttpGet("by-step")]
+    public async Task<ActionResult<IReadOnlyCollection<PostListItemDto>>> GetPostsByStep(
+        [FromQuery] string? zone,
+        [FromQuery] string? step,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation(
+            "API loading posts by step. Zone: {Zone}. Step: {Step}",
+            zone,
+            step);
+
+        var posts = await _posts.GetPublishedPostsForStepAsync(
+            new GetPublishedPostsForStepQuery(zone, step),
+            cancellationToken);
+
+        _logger.LogInformation(
+            "API loaded posts by step. Zone: {Zone}. Step: {Step}. Count: {Count}",
+            zone,
+            step,
+            posts.Count);
 
         return Ok(posts.Select(PostContractMapper.ToDto).ToList());
     }
@@ -42,10 +64,6 @@ public sealed class PostsController : ControllerBase
         [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "API loading home content. Category slug: {CategorySlug}",
-            category);
-
         var result = await _homeContent.GetHomeContentAsync(
             category,
             cancellationToken);
@@ -53,11 +71,6 @@ public sealed class PostsController : ControllerBase
         var dto = new BlogHomeContentDto(
             result.Categories.Select(PostContractMapper.ToDto).ToList(),
             result.Posts.Select(PostContractMapper.ToDto).ToList());
-
-        _logger.LogInformation(
-            "API loaded home content. Categories: {CategoryCount}. Posts: {PostCount}",
-            dto.Categories.Count,
-            dto.Posts.Count);
 
         return Ok(dto);
     }
