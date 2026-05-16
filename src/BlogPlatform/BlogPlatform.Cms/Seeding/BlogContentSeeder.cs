@@ -244,7 +244,6 @@ public sealed class BlogContentSeeder
         }
 
         await RemovePropertyIfExistsAsync(contentType, ObsoleteBodyJsonAlias);
-        await RemovePropertyIfExistsAsync(contentType, "category");
 
         await AddPropertyAsync(contentType, BlogContentAliases.Title, "Title", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Slug, "Slug", "Textstring", "Content");

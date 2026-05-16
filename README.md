@@ -212,7 +212,7 @@ The frontend currently includes:
 - engineering-themed UI
 - article rendering system
 - article detail pages
-- category navigation
+- zone and step navigation
 - reusable rendering components
 - markdown rendering
 - code block rendering
