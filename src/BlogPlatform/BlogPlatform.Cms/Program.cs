@@ -3,6 +3,7 @@ using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Infrastructure.Database;
 using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
+using BlogPlatform.Application;
 using Serilog;
 using Serilog.Events;
 
@@ -57,17 +58,14 @@ try
     builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
 
-    builder.Services.AddScoped<IBlogPostQueryService, BlogPostQueryService>();
-    builder.Services.AddScoped<IBlogHomeContentQueryService, BlogHomeContentQueryService>();
-    builder.Services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
-    builder.Services.AddScoped<IRoadmapCommandService, RoadmapCommandService>();
-
-    builder.Services.AddInfrastructurePosts(builder.Configuration);
-    builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
-
     builder.Services.AddScoped<
         IRoadmapArticleAssignmentChecker,
         CmsRoadmapArticleAssignmentChecker>();
+
+    builder.Services.AddApplication();
+
+    builder.Services.AddInfrastructurePosts(builder.Configuration);
+    builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
 
     builder.CreateUmbracoBuilder()
         .AddBackOffice()

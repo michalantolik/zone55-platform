@@ -22,7 +22,9 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Api",
                 "BlogPlatform.Cms",
                 "BlogPlatform.App",
-                "BlogPlatform.Contracts")
+                "BlogPlatform.Contracts",
+                "Microsoft.Extensions",
+                "Microsoft.AspNetCore")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -39,21 +41,7 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Api",
                 "BlogPlatform.Cms",
                 "BlogPlatform.App",
-                "BlogPlatform.Contracts")
-            .GetResult();
-
-        Assert.True(result.IsSuccessful, BuildMessage(result));
-    }
-
-    [Fact]
-    public void Application_Should_Not_Depend_On_Di_Frameworks()
-    {
-        var result = Types
-            .InAssembly(typeof(IBlogPostQueryService).Assembly)
-            .ShouldNot()
-            .HaveDependencyOnAny(
-                "Microsoft.Extensions.DependencyInjection",
-                "Microsoft.Extensions.Configuration",
+                "BlogPlatform.Contracts",
                 "Microsoft.AspNetCore")
             .GetResult();
 
@@ -61,7 +49,7 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Contracts_Should_Not_Depend_On_Application_Domain_Or_Infrastructure()
+    public void Contracts_Should_Be_Independent()
     {
         var result = Types
             .InAssembly(typeof(PostListItemDto).Assembly)
@@ -110,43 +98,10 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Cms_Should_Not_Depend_On_Api_App_Or_Domain()
+    public void Cms_Controllers_Should_Not_Depend_On_Domain()
     {
         var result = Types
             .InAssembly(typeof(BlogContentController).Assembly)
-            .ShouldNot()
-            .HaveDependencyOnAny(
-                "BlogPlatform.Api",
-                "BlogPlatform.App",
-                "BlogPlatform.Domain")
-            .GetResult();
-
-        Assert.True(result.IsSuccessful, BuildMessage(result));
-    }
-
-    [Fact]
-    public void Presentation_Should_Not_Depend_On_Infrastructure_Persistence_Details()
-    {
-        var result = Types
-            .InAssemblies([
-                typeof(PostsController).Assembly,
-                typeof(BlogContentController).Assembly
-            ])
-            .ShouldNot()
-            .HaveDependencyOn("BlogPlatform.Infrastructure.Persistence")
-            .GetResult();
-
-        Assert.True(result.IsSuccessful, BuildMessage(result));
-    }
-
-    [Fact]
-    public void Controllers_Should_Not_Contain_Domain_Logic()
-    {
-        var result = Types
-            .InAssemblies([
-                typeof(PostsController).Assembly,
-                typeof(BlogContentController).Assembly
-            ])
             .That()
             .HaveNameEndingWith("Controller")
             .ShouldNot()

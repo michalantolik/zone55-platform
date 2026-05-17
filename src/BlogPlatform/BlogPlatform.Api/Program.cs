@@ -1,5 +1,6 @@
 using BlogPlatform.Api.Controllers;
-using BlogPlatform.Application.Posts;
+using BlogPlatform.Api.Roadmap;
+using BlogPlatform.Application;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure;
 using Serilog;
@@ -34,10 +35,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IBlogPostQueryService, BlogPostQueryService>();
-builder.Services.AddScoped<IBlogHomeContentQueryService, BlogHomeContentQueryService>();
-builder.Services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
+builder.Services.AddScoped<
+    IRoadmapArticleAssignmentChecker,
+    NoRoadmapArticleAssignmentChecker>();
 
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.Configure<ClientLoggingOptions>(
@@ -72,7 +74,7 @@ builder.Services.AddCors(options =>
 
         if (allowedOrigins.Length == 0)
         {
-            Log.Warning("No CORS origins configured. Browser cross-origin requests will be blocked.");
+            Log.Warning("No CORS origins configured.");
             return;
         }
 
@@ -89,24 +91,16 @@ await app.Services.InitializeBlogPlatformDatabaseAsync();
 
 app.UseSerilogRequestLogging();
 
-Log.Information("API application built.");
-Log.Information("API environment: {EnvironmentName}", app.Environment.EnvironmentName);
-
 if (app.Environment.IsDevelopment())
 {
-    Log.Information("API Swagger enabled.");
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("BlazorApp");
-
 app.UseRateLimiter();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 Log.Information("API starting.");

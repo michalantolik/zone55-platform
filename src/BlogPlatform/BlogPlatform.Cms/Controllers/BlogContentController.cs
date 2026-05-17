@@ -1,6 +1,5 @@
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Seeding;
-using BlogPlatform.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
@@ -407,26 +406,6 @@ public sealed class BlogContentController : ControllerBase
         return new RoadmapValidationResult(
             result.Success,
             result.Message);
-    }
-
-    private static void ReorderZones(DotnetRoadmap roadmap)
-    {
-        var index = 1;
-
-        foreach (var zone in roadmap.Zones.OrderBy(zone => zone.Order))
-        {
-            zone.SetOrder(index++);
-        }
-    }
-
-    private static void ReorderSteps(DotnetRoadmapZone zone)
-    {
-        var index = 1;
-
-        foreach (var step in zone.Steps.OrderBy(step => step.Order))
-        {
-            step.SetOrder(index++);
-        }
     }
 
     private int GetContentCount(string contentTypeAlias)
