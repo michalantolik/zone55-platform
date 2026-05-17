@@ -1,9 +1,6 @@
-using BlogPlatform.Application.Posts;
-using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Cms;
 using BlogPlatform.Cms.Infrastructure.Database;
-using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
-using BlogPlatform.Application;
 using Serilog;
 using Serilog.Events;
 
@@ -55,17 +52,7 @@ try
         Log.Information("CMS database check completed.");
     }
 
-    builder.Services.AddMemoryCache();
-    builder.Services.AddControllers();
-
-    builder.Services.AddScoped<
-        IRoadmapArticleAssignmentChecker,
-        CmsRoadmapArticleAssignmentChecker>();
-
-    builder.Services.AddApplication();
-
-    builder.Services.AddInfrastructurePosts(builder.Configuration);
-    builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
+    builder.Services.AddBlogPlatformCmsServices(builder.Configuration);
 
     builder.CreateUmbracoBuilder()
         .AddBackOffice()

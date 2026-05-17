@@ -5,6 +5,7 @@ using BlogPlatform.Contracts.Posts;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Cms;
 using NetArchTest.Rules;
+using System.Xml.Linq;
 
 namespace BlogPlatform.ArchitectureTests;
 
@@ -124,6 +125,90 @@ public sealed class CleanArchitectureDependencyTests
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Project_References_Should_Follow_Clean_Architecture_Direction()
+    {
+        var root = FindSolutionRoot();
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Domain",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Application",
+            ["BlogPlatform.Domain"]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Infrastructure",
+            ["BlogPlatform.Application", "BlogPlatform.Domain"]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Contracts",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.App",
+            ["BlogPlatform.Contracts"]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Api",
+            ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Cms",
+            ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+    }
+
+    private static void AssertProjectReferences(
+        DirectoryInfo solutionRoot,
+        string projectName,
+        IReadOnlyCollection<string> allowedReferences)
+    {
+        var projectFile = Directory
+            .EnumerateFiles(solutionRoot.FullName, $"{projectName}.csproj", SearchOption.AllDirectories)
+            .Single();
+
+        var document = XDocument.Load(projectFile);
+
+        var actualReferences = document
+            .Descendants("ProjectReference")
+            .Select(reference => reference.Attribute("Include")?.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(Path.GetFileNameWithoutExtension)
+            .OrderBy(value => value)
+            .ToList();
+
+        var expectedReferences = allowedReferences
+            .OrderBy(value => value)
+            .ToList();
+
+        Assert.Equal(expectedReferences, actualReferences);
+    }
+
+    private static DirectoryInfo FindSolutionRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "BlogPlatform.slnx")))
+            {
+                return directory;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not find BlogPlatform.slnx.");
     }
 
     private static string BuildMessage(TestResult result)

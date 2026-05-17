@@ -57,26 +57,6 @@ public sealed class Post
                string.Equals(DotnetZoneStep, dotnetZoneStep.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
-    public int LevelSortOrder
-    {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(Level)) return 50;
-
-            if (Level.Contains("beginner", StringComparison.OrdinalIgnoreCase) ||
-                Level.Contains("basic", StringComparison.OrdinalIgnoreCase) ||
-                Level.Contains("fundamental", StringComparison.OrdinalIgnoreCase))
-            {
-                return 10;
-            }
-
-            if (Level.Contains("intermediate", StringComparison.OrdinalIgnoreCase)) return 20;
-            if (Level.Contains("advanced", StringComparison.OrdinalIgnoreCase)) return 30;
-
-            return 50;
-        }
-    }
-
     public static Post Create(
         string? slug,
         string? title,

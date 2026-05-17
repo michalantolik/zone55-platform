@@ -1,11 +1,7 @@
-using BlogPlatform.Api.Controllers;
-using BlogPlatform.Api.Roadmap;
-using BlogPlatform.Application;
-using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Api;
 using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,59 +27,8 @@ builder.Host.UseSerilog();
 
 Log.Information("API builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<
-    IRoadmapArticleAssignmentChecker,
-    NoRoadmapArticleAssignmentChecker>();
-
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.Configure<ClientLoggingOptions>(
-    builder.Configuration.GetSection("ClientLogging"));
-
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddPolicy("ClientLogs", httpContext =>
-    {
-        var partitionKey = httpContext.Connection.RemoteIpAddress?.ToString()
-            ?? "unknown-client";
-
-        return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey,
-            _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 20,
-                Window = TimeSpan.FromMinutes(1),
-                QueueLimit = 0,
-                AutoReplenishment = true
-            });
-    });
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("BlazorApp", policy =>
-    {
-        var allowedOrigins = builder.Configuration
-            .GetSection("Cors:AllowedOrigins")
-            .Get<string[]>() ?? [];
-
-        if (allowedOrigins.Length == 0)
-        {
-            Log.Warning("No CORS origins configured.");
-            return;
-        }
-
-        policy
-            .WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+builder.Services.AddApiPresentation(builder.Configuration);
+builder.Services.AddApiApplicationComposition(builder.Configuration);
 
 var app = builder.Build();
 
