@@ -46,6 +46,21 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
+    public void Application_Should_Not_Depend_On_Di_Frameworks()
+    {
+        var result = Types
+            .InAssembly(typeof(IBlogPostQueryService).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "Microsoft.Extensions.DependencyInjection",
+                "Microsoft.Extensions.Configuration",
+                "Microsoft.AspNetCore")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
     public void Contracts_Should_Not_Depend_On_Application_Domain_Or_Infrastructure()
     {
         var result = Types

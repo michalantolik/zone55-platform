@@ -1,4 +1,4 @@
-using BlogPlatform.Application;
+using BlogPlatform.Application.Posts;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Infrastructure.Database;
 using BlogPlatform.Cms.Roadmap;
@@ -57,16 +57,13 @@ try
     builder.Services.AddMemoryCache();
     builder.Services.AddControllers();
 
-    builder.Services.AddApplicationPosts();
-    builder.Services.AddApplicationRoadmapQueries();
-    builder.Services.AddApplicationRoadmapCommands();
+    builder.Services.AddScoped<IBlogPostQueryService, BlogPostQueryService>();
+    builder.Services.AddScoped<IBlogHomeContentQueryService, BlogHomeContentQueryService>();
+    builder.Services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
+    builder.Services.AddScoped<IRoadmapCommandService, RoadmapCommandService>();
 
     builder.Services.AddInfrastructurePosts(builder.Configuration);
     builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
-
-    builder.Services.AddScoped<
-        IRoadmapArticleAssignmentChecker,
-        CmsRoadmapArticleAssignmentChecker>();
 
     builder.Services.AddScoped<
         IRoadmapArticleAssignmentChecker,

@@ -1,5 +1,6 @@
 using BlogPlatform.Api.Controllers;
-using BlogPlatform.Application;
+using BlogPlatform.Application.Posts;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
@@ -33,11 +34,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddApplicationPosts();
-builder.Services.AddApplicationRoadmapQueries();
+builder.Services.AddScoped<IBlogPostQueryService, BlogPostQueryService>();
+builder.Services.AddScoped<IBlogHomeContentQueryService, BlogHomeContentQueryService>();
+builder.Services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddSqlServerRoadmapStorage(builder.Configuration);
 
 builder.Services.Configure<ClientLoggingOptions>(
     builder.Configuration.GetSection("ClientLogging"));
