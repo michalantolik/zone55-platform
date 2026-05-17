@@ -20,14 +20,10 @@ var apiHttpClient = new HttpClient
     BaseAddress = new Uri(apiBaseUrl, UriKind.Absolute)
 };
 
-builder.Services.AddScoped(_ => apiHttpClient);
-
 builder.Logging.AddProvider(
     new ApiClientLoggerProvider(apiHttpClient));
 
-builder.Services.AddScoped<IBlogApiClient, BlogApiClient>();
-builder.Services.AddScoped<IRoadmapViewService, RoadmapViewService>();
-builder.Services.AddScoped<IPreviewDiagnosticsClient, PreviewDiagnosticsClient>();
+builder.Services.AddAppPresentation(apiHttpClient);
 
 var host = builder.Build();
 

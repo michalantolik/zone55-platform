@@ -69,7 +69,7 @@ public sealed class Post
         DateTimeOffset? publishedDate,
         string? bodyHtml,
         PostStatus status)
-    {
+    { 
         return new Post(
             BlogPlatform.Domain.ValueObjects.Slug.Create(slug).Value,
             NormalizeRequired(title),

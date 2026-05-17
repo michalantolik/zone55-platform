@@ -1,5 +1,4 @@
 using BlogPlatform.Application.Roadmap;
-using BlogPlatform.Domain.Entities;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Umbraco.Cms.Core;
@@ -25,7 +24,6 @@ public sealed class BlogContentSeeder
     private readonly IShortStringHelper _shortStringHelper;
     private readonly ILogger<BlogContentSeeder> _logger;
     private readonly IWebHostEnvironment _environment;
-    private readonly IDotnetRoadmapStore _roadmapStore;
     private readonly IRoadmapSeedService _roadmapSeedService;
     private readonly BlogContentSeederOptions _options;
 
@@ -37,7 +35,6 @@ public sealed class BlogContentSeeder
         IConfigurationEditorJsonSerializer configurationEditorJsonSerializer,
         IShortStringHelper shortStringHelper,
         IWebHostEnvironment environment,
-        IDotnetRoadmapStore roadmapStore,
         IOptions<BlogContentSeederOptions> options,
         ILogger<BlogContentSeeder> logger,
         IRoadmapSeedService roadmapSeedService)
@@ -49,7 +46,6 @@ public sealed class BlogContentSeeder
         _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
         _shortStringHelper = shortStringHelper;
         _environment = environment;
-        _roadmapStore = roadmapStore;
         _options = options.Value;
         _logger = logger;
         _roadmapSeedService = roadmapSeedService;
