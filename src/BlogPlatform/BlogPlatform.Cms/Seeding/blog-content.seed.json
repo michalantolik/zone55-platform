@@ -29,11 +29,6 @@
           "key": "console-apps",
           "name": "Console Apps",
           "order": 5
-        },
-        {
-          "key": "sth",
-          "name": "Something",
-          "order": 6
         }
       ]
     },
