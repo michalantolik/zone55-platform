@@ -15,6 +15,7 @@ internal static class PostContractMapper
             post.Focus,
             post.DotnetZone,
             post.DotnetZoneStep,
+            post.Order,
             post.Tags,
             post.PublishedDate);
     }
@@ -29,6 +30,7 @@ internal static class PostContractMapper
             post.Focus,
             post.DotnetZone,
             post.DotnetZoneStep,
+            post.Order,
             post.Tags,
             post.PublishedDate,
             post.BodyHtml);

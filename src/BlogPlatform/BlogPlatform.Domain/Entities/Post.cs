@@ -1,5 +1,4 @@
-﻿using BlogPlatform.Domain.Enums;
-using BlogPlatform.Domain.ValueObjects;
+using BlogPlatform.Domain.Enums;
 
 namespace BlogPlatform.Domain.Entities;
 
@@ -13,6 +12,7 @@ public sealed class Post
         string focus,
         string? dotnetZone,
         string? dotnetZoneStep,
+        int order,
         IReadOnlyCollection<string> tags,
         DateTimeOffset? publishedDate,
         string bodyHtml,
@@ -25,6 +25,7 @@ public sealed class Post
         Focus = focus;
         DotnetZone = dotnetZone;
         DotnetZoneStep = dotnetZoneStep;
+        Order = order;
         Tags = tags;
         PublishedDate = publishedDate;
         BodyHtml = bodyHtml;
@@ -38,6 +39,7 @@ public sealed class Post
     public string Focus { get; }
     public string? DotnetZone { get; }
     public string? DotnetZoneStep { get; }
+    public int Order { get; }
     public IReadOnlyCollection<string> Tags { get; }
     public DateTimeOffset? PublishedDate { get; }
     public string BodyHtml { get; }
@@ -65,11 +67,12 @@ public sealed class Post
         string? focus,
         string? dotnetZone,
         string? dotnetZoneStep,
+        int order,
         IReadOnlyCollection<string>? tags,
         DateTimeOffset? publishedDate,
         string? bodyHtml,
         PostStatus status)
-    { 
+    {
         return new Post(
             BlogPlatform.Domain.ValueObjects.Slug.Create(slug).Value,
             NormalizeRequired(title),
@@ -78,6 +81,7 @@ public sealed class Post
             NormalizeOptionalAsEmpty(focus),
             NormalizeOptional(dotnetZone),
             NormalizeOptional(dotnetZoneStep),
+            NormalizeOrder(order),
             NormalizeTags(tags),
             publishedDate,
             NormalizeOptionalAsEmpty(bodyHtml),
@@ -92,6 +96,7 @@ public sealed class Post
         string? focus,
         string? dotnetZone,
         string? dotnetZoneStep,
+        int order,
         IReadOnlyCollection<string>? tags,
         DateTimeOffset? publishedDate,
         string? bodyHtml)
@@ -104,6 +109,7 @@ public sealed class Post
             focus,
             dotnetZone,
             dotnetZoneStep,
+            order,
             tags,
             publishedDate,
             bodyHtml,
@@ -128,6 +134,11 @@ public sealed class Post
     private static string? NormalizeOptional(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    private static int NormalizeOrder(int value)
+    {
+        return value < 0 ? 0 : value;
     }
 
     private static IReadOnlyCollection<string> NormalizeTags(IReadOnlyCollection<string>? tags)

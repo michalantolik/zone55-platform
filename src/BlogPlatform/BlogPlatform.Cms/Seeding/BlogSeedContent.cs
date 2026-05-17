@@ -30,6 +30,7 @@ public sealed class BlogSeedArticle
     public string Summary { get; set; } = string.Empty;
     public string DotnetZone { get; set; } = "foundation";
     public string DotnetZoneStep { get; set; } = "basic-syntax";
+    public int Order { get; set; }
     public List<string> Tags { get; set; } = [];
     public List<BlogSeedBlock> BodyBlocks { get; set; } = [];
 }

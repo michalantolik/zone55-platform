@@ -33,6 +33,19 @@ public sealed class BlogContentController : ControllerBase
         return Ok(_blogContent.GetArticles());
     }
 
+
+    [HttpGet("articles/next-order")]
+    public ActionResult<int> GetNextArticleOrder(
+        [FromQuery] string? zone,
+        [FromQuery] string? step,
+        [FromQuery] Guid? excludeArticleKey = null)
+    {
+        return Ok(_blogContent.GetNextArticleOrder(
+            zone,
+            step,
+            excludeArticleKey));
+    }
+
     [HttpGet("articles/{key:guid}")]
     public ActionResult<CmsArticleEditorDto> GetArticle(Guid key)
     {

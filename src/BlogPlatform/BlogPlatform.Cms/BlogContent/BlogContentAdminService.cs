@@ -117,9 +117,36 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             GetString(article, BlogContentAliases.Focus) ?? "Preview",
             GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
             GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+            GetInt(article, BlogContentAliases.Order),
             GetString(article, BlogContentAliases.Tags) ?? string.Empty,
             GetString(article, BlogContentAliases.BodyBlocks) ?? string.Empty,
             true);
+    }
+
+    public int GetNextArticleOrder(
+        string? dotnetZone,
+        string? dotnetZoneStep,
+        Guid? excludeArticleKey = null)
+    {
+        var normalizedZone = NormalizeAssignmentKey(dotnetZone) ?? DefaultDotnetZone;
+        var normalizedStep = NormalizeAssignmentKey(dotnetZoneStep) ?? DefaultDotnetZoneStep;
+
+        var highestExistingOrder = GetRootArticles()
+            .Where(article => !excludeArticleKey.HasValue || article.Key != excludeArticleKey.Value)
+            .Where(article => string.Equals(
+                GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+                normalizedZone,
+                StringComparison.OrdinalIgnoreCase))
+            .Where(article => string.Equals(
+                GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+                normalizedStep,
+                StringComparison.OrdinalIgnoreCase))
+            .Select(article => GetInt(article, BlogContentAliases.Order))
+            .Where(order => order > 0)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return highestExistingOrder + 1;
     }
 
     public async Task<CmsSaveArticleResponse> CreateArticleAsync(
@@ -140,7 +167,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             -1,
             BlogContentAliases.BlogArticle);
 
-        ApplyArticleValues(article, request);
+        ApplyArticleValues(article, request, GetArticleOrderForCreate(request));
 
         _contentService.Save(article);
         var result = _contentService.Publish(article, ["*"]);
@@ -177,7 +204,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             return new CmsSaveArticleResponse(false, key, validation.Message);
         }
 
-        ApplyArticleValues(article, request);
+        ApplyArticleValues(article, request, GetArticleOrderForUpdate(article, request));
 
         _contentService.Save(article);
         var result = _contentService.Publish(article, ["*"]);
@@ -366,6 +393,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             GetString(content, BlogContentAliases.Focus) ?? "Practical",
             GetString(content, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
             GetString(content, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+            GetInt(content, BlogContentAliases.Order),
             tags,
             GetDateTimeOffset(content, BlogContentAliases.PublishedDate),
             GetString(content, BlogContentAliases.BodyBlocks) ?? string.Empty,
@@ -374,7 +402,8 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
     private void ApplyArticleValues(
         IContent article,
-        CmsSaveArticleRequest request)
+        CmsSaveArticleRequest request,
+        int order)
     {
         var title = string.IsNullOrWhiteSpace(request.Title)
             ? "Untitled article"
@@ -389,6 +418,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         article.SetValue(BlogContentAliases.Focus, request.Focus ?? "Preview");
         article.SetValue(BlogContentAliases.DotnetZone, request.DotnetZone ?? DefaultDotnetZone);
         article.SetValue(BlogContentAliases.DotnetZoneStep, request.DotnetZoneStep ?? DefaultDotnetZoneStep);
+        article.SetValue(BlogContentAliases.Order, order);
         article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
         article.SetValue(BlogContentAliases.BodyBlocks, request.BodyBlocks ?? string.Empty);
 
@@ -396,6 +426,54 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         {
             article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
         }
+    }
+
+    private int GetArticleOrderForCreate(CmsSaveArticleRequest request)
+    {
+        if (request.Order.HasValue && request.Order.Value > 0)
+        {
+            return request.Order.Value;
+        }
+
+        return GetNextArticleOrder(
+            request.DotnetZone,
+            request.DotnetZoneStep);
+    }
+
+    private int GetArticleOrderForUpdate(IContent article, CmsSaveArticleRequest request)
+    {
+        var currentZone = GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone;
+        var currentStep = GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep;
+        var requestedZone = NormalizeAssignmentKey(request.DotnetZone) ?? DefaultDotnetZone;
+        var requestedStep = NormalizeAssignmentKey(request.DotnetZoneStep) ?? DefaultDotnetZoneStep;
+        var currentOrder = GetInt(article, BlogContentAliases.Order);
+
+        var assignmentChanged =
+            !string.Equals(currentZone, requestedZone, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(currentStep, requestedStep, StringComparison.OrdinalIgnoreCase);
+
+        if (assignmentChanged)
+        {
+            return GetNextArticleOrder(
+                requestedZone,
+                requestedStep,
+                article.Key);
+        }
+
+        if (request.Order.HasValue && request.Order.Value > 0)
+        {
+            return request.Order.Value;
+        }
+
+        if (currentOrder > 0)
+        {
+            return currentOrder;
+        }
+
+        return GetNextArticleOrder(
+            requestedZone,
+            requestedStep,
+            article.Key);
     }
 
     private Task<RoadmapOperationResult> ValidateDotnetRoadmapAssignmentAsync(
@@ -429,6 +507,16 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
     private static string? GetString(IContent content, string alias)
     {
         return content.GetValue<string>(alias);
+    }
+
+    private static int GetInt(IContent content, string alias)
+    {
+        return content.GetValue<int?>(alias) ?? 0;
+    }
+
+    private static string? NormalizeAssignmentKey(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
     private static DateTimeOffset? GetDateTimeOffset(IContent content, string alias)

@@ -18,6 +18,7 @@ public static class BlogContentAliases
     public const string Focus = "focus";
     public const string DotnetZone = "dotnetZone";
     public const string DotnetZoneStep = "dotnetZoneStep";
+    public const string Order = "order";
     public const string Tags = "tags";
     public const string PublishedDate = "publishedDate";
 

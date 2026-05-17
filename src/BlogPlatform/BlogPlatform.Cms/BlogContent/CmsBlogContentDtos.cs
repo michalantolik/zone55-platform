@@ -30,6 +30,7 @@ public sealed record CmsArticleListItemDto(
     string Focus,
     string? DotnetZone,
     string? DotnetZoneStep,
+    int Order,
     IReadOnlyCollection<string> Tags,
     DateTimeOffset? PublishedDate,
     string BodyHtml,
@@ -44,6 +45,7 @@ public sealed record CmsArticleEditorDto(
     string Focus,
     string? DotnetZone,
     string? DotnetZoneStep,
+    int Order,
     string Tags,
     string BodyBlocks,
     bool IsExistingArticle);
@@ -57,7 +59,8 @@ public sealed record CmsSaveArticleRequest(
     string? Level,
     string? Focus,
     string? DotnetZone,
-    string? DotnetZoneStep);
+    string? DotnetZoneStep,
+    int? Order);
 
 public sealed record CmsSaveArticleResponse(
     bool Success,

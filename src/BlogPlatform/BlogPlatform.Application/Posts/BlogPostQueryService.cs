@@ -33,7 +33,7 @@ public sealed class BlogPostQueryService : IBlogPostQueryService
             .Where(post => post.MatchesDotnetStep(
                 query.NormalizedDotnetZone,
                 query.NormalizedDotnetZoneStep))
-            .OrderBy(post => PostLevelSortOrder.FromLevel(post.Level))
+            .OrderBy(post => post.Order == 0 ? int.MaxValue : post.Order)
             .ThenByDescending(post => post.PublishedDate)
             .ThenBy(post => post.Title)
             .Select(BlogPostApplicationMapper.ToListItem)

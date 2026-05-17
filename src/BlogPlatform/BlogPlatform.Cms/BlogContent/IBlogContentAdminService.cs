@@ -11,6 +11,8 @@ public interface IBlogContentAdminService
 
     CmsArticleEditorDto? GetArticle(Guid key);
 
+    int GetNextArticleOrder(string? dotnetZone, string? dotnetZoneStep, Guid? excludeArticleKey = null);
+
     Task<CmsSaveArticleResponse> CreateArticleAsync(
         CmsSaveArticleRequest request,
         CancellationToken cancellationToken);

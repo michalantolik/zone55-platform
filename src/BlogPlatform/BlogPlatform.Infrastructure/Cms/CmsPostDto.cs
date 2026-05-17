@@ -9,6 +9,7 @@ internal sealed record CmsPostDto(
     string? Focus,
     string? DotnetZone,
     string? DotnetZoneStep,
+    int Order,
     IReadOnlyCollection<string>? Tags,
     DateTimeOffset? PublishedDate,
     string? BodyHtml,

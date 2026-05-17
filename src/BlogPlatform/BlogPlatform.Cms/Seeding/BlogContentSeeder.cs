@@ -132,6 +132,7 @@ public sealed class BlogContentSeeder
                 summary: article.Summary,
                 tags: article.Tags.ToArray(),
                 bodyBlocks: article.BodyBlocks.Select(CreateSeedBlock).ToList(),
+                order: article.Order,
                 dotnetZone: article.DotnetZone,
                 dotnetZoneStep: article.DotnetZoneStep);
         }
@@ -253,6 +254,7 @@ public sealed class BlogContentSeeder
         await AddPropertyAsync(contentType, BlogContentAliases.Focus, "Focus", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.DotnetZone, "Dotnet Zone", "Textstring", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.DotnetZoneStep, "Dotnet Zone Step", "Textstring", "Content");
+        await AddPropertyAsync(contentType, BlogContentAliases.Order, "Order", "Numeric", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.Tags, "Tags", "Tags", "Content");
         await AddPropertyAsync(contentType, BlogContentAliases.PublishedDate, "Published Date", "Date Picker", "Content");
 
@@ -483,6 +485,7 @@ public sealed class BlogContentSeeder
         string summary,
         string[] tags,
         List<SeedBlock> bodyBlocks,
+        int order = 0,
         string dotnetZone = "foundation",
         string dotnetZoneStep = "basic-syntax")
     {
@@ -508,6 +511,7 @@ public sealed class BlogContentSeeder
         article.SetValue(BlogContentAliases.Focus, focus);
         article.SetValue(BlogContentAliases.DotnetZone, dotnetZone);
         article.SetValue(BlogContentAliases.DotnetZoneStep, dotnetZoneStep);
+        article.SetValue(BlogContentAliases.Order, order > 0 ? order : GetNextSeedArticleOrder(dotnetZone, dotnetZoneStep, article.Key));
         article.SetValue(BlogContentAliases.Tags, string.Join(", ", tags));
         article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
 
@@ -522,6 +526,26 @@ public sealed class BlogContentSeeder
             "{Action} test article: {ArticleName}.",
             isNew ? "Created" : "Updated",
             name);
+    }
+
+    private int GetNextSeedArticleOrder(string dotnetZone, string dotnetZoneStep, Guid currentArticleKey)
+    {
+        return _contentService
+            .GetRootContent()
+            .Where(article => article.ContentType.Alias == BlogContentAliases.BlogArticle)
+            .Where(article => article.Key != currentArticleKey)
+            .Where(article => string.Equals(
+                article.GetValue<string>(BlogContentAliases.DotnetZone),
+                dotnetZone,
+                StringComparison.OrdinalIgnoreCase))
+            .Where(article => string.Equals(
+                article.GetValue<string>(BlogContentAliases.DotnetZoneStep),
+                dotnetZoneStep,
+                StringComparison.OrdinalIgnoreCase))
+            .Select(article => article.GetValue<int?>(BlogContentAliases.Order) ?? 0)
+            .Where(order => order > 0)
+            .DefaultIfEmpty(0)
+            .Max() + 1;
     }
 
     private string CreateBlockListValueJson(IReadOnlyCollection<SeedBlock> blocks)

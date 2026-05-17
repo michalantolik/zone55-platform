@@ -126,7 +126,7 @@ else
                                       Focus="@article.Post.Focus"
                                       Url="@GetInlineArticleUrl(article.Post.Slug)"
                                       TechStack="@article.Post.Tags"
-                                      ArticleOrder="@article.Order" />
+                                      ArticleOrder="@(article.Post.Order > 0 ? article.Post.Order : article.Order)" />
                         }
                     </div>
 
@@ -272,12 +272,14 @@ else
         SelectedStep?.Description ?? "Understand the fundamental syntax rules of C# and how to write your first lines of code.";
 
     private int SelectedArticleOrder =>
-        _selectedArticle is null
-            ? 0
-            : _posts
-                .Select((Post, Index) => new { Post, Index })
-                .FirstOrDefault(item => string.Equals(item.Post.Slug, _selectedArticle.Slug, StringComparison.OrdinalIgnoreCase))
-                ?.Index + 1 ?? 1;
+        _selectedArticle?.Order > 0
+            ? _selectedArticle.Order
+            : _selectedArticle is null
+                ? 0
+                : _posts
+                    .Select((Post, Index) => new { Post, Index })
+                    .FirstOrDefault(item => string.Equals(item.Post.Slug, _selectedArticle.Slug, StringComparison.OrdinalIgnoreCase))
+                    ?.Index + 1 ?? 1;
 
     private string SelectedStepUrl =>
         $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}";

@@ -8,5 +8,6 @@ public sealed record PostListItem(
     string Focus,
     string? DotnetZone,
     string? DotnetZoneStep,
+    int Order,
     IReadOnlyCollection<string> Tags,
     DateTimeOffset? PublishedDate);

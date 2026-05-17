@@ -132,6 +132,13 @@
                 resize: vertical;
             }
 
+            input[readonly] {
+                color: #b9d5f5;
+                background: #071a33;
+                border-color: #29405f;
+                cursor: not-allowed;
+            }
+
             #bodyMarkdown {
                 display: none;
             }
@@ -537,6 +544,9 @@
                 <label class="field-label" for="dotnetZoneStep">Dotnet Zone Step</label>
                 <select id="dotnetZoneStep"></select>
 
+                <label class="field-label" for="order">Order in selected step</label>
+                <input id="order" type="number" min="1" step="1" readonly />
+
                 <label class="field-label" for="tags">Tags comma-separated</label>
                 <input id="tags" type="text" />
             </section>
@@ -728,6 +738,7 @@
                 "summary",
                 "dotnetZone",
                 "dotnetZoneStep",
+                "order",
                 "tags",
                 "bodyMarkdown"
             ];
@@ -747,7 +758,7 @@
                     await loadExistingArticle(articleKey);
                 }
                 else {
-                    createNewArticle();
+                    await createNewArticle();
                 }
 
                 renderBodyBlocks();
@@ -873,8 +884,15 @@
                 fillSelect("dotnetZone", dotnetZones);
                 fillStepSelectForZone(value("dotnetZone"));
 
-                document.getElementById("dotnetZone").addEventListener("change", () => {
+                document.getElementById("dotnetZone").addEventListener("change", async () => {
                     fillStepSelectForZone(value("dotnetZone"));
+                    await refreshSuggestedArticleOrder();
+                    onEditorChanged();
+                });
+
+                document.getElementById("dotnetZoneStep").addEventListener("change", async () => {
+                    await refreshSuggestedArticleOrder();
+                    onEditorChanged();
                 });
             }
 
@@ -908,6 +926,36 @@
                 const zone = dotnetRoadmap.find(item => item.key === zoneKey);
 
                 return zone?.steps[0]?.key || "";
+            }
+
+
+            async function refreshSuggestedArticleOrder() {
+                const zone = value("dotnetZone");
+                const step = value("dotnetZoneStep");
+
+                if (!zone || !step) {
+                    setValue("order", "");
+                    return;
+                }
+
+                const parameters = new URLSearchParams({
+                    zone,
+                    step
+                });
+
+                if (currentArticleKey) {
+                    parameters.set("excludeArticleKey", currentArticleKey);
+                }
+
+                const response = await fetch(`/api/blog-content/articles/next-order?${parameters.toString()}`);
+
+                if (!response.ok) {
+                    console.error("[ARTICLE_EDITOR] failed to load next article order:", response.status);
+                    return;
+                }
+
+                const nextOrder = await response.json();
+                setValue("order", nextOrder?.toString?.() || "1");
             }
 
             async function loadExistingArticle(articleKey) {
@@ -946,6 +994,7 @@
                 setValue("dotnetZone", article.dotnetZone || dotnetZones[0]?.key || "");
                 fillStepSelectForZone(value("dotnetZone"));
                 setValue("dotnetZoneStep", article.dotnetZoneStep || getFirstStepKey(value("dotnetZone")));
+                setValue("order", article.order || 1);
                 setValue("tags", article.tags);
                 setValue("bodyMarkdown", article.bodyBlocks);
 
@@ -953,7 +1002,7 @@
                 renderBodyBlocks();
             }
 
-            function createNewArticle() {
+            async function createNewArticle() {
                 currentArticleKey = null;
                 currentLevel = "Draft";
                 currentFocus = "Preview";
@@ -964,6 +1013,7 @@
                 setValue("dotnetZone", dotnetZones[0]?.key || "");
                 fillStepSelectForZone(value("dotnetZone"));
                 setValue("dotnetZoneStep", getFirstStepKey(value("dotnetZone")));
+                await refreshSuggestedArticleOrder();
                 setValue("tags", ".NET, Architecture, Azure");
 
                 bodyBlocks = [
@@ -1028,6 +1078,7 @@
                     summary: value("summary"),
                     dotnetZone: value("dotnetZone"),
                     dotnetZoneStep: value("dotnetZoneStep"),
+                    order: parseArticleOrder(),
                     tags: value("tags"),
                     bodyMarkdown: value("bodyMarkdown"),
                     level: currentLevel,
@@ -1046,6 +1097,7 @@
                     focus: currentFocus,
                     dotnetZone: value("dotnetZone"),
                     dotnetZoneStep: value("dotnetZoneStep"),
+                    order: parseArticleOrder(),
                     tags:
                         value("tags")
                             .split(",")
@@ -1735,7 +1787,8 @@
                     level: currentLevel,
                     focus: currentFocus,
                     dotnetZone: value("dotnetZone"),
-                    dotnetZoneStep: value("dotnetZoneStep")
+                    dotnetZoneStep: value("dotnetZoneStep"),
+                    order: parseArticleOrder()
                 };
 
                 let response;
@@ -1802,6 +1855,14 @@
                 catch (error) {
                     console.error("[ARTICLE_EDITOR] failed to notify parent:", error);
                 }
+            }
+
+            function parseArticleOrder() {
+                const order = Number.parseInt(value("order"), 10);
+
+                return Number.isInteger(order) && order > 0
+                    ? order
+                    : null;
             }
 
             function value(id) {

@@ -90,6 +90,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string Level => this.Value<string>(_publishedValueFallback, "level");
 
 		///<summary>
+		/// Order
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.3.5+1486121")]
+		[ImplementPropertyType("order")]
+		public virtual int Order => this.Value<int>(_publishedValueFallback, "order");
+
+		///<summary>
 		/// Published Date
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.3.5+1486121")]
