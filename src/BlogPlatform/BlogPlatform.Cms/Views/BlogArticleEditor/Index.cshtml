@@ -436,6 +436,63 @@
                 margin-top: 16px;
             }
 
+            .modal-header {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .modal-icon {
+                width: 42px;
+                height: 42px;
+                display: grid;
+                place-items: center;
+                border-radius: 14px;
+                font-size: 20px;
+                font-weight: 900;
+                flex: 0 0 auto;
+            }
+
+                .modal-icon.danger {
+                    background: rgba(244, 63, 94, 0.18);
+                    color: #fecdd3;
+                    border: 1px solid rgba(244, 63, 94, 0.42);
+                }
+
+                .modal-icon.success {
+                    background: rgba(34, 197, 94, 0.18);
+                    color: #bbf7d0;
+                    border: 1px solid rgba(34, 197, 94, 0.42);
+                }
+
+                .modal-icon.info {
+                    background: rgba(132, 187, 255, 0.18);
+                    color: #d7eaff;
+                    border: 1px solid rgba(132, 187, 255, 0.42);
+                }
+
+            .modal-copy {
+                flex: 1 1 auto;
+            }
+
+                .modal-copy h2 {
+                    margin: 0 0 8px 0;
+                }
+
+                .modal-copy p {
+                    margin: 0;
+                    color: #c8d8ef;
+                    line-height: 1.55;
+                }
+
+            .btn-danger {
+                background: #dc3354;
+            }
+
+            .btn-success {
+                background: #159957;
+            }
+
             .btn {
                 border: 0;
                 border-radius: 10px;
@@ -531,6 +588,41 @@
         </div>
     </div>
 
+    <div id="deleteBodyBlockModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon danger">!</div>
+                <div class="modal-copy">
+                    <h2>Delete body block?</h2>
+                    <p>
+                        This block will be removed from the article body. You can still choose Cancel and keep editing safely.
+                    </p>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeDeleteBodyBlockModal()">Cancel</button>
+                <button class="btn btn-danger" type="button" onclick="confirmDeleteBodyBlock()">Delete block</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editorFeedbackModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div id="editorFeedbackIcon" class="modal-icon info">i</div>
+                <div class="modal-copy">
+                    <h2 id="editorFeedbackTitle">Message</h2>
+                    <p id="editorFeedbackMessage"></p>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" type="button" onclick="closeEditorFeedbackModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
             const sidebarWidthStorageKey = "blogArticleEditor.sidebarWidth";
             const defaultSidebarWidth = 520;
@@ -548,6 +640,7 @@
             let editedBlockIndex = null;
             let draggedBodyBlockIndex = null;
             let lastMovedBodyBlockUdi = null;
+            let pendingDeleteBodyBlockIndex = null;
 
             const availableBlockTypes = [
                 {
@@ -1379,12 +1472,23 @@
             }
 
             function deleteBodyBlock(index) {
-                if (!confirm("Delete this body block?")) {
+                pendingDeleteBodyBlockIndex = index;
+                document.getElementById("deleteBodyBlockModal").style.display = "flex";
+            }
+
+            function closeDeleteBodyBlockModal() {
+                pendingDeleteBodyBlockIndex = null;
+                document.getElementById("deleteBodyBlockModal").style.display = "none";
+            }
+
+            function confirmDeleteBodyBlock() {
+                if (pendingDeleteBodyBlockIndex === null) {
                     return;
                 }
 
-                bodyBlocks.splice(index, 1);
+                bodyBlocks.splice(pendingDeleteBodyBlockIndex, 1);
 
+                closeDeleteBodyBlockModal();
                 syncBodyMarkdownFromBlocks();
                 renderBodyBlocks();
                 onEditorChanged();
@@ -1605,6 +1709,22 @@
                 saveArticle();
             }
 
+            function showEditorFeedbackModal(title, message, tone) {
+                const icon = document.getElementById("editorFeedbackIcon");
+
+                icon.className = `modal-icon ${tone || "info"}`;
+                icon.innerText = tone === "success" ? "✓" : tone === "danger" ? "!" : "i";
+
+                document.getElementById("editorFeedbackTitle").innerText = title;
+                document.getElementById("editorFeedbackMessage").innerText = message || "";
+
+                document.getElementById("editorFeedbackModal").style.display = "flex";
+            }
+
+            function closeEditorFeedbackModal() {
+                document.getElementById("editorFeedbackModal").style.display = "none";
+            }
+
             async function saveArticle() {
                 const payload = {
                     title: value("title"),
@@ -1654,10 +1774,16 @@
 
                     notifyParent(true);
 
-                    alert(result.message);
+                    showEditorFeedbackModal(
+                        currentArticleKey ? "Article updated" : "Article saved",
+                        result.message || "The article was saved successfully.",
+                        "success");
                 }
                 else {
-                    alert(result.message);
+                    showEditorFeedbackModal(
+                        "Article could not be saved",
+                        result.message || "Please check the article fields and try again.",
+                        "danger");
                 }
             }
 
