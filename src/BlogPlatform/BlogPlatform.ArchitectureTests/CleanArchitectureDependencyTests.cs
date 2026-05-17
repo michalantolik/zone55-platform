@@ -1,7 +1,6 @@
 ﻿using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application.Posts;
 using BlogPlatform.Cms.Controllers;
-using BlogPlatform.Cms.Seeding;
 using BlogPlatform.Contracts.Posts;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Cms;
@@ -50,6 +49,21 @@ public sealed class CleanArchitectureDependencyTests
                 "Microsoft.AspNetCore",
                 "Microsoft.EntityFrameworkCore",
                 "Umbraco.Cms")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Application_Should_Not_Reference_Infrastructure_Implementations()
+    {
+        var result = Types
+            .InAssembly(typeof(IBlogPostQueryService).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "BlogPlatform.Infrastructure.Cms",
+                "BlogPlatform.Infrastructure.Persistence",
+                "BlogPlatform.Infrastructure.Roadmap")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -112,6 +126,20 @@ public sealed class CleanArchitectureDependencyTests
             .InAssembly(typeof(PostsController).Assembly)
             .That()
             .ResideInNamespace("BlogPlatform.Api.Controllers")
+            .ShouldNot()
+            .HaveDependencyOn("BlogPlatform.Infrastructure")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Api_Mapping_Should_Not_Depend_On_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(PostsController).Assembly)
+            .That()
+            .ResideInNamespace("BlogPlatform.Api.Mapping")
             .ShouldNot()
             .HaveDependencyOn("BlogPlatform.Infrastructure")
             .GetResult();
@@ -205,6 +233,23 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
+    public void App_Services_Should_Not_Depend_On_Api_Application_Or_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(BlogPlatform.App.Services.IBlogApiClient).Assembly)
+            .That()
+            .ResideInNamespace("BlogPlatform.App.Services")
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "BlogPlatform.Api",
+                "BlogPlatform.Application",
+                "BlogPlatform.Infrastructure")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
     public void Project_References_Should_Follow_Clean_Architecture_Direction()
     {
         var root = FindSolutionRoot();
@@ -216,6 +261,22 @@ public sealed class CleanArchitectureDependencyTests
         AssertProjectReferences(root, "BlogPlatform.App", ["BlogPlatform.Contracts"]);
         AssertProjectReferences(root, "BlogPlatform.Api", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
         AssertProjectReferences(root, "BlogPlatform.Cms", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+    }
+
+    [Fact]
+    public void Application_Project_Should_Only_Reference_Domain()
+    {
+        var root = FindSolutionRoot();
+
+        AssertProjectReferences(root, "BlogPlatform.Application", ["BlogPlatform.Domain"]);
+    }
+
+    [Fact]
+    public void Contracts_Project_Should_Not_Reference_Other_Projects()
+    {
+        var root = FindSolutionRoot();
+
+        AssertProjectReferences(root, "BlogPlatform.Contracts", []);
     }
 
     private static IEnumerable<Type> GetPublicSurfaceTypes(Type type)
