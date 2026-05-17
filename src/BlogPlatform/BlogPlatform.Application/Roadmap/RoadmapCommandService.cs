@@ -1,4 +1,6 @@
-﻿namespace BlogPlatform.Application.Roadmap;
+﻿using BlogPlatform.Domain.ValueObjects;
+
+namespace BlogPlatform.Application.Roadmap;
 
 public sealed class RoadmapCommandService : IRoadmapCommandService
 {
@@ -20,7 +22,9 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return new RoadmapOperationResult(false, "Zone name is required.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneNameRequired,
+                "Zone name is required.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
@@ -28,14 +32,16 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
 
         if (roadmap.ContainsZone(key))
         {
-            return new RoadmapOperationResult(false, "Zone key already exists.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneKeyAlreadyExists,
+                "Zone key already exists.");
         }
 
         roadmap.AddZone(name, requestedKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
-        return new RoadmapOperationResult(true, "Zone created successfully.");
+        return RoadmapOperationResult.Ok("Zone created successfully.");
     }
 
     public async Task<RoadmapOperationResult> UpdateZoneAsync(
@@ -45,21 +51,25 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return new RoadmapOperationResult(false, "Zone name is required.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneNameRequired,
+                "Zone name is required.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
 
         if (!roadmap.ContainsZone(zoneKey))
         {
-            return new RoadmapOperationResult(false, "Zone not found.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneNotFound,
+                "Zone not found.");
         }
 
         roadmap.RenameZone(zoneKey, name);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
-        return new RoadmapOperationResult(true, "Zone updated successfully.");
+        return RoadmapOperationResult.Ok("Zone updated successfully.");
     }
 
     public async Task<RoadmapOperationResult> DeleteZoneAsync(
@@ -68,21 +78,25 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     {
         if (await _assignmentChecker.HasArticlesAssignedToZoneAsync(zoneKey, cancellationToken))
         {
-            return new RoadmapOperationResult(false, "Cannot delete zone because articles still use it.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneHasAssignedArticles,
+                "Cannot delete zone because articles still use it.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
 
         if (!roadmap.ContainsZone(zoneKey))
         {
-            return new RoadmapOperationResult(false, "Zone not found.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneNotFound,
+                "Zone not found.");
         }
 
         roadmap.DeleteZone(zoneKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
-        return new RoadmapOperationResult(true, "Zone deleted successfully.");
+        return RoadmapOperationResult.Ok("Zone deleted successfully.");
     }
 
     public async Task<RoadmapOperationResult> CreateStepAsync(
@@ -93,28 +107,34 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return new RoadmapOperationResult(false, "Step name is required.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepNameRequired,
+                "Step name is required.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
 
         if (!roadmap.ContainsZone(zoneKey))
         {
-            return new RoadmapOperationResult(false, "Zone not found.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneNotFound,
+                "Zone not found.");
         }
 
         var key = CreateComparisonKey(requestedKey ?? name);
 
         if (roadmap.ContainsStep(key))
         {
-            return new RoadmapOperationResult(false, "Step key already exists.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepKeyAlreadyExists,
+                "Step key already exists.");
         }
 
         roadmap.AddStep(zoneKey, name, requestedKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
-        return new RoadmapOperationResult(true, "Step created successfully.");
+        return RoadmapOperationResult.Ok("Step created successfully.");
     }
 
     public async Task<RoadmapOperationResult> UpdateStepAsync(
@@ -125,21 +145,25 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return new RoadmapOperationResult(false, "Step name is required.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepNameRequired,
+                "Step name is required.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
 
         if (!roadmap.IsValidAssignment(zoneKey, stepKey))
         {
-            return new RoadmapOperationResult(false, "Step not found.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepNotFound,
+                "Step not found.");
         }
 
         roadmap.RenameStep(zoneKey, stepKey, name);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
-        return new RoadmapOperationResult(true, "Step updated successfully.");
+        return RoadmapOperationResult.Ok("Step updated successfully.");
     }
 
     public async Task<RoadmapOperationResult> DeleteStepAsync(
@@ -149,25 +173,29 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
     {
         if (await _assignmentChecker.HasArticlesAssignedToStepAsync(zoneKey, stepKey, cancellationToken))
         {
-            return new RoadmapOperationResult(false, "Cannot delete step because articles still use it.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepHasAssignedArticles,
+                "Cannot delete step because articles still use it.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
 
         if (!roadmap.IsValidAssignment(zoneKey, stepKey))
         {
-            return new RoadmapOperationResult(false, "Step not found.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepNotFound,
+                "Step not found.");
         }
 
         roadmap.DeleteStep(zoneKey, stepKey);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
-        return new RoadmapOperationResult(true, "Step deleted successfully.");
+        return RoadmapOperationResult.Ok("Step deleted successfully.");
     }
 
     private static string CreateComparisonKey(string value)
     {
-        return BlogPlatform.Domain.ValueObjects.Slug.Create(value).Value;
+        return Slug.Create(value).Value;
     }
 }

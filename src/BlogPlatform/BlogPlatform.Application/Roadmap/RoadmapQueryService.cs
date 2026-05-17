@@ -37,26 +37,34 @@ public sealed class RoadmapQueryService : IRoadmapQueryService
     {
         if (string.IsNullOrWhiteSpace(zoneKey))
         {
-            return new RoadmapOperationResult(false, "Dotnet Zone is required.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneRequired,
+                "Dotnet Zone is required.");
         }
 
         if (string.IsNullOrWhiteSpace(stepKey))
         {
-            return new RoadmapOperationResult(false, "Dotnet Zone Step is required.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepRequired,
+                "Dotnet Zone Step is required.");
         }
 
         var roadmap = await _roadmapStore.GetAsync(cancellationToken);
 
         if (!roadmap.ContainsZone(zoneKey))
         {
-            return new RoadmapOperationResult(false, $"Invalid Dotnet Zone: {zoneKey}");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.ZoneNotFound,
+                $"Invalid Dotnet Zone: {zoneKey}");
         }
 
         if (!roadmap.IsValidAssignment(zoneKey, stepKey))
         {
-            return new RoadmapOperationResult(false, $"Dotnet Zone Step '{stepKey}' does not belong to Dotnet Zone '{zoneKey}'.");
+            return RoadmapOperationResult.Fail(
+                RoadmapOperationError.StepDoesNotBelongToZone,
+                $"Dotnet Zone Step '{stepKey}' does not belong to Dotnet Zone '{zoneKey}'.");
         }
 
-        return new RoadmapOperationResult(true, string.Empty);
+        return RoadmapOperationResult.Ok(string.Empty);
     }
 }

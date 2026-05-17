@@ -25,14 +25,16 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.App",
                 "BlogPlatform.Contracts",
                 "Microsoft.Extensions",
-                "Microsoft.AspNetCore")
+                "Microsoft.AspNetCore",
+                "Microsoft.EntityFrameworkCore",
+                "Umbraco.Cms")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
     }
 
     [Fact]
-    public void Application_Should_Not_Depend_On_Infrastructure_Presentation_Or_Contracts()
+    public void Application_Should_Not_Depend_On_Outer_Layers()
     {
         var result = Types
             .InAssembly(typeof(IBlogPostQueryService).Assembly)
@@ -43,7 +45,9 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Cms",
                 "BlogPlatform.App",
                 "BlogPlatform.Contracts",
-                "Microsoft.AspNetCore")
+                "Microsoft.AspNetCore",
+                "Microsoft.EntityFrameworkCore",
+                "Umbraco.Cms")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -59,7 +63,8 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Api",
                 "BlogPlatform.Cms",
                 "BlogPlatform.App",
-                "BlogPlatform.Contracts")
+                "BlogPlatform.Contracts",
+                "Umbraco.Cms")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -125,14 +130,17 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Cms_Controllers_Should_Not_Depend_On_Infrastructure()
+    public void Cms_Controllers_Should_Not_Depend_On_Infrastructure_Or_Umbraco_Core()
     {
         var result = Types
             .InAssembly(typeof(BlogContentController).Assembly)
             .That()
             .ResideInNamespace("BlogPlatform.Cms.Controllers")
             .ShouldNot()
-            .HaveDependencyOn("BlogPlatform.Infrastructure")
+            .HaveDependencyOnAny(
+                "BlogPlatform.Infrastructure",
+                "Umbraco.Cms.Core",
+                "Umbraco.Cms.Infrastructure")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -193,22 +201,6 @@ public sealed class CleanArchitectureDependencyTests
             .ToList();
 
         Assert.Equal(expectedReferences, actualReferences);
-    }
-
-    [Fact]
-    public void Cms_Controllers_Should_Not_Depend_On_Umbraco_Core()
-    {
-        var result = Types
-            .InAssembly(typeof(BlogContentController).Assembly)
-            .That()
-            .ResideInNamespace("BlogPlatform.Cms.Controllers")
-            .ShouldNot()
-            .HaveDependencyOnAny(
-                "Umbraco.Cms.Core",
-                "Umbraco.Cms.Infrastructure")
-            .GetResult();
-
-        Assert.True(result.IsSuccessful, BuildMessage(result));
     }
 
     private static DirectoryInfo FindSolutionRoot()
