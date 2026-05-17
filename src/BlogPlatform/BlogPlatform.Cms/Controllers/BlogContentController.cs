@@ -1,4 +1,4 @@
-using BlogPlatform.Cms.BlogContent;
+﻿using BlogPlatform.Cms.BlogContent;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogPlatform.Cms.Controllers;
@@ -33,6 +33,25 @@ public sealed class BlogContentController : ControllerBase
         return Ok(_blogContent.GetArticles());
     }
 
+
+    [HttpGet("articles/reorder")]
+    public ActionResult<IReadOnlyCollection<CmsReorderArticleListItemDto>> GetArticlesForReorder(
+        [FromQuery] string? zone,
+        [FromQuery] string? step)
+    {
+        return Ok(_blogContent.GetArticlesForReorder(zone, step));
+    }
+
+    [HttpPut("articles/reorder")]
+    public ActionResult<CmsReorderArticlesResponse> ReorderArticles(
+        [FromBody] CmsReorderArticlesRequest request)
+    {
+        var result = _blogContent.ReorderArticles(request);
+
+        return result.Success
+            ? Ok(result)
+            : BadRequest(result);
+    }
 
     [HttpGet("articles/next-order")]
     public ActionResult<int> GetNextArticleOrder(

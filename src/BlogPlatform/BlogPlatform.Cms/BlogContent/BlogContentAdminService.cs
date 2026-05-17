@@ -149,6 +149,86 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         return highestExistingOrder + 1;
     }
 
+
+    public IReadOnlyCollection<CmsReorderArticleListItemDto> GetArticlesForReorder(
+        string? dotnetZone,
+        string? dotnetZoneStep)
+    {
+        var normalizedZone = NormalizeAssignmentKey(dotnetZone) ?? DefaultDotnetZone;
+        var normalizedStep = NormalizeAssignmentKey(dotnetZoneStep) ?? DefaultDotnetZoneStep;
+
+        return GetRootArticles()
+            .Where(article => string.Equals(
+                GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+                normalizedZone,
+                StringComparison.OrdinalIgnoreCase))
+            .Where(article => string.Equals(
+                GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+                normalizedStep,
+                StringComparison.OrdinalIgnoreCase))
+            .Select(MapReorderArticleListItem)
+            .OrderBy(article => article.Order <= 0 ? int.MaxValue : article.Order)
+            .ThenBy(article => article.Title)
+            .ToList();
+    }
+
+    public CmsReorderArticlesResponse ReorderArticles(CmsReorderArticlesRequest request)
+    {
+        var normalizedZone = NormalizeAssignmentKey(request.DotnetZone);
+        var normalizedStep = NormalizeAssignmentKey(request.DotnetZoneStep);
+
+        if (normalizedZone is null || normalizedStep is null)
+        {
+            return new CmsReorderArticlesResponse(
+                false,
+                "Zone and step are required before articles can be reordered.",
+                []);
+        }
+
+        var requestedKeys = request.ArticleKeys
+            .Distinct()
+            .ToList();
+
+        var articlesInStep = GetRootArticles()
+            .Where(article => string.Equals(
+                GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+                normalizedZone,
+                StringComparison.OrdinalIgnoreCase))
+            .Where(article => string.Equals(
+                GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+                normalizedStep,
+                StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (requestedKeys.Count != articlesInStep.Count ||
+            requestedKeys.Any(key => articlesInStep.All(article => article.Key != key)))
+        {
+            return new CmsReorderArticlesResponse(
+                false,
+                "The reorder request no longer matches the selected zone and step. Refresh the list and try again.",
+                articlesInStep.Select(MapReorderArticleListItem).OrderBy(article => article.Order).ToList());
+        }
+
+        var articleByKey = articlesInStep.ToDictionary(article => article.Key);
+
+        for (var index = 0; index < requestedKeys.Count; index++)
+        {
+            var article = articleByKey[requestedKeys[index]];
+            article.SetValue(BlogContentAliases.Order, index + 1);
+            _contentService.Save(article);
+            _contentService.Publish(article, ["*"]);
+        }
+
+        ClearCaches();
+
+        var reorderedArticles = GetArticlesForReorder(normalizedZone, normalizedStep);
+
+        return new CmsReorderArticlesResponse(
+            true,
+            "Article order updated successfully.",
+            reorderedArticles);
+    }
+
     public async Task<CmsSaveArticleResponse> CreateArticleAsync(
         CmsSaveArticleRequest request,
         CancellationToken cancellationToken)
@@ -397,6 +477,26 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             tags,
             GetDateTimeOffset(content, BlogContentAliases.PublishedDate),
             GetString(content, BlogContentAliases.BodyBlocks) ?? string.Empty,
+            content.UpdateDate);
+    }
+
+
+    private CmsReorderArticleListItemDto MapReorderArticleListItem(IContent content)
+    {
+        var title = GetString(content, BlogContentAliases.Title)
+            ?? content.Name
+            ?? "Untitled";
+
+        return new CmsReorderArticleListItemDto(
+            content.Key,
+            title,
+            GetString(content, BlogContentAliases.Slug) ?? CreateSlug(title),
+            GetString(content, BlogContentAliases.Summary) ?? string.Empty,
+            GetString(content, BlogContentAliases.Level) ?? "Intermediate",
+            GetString(content, BlogContentAliases.Focus) ?? "Practical",
+            GetString(content, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+            GetString(content, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+            GetInt(content, BlogContentAliases.Order),
             content.UpdateDate);
     }
 

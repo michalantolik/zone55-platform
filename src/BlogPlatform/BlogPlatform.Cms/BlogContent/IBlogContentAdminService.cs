@@ -13,6 +13,12 @@ public interface IBlogContentAdminService
 
     int GetNextArticleOrder(string? dotnetZone, string? dotnetZoneStep, Guid? excludeArticleKey = null);
 
+    IReadOnlyCollection<CmsReorderArticleListItemDto> GetArticlesForReorder(
+        string? dotnetZone,
+        string? dotnetZoneStep);
+
+    CmsReorderArticlesResponse ReorderArticles(CmsReorderArticlesRequest request);
+
     Task<CmsSaveArticleResponse> CreateArticleAsync(
         CmsSaveArticleRequest request,
         CancellationToken cancellationToken);

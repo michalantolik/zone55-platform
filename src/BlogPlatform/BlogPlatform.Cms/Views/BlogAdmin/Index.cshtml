@@ -454,6 +454,157 @@
             padding: 0;
         }
 
+
+        .reorder-workspace {
+            display: grid;
+            gap: 18px;
+        }
+
+        .reorder-controls {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(240px, 1fr)) auto;
+            gap: 16px;
+            align-items: end;
+            border: 1px solid #24405f;
+            border-radius: 18px;
+            background: rgba(4, 17, 29, 0.88);
+            padding: 18px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+        }
+
+        .reorder-select-group { min-width: 0; }
+
+        .reorder-select {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #35527a;
+            background: #020b18;
+            color: white;
+            padding: 13px 15px;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .reorder-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(132, 187, 255, 0.26);
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(22, 119, 255, 0.12), rgba(4, 17, 29, 0.88));
+            padding: 16px 18px;
+        }
+
+        .reorder-summary strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 18px;
+        }
+
+        .reorder-summary span {
+            color: #aac2de;
+            line-height: 1.5;
+        }
+
+        .reorder-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .reorder-row {
+            display: grid;
+            grid-template-columns: auto auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            border: 1px solid #24405f;
+            border-radius: 16px;
+            background: rgba(4, 17, 29, 0.92);
+            padding: 12px;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+            transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+        }
+
+        .reorder-row:hover {
+            transform: translateY(-1px);
+            border-color: rgba(132, 187, 255, 0.62);
+            background: rgba(8, 28, 49, 0.94);
+        }
+
+        .reorder-row.dragging {
+            opacity: 0.58;
+            border-color: #84bbff;
+            box-shadow: 0 0 0 2px rgba(132, 187, 255, 0.16), 0 18px 44px rgba(0, 0, 0, 0.34);
+        }
+
+        .reorder-drag-handle {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #35527a;
+            background: #071a31;
+            color: #84bbff;
+            cursor: grab;
+            font-weight: 900;
+        }
+
+        .reorder-drag-handle:active { cursor: grabbing; }
+
+        .reorder-order-badge {
+            min-width: 44px;
+            height: 34px;
+            border-radius: 999px;
+            display: inline-grid;
+            place-items: center;
+            border: 1px solid rgba(132, 187, 255, 0.44);
+            background: linear-gradient(180deg, rgba(132, 187, 255, 0.20), rgba(22, 119, 255, 0.08));
+            color: #d7eaff;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .reorder-title { font-weight: 900; margin-bottom: 4px; }
+        .reorder-meta { color: #aac2de; font-size: 13px; line-height: 1.45; }
+
+        .reorder-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .reorder-action-button {
+            min-width: 38px;
+            height: 34px;
+            border: 1px solid #35527a;
+            border-radius: 999px;
+            background: #0d253f;
+            color: #d7eaff;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .reorder-action-button:hover:not(:disabled) {
+            border-color: #84bbff;
+            background: #163b62;
+            transform: translateY(-1px);
+        }
+
+        .reorder-action-button:disabled {
+            opacity: 0.38;
+            cursor: not-allowed;
+        }
+
+        @@media (max-width: 900px) {
+            .reorder-controls { grid-template-columns: 1fr; }
+            .reorder-row { grid-template-columns: auto auto 1fr; }
+            .reorder-actions { grid-column: 1 / -1; justify-content: flex-start; }
+        }
+
         .toast {
             position: fixed;
             right: 24px;
@@ -662,6 +813,7 @@
             <nav class="top-nav">
                 <button id="zonesTab" class="active" type="button" onclick="showPanel('zones')">Zones &amp; Steps</button>
                 <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
+                <button id="reorderArticlesTab" type="button" onclick="showPanel('reorderArticles')">Reorder articles</button>
                 <button id="documentTypesTab" type="button" onclick="showPanel('documentTypes')">Document Types</button>
             </nav>
         </header>
@@ -689,6 +841,31 @@
                 </div>
 
                 <div id="zonesGrid" class="zones-grid"></div>
+            </section>
+
+
+            <section id="reorderArticlesPanel" class="panel">
+                <div class="reorder-workspace">
+                    <div class="reorder-controls">
+                        <div class="reorder-select-group">
+                            <label class="field-label" for="reorderZoneSelect">Zone</label>
+                            <select id="reorderZoneSelect" class="reorder-select" onchange="onReorderZoneChanged()"></select>
+                        </div>
+
+                        <div class="reorder-select-group">
+                            <label class="field-label" for="reorderStepSelect">Step</label>
+                            <select id="reorderStepSelect" class="reorder-select" onchange="onReorderStepChanged()"></select>
+                        </div>
+
+                        <button id="reloadReorderButton" class="new-article-button" type="button" onclick="loadReorderArticles()">
+                            <span class="new-article-button-mark">↻</span>
+                            <span>Refresh list</span>
+                        </button>
+                    </div>
+
+                    <div id="reorderSummary" class="reorder-summary"></div>
+                    <div id="reorderArticlesList" class="reorder-list"></div>
+                </div>
             </section>
 
             <section id="documentTypesPanel" class="panel">
@@ -787,6 +964,11 @@
         let articles = [];
         let documentTypes = [];
         let activePanel = "zones";
+        let reorderArticles = [];
+        let selectedReorderZoneKey = null;
+        let selectedReorderStepKey = null;
+        let draggedReorderArticleKey = null;
+        let reorderSaveInProgress = false;
         let inlineEditorIsDirty = false;
         let inlineEditorArticleKey = null;
         let inlineEditorMode = "existing";
@@ -814,6 +996,7 @@
             articles = await articlesResponse.json();
             documentTypes = await documentTypesResponse.json();
 
+            initializeReorderSelectors();
             renderActivePanel();
 
             document.getElementById("statusText").innerText =
@@ -825,10 +1008,12 @@
 
             document.getElementById("zonesTab").classList.toggle("active", panel === "zones");
             document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
+            document.getElementById("reorderArticlesTab").classList.toggle("active", panel === "reorderArticles");
             document.getElementById("documentTypesTab").classList.toggle("active", panel === "documentTypes");
 
             document.getElementById("zonesPanel").classList.toggle("active", panel === "zones");
             document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
+            document.getElementById("reorderArticlesPanel").classList.toggle("active", panel === "reorderArticles");
             document.getElementById("documentTypesPanel").classList.toggle("active", panel === "documentTypes");
 
             const articlesEditorIsOpen = panel === "articles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
@@ -844,10 +1029,21 @@
         function renderActivePanel() {
             if (activePanel === "zones") {
                 renderZones();
+                return;
             }
 
             if (activePanel === "articles" && document.getElementById("articlesEditorView").classList.contains("hidden")) {
                 renderArticles();
+                return;
+            }
+
+            if (activePanel === "reorderArticles") {
+                if (reorderArticles.length === 0) {
+                    loadReorderArticles();
+                }
+
+                renderReorderArticles();
+                return;
             }
 
             if (activePanel === "documentTypes") {
@@ -934,6 +1130,251 @@
                     </div>
                 </div>
             `;
+        }
+
+
+        function initializeReorderSelectors() {
+            const zoneSelect = document.getElementById("reorderZoneSelect");
+
+            if (!zoneSelect) {
+                return;
+            }
+
+            const orderedZones = [...dotnetRoadmap].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+
+            if (!selectedReorderZoneKey || !orderedZones.some(zone => zone.key === selectedReorderZoneKey)) {
+                selectedReorderZoneKey = orderedZones[0]?.key ?? null;
+            }
+
+            zoneSelect.innerHTML = orderedZones
+                .map(zone => `<option value="${escapeHtml(zone.key)}" ${zone.key === selectedReorderZoneKey ? "selected" : ""}>${escapeHtml(zone.order)}. ${escapeHtml(zone.name)}</option>`)
+                .join("");
+
+            initializeReorderStepSelector();
+        }
+
+        function initializeReorderStepSelector() {
+            const stepSelect = document.getElementById("reorderStepSelect");
+            const zone = dotnetRoadmap.find(item => item.key === selectedReorderZoneKey);
+            const orderedSteps = [...(zone?.steps ?? [])].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+
+            if (!selectedReorderStepKey || !orderedSteps.some(step => step.key === selectedReorderStepKey)) {
+                selectedReorderStepKey = orderedSteps[0]?.key ?? null;
+            }
+
+            stepSelect.innerHTML = orderedSteps
+                .map(step => `<option value="${escapeHtml(step.key)}" ${step.key === selectedReorderStepKey ? "selected" : ""}>${escapeHtml(step.order)}. ${escapeHtml(step.name)}</option>`)
+                .join("");
+        }
+
+        async function onReorderZoneChanged() {
+            selectedReorderZoneKey = document.getElementById("reorderZoneSelect").value;
+            selectedReorderStepKey = null;
+            reorderArticles = [];
+            initializeReorderStepSelector();
+            await loadReorderArticles();
+        }
+
+        async function onReorderStepChanged() {
+            selectedReorderStepKey = document.getElementById("reorderStepSelect").value;
+            reorderArticles = [];
+            await loadReorderArticles();
+        }
+
+        async function loadReorderArticles() {
+            if (!selectedReorderZoneKey || !selectedReorderStepKey) {
+                renderReorderArticles();
+                return;
+            }
+
+            const button = document.getElementById("reloadReorderButton");
+            button.disabled = true;
+
+            try {
+                const response = await fetch(`/api/blog-content/articles/reorder?zone=${encodeURIComponent(selectedReorderZoneKey)}&step=${encodeURIComponent(selectedReorderStepKey)}`);
+                reorderArticles = await response.json();
+                renderReorderArticles();
+            }
+            catch (error) {
+                console.error(error);
+                showToast("Unable to load articles for reorder.", "error");
+            }
+            finally {
+                button.disabled = false;
+            }
+        }
+
+        function renderReorderArticles() {
+            initializeReorderSelectors();
+
+            const zone = dotnetRoadmap.find(item => item.key === selectedReorderZoneKey);
+            const step = zone?.steps.find(item => item.key === selectedReorderStepKey);
+            const summary = document.getElementById("reorderSummary");
+            const list = document.getElementById("reorderArticlesList");
+
+            if (!zone || !step) {
+                summary.innerHTML = `<div><strong>Select zone and step</strong><span>Create at least one zone and step before reordering articles.</span></div>`;
+                list.innerHTML = `<div class="empty">No zone and step selected.</div>`;
+                return;
+            }
+
+            summary.innerHTML = `
+                <div>
+                    <strong>${escapeHtml(zone.name)} / ${escapeHtml(step.name)}</strong>
+                    <span>Drag articles, use arrows, or move directly to top/bottom. Order is saved automatically after every move.</span>
+                </div>
+                <span>${reorderArticles.length} article${reorderArticles.length === 1 ? "" : "s"}</span>
+            `;
+
+            if (reorderArticles.length === 0) {
+                list.innerHTML = `<div class="empty">No articles in this zone and step yet.</div>`;
+                return;
+            }
+
+            list.innerHTML = reorderArticles.map((article, index) => renderReorderArticleRow(article, index)).join("");
+        }
+
+        function renderReorderArticleRow(article, index) {
+            const isFirst = index === 0;
+            const isLast = index === reorderArticles.length - 1;
+            const displayOrder = index + 1;
+
+            return `
+                <article class="reorder-row" draggable="true" data-article-key="${escapeHtml(article.key)}" ondragstart="onReorderDragStart(event, '${escapeJs(article.key)}')" ondragover="onReorderDragOver(event, '${escapeJs(article.key)}')" ondrop="onReorderDrop(event, '${escapeJs(article.key)}')" ondragend="onReorderDragEnd(event)">
+                    <div class="reorder-drag-handle" title="Drag to reorder">⋮⋮</div>
+                    <div class="reorder-order-badge" title="Current saved order: ${escapeHtml(article.order)}">#${displayOrder}</div>
+
+                    <div class="article-main">
+                        <div class="reorder-title">${escapeHtml(article.title)}</div>
+                        <div class="reorder-meta">
+                            ${escapeHtml(article.slug)} · ${escapeHtml(article.level)} · saved Order: ${escapeHtml(article.order)}
+                        </div>
+                    </div>
+
+                    <div class="reorder-actions">
+                        <button class="reorder-action-button" type="button" title="Move to top" onclick="moveReorderArticle('${escapeJs(article.key)}', 'top')" ${isFirst ? "disabled" : ""}>Top</button>
+                        <button class="reorder-action-button" type="button" title="Move one level up" onclick="moveReorderArticle('${escapeJs(article.key)}', 'up')" ${isFirst ? "disabled" : ""}>↑</button>
+                        <button class="reorder-action-button" type="button" title="Move one level down" onclick="moveReorderArticle('${escapeJs(article.key)}', 'down')" ${isLast ? "disabled" : ""}>↓</button>
+                        <button class="reorder-action-button" type="button" title="Move to bottom" onclick="moveReorderArticle('${escapeJs(article.key)}', 'bottom')" ${isLast ? "disabled" : ""}>Bottom</button>
+                    </div>
+                </article>
+            `;
+        }
+
+        function onReorderDragStart(event, articleKey) {
+            draggedReorderArticleKey = articleKey;
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", articleKey);
+            event.currentTarget.classList.add("dragging");
+        }
+
+        function onReorderDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+        }
+
+        async function onReorderDrop(event, targetArticleKey) {
+            event.preventDefault();
+
+            const sourceArticleKey = draggedReorderArticleKey || event.dataTransfer.getData("text/plain");
+
+            if (!sourceArticleKey || sourceArticleKey === targetArticleKey) {
+                return;
+            }
+
+            const sourceIndex = reorderArticles.findIndex(article => article.key === sourceArticleKey);
+            const targetIndex = reorderArticles.findIndex(article => article.key === targetArticleKey);
+
+            if (sourceIndex < 0 || targetIndex < 0) {
+                return;
+            }
+
+            const [movedArticle] = reorderArticles.splice(sourceIndex, 1);
+            reorderArticles.splice(targetIndex, 0, movedArticle);
+
+            renderReorderArticles();
+            await saveReorderArticles();
+        }
+
+        function onReorderDragEnd(event) {
+            draggedReorderArticleKey = null;
+            event.currentTarget.classList.remove("dragging");
+        }
+
+        async function moveReorderArticle(articleKey, direction) {
+            const currentIndex = reorderArticles.findIndex(article => article.key === articleKey);
+
+            if (currentIndex < 0) {
+                return;
+            }
+
+            let targetIndex = currentIndex;
+
+            if (direction === "top") {
+                targetIndex = 0;
+            }
+            else if (direction === "up") {
+                targetIndex = Math.max(0, currentIndex - 1);
+            }
+            else if (direction === "down") {
+                targetIndex = Math.min(reorderArticles.length - 1, currentIndex + 1);
+            }
+            else if (direction === "bottom") {
+                targetIndex = reorderArticles.length - 1;
+            }
+
+            if (targetIndex === currentIndex) {
+                return;
+            }
+
+            const [movedArticle] = reorderArticles.splice(currentIndex, 1);
+            reorderArticles.splice(targetIndex, 0, movedArticle);
+
+            renderReorderArticles();
+            await saveReorderArticles();
+        }
+
+        async function saveReorderArticles() {
+            if (reorderSaveInProgress || !selectedReorderZoneKey || !selectedReorderStepKey) {
+                return;
+            }
+
+            reorderSaveInProgress = true;
+
+            try {
+                const response = await fetch("/api/blog-content/articles/reorder", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        dotnetZone: selectedReorderZoneKey,
+                        dotnetZoneStep: selectedReorderStepKey,
+                        articleKeys: reorderArticles.map(article => article.key)
+                    })
+                });
+
+                const result = await readJsonResponse(response);
+
+                if (!response.ok || result.success === false) {
+                    showToast(result.message || "Unable to save article order.", "error");
+                    await loadReorderArticles();
+                    return;
+                }
+
+                reorderArticles = result.articles ?? reorderArticles;
+                renderReorderArticles();
+                showToast(result.message || "Article order updated.", "success");
+                await loadContent();
+            }
+            catch (error) {
+                console.error(error);
+                showToast("Unable to save article order.", "error");
+                await loadReorderArticles();
+            }
+            finally {
+                reorderSaveInProgress = false;
+            }
         }
 
         function renderDocumentTypes() {

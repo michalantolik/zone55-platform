@@ -82,3 +82,26 @@ public sealed record CmsSaveRoadmapResponse(
 public sealed record CmsDeleteResponse(
     bool Success,
     string Message);
+
+
+public sealed record CmsReorderArticleListItemDto(
+    Guid Key,
+    string Title,
+    string Slug,
+    string Summary,
+    string Level,
+    string Focus,
+    string DotnetZone,
+    string DotnetZoneStep,
+    int Order,
+    DateTime UpdatedUtc);
+
+public sealed record CmsReorderArticlesRequest(
+    string DotnetZone,
+    string DotnetZoneStep,
+    IReadOnlyCollection<Guid> ArticleKeys);
+
+public sealed record CmsReorderArticlesResponse(
+    bool Success,
+    string Message,
+    IReadOnlyCollection<CmsReorderArticleListItemDto> Articles);
