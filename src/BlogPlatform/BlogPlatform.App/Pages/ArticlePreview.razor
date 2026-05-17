@@ -1,10 +1,12 @@
 ﻿@page "/preview/article"
 @layout PreviewLayout
+@implements IDisposable
 
 @using System.Text.Json
-@using BlogPlatform.Contracts.Posts
+@using BlogPlatform.App.Components.Articles
 @using BlogPlatform.App.Models
 @using BlogPlatform.App.Services
+@using BlogPlatform.Contracts.Posts
 @using Microsoft.JSInterop
 
 @inject IJSRuntime JS
@@ -53,68 +55,7 @@
     }
     else
     {
-        var blocks = ArticleBlockParser.Parse(_article.BodyHtml ?? string.Empty);
-
-        <article class="article-card" @key="_renderKey">
-            <div class="tag-row">
-                @foreach (var tag in _article.Tags ?? [])
-                {
-                    <span>@tag</span>
-                }
-            </div>
-
-            <h1>@_article.Title</h1>
-
-            <div class="article-meta">
-                <strong>Engineering note</strong>
-                <span>·</span>
-                <span>Michał Antolik</span>
-                <span>·</span>
-            </div>
-
-            <div class="article-summary">
-                @_article.Summary
-            </div>
-
-            <div class="article-body">
-                @foreach (var block in blocks)
-                {
-                    if (block.Type == ArticleBlockType.Heading)
-                    {
-                        if (block.Level == 3)
-                        {
-                            <h3>@block.Text</h3>
-                        }
-                        else if (block.Level == 4)
-                        {
-                            <h4>@block.Text</h4>
-                        }
-                        else
-                        {
-                            <h2>@block.Text</h2>
-                        }
-                    }
-                    else if (block.Type == ArticleBlockType.Text)
-                    {
-                        <p>@block.Text</p>
-                    }
-                    else if (block.Type == ArticleBlockType.Code)
-                    {
-                        <figure class="code-block">
-                            <div class="snippet-toolbar">
-                                <figcaption>@(block.FileName ?? block.Language ?? "code")</figcaption>
-                            </div>
-
-                            <pre><code>@block.Code</code></pre>
-                        </figure>
-                    }
-                    else
-                    {
-                        <p>@block.Text</p>
-                    }
-                }
-            </div>
-        </article>
+        <ArticleRenderer Article="_article" @key="_renderKey" />
     }
 </section>
 
