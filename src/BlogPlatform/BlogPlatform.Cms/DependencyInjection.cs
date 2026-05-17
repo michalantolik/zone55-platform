@@ -1,5 +1,6 @@
 ﻿using BlogPlatform.Application;
 using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Cms.BlogContent;
 using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
 
@@ -17,6 +18,10 @@ public static class DependencyInjection
         services.AddScoped<
             IRoadmapArticleAssignmentChecker,
             CmsRoadmapArticleAssignmentChecker>();
+
+        services.AddScoped<
+            IBlogContentAdminService,
+            BlogContentAdminService>();
 
         services.AddApplication();
 

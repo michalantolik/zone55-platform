@@ -195,6 +195,22 @@ public sealed class CleanArchitectureDependencyTests
         Assert.Equal(expectedReferences, actualReferences);
     }
 
+    [Fact]
+    public void Cms_Controllers_Should_Not_Depend_On_Umbraco_Core()
+    {
+        var result = Types
+            .InAssembly(typeof(BlogContentController).Assembly)
+            .That()
+            .ResideInNamespace("BlogPlatform.Cms.Controllers")
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "Umbraco.Cms.Core",
+                "Umbraco.Cms.Infrastructure")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
     private static DirectoryInfo FindSolutionRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
