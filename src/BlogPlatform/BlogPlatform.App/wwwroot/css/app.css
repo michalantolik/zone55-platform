@@ -1332,7 +1332,7 @@ button {
         max-width: 100%;
         margin: 0 auto;
         padding: clamp(28px, 5vw, 52px);
-        background: var(--diagram-plantuml-inner-bg);
+        background: var(--diagram-plantuml-bg);
     }
 
     .plantuml-block details {

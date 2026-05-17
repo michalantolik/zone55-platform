@@ -225,7 +225,7 @@ html[data-blog-theme="engineering-blue"] {
         html[data-blog-theme="engineering-blue"] .plantuml-block img,
         html[data-blog-theme="engineering-blue"] .plantuml-block details {
             color: var(--diagram-header-text);
-            background: var(--diagram-panel-bg);
+            background: var(--diagram-plantuml-bg);
         }
 
         html[data-blog-theme="engineering-blue"] .plantuml-block img,

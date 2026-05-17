@@ -136,7 +136,27 @@
             return string.Empty;
         }
 
-        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(diagram)}";
+        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(CreateThemeAwarePlantUmlSource(diagram))}";
+    }
+
+    private static string CreateThemeAwarePlantUmlSource(string source)
+    {
+        var normalizedSource = source.Trim();
+        const string transparentBackground = "skinparam backgroundColor transparent";
+
+        if (!normalizedSource.Contains("@start", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"@startuml\n{normalizedSource}\n{transparentBackground}\n@enduml";
+        }
+
+        var endUmlIndex = normalizedSource.LastIndexOf("@enduml", StringComparison.OrdinalIgnoreCase);
+
+        if (endUmlIndex >= 0)
+        {
+            return normalizedSource.Insert(endUmlIndex, $"{transparentBackground}\n");
+        }
+
+        return $"{normalizedSource}\n{transparentBackground}";
     }
 
     private static string EncodePlantUml(string source)
