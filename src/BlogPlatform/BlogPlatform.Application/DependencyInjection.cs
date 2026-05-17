@@ -11,8 +11,10 @@ public static class DependencyInjection
     {
         services.AddScoped<IBlogPostQueryService, BlogPostQueryService>();
         services.AddScoped<IBlogHomeContentQueryService, BlogHomeContentQueryService>();
+
         services.AddScoped<IRoadmapQueryService, RoadmapQueryService>();
         services.AddScoped<IRoadmapCommandService, RoadmapCommandService>();
+        services.AddScoped<IRoadmapSeedService, RoadmapSeedService>();
 
         return services;
     }

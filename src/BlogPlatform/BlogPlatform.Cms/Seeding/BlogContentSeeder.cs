@@ -26,6 +26,7 @@ public sealed class BlogContentSeeder
     private readonly ILogger<BlogContentSeeder> _logger;
     private readonly IWebHostEnvironment _environment;
     private readonly IDotnetRoadmapStore _roadmapStore;
+    private readonly IRoadmapSeedService _roadmapSeedService;
     private readonly BlogContentSeederOptions _options;
 
     public BlogContentSeeder(
@@ -38,7 +39,8 @@ public sealed class BlogContentSeeder
         IWebHostEnvironment environment,
         IDotnetRoadmapStore roadmapStore,
         IOptions<BlogContentSeederOptions> options,
-        ILogger<BlogContentSeeder> logger)
+        ILogger<BlogContentSeeder> logger,
+        IRoadmapSeedService roadmapSeedService)
     {
         _contentTypeService = contentTypeService;
         _contentService = contentService;
@@ -50,6 +52,7 @@ public sealed class BlogContentSeeder
         _roadmapStore = roadmapStore;
         _options = options.Value;
         _logger = logger;
+        _roadmapSeedService = roadmapSeedService;
     }
 
     public async Task SeedAsync()
@@ -92,16 +95,17 @@ public sealed class BlogContentSeeder
     {
         var zones = roadmapZones
             .OrderBy(zone => zone.Order)
-            .Select(zone => DotnetRoadmapZone.Create(
+            .Select(zone => new RoadmapSeedZoneModel(
                 zone.Key,
                 zone.Name,
                 zone.Order,
                 zone.Steps
                     .OrderBy(step => step.Order)
-                    .Select(step => DotnetRoadmapStep.Create(
+                    .Select(step => new RoadmapSeedStepModel(
                         step.Key,
                         step.Name,
-                        step.Order))))
+                        step.Order))
+                    .ToList()))
             .ToList();
 
         if (zones.Count == 0)
@@ -112,7 +116,8 @@ public sealed class BlogContentSeeder
             return;
         }
 
-        await _roadmapStore.SaveAsync(DotnetRoadmap.Create(zones));
+        await _roadmapSeedService.SeedAsync(
+            new RoadmapSeedModel(zones));
 
         _logger.LogInformation(
             "Seeded {ZoneCount} roadmap zones from blog seed content.",

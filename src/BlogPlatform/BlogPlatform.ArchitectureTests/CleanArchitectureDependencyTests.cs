@@ -49,6 +49,22 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
+    public void Infrastructure_Should_Not_Depend_On_Presentation_Or_Contracts()
+    {
+        var result = Types
+            .InAssembly(typeof(UmbracoDeliveryApiBlogPostRepository).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "BlogPlatform.Api",
+                "BlogPlatform.Cms",
+                "BlogPlatform.App",
+                "BlogPlatform.Contracts")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
     public void Contracts_Should_Be_Independent()
     {
         var result = Types
@@ -61,22 +77,6 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Api",
                 "BlogPlatform.Cms",
                 "BlogPlatform.App")
-            .GetResult();
-
-        Assert.True(result.IsSuccessful, BuildMessage(result));
-    }
-
-    [Fact]
-    public void Infrastructure_Should_Not_Depend_On_Presentation_Or_Contracts()
-    {
-        var result = Types
-            .InAssembly(typeof(UmbracoDeliveryApiBlogPostRepository).Assembly)
-            .ShouldNot()
-            .HaveDependencyOnAny(
-                "BlogPlatform.Api",
-                "BlogPlatform.Cms",
-                "BlogPlatform.App",
-                "BlogPlatform.Contracts")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -98,12 +98,10 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Cms_Controllers_Should_Not_Depend_On_Domain()
+    public void Cms_Should_Not_Depend_On_Domain_Directly()
     {
         var result = Types
             .InAssembly(typeof(BlogContentController).Assembly)
-            .That()
-            .HaveNameEndingWith("Controller")
             .ShouldNot()
             .HaveDependencyOn("BlogPlatform.Domain")
             .GetResult();
