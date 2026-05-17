@@ -643,6 +643,57 @@
             cursor: not-allowed;
         }
 
+        .reorder-manage-button {
+            min-width: 40px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 1px solid rgba(132, 187, 255, 0.34);
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(132, 187, 255, 0.18), rgba(22, 119, 255, 0.08));
+            color: #d7eaff;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .reorder-manage-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            border-color: #84bbff;
+            background: linear-gradient(180deg, rgba(132, 187, 255, 0.26), rgba(22, 119, 255, 0.16));
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(22, 119, 255, 0.18);
+        }
+
+        .reorder-manage-button.edit {
+            min-width: 74px;
+        }
+
+        .reorder-manage-button.remove {
+            border-color: rgba(255, 116, 139, 0.44);
+            background: linear-gradient(180deg, rgba(255, 116, 139, 0.16), rgba(208, 56, 77, 0.08));
+            color: #ffd6dc;
+        }
+
+        .reorder-manage-button.remove:hover:not(:disabled) {
+            border-color: rgba(255, 148, 164, 0.82);
+            background: linear-gradient(180deg, rgba(255, 116, 139, 0.24), rgba(208, 56, 77, 0.18));
+            color: #fff1f4;
+            box-shadow: 0 10px 24px rgba(208, 56, 77, 0.20);
+        }
+
+        .reorder-manage-icon {
+            display: inline-grid;
+            place-items: center;
+            width: 16px;
+            height: 16px;
+            line-height: 1;
+        }
+
         @@media (max-width: 900px) {
             .reorder-controls { grid-template-columns: 1fr; }
             .reorder-row { grid-template-columns: auto auto 1fr; }
@@ -1019,6 +1070,7 @@
         let inlineEditorMode = "existing";
         let inlineEditorIsValid = false;
         let inlineEditorTitle = "Article editor";
+        let inlineEditorReturnPanel = "articles";
         let pendingDelete = null;
         let roadmapModalState = null;
         let toastTimeout = null;
@@ -1266,7 +1318,7 @@
             summary.innerHTML = `
                 <div>
                     <strong>${escapeHtml(zone.name)} / ${escapeHtml(step.name)}</strong>
-                    <span>Drag articles, use arrows, or move directly to top/bottom. Order is saved automatically after every move.</span>
+                    <span>Drag articles, use arrows, edit content, or remove drafts directly from this list. Order is saved automatically after every move.</span>
                 </div>
                 <span>${reorderArticles.length} article${reorderArticles.length === 1 ? "" : "s"}</span>
             `;
@@ -1297,6 +1349,14 @@
                     </div>
 
                     <div class="reorder-actions">
+                        <button class="reorder-manage-button edit" type="button" title="Edit article" onclick="openArticleEditorFromReorder('${escapeJs(article.key)}')">
+                            <span class="reorder-manage-icon" aria-hidden="true">✎</span>
+                            <span>Edit</span>
+                        </button>
+                        <button class="reorder-manage-button remove" type="button" title="Remove article" onclick="requestDelete('article', '${escapeJs(article.key)}')">
+                            <span class="reorder-manage-icon" aria-hidden="true">🗑</span>
+                            <span>Remove</span>
+                        </button>
                         <button class="reorder-action-button" type="button" title="Move to top" onclick="moveReorderArticle('${escapeJs(article.key)}', 'top')" ${isFirst ? "disabled" : ""}>Top</button>
                         <button class="reorder-action-button" type="button" title="Move one level up" onclick="moveReorderArticle('${escapeJs(article.key)}', 'up')" ${isFirst ? "disabled" : ""}>↑</button>
                         <button class="reorder-action-button" type="button" title="Move one level down" onclick="moveReorderArticle('${escapeJs(article.key)}', 'down')" ${isLast ? "disabled" : ""}>↓</button>
@@ -1762,9 +1822,16 @@
                     return;
                 }
 
+                const deletedType = pendingDelete.type;
+
                 closeDeleteContentModal();
                 showToast(result.message || "Item deleted successfully.", "success");
                 await loadContent();
+
+                if (activePanel === "reorderArticles" && deletedType === "article") {
+                    reorderArticles = [];
+                    await loadReorderArticles();
+                }
             }
             catch (error) {
                 console.error(error);
@@ -1941,12 +2008,13 @@
                 url: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(roadmapModalState.zoneKey)}/steps/${encodeURIComponent(roadmapModalState.stepKey)}`
             };
         }
-        function openArticleEditorInArticlesTab(articleKey) {
+        function openArticleEditorInArticlesTab(articleKey, returnPanel = "articles") {
             const article = articles.find(item => item.key === articleKey);
 
             inlineEditorIsDirty = false;
             inlineEditorArticleKey = articleKey;
             inlineEditorMode = "existing";
+            inlineEditorReturnPanel = returnPanel;
 
             inlineEditorTitle = article ? article.title : "Article editor";
             updateInlineEditorCommandBar();
@@ -1960,12 +2028,17 @@
             showPanel("articles");
         }
 
+        function openArticleEditorFromReorder(articleKey) {
+            openArticleEditorInArticlesTab(articleKey, "reorderArticles");
+        }
+
         function openNewArticleEditorInArticlesTab() {
             inlineEditorIsDirty = false;
             inlineEditorArticleKey = null;
             inlineEditorIsValid = false;
             inlineEditorTitle = "Article editor";
             inlineEditorMode = "new";
+            inlineEditorReturnPanel = "articles";
 
             inlineEditorTitle = "Create new article";
             updateInlineEditorCommandBar();
@@ -2036,7 +2109,17 @@
             document.getElementById("articlesEditorView").classList.add("hidden");
             document.getElementById("articlesListView").classList.remove("hidden");
 
-            showPanel("articles");
+            const returnPanel = inlineEditorReturnPanel || "articles";
+            inlineEditorReturnPanel = "articles";
+
+            showPanel(returnPanel);
+
+            if (returnPanel === "reorderArticles") {
+                reorderArticles = [];
+                loadReorderArticles();
+                return;
+            }
+
             renderArticles();
         }
 
