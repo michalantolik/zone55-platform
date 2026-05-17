@@ -68,7 +68,7 @@
                     case ArticleBlockType.PlantUml:
                         <figure class="diagram-block plantuml-block">
                             <figcaption>PlantUML diagram</figcaption>
-                            <img src="@CreatePlantUmlUrl(block.Diagram)" alt="PlantUML diagram" />
+                            <img src="@CreatePlantUmlUrl(block.Diagram, _plantUmlTheme)" alt="PlantUML diagram" />
                         </figure>
                         break;
 
@@ -88,8 +88,23 @@
     [Parameter, EditorRequired]
     public PostDetails? Article { get; set; }
 
+    private PlantUmlThemeValues _plantUmlTheme = new(
+        "#a7b4c8",
+        "#E5E7EB",
+        "#7d8ca3",
+        "#374151",
+        "SansSerif");
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            _plantUmlTheme = await JS.InvokeAsync<PlantUmlThemeValues>(
+                "blogPlatformArticle.getPlantUmlThemeValues");
+
+            StateHasChanged();
+        }
+
         await JS.InvokeVoidAsync("blogPlatformArticle.renderDiagrams");
     }
 
@@ -129,34 +144,62 @@
             .ToArray();
     }
 
-    private static string CreatePlantUmlUrl(string? diagram)
+    private static string CreatePlantUmlUrl(string? diagram, PlantUmlThemeValues theme)
     {
         if (string.IsNullOrWhiteSpace(diagram))
         {
             return string.Empty;
         }
 
-        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(CreateThemeAwarePlantUmlSource(diagram))}";
+        return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(CreateThemeAwarePlantUmlSource(diagram, theme))}";
     }
 
-    private static string CreateThemeAwarePlantUmlSource(string source)
+     private static string CreateThemeAwarePlantUmlSource(string source, PlantUmlThemeValues theme)
     {
         var normalizedSource = source.Trim();
-        const string transparentBackground = "skinparam backgroundColor transparent";
+
+        var skinparams = $$$"""
+    skinparam backgroundColor transparent
+    skinparam shadowing false
+    skinparam defaultFontName {{{theme.FontFamily}}}
+    skinparam defaultFontColor {{{theme.NodeText}}}
+    skinparam ArrowColor {{{theme.Line}}}
+    skinparam ArrowFontColor {{{theme.Line}}}
+    skinparam rectangle {
+        BackgroundColor {{{theme.NodeBg}}}
+        BorderColor {{{theme.NodeBorder}}}
+        FontColor {{{theme.NodeText}}}
+    }
+    skinparam class {
+        BackgroundColor {{{theme.NodeBg}}}
+        BorderColor {{{theme.NodeBorder}}}
+        FontColor {{{theme.NodeText}}}
+    }
+    skinparam component {
+        BackgroundColor {{{theme.NodeBg}}}
+        BorderColor {{{theme.NodeBorder}}}
+        FontColor {{{theme.NodeText}}}
+    }
+    skinparam package {
+        BackgroundColor {{{theme.NodeBg}}}
+        BorderColor {{{theme.NodeBorder}}}
+        FontColor {{{theme.NodeText}}}
+    }
+    """;
 
         if (!normalizedSource.Contains("@start", StringComparison.OrdinalIgnoreCase))
         {
-            return $"@startuml\n{normalizedSource}\n{transparentBackground}\n@enduml";
+            return $"@startuml\n{skinparams}\n{normalizedSource}\n@enduml";
         }
 
         var endUmlIndex = normalizedSource.LastIndexOf("@enduml", StringComparison.OrdinalIgnoreCase);
 
         if (endUmlIndex >= 0)
         {
-            return normalizedSource.Insert(endUmlIndex, $"{transparentBackground}\n");
+            return normalizedSource.Insert(endUmlIndex, $"{skinparams}\n");
         }
 
-        return $"{normalizedSource}\n{transparentBackground}";
+        return $"{normalizedSource}\n{skinparams}";
     }
 
     private static string EncodePlantUml(string source)
@@ -195,4 +238,11 @@
     }
 
     private sealed record CodeLine(int Number, string Text);
+
+    private sealed record PlantUmlThemeValues(
+        string Line,
+        string NodeText,
+        string NodeBorder,
+        string NodeBg,
+        string FontFamily);
 }

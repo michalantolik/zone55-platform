@@ -117,7 +117,15 @@
                         nodes: diagrams
                     });
                 }
-            }
+            },
+
+            getPlantUmlThemeValues: () => ({
+                line: getThemeValue('--diagram-plantuml-line'),
+                nodeText: getThemeValue('--diagram-plantuml-node-text'),
+                nodeBorder: getThemeValue('--diagram-plantuml-node-border'),
+                nodeBg: getThemeValue('--diagram-plantuml-node-bg'),
+                fontFamily: getThemeValue('--diagram-plantuml-font-family')
+            })
         };
     </script>
 
