@@ -120,47 +120,36 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         Stopwatch stopwatch,
         CancellationToken cancellationToken)
     {
-        try
+        using var response = await _httpClient.GetAsync(
+            _options.PostsEndpoint,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
         {
-            using var response = await _httpClient.GetAsync(
-                _options.PostsEndpoint,
-                HttpCompletionOption.ResponseHeadersRead,
-                cancellationToken);
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-                _logger.LogError(
-                    "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
-                    response.StatusCode,
-                    stopwatch.ElapsedMilliseconds,
-                    responseBody);
-
-                response.EnsureSuccessStatusCode();
-            }
-
-            var cmsPosts = await response.Content.ReadFromJsonAsync<List<CmsPostDto>>(
-                cancellationToken: cancellationToken);
-
-            var posts = cmsPosts?
-                .Select(ToDomainPost)
-                .ToList() ?? [];
-
-            _logger.LogInformation(
-                "API mapped CMS article DTOs to domain posts. Count: {Count}",
-                posts.Count);
-
-            return posts;
-        }
-        catch (Exception ex)
-        {
             _logger.LogError(
-                ex,
-                "CMS unavailable or CMS article payload invalid. Returning empty post list.");
+                "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
+                response.StatusCode,
+                stopwatch.ElapsedMilliseconds,
+                responseBody);
 
-            return [];
+            response.EnsureSuccessStatusCode();
         }
+
+        var cmsPosts = await response.Content.ReadFromJsonAsync<List<CmsPostDto>>(
+            cancellationToken: cancellationToken);
+
+        var posts = cmsPosts?
+            .Select(ToDomainPost)
+            .ToList() ?? [];
+
+        _logger.LogInformation(
+            "API mapped CMS article DTOs to domain posts. Count: {Count}",
+            posts.Count);
+
+        return posts;
     }
 
     private static Post ToDomainPost(CmsPostDto post)

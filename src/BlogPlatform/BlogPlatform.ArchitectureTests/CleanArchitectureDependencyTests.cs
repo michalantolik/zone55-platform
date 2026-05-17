@@ -1,6 +1,7 @@
 ﻿using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application.Posts;
 using BlogPlatform.Cms.Controllers;
+using BlogPlatform.Cms.Seeding;
 using BlogPlatform.Contracts.Posts;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Cms;
@@ -141,6 +142,20 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.Infrastructure",
                 "Umbraco.Cms.Core",
                 "Umbraco.Cms.Infrastructure")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Cms_Umbraco_Dependencies_Should_Stay_In_Cms_Integration_Areas()
+    {
+        var result = Types
+            .InAssembly(typeof(BlogContentSeeder).Assembly)
+            .That()
+            .DoNotResideInNamespace("BlogPlatform.Cms.Controllers")
+            .Should()
+            .NotBeAbstract()
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
