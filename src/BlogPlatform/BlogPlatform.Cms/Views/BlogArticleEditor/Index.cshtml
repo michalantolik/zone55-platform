@@ -143,14 +143,89 @@
 
             .block-row {
                 display: grid;
-                grid-template-columns: 34px 1fr auto;
+                grid-template-columns: 30px 34px 1fr auto;
                 align-items: center;
                 gap: 10px;
                 border: 1px solid #35527a;
                 border-radius: 8px;
                 background: #020b18;
                 padding: 10px;
+                transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, opacity 160ms ease, transform 160ms ease;
             }
+
+                .block-row[draggable="true"] {
+                    cursor: grab;
+                }
+
+                    .block-row[draggable="true"]:active {
+                        cursor: grabbing;
+                    }
+
+                .block-row:hover {
+                    border-color: #84bbff;
+                    background: #04152b;
+                    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+                }
+
+                .block-row.dragging {
+                    opacity: 0.45;
+                    transform: scale(0.985);
+                    border-color: #84bbff;
+                    box-shadow: 0 0 0 2px rgba(132, 187, 255, 0.20);
+                }
+
+                .block-row.drag-over-before {
+                    box-shadow: 0 -3px 0 #35d07f, 0 8px 22px rgba(0, 0, 0, 0.24);
+                }
+
+                .block-row.drag-over-after {
+                    box-shadow: 0 3px 0 #35d07f, 0 8px 22px rgba(0, 0, 0, 0.24);
+                }
+
+                .block-row.just-moved {
+                    animation: blockMovedPulse 720ms ease-out;
+                }
+
+            @@keyframes blockMovedPulse {
+                0% {
+                    border-color: #35d07f;
+                    box-shadow: 0 0 0 0 rgba(53, 208, 127, 0.45);
+                }
+
+                50% {
+                    border-color: #35d07f;
+                    box-shadow: 0 0 0 5px rgba(53, 208, 127, 0.18);
+                }
+
+                100% {
+                    border-color: #35527a;
+                    box-shadow: none;
+                }
+            }
+
+            .block-drag-handle {
+                width: 28px;
+                height: 30px;
+                display: grid;
+                place-items: center;
+                border: 1px solid rgba(132, 187, 255, 0.22);
+                border-radius: 8px;
+                background: rgba(132, 187, 255, 0.08);
+                color: #9ecbff;
+                cursor: grab;
+                font-size: 18px;
+                line-height: 1;
+                user-select: none;
+            }
+
+                .block-drag-handle:hover {
+                    background: rgba(132, 187, 255, 0.18);
+                    color: #ffffff;
+                }
+
+                .block-drag-handle:active {
+                    cursor: grabbing;
+                }
 
             .block-icon {
                 width: 28px;
@@ -199,6 +274,11 @@
 
                 .icon-button.danger:hover {
                     background: rgba(208, 56, 77, 0.3);
+                }
+
+                .icon-button:disabled {
+                    opacity: 0.35;
+                    cursor: not-allowed;
                 }
 
             .add-content {
@@ -466,6 +546,8 @@
             let previewFrameLoaded = false;
             let bodyBlocks = [];
             let editedBlockIndex = null;
+            let draggedBodyBlockIndex = null;
+            let lastMovedBodyBlockUdi = null;
 
             const availableBlockTypes = [
                 {
@@ -960,6 +1042,7 @@
                 if (!bodyBlocks.length) {
                     container.innerHTML = `
                         <div class="block-row">
+                            <div></div>
                             <div class="block-icon block-document-type-icon">◇</div>
                             <div class="block-title">No body blocks yet</div>
                             <div></div>
@@ -971,10 +1054,20 @@
 
                 container.innerHTML = bodyBlocks
                     .map((block, index) => `
-                        <article class="block-row">
+                        <article class="block-row${block.udi && block.udi === lastMovedBodyBlockUdi ? " just-moved" : ""}"
+                                 draggable="true"
+                                 data-block-index="${index}"
+                                 ondragstart="startBodyBlockDrag(event, ${index})"
+                                 ondragover="dragBodyBlockOver(event, ${index})"
+                                 ondragleave="clearBodyBlockDropCue(event.currentTarget)"
+                                 ondrop="dropBodyBlock(event, ${index})"
+                                 ondragend="finishBodyBlockDrag()">
+                            <div class="block-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div>
                             <div class="block-icon block-document-type-icon" title="${escapeHtml(getBlockDocumentTypeAlias(block))}">${getBlockIcon(block)}</div>
-                            <div class="block-title">${escapeHtml(getBlockLabel(block))}</div>
+                            <div class="block-title" title="${escapeHtml(getBlockLabel(block))}">${escapeHtml(getBlockLabel(block))}</div>
                             <div class="block-actions">
+                                <button class="icon-button" type="button" title="Move up" onclick="moveBodyBlock(${index}, ${index - 1})" ${index === 0 ? "disabled" : ""}>↑</button>
+                                <button class="icon-button" type="button" title="Move down" onclick="moveBodyBlock(${index}, ${index + 1})" ${index === bodyBlocks.length - 1 ? "disabled" : ""}>↓</button>
                                 <button class="icon-button" type="button" title="Edit" onclick="openBlockEditor(${index})">✎</button>
                                 <button class="icon-button" type="button" title="Copy" onclick="copyBodyBlock(${index})">⧉</button>
                                 <button class="icon-button danger" type="button" title="Delete" onclick="deleteBodyBlock(${index})">🗑</button>
@@ -982,6 +1075,118 @@
                         </article>
                     `)
                     .join("");
+            }
+
+
+            function startBodyBlockDrag(event, index) {
+                if (event.target.closest(".block-actions")) {
+                    event.preventDefault();
+                    return;
+                }
+
+                draggedBodyBlockIndex = index;
+
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", index.toString());
+
+                const row = event.currentTarget;
+
+                requestAnimationFrame(() => {
+                    row.classList.add("dragging");
+                });
+            }
+
+            function dragBodyBlockOver(event, targetIndex) {
+                if (draggedBodyBlockIndex === null || draggedBodyBlockIndex === targetIndex) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+
+                const row = event.currentTarget;
+                const isAfter = shouldDropAfter(event, row);
+
+                clearAllBodyBlockDropCues();
+                row.classList.toggle("drag-over-before", !isAfter);
+                row.classList.toggle("drag-over-after", isAfter);
+            }
+
+            function dropBodyBlock(event, targetIndex) {
+                event.preventDefault();
+
+                if (draggedBodyBlockIndex === null) {
+                    return;
+                }
+
+                const row = event.currentTarget;
+                const isAfter = shouldDropAfter(event, row);
+                let requestedIndex = isAfter ? targetIndex + 1 : targetIndex;
+
+                if (draggedBodyBlockIndex < requestedIndex) {
+                    requestedIndex -= 1;
+                }
+
+                moveBodyBlock(draggedBodyBlockIndex, requestedIndex);
+                finishBodyBlockDrag();
+            }
+
+            function finishBodyBlockDrag() {
+                draggedBodyBlockIndex = null;
+                clearAllBodyBlockDropCues();
+            }
+
+            function moveBodyBlock(fromIndex, toIndex) {
+                if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex)) {
+                    return;
+                }
+
+                if (fromIndex < 0 || fromIndex >= bodyBlocks.length) {
+                    return;
+                }
+
+                const safeToIndex = Math.max(0, Math.min(toIndex, bodyBlocks.length - 1));
+
+                if (fromIndex === safeToIndex) {
+                    return;
+                }
+
+                const [movedBlock] = bodyBlocks.splice(fromIndex, 1);
+                bodyBlocks.splice(safeToIndex, 0, movedBlock);
+
+                lastMovedBodyBlockUdi = movedBlock.udi || null;
+
+                syncBodyMarkdownFromBlocks();
+                renderBodyBlocks();
+                onEditorChanged();
+
+                window.setTimeout(() => {
+                    lastMovedBodyBlockUdi = null;
+                    renderBodyBlocks();
+                }, 760);
+            }
+
+            function shouldDropAfter(event, row) {
+                const rectangle = row.getBoundingClientRect();
+                const verticalMiddle = rectangle.top + rectangle.height / 2;
+
+                return event.clientY > verticalMiddle;
+            }
+
+            function clearBodyBlockDropCue(row) {
+                if (!row) {
+                    return;
+                }
+
+                row.classList.remove("drag-over-before", "drag-over-after");
+            }
+
+            function clearAllBodyBlockDropCues() {
+                document
+                    .querySelectorAll(".block-row.dragging, .block-row.drag-over-before, .block-row.drag-over-after")
+                    .forEach(row => {
+                        row.classList.remove("dragging", "drag-over-before", "drag-over-after");
+                    });
             }
 
             function getBlockType(block) {
