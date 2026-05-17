@@ -1,5 +1,4 @@
 using BlogPlatform.Api;
-using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
@@ -32,7 +31,7 @@ builder.Services.AddApiApplicationComposition(builder.Configuration);
 
 var app = builder.Build();
 
-await app.Services.InitializeBlogPlatformDatabaseAsync();
+await app.Services.InitializeApiStorageAsync();
 
 app.UseSerilogRequestLogging();
 

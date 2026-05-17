@@ -1,6 +1,5 @@
 using BlogPlatform.Cms;
 using BlogPlatform.Cms.Infrastructure.Database;
-using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
@@ -63,7 +62,7 @@ try
 
     WebApplication app = builder.Build();
 
-    await app.Services.InitializeBlogPlatformDatabaseAsync();
+    await app.Services.InitializeCmsStorageAsync();
 
     Log.Information("CMS application built.");
     Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);

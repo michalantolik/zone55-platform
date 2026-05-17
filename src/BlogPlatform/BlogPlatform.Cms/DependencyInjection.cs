@@ -25,4 +25,11 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static Task InitializeCmsStorageAsync(
+        this IServiceProvider services,
+        CancellationToken cancellationToken = default)
+    {
+        return services.InitializeBlogPlatformDatabaseAsync(cancellationToken);
+    }
 }

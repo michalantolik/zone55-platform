@@ -99,12 +99,40 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
+    public void Api_Controllers_Should_Not_Depend_On_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(PostsController).Assembly)
+            .That()
+            .ResideInNamespace("BlogPlatform.Api.Controllers")
+            .ShouldNot()
+            .HaveDependencyOn("BlogPlatform.Infrastructure")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
     public void Cms_Should_Not_Depend_On_Domain_Directly()
     {
         var result = Types
             .InAssembly(typeof(BlogContentController).Assembly)
             .ShouldNot()
             .HaveDependencyOn("BlogPlatform.Domain")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void Cms_Controllers_Should_Not_Depend_On_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(BlogContentController).Assembly)
+            .That()
+            .ResideInNamespace("BlogPlatform.Cms.Controllers")
+            .ShouldNot()
+            .HaveDependencyOn("BlogPlatform.Infrastructure")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -132,40 +160,13 @@ public sealed class CleanArchitectureDependencyTests
     {
         var root = FindSolutionRoot();
 
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.Domain",
-            []);
-
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.Application",
-            ["BlogPlatform.Domain"]);
-
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.Infrastructure",
-            ["BlogPlatform.Application", "BlogPlatform.Domain"]);
-
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.Contracts",
-            []);
-
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.App",
-            ["BlogPlatform.Contracts"]);
-
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.Api",
-            ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
-
-        AssertProjectReferences(
-            root,
-            "BlogPlatform.Cms",
-            ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+        AssertProjectReferences(root, "BlogPlatform.Domain", []);
+        AssertProjectReferences(root, "BlogPlatform.Application", ["BlogPlatform.Domain"]);
+        AssertProjectReferences(root, "BlogPlatform.Infrastructure", ["BlogPlatform.Application", "BlogPlatform.Domain"]);
+        AssertProjectReferences(root, "BlogPlatform.Contracts", []);
+        AssertProjectReferences(root, "BlogPlatform.App", ["BlogPlatform.Contracts"]);
+        AssertProjectReferences(root, "BlogPlatform.Api", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+        AssertProjectReferences(root, "BlogPlatform.Cms", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
     }
 
     private static void AssertProjectReferences(
