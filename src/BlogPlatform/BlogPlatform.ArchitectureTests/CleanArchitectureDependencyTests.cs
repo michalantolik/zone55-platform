@@ -6,6 +6,7 @@ using BlogPlatform.Contracts.Posts;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Cms;
 using NetArchTest.Rules;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace BlogPlatform.ArchitectureTests;
@@ -148,17 +149,28 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Cms_Umbraco_Dependencies_Should_Stay_In_Cms_Integration_Areas()
+    public void Cms_Public_Controller_Surface_Should_Not_Expose_Umbraco_Types()
     {
-        var result = Types
-            .InAssembly(typeof(BlogContentSeeder).Assembly)
-            .That()
-            .DoNotResideInNamespace("BlogPlatform.Cms.Controllers")
-            .Should()
-            .NotBeAbstract()
-            .GetResult();
+        var controllerTypes = typeof(BlogContentController)
+            .Assembly
+            .GetTypes()
+            .Where(type =>
+                type.IsClass &&
+                type.Namespace == "BlogPlatform.Cms.Controllers")
+            .ToList();
 
-        Assert.True(result.IsSuccessful, BuildMessage(result));
+        var violations = controllerTypes
+            .SelectMany(GetPublicSurfaceTypes)
+            .Where(type => type.FullName?.StartsWith("Umbraco.Cms", StringComparison.Ordinal) == true)
+            .Select(type => type.FullName)
+            .Distinct()
+            .OrderBy(name => name)
+            .ToList();
+
+        Assert.True(
+            violations.Count == 0,
+            "CMS controller public surface exposes Umbraco types: " +
+            string.Join(", ", violations));
     }
 
     [Fact]
@@ -190,6 +202,32 @@ public sealed class CleanArchitectureDependencyTests
         AssertProjectReferences(root, "BlogPlatform.App", ["BlogPlatform.Contracts"]);
         AssertProjectReferences(root, "BlogPlatform.Api", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
         AssertProjectReferences(root, "BlogPlatform.Cms", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+    }
+
+    private static IEnumerable<Type> GetPublicSurfaceTypes(Type type)
+    {
+        foreach (var constructor in type.GetConstructors())
+        {
+            foreach (var parameter in constructor.GetParameters())
+            {
+                yield return parameter.ParameterType;
+            }
+        }
+
+        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        {
+            yield return method.ReturnType;
+
+            foreach (var parameter in method.GetParameters())
+            {
+                yield return parameter.ParameterType;
+            }
+        }
+
+        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        {
+            yield return property.PropertyType;
+        }
     }
 
     private static void AssertProjectReferences(

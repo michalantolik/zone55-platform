@@ -81,17 +81,7 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
             {
                 var posts = await FetchPostsFromCmsAsync(stopwatch, cancellationToken);
 
-                var freshCacheDuration = TimeSpan.FromSeconds(_options.FreshCacheSeconds);
-                var staleCacheDuration = TimeSpan.FromSeconds(_options.StaleCacheSeconds);
-
-                _cache.Set(
-                    PostsCacheKey,
-                    new PostsCacheEntry(posts, DateTimeOffset.UtcNow.Add(freshCacheDuration)),
-                    new MemoryCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow = staleCacheDuration,
-                        Priority = CacheItemPriority.High
-                    });
+                CachePosts(posts);
 
                 _logger.LogInformation(
                     "API received CMS posts. Count: {Count}. Duration: {ElapsedMs} ms",
@@ -142,7 +132,7 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
             cancellationToken: cancellationToken);
 
         var posts = cmsPosts?
-            .Select(ToDomainPost)
+            .Select(CmsPostMapper.ToDomainPost)
             .ToList() ?? [];
 
         _logger.LogInformation(
@@ -152,36 +142,24 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         return posts;
     }
 
-    private static Post ToDomainPost(CmsPostDto post)
+    private void CachePosts(List<Post> posts)
     {
-        return Post.CreatePublished(
-            post.Slug,
-            post.Title,
-            post.Summary,
-            post.Level,
-            post.Focus,
-            post.DotnetZone,
-            post.DotnetZoneStep,
-            post.Tags,
-            post.PublishedDate,
-            post.BodyHtml);
+        var freshCacheDuration = TimeSpan.FromSeconds(_options.FreshCacheSeconds);
+        var staleCacheDuration = TimeSpan.FromSeconds(_options.StaleCacheSeconds);
+
+        _cache.Set(
+            PostsCacheKey,
+            new PostsCacheEntry(
+                posts,
+                DateTimeOffset.UtcNow.Add(freshCacheDuration)),
+            new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = staleCacheDuration,
+                Priority = CacheItemPriority.High
+            });
     }
 
     private sealed record PostsCacheEntry(
         List<Post> Posts,
         DateTimeOffset FreshUntil);
-
-    private sealed record CmsPostDto(
-        Guid Key,
-        string? Slug,
-        string? Title,
-        string? Summary,
-        string? Level,
-        string? Focus,
-        string? DotnetZone,
-        string? DotnetZoneStep,
-        IReadOnlyCollection<string>? Tags,
-        DateTimeOffset? PublishedDate,
-        string? BodyHtml,
-        DateTime UpdatedUtc);
 }
