@@ -509,45 +509,89 @@
 
         .reorder-list {
             display: grid;
-            gap: 10px;
+            gap: 8px;
         }
 
         .reorder-row {
             display: grid;
-            grid-template-columns: auto auto 1fr auto;
-            gap: 12px;
+            grid-template-columns: 30px auto 1fr auto;
+            gap: 10px;
             align-items: center;
-            border: 1px solid #24405f;
-            border-radius: 16px;
-            background: rgba(4, 17, 29, 0.92);
-            padding: 12px;
-            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
-            transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+            border: 1px solid #35527a;
+            border-radius: 8px;
+            background: #020b18;
+            padding: 10px;
+            transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, opacity 160ms ease, transform 160ms ease;
+        }
+
+        .reorder-row[draggable="true"] {
+            cursor: grab;
+        }
+
+        .reorder-row[draggable="true"]:active {
+            cursor: grabbing;
         }
 
         .reorder-row:hover {
-            transform: translateY(-1px);
-            border-color: rgba(132, 187, 255, 0.62);
-            background: rgba(8, 28, 49, 0.94);
+            border-color: #84bbff;
+            background: #04152b;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
         }
 
         .reorder-row.dragging {
-            opacity: 0.58;
+            opacity: 0.45;
+            transform: scale(0.985);
             border-color: #84bbff;
-            box-shadow: 0 0 0 2px rgba(132, 187, 255, 0.16), 0 18px 44px rgba(0, 0, 0, 0.34);
+            box-shadow: 0 0 0 2px rgba(132, 187, 255, 0.20);
+        }
+
+        .reorder-row.drag-over-before {
+            box-shadow: 0 -3px 0 #35d07f, 0 8px 22px rgba(0, 0, 0, 0.24);
+        }
+
+        .reorder-row.drag-over-after {
+            box-shadow: 0 3px 0 #35d07f, 0 8px 22px rgba(0, 0, 0, 0.24);
+        }
+
+        .reorder-row.just-moved {
+            animation: reorderMovedPulse 720ms ease-out;
+        }
+
+        @@keyframes reorderMovedPulse {
+            0% {
+                border-color: #35d07f;
+                box-shadow: 0 0 0 0 rgba(53, 208, 127, 0.45);
+            }
+
+            50% {
+                border-color: #35d07f;
+                box-shadow: 0 0 0 5px rgba(53, 208, 127, 0.18);
+            }
+
+            100% {
+                border-color: #35527a;
+                box-shadow: none;
+            }
         }
 
         .reorder-drag-handle {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
+            width: 28px;
+            height: 30px;
             display: grid;
             place-items: center;
-            border: 1px solid #35527a;
-            background: #071a31;
-            color: #84bbff;
+            border: 1px solid rgba(132, 187, 255, 0.22);
+            border-radius: 8px;
+            background: rgba(132, 187, 255, 0.08);
+            color: #9ecbff;
             cursor: grab;
-            font-weight: 900;
+            font-size: 18px;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .reorder-drag-handle:hover {
+            background: rgba(132, 187, 255, 0.18);
+            color: #ffffff;
         }
 
         .reorder-drag-handle:active { cursor: grabbing; }
@@ -968,6 +1012,7 @@
         let selectedReorderZoneKey = null;
         let selectedReorderStepKey = null;
         let draggedReorderArticleKey = null;
+        let lastMovedReorderArticleKey = null;
         let reorderSaveInProgress = false;
         let inlineEditorIsDirty = false;
         let inlineEditorArticleKey = null;
@@ -1240,8 +1285,8 @@
             const displayOrder = index + 1;
 
             return `
-                <article class="reorder-row" draggable="true" data-article-key="${escapeHtml(article.key)}" ondragstart="onReorderDragStart(event, '${escapeJs(article.key)}')" ondragover="onReorderDragOver(event, '${escapeJs(article.key)}')" ondrop="onReorderDrop(event, '${escapeJs(article.key)}')" ondragend="onReorderDragEnd(event)">
-                    <div class="reorder-drag-handle" title="Drag to reorder">⋮⋮</div>
+                <article class="reorder-row${article.key === lastMovedReorderArticleKey ? " just-moved" : ""}" draggable="true" data-article-key="${escapeHtml(article.key)}" ondragstart="onReorderDragStart(event, '${escapeJs(article.key)}')" ondragover="onReorderDragOver(event, '${escapeJs(article.key)}')" ondragleave="clearReorderDropCue(event.currentTarget)" ondrop="onReorderDrop(event, '${escapeJs(article.key)}')" ondragend="onReorderDragEnd()">
+                    <div class="reorder-drag-handle" title="Drag to reorder" aria-label="Drag to reorder">⋮⋮</div>
                     <div class="reorder-order-badge" title="Current saved order: ${escapeHtml(article.order)}">#${displayOrder}</div>
 
                     <div class="article-main">
@@ -1262,15 +1307,36 @@
         }
 
         function onReorderDragStart(event, articleKey) {
+            if (event.target.closest(".reorder-actions")) {
+                event.preventDefault();
+                return;
+            }
+
             draggedReorderArticleKey = articleKey;
             event.dataTransfer.effectAllowed = "move";
             event.dataTransfer.setData("text/plain", articleKey);
-            event.currentTarget.classList.add("dragging");
+
+            const row = event.currentTarget;
+
+            requestAnimationFrame(() => {
+                row.classList.add("dragging");
+            });
         }
 
-        function onReorderDragOver(event) {
+        function onReorderDragOver(event, targetArticleKey) {
+            if (!draggedReorderArticleKey || draggedReorderArticleKey === targetArticleKey) {
+                return;
+            }
+
             event.preventDefault();
             event.dataTransfer.dropEffect = "move";
+
+            const row = event.currentTarget;
+            const isAfter = shouldReorderDropAfter(event, row);
+
+            clearAllReorderDropCues();
+            row.classList.toggle("drag-over-before", !isAfter);
+            row.classList.toggle("drag-over-after", isAfter);
         }
 
         async function onReorderDrop(event, targetArticleKey) {
@@ -1279,6 +1345,7 @@
             const sourceArticleKey = draggedReorderArticleKey || event.dataTransfer.getData("text/plain");
 
             if (!sourceArticleKey || sourceArticleKey === targetArticleKey) {
+                onReorderDragEnd();
                 return;
             }
 
@@ -1286,19 +1353,76 @@
             const targetIndex = reorderArticles.findIndex(article => article.key === targetArticleKey);
 
             if (sourceIndex < 0 || targetIndex < 0) {
+                onReorderDragEnd();
                 return;
             }
 
-            const [movedArticle] = reorderArticles.splice(sourceIndex, 1);
-            reorderArticles.splice(targetIndex, 0, movedArticle);
+            const row = event.currentTarget;
+            const isAfter = shouldReorderDropAfter(event, row);
+            let requestedIndex = isAfter ? targetIndex + 1 : targetIndex;
+
+            if (sourceIndex < requestedIndex) {
+                requestedIndex -= 1;
+            }
+
+            await moveReorderArticleToIndex(sourceIndex, requestedIndex);
+            onReorderDragEnd();
+        }
+
+        function onReorderDragEnd() {
+            draggedReorderArticleKey = null;
+            clearAllReorderDropCues();
+        }
+
+        async function moveReorderArticleToIndex(fromIndex, toIndex) {
+            if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex)) {
+                return;
+            }
+
+            if (fromIndex < 0 || fromIndex >= reorderArticles.length) {
+                return;
+            }
+
+            const safeToIndex = Math.max(0, Math.min(toIndex, reorderArticles.length - 1));
+
+            if (fromIndex === safeToIndex) {
+                return;
+            }
+
+            const [movedArticle] = reorderArticles.splice(fromIndex, 1);
+            reorderArticles.splice(safeToIndex, 0, movedArticle);
+            lastMovedReorderArticleKey = movedArticle.key;
 
             renderReorderArticles();
             await saveReorderArticles();
+
+            window.setTimeout(() => {
+                lastMovedReorderArticleKey = null;
+                renderReorderArticles();
+            }, 760);
         }
 
-        function onReorderDragEnd(event) {
-            draggedReorderArticleKey = null;
-            event.currentTarget.classList.remove("dragging");
+        function shouldReorderDropAfter(event, row) {
+            const rectangle = row.getBoundingClientRect();
+            const verticalMiddle = rectangle.top + rectangle.height / 2;
+
+            return event.clientY > verticalMiddle;
+        }
+
+        function clearReorderDropCue(row) {
+            if (!row) {
+                return;
+            }
+
+            row.classList.remove("drag-over-before", "drag-over-after");
+        }
+
+        function clearAllReorderDropCues() {
+            document
+                .querySelectorAll(".reorder-row.dragging, .reorder-row.drag-over-before, .reorder-row.drag-over-after")
+                .forEach(row => {
+                    row.classList.remove("dragging", "drag-over-before", "drag-over-after");
+                });
         }
 
         async function moveReorderArticle(articleKey, direction) {
@@ -1327,11 +1451,7 @@
                 return;
             }
 
-            const [movedArticle] = reorderArticles.splice(currentIndex, 1);
-            reorderArticles.splice(targetIndex, 0, movedArticle);
-
-            renderReorderArticles();
-            await saveReorderArticles();
+            await moveReorderArticleToIndex(currentIndex, targetIndex);
         }
 
         async function saveReorderArticles() {
