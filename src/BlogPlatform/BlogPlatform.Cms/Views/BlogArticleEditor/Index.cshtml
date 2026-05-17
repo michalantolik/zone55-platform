@@ -524,7 +524,6 @@
                     create: () => ({
                         udi: createElementUdi(),
                         type: "plantuml",
-                        diagram: "@@startuml\nactor User\nUser -> System: Request\n@enduml",
                         plantUml: "@@startuml\nactor User\nUser -> System: Request\n@enduml"
                     })
                 },
@@ -994,12 +993,17 @@
                     return "code";
                 }
 
-                if (block.diagram || block.mermaid || block.type === "mermaid") {
-                    return "mermaid";
+                if (
+                    block.plantUml ||
+                    block.plantuml ||
+                    block.type === "plantuml" ||
+                    (block.diagram && block.diagram.trimStart().startsWith("@@startuml"))
+                ) {
+                    return "plantuml";
                 }
 
-                if (block.plantUml || block.plantuml || block.type === "plantuml") {
-                    return "plantuml";
+                if (block.diagram || block.mermaid || block.type === "mermaid") {
+                    return "mermaid";
                 }
 
                 if (block.calloutType || block.type === "callout") {
@@ -1025,7 +1029,7 @@
                 }
 
                 if (type === "plantuml") {
-                    return "⌘";
+                    return "⇧";
                 }
 
                 if (type === "callout") {
@@ -1137,9 +1141,16 @@
                 else if (type === "mermaid") {
                     block.diagram = newValue;
                     block.mermaid = newValue;
+
+                    delete block.plantUml;
+                    delete block.plantuml;
                 }
                 else if (type === "plantuml") {
                     block.plantUml = newValue;
+
+                    delete block.diagram;
+                    delete block.mermaid;
+                    delete block.plantuml;
                 }
                 else {
                     block.text = newValue;

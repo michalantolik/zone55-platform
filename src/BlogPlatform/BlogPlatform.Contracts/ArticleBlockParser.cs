@@ -53,7 +53,9 @@ public static class ArticleBlockParser
         var level = GetInt(block, "level") ?? 2;
         var code = GetString(block, "code");
         var diagram = GetString(block, "diagram");
-        var kind = GetString(block, "kind");
+        var mermaid = GetString(block, "mermaid");
+        var plantUml = GetString(block, "plantUml") ?? GetString(block, "plantuml");
+        var kind = GetString(block, "kind") ?? GetString(block, "calloutType");
         var language = GetString(block, "language");
         var fileName = GetString(block, "fileName");
 
@@ -64,6 +66,22 @@ public static class ArticleBlockParser
                 Code = code,
                 Language = language,
                 FileName = fileName
+            };
+        }
+
+        if (!string.IsNullOrWhiteSpace(plantUml))
+        {
+            return new ArticleBlockDto(ArticleBlockType.PlantUml)
+            {
+                Diagram = plantUml
+            };
+        }
+
+        if (!string.IsNullOrWhiteSpace(mermaid))
+        {
+            return new ArticleBlockDto(ArticleBlockType.Mermaid)
+            {
+                Diagram = mermaid
             };
         }
 
