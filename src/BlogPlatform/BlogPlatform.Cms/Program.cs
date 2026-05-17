@@ -1,5 +1,4 @@
 using BlogPlatform.Cms;
-using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
@@ -45,7 +44,7 @@ try
     {
         Log.Information("CMS development mode detected. Ensuring database exists.");
 
-        await builder.Configuration.EnsureInfrastructureDatabaseCreatedAsync();
+        await builder.Configuration.EnsureCmsDatabaseCreatedAsync();
 
         Log.Information("CMS database check completed.");
     }

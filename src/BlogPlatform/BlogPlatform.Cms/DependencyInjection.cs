@@ -31,6 +31,13 @@ public static class DependencyInjection
         return services;
     }
 
+    public static Task EnsureCmsDatabaseCreatedAsync(
+        this IConfiguration configuration,
+        CancellationToken cancellationToken = default)
+    {
+        return configuration.EnsureInfrastructureDatabaseCreatedAsync(cancellationToken);
+    }
+
     public static Task InitializeCmsStorageAsync(
         this IServiceProvider services,
         CancellationToken cancellationToken = default)

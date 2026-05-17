@@ -149,6 +149,20 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
+    public void Cms_Program_Should_Not_Depend_On_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(BlogContentController).Assembly)
+            .That()
+            .HaveName("Program")
+            .ShouldNot()
+            .HaveDependencyOn("BlogPlatform.Infrastructure")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
     public void Cms_Public_Controller_Surface_Should_Not_Expose_Umbraco_Types()
     {
         var controllerTypes = typeof(BlogContentController)
