@@ -56,8 +56,39 @@
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 
-        const getThemeValue = (name) =>
+        const getRawThemeValue = (name) =>
             getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+        const resolveCssVariableValue = (value, depth = 0) => {
+            if (!value || depth > 10) {
+                return value;
+            }
+
+            const variableMatch = value.match(/^var\((--[^,\s)]+)(?:,\s*([^)]+))?\)$/);
+
+            if (!variableMatch) {
+                return value;
+            }
+
+            const variableName = variableMatch[1];
+            const fallbackValue = variableMatch[2]?.trim() ?? '';
+            const resolvedValue = getRawThemeValue(variableName);
+
+            return resolveCssVariableValue(resolvedValue || fallbackValue, depth + 1);
+        };
+
+        const normalizeCssColor = (value, fallback) => {
+            const resolvedValue = resolveCssVariableValue(value).trim();
+
+            if (/^#[0-9a-f]{3,8}$/i.test(resolvedValue) || /^rgb(a)?\(/i.test(resolvedValue)) {
+                return resolvedValue;
+            }
+
+            return fallback;
+        };
+
+        const getThemeValue = (name) =>
+            resolveCssVariableValue(getRawThemeValue(name));
 
         const initializeMermaid = () => {
             mermaid.initialize({
@@ -120,10 +151,10 @@
             },
 
             getPlantUmlThemeValues: () => ({
-                line: getThemeValue('--diagram-plantuml-line'),
-                nodeText: getThemeValue('--diagram-plantuml-node-text'),
-                nodeBorder: getThemeValue('--diagram-plantuml-node-border'),
-                nodeBg: getThemeValue('--diagram-plantuml-node-bg'),
+                line: normalizeCssColor(getThemeValue('--diagram-plantuml-line'), '#a7b4c8'),
+                nodeText: normalizeCssColor(getThemeValue('--diagram-plantuml-node-text'), '#E5E7EB'),
+                nodeBorder: normalizeCssColor(getThemeValue('--diagram-plantuml-node-border'), '#7d8ca3'),
+                nodeBg: normalizeCssColor(getThemeValue('--diagram-plantuml-node-bg'), '#374151'),
                 fontFamily: getThemeValue('--diagram-plantuml-font-family')
             })
         };
