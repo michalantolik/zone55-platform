@@ -1066,8 +1066,6 @@
                             <div class="block-icon block-document-type-icon" title="${escapeHtml(getBlockDocumentTypeAlias(block))}">${getBlockIcon(block)}</div>
                             <div class="block-title" title="${escapeHtml(getBlockLabel(block))}">${escapeHtml(getBlockLabel(block))}</div>
                             <div class="block-actions">
-                                <button class="icon-button" type="button" title="Move up" onclick="moveBodyBlock(${index}, ${index - 1})" ${index === 0 ? "disabled" : ""}>↑</button>
-                                <button class="icon-button" type="button" title="Move down" onclick="moveBodyBlock(${index}, ${index + 1})" ${index === bodyBlocks.length - 1 ? "disabled" : ""}>↓</button>
                                 <button class="icon-button" type="button" title="Edit" onclick="openBlockEditor(${index})">✎</button>
                                 <button class="icon-button" type="button" title="Copy" onclick="copyBodyBlock(${index})">⧉</button>
                                 <button class="icon-button danger" type="button" title="Delete" onclick="deleteBodyBlock(${index})">🗑</button>
