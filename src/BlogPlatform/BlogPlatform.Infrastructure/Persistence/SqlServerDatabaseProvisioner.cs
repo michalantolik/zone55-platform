@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
-namespace BlogPlatform.Cms.Infrastructure.Database;
+namespace BlogPlatform.Infrastructure.Persistence;
 
-public static class SqlServerDatabaseInitializer
+public static class SqlServerDatabaseProvisioner
 {
     public static async Task EnsureDatabaseCreatedAsync(
         IConfiguration configuration,
@@ -16,7 +17,6 @@ public static class SqlServerDatabaseInitializer
         }
 
         var builder = new SqlConnectionStringBuilder(connectionString);
-
         var databaseName = builder.InitialCatalog;
 
         if (string.IsNullOrWhiteSpace(databaseName))
@@ -47,6 +47,5 @@ public static class SqlServerDatabaseInitializer
         };
 
         await command.ExecuteNonQueryAsync(cancellationToken);
-
     }
 }

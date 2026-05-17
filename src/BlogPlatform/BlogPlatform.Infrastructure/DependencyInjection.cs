@@ -80,6 +80,15 @@ public static class DependencyInjection
         return services;
     }
 
+    public static Task EnsureInfrastructureDatabaseCreatedAsync(
+        this IConfiguration configuration,
+        CancellationToken cancellationToken = default)
+    {
+        return SqlServerDatabaseProvisioner.EnsureDatabaseCreatedAsync(
+            configuration,
+            cancellationToken);
+    }
+
     public static Task InitializeBlogPlatformDatabaseAsync(
         this IServiceProvider services,
         CancellationToken cancellationToken = default)

@@ -1,5 +1,5 @@
 using BlogPlatform.Cms;
-using BlogPlatform.Cms.Infrastructure.Database;
+using BlogPlatform.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
@@ -20,7 +20,7 @@ Log.Logger = new LoggerConfiguration()
         sharedLogFilePath,
         rollingInterval: RollingInterval.Day,
         shared: true,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{App}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -45,8 +45,7 @@ try
     {
         Log.Information("CMS development mode detected. Ensuring database exists.");
 
-        await SqlServerDatabaseInitializer.EnsureDatabaseCreatedAsync(
-            builder.Configuration);
+        await builder.Configuration.EnsureInfrastructureDatabaseCreatedAsync();
 
         Log.Information("CMS database check completed.");
     }
