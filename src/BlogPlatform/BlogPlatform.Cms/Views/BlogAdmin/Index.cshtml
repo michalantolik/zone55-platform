@@ -517,12 +517,98 @@
             border-radius: 12px;
         }
 
+        .editor-action-button {
+            min-width: 124px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(132, 187, 255, 0.28);
+            padding: 12px 18px;
+            color: #f5f7fb;
+            font: inherit;
+            font-weight: 900;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition:
+                transform 0.16s ease,
+                box-shadow 0.16s ease,
+                border-color 0.16s ease,
+                background 0.16s ease,
+                color 0.16s ease;
+        }
+
+        .editor-action-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .editor-action-button:focus-visible {
+            outline: 3px solid rgba(132, 187, 255, 0.45);
+            outline-offset: 3px;
+        }
+
+        .editor-action-button-icon {
+            width: 22px;
+            height: 22px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .editor-action-button-primary {
+            border-color: rgba(132, 187, 255, 0.48);
+            background:
+                radial-gradient(circle at top left, rgba(132, 187, 255, 0.30), transparent 55%),
+                linear-gradient(135deg, #1677ff, #1358c8 58%, #0d3f91);
+            box-shadow:
+                0 16px 34px rgba(22, 119, 255, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        }
+
+        .editor-action-button-primary:hover:not(:disabled) {
+            border-color: rgba(184, 218, 255, 0.78);
+            box-shadow:
+                0 20px 44px rgba(22, 119, 255, 0.38),
+                0 0 0 1px rgba(132, 187, 255, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .editor-action-button-close {
+            border-color: rgba(255, 116, 139, 0.46);
+            background:
+                radial-gradient(circle at top left, rgba(255, 116, 139, 0.20), transparent 58%),
+                linear-gradient(135deg, rgba(208, 56, 77, 0.24), rgba(84, 22, 38, 0.86));
+            color: #ffd6dc;
+            box-shadow:
+                0 14px 30px rgba(208, 56, 77, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
+        }
+
+        .editor-action-button-close:hover:not(:disabled) {
+            border-color: rgba(255, 148, 164, 0.82);
+            background:
+                radial-gradient(circle at top left, rgba(255, 148, 164, 0.26), transparent 58%),
+                linear-gradient(135deg, rgba(208, 56, 77, 0.34), rgba(105, 29, 48, 0.92));
+            color: #fff1f4;
+            box-shadow:
+                0 18px 38px rgba(208, 56, 77, 0.24),
+                0 0 0 1px rgba(255, 116, 139, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        }
+
         .btn-success {
             background: linear-gradient(135deg, #1f9d55, #157347);
         }
 
         .btn:disabled,
-        .btn.disabled {
+        .btn.disabled,
+        .editor-action-button:disabled {
             cursor: not-allowed;
             opacity: 0.48;
             transform: none;
@@ -628,12 +714,14 @@
                             Fill the article fields, preview the result, then publish or update when ready.
                         </div>
 
-                        <button id="editorSaveButton" class="btn btn-success" type="button" onclick="publishOrUpdateInlineArticleEditor()" disabled>
-                            Publish
+                        <button id="editorSaveButton" class="editor-action-button editor-action-button-primary" type="button" onclick="publishOrUpdateInlineArticleEditor()" disabled>
+                            <span class="editor-action-button-icon" aria-hidden="true">✓</span>
+                            <span>Publish</span>
                         </button>
 
-                        <button class="btn btn-danger" type="button" onclick="requestCloseInlineArticleEditor()">
-                            Close
+                        <button class="editor-action-button editor-action-button-close" type="button" onclick="requestCloseInlineArticleEditor()">
+                            <span class="editor-action-button-icon" aria-hidden="true">×</span>
+                            <span>Close</span>
                         </button>
                     </div>
 
