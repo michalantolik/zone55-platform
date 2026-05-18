@@ -156,7 +156,7 @@
 
 private static string CreateThemeAwarePlantUmlSource(string source, PlantUmlThemeValues theme)
 {
-    var normalizedSource = source.Trim();
+        var normalizedSource = RemoveProtectedPlantUmlSkinParams(source).Trim();
 
     var skinparams = CreatePlantUmlSkinParams(theme);
 
@@ -183,7 +183,7 @@ private static string CreatePlantUmlSkinParams(PlantUmlThemeValues theme)
     var nodeBgColor = NormalizePlantUmlColor(theme.NodeBg, "#374151");
     var fontFamily = NormalizePlantUmlFontFamily(theme.FontFamily);
 
-    return $$$"""
+    return $$$""" 
 skinparam backgroundColor transparent
 skinparam shadowing false
 skinparam defaultFontName {{{fontFamily}}}
@@ -277,6 +277,89 @@ private static string NormalizePlantUmlFontFamily(string? value)
         }
 
         return result.ToString();
+    }
+
+    private static string RemoveProtectedPlantUmlSkinParams(string source)
+    {
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return string.Empty;
+        }
+
+        var protectedBlockNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "rectangle",
+        "class",
+        "component",
+        "package"
+    };
+
+        var protectedSingleParams = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "backgroundColor",
+        "shadowing",
+        "defaultFontName",
+        "defaultFontColor",
+        "ArrowColor",
+        "ArrowFontColor",
+        "ArrowThickness"
+    };
+
+        var lines = source.Replace("\r\n", "\n").Split('\n');
+        var result = new List<string>();
+        var skippingProtectedBlock = false;
+        var protectedBlockDepth = 0;
+
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+
+            if (skippingProtectedBlock)
+            {
+                protectedBlockDepth += trimmed.Count(character => character == '{');
+                protectedBlockDepth -= trimmed.Count(character => character == '}');
+
+                if (protectedBlockDepth <= 0)
+                {
+                    skippingProtectedBlock = false;
+                }
+
+                continue;
+            }
+
+            if (!trimmed.StartsWith("skinparam ", StringComparison.OrdinalIgnoreCase))
+            {
+                result.Add(line);
+                continue;
+            }
+
+            var skinparamBody = trimmed["skinparam ".Length..].Trim();
+
+            var firstToken = skinparamBody
+                .Split([' ', '\t', '{'], StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault();
+
+            if (firstToken is null)
+            {
+                continue;
+            }
+
+            if (protectedSingleParams.Contains(firstToken))
+            {
+                continue;
+            }
+
+            if (protectedBlockNames.Contains(firstToken) && skinparamBody.Contains('{', StringComparison.Ordinal))
+            {
+                skippingProtectedBlock = true;
+                protectedBlockDepth = 1;
+                continue;
+            }
+
+            result.Add(line);
+        }
+
+        return string.Join('\n', result);
     }
 
     private sealed record CodeLine(int Number, string Text);
