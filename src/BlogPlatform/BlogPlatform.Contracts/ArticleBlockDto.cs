@@ -21,5 +21,7 @@ public sealed class ArticleBlockDto
 
     public string? Diagram { get; init; }
 
+    public string? DiagramTitle { get; init; }
+
     public string? Kind { get; init; }
 }

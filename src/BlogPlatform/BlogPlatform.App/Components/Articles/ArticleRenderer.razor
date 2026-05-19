@@ -60,14 +60,14 @@
 
                     case ArticleBlockType.Mermaid:
                         <figure class="diagram-block mermaid-block">
-                            <figcaption>Mermaid diagram</figcaption>
+                            <figcaption>@GetMermaidDiagramTitle(block)</figcaption>
                             <pre class="mermaid">@block.Diagram</pre>
                         </figure>
                         break;
 
                     case ArticleBlockType.PlantUml:
                         <figure class="diagram-block plantuml-block">
-                            <figcaption>PlantUML diagram</figcaption>
+                            <figcaption>@GetPlantUmlDiagramTitle(block)</figcaption>
                             <img src="@CreatePlantUmlUrl(block.Diagram, _plantUmlTheme)" alt="PlantUML diagram" />
                         </figure>
                         break;
@@ -142,6 +142,54 @@
             .Split('\n')
             .Select((text, index) => new CodeLine(index + 1, text))
             .ToArray();
+    }
+
+    private static string GetMermaidDiagramTitle(ArticleBlockDto block)
+    {
+        return GetDiagramTitle(block, "Mermaid diagram");
+    }
+
+    private static string GetPlantUmlDiagramTitle(ArticleBlockDto block)
+    {
+        return GetDiagramTitle(block, "PlantUML diagram");
+    }
+
+    private static string GetDiagramTitle(ArticleBlockDto block, string fallback)
+    {
+        if (!string.IsNullOrWhiteSpace(block.DiagramTitle))
+        {
+            return block.DiagramTitle.Trim();
+        }
+
+        var titleFromPlantUmlSource = ExtractPlantUmlTitle(block.Diagram);
+
+        if (!string.IsNullOrWhiteSpace(titleFromPlantUmlSource))
+        {
+            return titleFromPlantUmlSource;
+        }
+
+        return fallback;
+    }
+
+    private static string? ExtractPlantUmlTitle(string? source)
+    {
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        var titleLine = source
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .Select(line => line.Trim())
+            .FirstOrDefault(line => line.StartsWith("title ", StringComparison.OrdinalIgnoreCase));
+
+        if (string.IsNullOrWhiteSpace(titleLine))
+        {
+            return null;
+        }
+
+        return titleLine["title ".Length..].Trim();
     }
 
     private static string CreatePlantUmlUrl(string? diagram, PlantUmlThemeValues theme)

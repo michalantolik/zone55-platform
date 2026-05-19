@@ -1,4 +1,4 @@
-using BlogPlatform.Application.Roadmap;
+﻿using BlogPlatform.Application.Roadmap;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Umbraco.Cms.Core;
@@ -154,9 +154,11 @@ public sealed class BlogContentSeeder
                 block.Code ?? string.Empty),
 
             "mermaidDiagram" => MermaidDiagramBlock(
+                block.Title ?? "Mermaid diagram",
                 block.Diagram ?? string.Empty),
 
             "plantUmlDiagram" => PlantUmlDiagramBlock(
+                block.Title ?? "PlantUML diagram",
                 block.Diagram ?? string.Empty),
 
             "callout" => CalloutBlock(
@@ -201,13 +203,21 @@ public sealed class BlogContentSeeder
             BlogContentAliases.MermaidDiagramBlock,
             "Mermaid Diagram Block",
             "icon-sitemap",
-            new[] { Property("diagram", "Diagram", "Textarea") });
+            new[]
+            {
+                Property("title", "Title", "Textstring"),
+                Property("diagram", "Diagram", "Textarea")
+            });
 
         await CreateElementTypeAsync(
             BlogContentAliases.PlantUmlDiagramBlock,
             "PlantUML Diagram Block",
             "icon-umb-deploy",
-            new[] { Property("diagram", "Diagram", "Textarea") });
+            new[]
+            {
+                Property("title", "Title", "Textstring"),
+                Property("diagram", "Diagram", "Textarea")
+            });
 
         await CreateElementTypeAsync(
             BlogContentAliases.CalloutBlock,
@@ -383,8 +393,8 @@ public sealed class BlogContentSeeder
             CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
             CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
             CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
-            CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "Mermaid diagram"),
-            CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "PlantUML diagram"),
+            CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
+            CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
             CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}")
         };
     }
@@ -633,22 +643,24 @@ public sealed class BlogContentSeeder
             });
     }
 
-    private static SeedBlock MermaidDiagramBlock(string diagram)
+    private static SeedBlock MermaidDiagramBlock(string title, string diagram)
     {
         return new SeedBlock(
             BlogContentAliases.MermaidDiagramBlock,
             new Dictionary<string, object?>
             {
+                ["title"] = title,
                 ["diagram"] = diagram
             });
     }
 
-    private static SeedBlock PlantUmlDiagramBlock(string diagram)
+    private static SeedBlock PlantUmlDiagramBlock(string title, string diagram)
     {
         return new SeedBlock(
             BlogContentAliases.PlantUmlDiagramBlock,
             new Dictionary<string, object?>
             {
+                ["title"] = title,
                 ["diagram"] = diagram
             });
     }

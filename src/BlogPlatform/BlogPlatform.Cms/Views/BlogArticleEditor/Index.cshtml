@@ -368,6 +368,28 @@
                 }
             }
 
+
+            .diagram-title-field {
+                display: none;
+                margin-bottom: 14px;
+            }
+
+                .diagram-title-field.active {
+                    display: block;
+                }
+
+                .diagram-title-field .field-label {
+                    margin-top: 0;
+                }
+
+                .diagram-title-field small {
+                    display: block;
+                    margin-top: 8px;
+                    color: #90a9ca;
+                    font-size: 12px;
+                    line-height: 1.4;
+                }
+
             .splitter {
                 flex: 0 0 var(--article-editor-splitter-width);
                 width: var(--article-editor-splitter-width);
@@ -665,6 +687,14 @@
     <div id="blockEditModal" class="modal-backdrop">
         <div class="modal">
             <h2 id="blockEditTitle">Edit block</h2>
+
+            <div id="diagramTitleField" class="diagram-title-field">
+                <label class="field-label" for="blockEditDiagramTitle">Diagram title</label>
+                <input id="blockEditDiagramTitle" type="text" maxlength="120" placeholder="Example: Components of the .NET Framework" />
+                <small>This title is shown above the diagram in the article.</small>
+            </div>
+
+            <label id="blockEditTextLabel" class="field-label" for="blockEditText">Content</label>
             <textarea id="blockEditText"></textarea>
 
             <div class="modal-actions">
@@ -773,6 +803,7 @@
                     create: () => ({
                         udi: createElementUdi(),
                         type: "mermaid",
+                        title: "Mermaid diagram",
                         diagram: "flowchart TD\n    A[Start] --> B[Next step]",
                         mermaid: "flowchart TD\n    A[Start] --> B[Next step]"
                     })
@@ -785,6 +816,7 @@
                     create: () => ({
                         udi: createElementUdi(),
                         type: "plantuml",
+                        title: "PlantUML diagram",
                         plantUml: "@@startuml\nactor User\nUser -> System: Request\n@enduml"
                     })
                 },
@@ -1497,6 +1529,18 @@
                 return "Unknown block";
             }
 
+            function getDefaultDiagramTitle(type) {
+                if (type === "mermaid") {
+                    return "Mermaid diagram";
+                }
+
+                if (type === "plantuml") {
+                    return "PlantUML diagram";
+                }
+
+                return "Diagram";
+            }
+
             function getBlockLabel(block) {
                 const type = getBlockType(block);
 
@@ -1509,11 +1553,11 @@
                 }
 
                 if (type === "mermaid") {
-                    return "Mermaid diagram";
+                    return block.title || block.diagramTitle || "Mermaid diagram";
                 }
 
                 if (type === "plantuml") {
-                    return "PlantUML diagram";
+                    return block.title || block.diagramTitle || "PlantUML diagram";
                 }
 
                 if (type === "callout") {
@@ -1526,10 +1570,17 @@
             function openBlockEditor(index) {
                 editedBlockIndex = index;
                 const block = bodyBlocks[index];
+                const type = getBlockType(block);
+                const isDiagram = type === "mermaid" || type === "plantuml";
 
                 document.getElementById("blockEditTitle").innerText = `Edit ${getBlockLabel(block)}`;
+                document.getElementById("diagramTitleField").classList.toggle("active", isDiagram);
+                document.getElementById("blockEditDiagramTitle").value =
+                    block.title || block.diagramTitle || getDefaultDiagramTitle(type);
+                document.getElementById("blockEditTextLabel").innerText =
+                    isDiagram ? "Diagram source" : "Content";
 
-                if (getBlockType(block) === "code") {
+                if (type === "code") {
                     document.getElementById("blockEditText").value = block.code || "";
                 }
                 else {
@@ -1548,6 +1599,7 @@
             function closeBlockEditor() {
                 editedBlockIndex = null;
                 document.getElementById("blockEditModal").style.display = "none";
+                document.getElementById("diagramTitleField").classList.remove("active");
             }
 
             function saveBlockEditor() {
@@ -1557,15 +1609,18 @@
 
                 const block = bodyBlocks[editedBlockIndex];
                 const newValue = document.getElementById("blockEditText").value;
+                const newDiagramTitle = document.getElementById("blockEditDiagramTitle").value.trim();
                 const type = getBlockType(block);
 
                 if (type === "code") {
                     block.code = newValue;
                 }
                 else if (type === "mermaid") {
+                    block.title = newDiagramTitle || getDefaultDiagramTitle(type);
                     block.diagram = newValue;
                     block.mermaid = newValue;
 
+                    delete block.diagramTitle;
                     delete block.plantUml;
                     delete block.plantuml;
                 }
@@ -1578,9 +1633,11 @@
                             removedSkinparams: []
                         };
 
+                    block.title = newDiagramTitle || getDefaultDiagramTitle(type);
                     block.plantUml = correction.source;
 
                     delete block.diagram;
+                    delete block.diagramTitle;
                     delete block.mermaid;
                     delete block.plantuml;
 

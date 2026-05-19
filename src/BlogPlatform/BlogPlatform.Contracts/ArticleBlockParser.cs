@@ -50,6 +50,7 @@ public static class ArticleBlockParser
     private static ArticleBlockDto ParseBlock(JsonElement block)
     {
         var text = GetString(block, "text");
+        var title = GetString(block, "title") ?? GetString(block, "diagramTitle");
         var level = GetInt(block, "level") ?? 2;
         var code = GetString(block, "code");
         var diagram = GetString(block, "diagram");
@@ -73,7 +74,8 @@ public static class ArticleBlockParser
         {
             return new ArticleBlockDto(ArticleBlockType.PlantUml)
             {
-                Diagram = plantUml
+                Diagram = plantUml,
+                DiagramTitle = title
             };
         }
 
@@ -81,15 +83,24 @@ public static class ArticleBlockParser
         {
             return new ArticleBlockDto(ArticleBlockType.Mermaid)
             {
-                Diagram = mermaid
+                Diagram = mermaid,
+                DiagramTitle = title
             };
         }
 
         if (!string.IsNullOrWhiteSpace(diagram))
         {
             return diagram.TrimStart().StartsWith("@startuml", StringComparison.OrdinalIgnoreCase)
-                ? new ArticleBlockDto(ArticleBlockType.PlantUml) { Diagram = diagram }
-                : new ArticleBlockDto(ArticleBlockType.Mermaid) { Diagram = diagram };
+                ? new ArticleBlockDto(ArticleBlockType.PlantUml)
+                {
+                    Diagram = diagram,
+                    DiagramTitle = title
+                }
+                : new ArticleBlockDto(ArticleBlockType.Mermaid)
+                {
+                    Diagram = diagram,
+                    DiagramTitle = title
+                };
         }
 
         if (!string.IsNullOrWhiteSpace(kind))
