@@ -643,7 +643,7 @@
                         <input id="autoCorrectPlantUmlSkinparams" type="checkbox" checked />
                         <span>
                             <strong>Automatically correct PlantUML when saved</strong>
-                            <small>Removes block-level skinparams that would override the article theme.</small>
+                            <small>Removes block-level skinparams and comments out PlantUML title lines that would duplicate the block title.</small>
                         </span>
                     </label>
                 </div>
@@ -2041,7 +2041,7 @@
             }
 
 
-                        function isPlantUmlAutocorrectEnabled() {
+            function isPlantUmlAutocorrectEnabled() {
                 return Boolean(document.getElementById("autoCorrectPlantUmlSkinparams")?.checked);
             }
 
@@ -2084,6 +2084,12 @@
                         continue;
                     }
 
+                    if (isPlantUmlTitleLine(trimmed)) {
+                        result.push(commentOutPlantUmlLine(line));
+                        removedSkinparams.push("title");
+                        continue;
+                    }
+
                     if (!trimmed.toLowerCase().startsWith("skinparam ")) {
                         result.push(line);
                         continue;
@@ -2122,6 +2128,25 @@
                 };
             }
 
+            function isPlantUmlTitleLine(trimmedLine) {
+                const normalized = String(trimmedLine || "").toLowerCase();
+
+                return normalized.startsWith("title ") || normalized === "title";
+            }
+
+            function commentOutPlantUmlLine(line) {
+                const value = String(line || "");
+
+                if (value.trimStart().startsWith("'")) {
+                    return value;
+                }
+
+                const leadingWhitespace = value.match(/^\s*/)?.[0] || "";
+                const content = value.substring(leadingWhitespace.length);
+
+                return `${leadingWhitespace}' ${content}`;
+            }
+
             function countCharacters(value, character) {
                 return [...String(value || "")]
                     .filter(current => current === character)
@@ -2138,7 +2163,7 @@
                 const uniqueNames = [...new Set(removedSkinparams)].join(", ");
 
                 toast.innerText = uniqueNames
-                    ? `✓ PlantUML autocorrected. Removed protected skinparams: ${uniqueNames}.`
+                    ? `✓ PlantUML autocorrected. Updated protected lines: ${uniqueNames}.`
                     : "✓ PlantUML was autocorrected to use the article theme.";
 
                 toast.classList.add("visible");
