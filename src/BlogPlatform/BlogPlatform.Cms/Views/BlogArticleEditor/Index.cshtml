@@ -843,6 +843,17 @@
                         calloutType: "tip",
                         text: "New callout block"
                     })
+                },
+                {
+                    type: "summary",
+                    name: "Summary Block",
+                    alias: "summaryBlock",
+                    icon: "S",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "summary",
+                        text: "Short article summary"
+                    })
                 }
             ];
 
@@ -1478,6 +1489,10 @@
                     return "callout";
                 }
 
+                if (block.summary || block.type === "summary") {
+                    return "summary";
+                }
+
                 return "text";
             }
 
@@ -1508,6 +1523,10 @@
                     return "¶";
                 }
 
+                if (type === "summary") {
+                    return "S";
+                }
+
                 return "◇";
             }
 
@@ -1536,6 +1555,10 @@
 
                 if (type === "text") {
                     return "textBlock";
+                }
+
+                if (type === "summary") {
+                    return "summaryBlock";
                 }
 
                 return "Unknown block";
@@ -1576,6 +1599,10 @@
                     return block.calloutType || "Callout Block";
                 }
 
+                if (type === "summary") {
+                    return block.summary || "Summary Block";
+                }
+
                 return block.text || "Text Block";
             }
 
@@ -1605,6 +1632,7 @@
                         block.mermaid ||
                         block.plantUml ||
                         block.plantuml ||
+                        block.summary ||
                         "";
                 }
 
