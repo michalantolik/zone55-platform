@@ -1624,19 +1624,19 @@
             }
 
             if (alias.includes("code") || icon.includes("code")) {
-                return "&lt;&gt;";
+                return "&lt;/&gt;";
             }
 
             if (alias.includes("plant") || alias.includes("mermaid") || icon.includes("diagram")) {
-                return "⌘";
+                return "🔀";
             }
 
             if (alias.includes("text")) {
-                return "¶";
+                return "📝";
             }
 
             if (alias.includes("callout")) {
-                return "△";
+                return "⚠️";
             }
 
             return documentType.isElement ? "◇" : "□";

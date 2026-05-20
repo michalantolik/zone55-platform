@@ -773,7 +773,7 @@
                     type: "text",
                     name: "Text Block",
                     alias: "textBlock",
-                    icon: "▯",
+                    icon: "📝",
                     create: () => ({
                         udi: createElementUdi(),
                         type: "text",
@@ -796,7 +796,7 @@
                     type: "code",
                     name: "Code Snippet Block",
                     alias: "codeSnippetBlock",
-                    icon: "&lt;&gt;",
+                    icon: "&lt;/&gt;",
                     create: () => ({
                         udi: createElementUdi(),
                         type: "code",
@@ -809,7 +809,7 @@
                     type: "mermaid",
                     name: "Mermaid Diagram Block",
                     alias: "mermaidDiagramBlock",
-                    icon: "⌘",
+                    icon: "🔀",
                     create: () => ({
                         udi: createElementUdi(),
                         type: "mermaid",
@@ -823,7 +823,7 @@
                     type: "plantuml",
                     name: "PlantUML Diagram Block",
                     alias: "plantUmlDiagramBlock",
-                    icon: "⇧",
+                    icon: "🌱",
                     create: () => ({
                         udi: createElementUdi(),
                         type: "plantuml",
@@ -836,7 +836,7 @@
                     type: "callout",
                     name: "Callout Block",
                     alias: "calloutBlock",
-                    icon: "△",
+                    icon: "⚠️",
                     create: () => ({
                         udi: createElementUdi(),
                         type: "callout",
@@ -848,7 +848,7 @@
                     type: "summary",
                     name: "Summary Block",
                     alias: "summaryBlock",
-                    icon: "S",
+                    icon: "📌",
                     create: () => ({
                         udi: createElementUdi(),
                         type: "summary",
@@ -1504,27 +1504,27 @@
                 }
 
                 if (type === "code") {
-                    return "&lt;&gt;";
+                    return "&lt;/&gt;";
                 }
 
                 if (type === "mermaid") {
-                    return "⌘";
+                    return "🔀";
                 }
 
                 if (type === "plantuml") {
-                    return "⇧";
+                    return "🌱";
                 }
 
                 if (type === "callout") {
-                    return "△";
+                    return "⚠️";
                 }
 
                 if (type === "text") {
-                    return "¶";
+                    return "📝";
                 }
 
                 if (type === "summary") {
-                    return "S";
+                    return "📌";
                 }
 
                 return "◇";
