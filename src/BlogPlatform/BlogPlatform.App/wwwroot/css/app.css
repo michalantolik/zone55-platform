@@ -1224,6 +1224,11 @@ button {
     box-shadow: var(--article-summary-shadow);
 }
 
+.article-body .article-summary-block {
+    margin: 0 0 34px;
+    max-width: 860px;
+}
+
 .code-block,
 .diagram-block {
     margin: 30px 0;
