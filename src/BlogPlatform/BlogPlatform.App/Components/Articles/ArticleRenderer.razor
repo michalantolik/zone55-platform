@@ -80,6 +80,12 @@
                         </figure>
                         break;
 
+                    case ArticleBlockType.Summary:
+                        <div class="article-summary article-summary-block">
+                            @(block.Summary ?? block.Text)
+                        </div>
+                        break;
+
                     case ArticleBlockType.Callout:
                         <aside class="callout callout-@block.Kind">
                             <strong>@block.Kind</strong>
@@ -217,36 +223,36 @@
         return $"https://www.plantuml.com/plantuml/svg/{EncodePlantUml(CreateThemeAwarePlantUmlSource(diagram, theme))}";
     }
 
-private static string CreateThemeAwarePlantUmlSource(string source, PlantUmlThemeValues theme)
-{
+    private static string CreateThemeAwarePlantUmlSource(string source, PlantUmlThemeValues theme)
+    {
         var normalizedSource = RemoveProtectedPlantUmlSkinParams(source).Trim();
 
-    var skinparams = CreatePlantUmlSkinParams(theme);
+        var skinparams = CreatePlantUmlSkinParams(theme);
 
-    if (!normalizedSource.Contains("@start", StringComparison.OrdinalIgnoreCase))
-    {
-        return $"@startuml\n{skinparams}\n{normalizedSource}\n@enduml";
+        if (!normalizedSource.Contains("@start", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"@startuml\n{skinparams}\n{normalizedSource}\n@enduml";
+        }
+
+        var firstLineBreakIndex = normalizedSource.IndexOf('\n', StringComparison.Ordinal);
+
+        if (firstLineBreakIndex < 0)
+        {
+            return $"{normalizedSource}\n{skinparams}";
+        }
+
+        return normalizedSource.Insert(firstLineBreakIndex + 1, $"{skinparams}\n");
     }
 
-    var firstLineBreakIndex = normalizedSource.IndexOf('\n', StringComparison.Ordinal);
-
-    if (firstLineBreakIndex < 0)
+    private static string CreatePlantUmlSkinParams(PlantUmlThemeValues theme)
     {
-        return $"{normalizedSource}\n{skinparams}";
-    }
+        var lineColor = NormalizePlantUmlColor(theme.Line, "#a7b4c8");
+        var nodeTextColor = NormalizePlantUmlColor(theme.NodeText, "#E5E7EB");
+        var nodeBorderColor = NormalizePlantUmlColor(theme.NodeBorder, "#7d8ca3");
+        var nodeBgColor = NormalizePlantUmlColor(theme.NodeBg, "#374151");
+        var fontFamily = NormalizePlantUmlFontFamily(theme.FontFamily);
 
-    return normalizedSource.Insert(firstLineBreakIndex + 1, $"{skinparams}\n");
-}
-
-private static string CreatePlantUmlSkinParams(PlantUmlThemeValues theme)
-{
-    var lineColor = NormalizePlantUmlColor(theme.Line, "#a7b4c8");
-    var nodeTextColor = NormalizePlantUmlColor(theme.NodeText, "#E5E7EB");
-    var nodeBorderColor = NormalizePlantUmlColor(theme.NodeBorder, "#7d8ca3");
-    var nodeBgColor = NormalizePlantUmlColor(theme.NodeBg, "#374151");
-    var fontFamily = NormalizePlantUmlFontFamily(theme.FontFamily);
-
-    return $$$""" 
+        return $$$"""
 skinparam backgroundColor transparent
 skinparam shadowing false
 skinparam defaultFontName {{{fontFamily}}}
@@ -275,37 +281,37 @@ skinparam package {
     FontColor {{{nodeTextColor}}}
 }
 """;
-}
+    }
 
-private static string NormalizePlantUmlColor(string? value, string fallback)
-{
-    if (string.IsNullOrWhiteSpace(value))
+    private static string NormalizePlantUmlColor(string? value, string fallback)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return fallback;
+        }
+
+        var trimmed = value.Trim();
+
+        if (trimmed.StartsWith("#", StringComparison.Ordinal) ||
+            trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed;
+        }
+
         return fallback;
     }
 
-    var trimmed = value.Trim();
-
-    if (trimmed.StartsWith("#", StringComparison.Ordinal) ||
-        trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase))
+    private static string NormalizePlantUmlFontFamily(string? value)
     {
-        return trimmed;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "SansSerif";
+        }
+
+        return value
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .FirstOrDefault() ?? "SansSerif";
     }
-
-    return fallback;
-}
-
-private static string NormalizePlantUmlFontFamily(string? value)
-{
-    if (string.IsNullOrWhiteSpace(value))
-    {
-        return "SansSerif";
-    }
-
-    return value
-        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        .FirstOrDefault() ?? "SansSerif";
-}
 
     private static string EncodePlantUml(string source)
     {

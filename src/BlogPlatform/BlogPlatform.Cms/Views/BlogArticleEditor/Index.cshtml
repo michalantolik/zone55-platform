@@ -852,7 +852,7 @@
                     create: () => ({
                         udi: createElementUdi(),
                         type: "summary",
-                        text: "Short article summary"
+                        summary: "Short article summary"
                     })
                 }
             ];
@@ -1600,7 +1600,7 @@
                 }
 
                 if (type === "summary") {
-                    return block.summary || "Summary Block";
+                    return block.summary || block.text || "Summary Block";
                 }
 
                 return block.text || "Text Block";
@@ -1669,6 +1669,21 @@
                     delete block.diagramTitle;
                     delete block.plantUml;
                     delete block.plantuml;
+                }
+                else if (type === "summary") {
+                    block.summary = newValue;
+
+                    delete block.text;
+                    delete block.diagram;
+                    delete block.diagramTitle;
+                    delete block.mermaid;
+                    delete block.plantUml;
+                    delete block.plantuml;
+                    delete block.code;
+                    delete block.language;
+                    delete block.fileName;
+                    delete block.calloutType;
+                    delete block.kind;
                 }
                 else if (type === "plantuml") {
                     const correction = isPlantUmlAutocorrectEnabled()

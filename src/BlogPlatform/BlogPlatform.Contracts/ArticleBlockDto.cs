@@ -11,6 +11,8 @@ public sealed class ArticleBlockDto
 
     public string? Text { get; init; }
 
+    public string? Summary { get; init; }
+
     public int Level { get; init; } = 2;
 
     public string? Code { get; init; }

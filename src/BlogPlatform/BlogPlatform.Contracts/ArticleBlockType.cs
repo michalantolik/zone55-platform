@@ -7,5 +7,6 @@ public enum ArticleBlockType
     Code,
     Mermaid,
     PlantUml,
-    Callout
+    Callout,
+    Summary
 }

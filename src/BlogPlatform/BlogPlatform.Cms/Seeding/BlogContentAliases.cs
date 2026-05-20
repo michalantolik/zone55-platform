@@ -10,6 +10,7 @@ public static class BlogContentAliases
     public const string MermaidDiagramBlock = "mermaidDiagramBlock";
     public const string PlantUmlDiagramBlock = "plantUmlDiagramBlock";
     public const string CalloutBlock = "calloutBlock";
+    public const string SummaryBlock = "summaryBlock";
 
     public const string Title = "title";
     public const string Slug = "slug";

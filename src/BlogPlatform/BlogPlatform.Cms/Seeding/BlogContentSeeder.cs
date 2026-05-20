@@ -232,6 +232,15 @@ public sealed class BlogContentSeeder
                 Property("kind", "Kind", "Textstring"),
                 Property("text", "Text", "Textarea")
             });
+
+        await CreateElementTypeAsync(
+            BlogContentAliases.SummaryBlock,
+            "Summary Block",
+            "icon-indent",
+            new[]
+            {
+                Property("summary", "Summary", "Textarea")
+            });
     }
 
     private async Task SeedDataTypesAsync()
@@ -399,7 +408,8 @@ public sealed class BlogContentSeeder
             CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
             CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
             CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
-            CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}")
+            CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}"),
+            CreateAllowedBlock(BlogContentAliases.SummaryBlock, "{umbValue: summary}")
         };
     }
 
@@ -693,4 +703,3 @@ public sealed class BlogContentSeeder
         string ElementTypeAlias,
         Dictionary<string, object?> Properties);
 }
-
