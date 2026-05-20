@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace BlogPlatform.Infrastructure.Cms;
@@ -79,7 +80,9 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 
             try
             {
-                var posts = await FetchPostsFromCmsAsync(stopwatch, cancellationToken);
+                var posts = await FetchPostsFromCmsWithRetryAsync(
+                    stopwatch,
+                    cancellationToken);
 
                 CachePosts(posts);
 
@@ -99,11 +102,58 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 
                 return cachedEntry.Posts;
             }
+            catch (Exception ex) when (IsTransientCmsException(ex))
+            {
+                _logger.LogError(
+                    ex,
+                    "API could not load CMS posts and no stale cache exists yet. Returning an empty post list. Duration: {ElapsedMs} ms",
+                    stopwatch.ElapsedMilliseconds);
+
+                return [];
+            }
         }
         finally
         {
             PostsLoadLock.Release();
         }
+    }
+
+    private async Task<List<Post>> FetchPostsFromCmsWithRetryAsync(
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        var maxAttempts = _options.RetryCount + 1;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                return await FetchPostsFromCmsAsync(
+                    stopwatch,
+                    cancellationToken);
+            }
+            catch (Exception ex) when (
+                attempt < maxAttempts &&
+                IsTransientCmsException(ex) &&
+                !cancellationToken.IsCancellationRequested)
+            {
+                var delay = TimeSpan.FromMilliseconds(
+                    _options.RetryDelayMilliseconds * attempt);
+
+                _logger.LogWarning(
+                    ex,
+                    "CMS content endpoint failed on attempt {Attempt}/{MaxAttempts}. Retrying in {DelayMs} ms. Duration: {ElapsedMs} ms",
+                    attempt,
+                    maxAttempts,
+                    delay.TotalMilliseconds,
+                    stopwatch.ElapsedMilliseconds);
+
+                await Task.Delay(delay, cancellationToken);
+            }
+        }
+
+        throw new InvalidOperationException(
+            "Unexpected CMS retry flow state.");
     }
 
     private async Task<List<Post>> FetchPostsFromCmsAsync(
@@ -117,7 +167,8 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 
         if (!response.IsSuccessStatusCode)
         {
-            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseBody = await response.Content.ReadAsStringAsync(
+                cancellationToken);
 
             _logger.LogError(
                 "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
@@ -157,6 +208,20 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
                 AbsoluteExpirationRelativeToNow = staleCacheDuration,
                 Priority = CacheItemPriority.High
             });
+    }
+
+    private static bool IsTransientCmsException(Exception exception)
+    {
+        return exception switch
+        {
+            TaskCanceledException => true,
+            TimeoutException => true,
+            HttpRequestException => true,
+            OperationCanceledException => false,
+            _ when exception.InnerException is not null =>
+                IsTransientCmsException(exception.InnerException),
+            _ => false
+        };
     }
 
     private sealed record PostsCacheEntry(

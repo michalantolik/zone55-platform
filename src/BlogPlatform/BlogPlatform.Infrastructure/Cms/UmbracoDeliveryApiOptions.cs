@@ -12,5 +12,9 @@ public sealed class UmbracoDeliveryApiOptions
 
     public int StaleCacheSeconds { get; set; } = 3600;
 
-    public int TimeoutSeconds { get; set; } = 10;
+    public int TimeoutSeconds { get; set; } = 30;
+
+    public int RetryCount { get; set; } = 3;
+
+    public int RetryDelayMilliseconds { get; set; } = 1500;
 }

@@ -43,6 +43,10 @@ public static class DependencyInjection
                 "UmbracoDeliveryApi:StaleCacheSeconds must be greater than or equal to FreshCacheSeconds.")
             .Validate(options => options.TimeoutSeconds > 0,
                 "UmbracoDeliveryApi:TimeoutSeconds must be greater than zero.")
+            .Validate(options => options.RetryCount >= 0,
+                "UmbracoDeliveryApi:RetryCount must be greater than or equal to zero.")
+            .Validate(options => options.RetryDelayMilliseconds >= 0,
+                "UmbracoDeliveryApi:RetryDelayMilliseconds must be greater than or equal to zero.")
             .ValidateOnStart();
 
         services.AddHttpClient<IBlogPostRepository, UmbracoDeliveryApiBlogPostRepository>(
