@@ -155,11 +155,13 @@ public sealed class BlogContentSeeder
 
             "mermaidDiagram" => MermaidDiagramBlock(
                 block.Title ?? "Mermaid diagram",
-                block.Diagram ?? string.Empty),
+                block.Diagram ?? string.Empty,
+                block.ShowDiagramTitleBar ?? true),
 
             "plantUmlDiagram" => PlantUmlDiagramBlock(
                 block.Title ?? "PlantUML diagram",
-                block.Diagram ?? string.Empty),
+                block.Diagram ?? string.Empty,
+                block.ShowDiagramTitleBar ?? true),
 
             "callout" => CalloutBlock(
                 block.Kind ?? "note",
@@ -206,6 +208,7 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("title", "Title", "Textstring"),
+                Property("showDiagramTitleBar", "Show diagram title bar", "TrueFalse"),
                 Property("diagram", "Diagram", "Textarea")
             });
 
@@ -216,6 +219,7 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("title", "Title", "Textstring"),
+                Property("showDiagramTitleBar", "Show diagram title bar", "TrueFalse"),
                 Property("diagram", "Diagram", "Textarea")
             });
 
@@ -643,24 +647,26 @@ public sealed class BlogContentSeeder
             });
     }
 
-    private static SeedBlock MermaidDiagramBlock(string title, string diagram)
+    private static SeedBlock MermaidDiagramBlock(string title, string diagram, bool showDiagramTitleBar = true)
     {
         return new SeedBlock(
             BlogContentAliases.MermaidDiagramBlock,
             new Dictionary<string, object?>
             {
                 ["title"] = title,
+                ["showDiagramTitleBar"] = showDiagramTitleBar,
                 ["diagram"] = diagram
             });
     }
 
-    private static SeedBlock PlantUmlDiagramBlock(string title, string diagram)
+    private static SeedBlock PlantUmlDiagramBlock(string title, string diagram, bool showDiagramTitleBar = true)
     {
         return new SeedBlock(
             BlogContentAliases.PlantUmlDiagramBlock,
             new Dictionary<string, object?>
             {
                 ["title"] = title,
+                ["showDiagramTitleBar"] = showDiagramTitleBar,
                 ["diagram"] = diagram
             });
     }

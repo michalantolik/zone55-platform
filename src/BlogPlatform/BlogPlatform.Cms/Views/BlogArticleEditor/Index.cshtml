@@ -694,6 +694,16 @@
                 <small>This title is shown above the diagram in the article.</small>
             </div>
 
+            <div id="diagramTitleBarField" class="diagram-title-field">
+                <label class="toggle-row" for="blockEditShowDiagramTitleBar">
+                    <input id="blockEditShowDiagramTitleBar" type="checkbox" checked />
+                    <span>
+                        <strong>Show diagram title bar</strong>
+                        <small>Turn this off when the diagram should start immediately inside the rounded panel.</small>
+                    </span>
+                </label>
+            </div>
+
             <label id="blockEditTextLabel" class="field-label" for="blockEditText">Content</label>
             <textarea id="blockEditText"></textarea>
 
@@ -804,6 +814,7 @@
                         udi: createElementUdi(),
                         type: "mermaid",
                         title: "Mermaid diagram",
+                        showDiagramTitleBar: true,
                         diagram: "flowchart TD\n    A[Start] --> B[Next step]",
                         mermaid: "flowchart TD\n    A[Start] --> B[Next step]"
                     })
@@ -817,6 +828,7 @@
                         udi: createElementUdi(),
                         type: "plantuml",
                         title: "PlantUML diagram",
+                        showDiagramTitleBar: true,
                         plantUml: "@@startuml\nactor User\nUser -> System: Request\n@enduml"
                     })
                 },
@@ -1575,8 +1587,11 @@
 
                 document.getElementById("blockEditTitle").innerText = `Edit ${getBlockLabel(block)}`;
                 document.getElementById("diagramTitleField").classList.toggle("active", isDiagram);
+                document.getElementById("diagramTitleBarField").classList.toggle("active", isDiagram);
                 document.getElementById("blockEditDiagramTitle").value =
                     block.title || block.diagramTitle || getDefaultDiagramTitle(type);
+                document.getElementById("blockEditShowDiagramTitleBar").checked =
+                    block.showDiagramTitleBar !== false;
                 document.getElementById("blockEditTextLabel").innerText =
                     isDiagram ? "Diagram source" : "Content";
 
@@ -1600,6 +1615,7 @@
                 editedBlockIndex = null;
                 document.getElementById("blockEditModal").style.display = "none";
                 document.getElementById("diagramTitleField").classList.remove("active");
+                document.getElementById("diagramTitleBarField").classList.remove("active");
             }
 
             function saveBlockEditor() {
@@ -1610,6 +1626,7 @@
                 const block = bodyBlocks[editedBlockIndex];
                 const newValue = document.getElementById("blockEditText").value;
                 const newDiagramTitle = document.getElementById("blockEditDiagramTitle").value.trim();
+                const showDiagramTitleBar = document.getElementById("blockEditShowDiagramTitleBar").checked;
                 const type = getBlockType(block);
 
                 if (type === "code") {
@@ -1617,6 +1634,7 @@
                 }
                 else if (type === "mermaid") {
                     block.title = newDiagramTitle || getDefaultDiagramTitle(type);
+                    block.showDiagramTitleBar = showDiagramTitleBar;
                     block.diagram = newValue;
                     block.mermaid = newValue;
 
@@ -1634,6 +1652,7 @@
                         };
 
                     block.title = newDiagramTitle || getDefaultDiagramTitle(type);
+                    block.showDiagramTitleBar = showDiagramTitleBar;
                     block.plantUml = correction.source;
 
                     delete block.diagram;

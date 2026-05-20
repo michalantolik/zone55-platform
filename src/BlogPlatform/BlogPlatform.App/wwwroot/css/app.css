@@ -1335,6 +1335,15 @@ button {
         background: var(--diagram-plantuml-bg);
     }
 
+.diagram-block-without-title {
+    border-radius: 20px;
+}
+
+    .diagram-block-without-title > pre,
+    .diagram-block-without-title > img {
+        border-radius: 20px;
+    }
+
     .plantuml-block details {
         padding: 0 18px 18px;
         color: var(--article-post-title);

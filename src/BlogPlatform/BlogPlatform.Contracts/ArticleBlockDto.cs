@@ -23,5 +23,7 @@ public sealed class ArticleBlockDto
 
     public string? DiagramTitle { get; init; }
 
+    public bool ShowDiagramTitleBar { get; init; } = true;
+
     public string? Kind { get; init; }
 }

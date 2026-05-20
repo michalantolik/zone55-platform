@@ -59,6 +59,7 @@ public static class ArticleBlockParser
         var kind = GetString(block, "kind") ?? GetString(block, "calloutType");
         var language = GetString(block, "language");
         var fileName = GetString(block, "fileName");
+        var showDiagramTitleBar = GetBool(block, "showDiagramTitleBar") ?? true;
 
         if (!string.IsNullOrWhiteSpace(code))
         {
@@ -75,7 +76,8 @@ public static class ArticleBlockParser
             return new ArticleBlockDto(ArticleBlockType.PlantUml)
             {
                 Diagram = plantUml,
-                DiagramTitle = title
+                DiagramTitle = title,
+                ShowDiagramTitleBar = showDiagramTitleBar
             };
         }
 
@@ -84,7 +86,8 @@ public static class ArticleBlockParser
             return new ArticleBlockDto(ArticleBlockType.Mermaid)
             {
                 Diagram = mermaid,
-                DiagramTitle = title
+                DiagramTitle = title,
+                ShowDiagramTitleBar = showDiagramTitleBar
             };
         }
 
@@ -94,12 +97,14 @@ public static class ArticleBlockParser
                 ? new ArticleBlockDto(ArticleBlockType.PlantUml)
                 {
                     Diagram = diagram,
-                    DiagramTitle = title
+                    DiagramTitle = title,
+                ShowDiagramTitleBar = showDiagramTitleBar
                 }
                 : new ArticleBlockDto(ArticleBlockType.Mermaid)
                 {
                     Diagram = diagram,
-                    DiagramTitle = title
+                    DiagramTitle = title,
+                ShowDiagramTitleBar = showDiagramTitleBar
                 };
         }
 
@@ -131,6 +136,14 @@ public static class ArticleBlockParser
     {
         return element.TryGetProperty(propertyName, out var value)
             ? value.GetString()
+            : null;
+    }
+
+    private static bool? GetBool(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out var value) &&
+               value.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? value.GetBoolean()
             : null;
     }
 

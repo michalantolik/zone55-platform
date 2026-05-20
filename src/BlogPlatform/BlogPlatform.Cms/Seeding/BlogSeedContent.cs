@@ -45,5 +45,6 @@ public sealed class BlogSeedBlock
     public string? Code { get; set; }
     public string? Diagram { get; set; }
     public string? Title { get; set; }
+    public bool? ShowDiagramTitleBar { get; set; }
     public string? Kind { get; set; }
 }

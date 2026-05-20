@@ -59,15 +59,23 @@
                         break;
 
                     case ArticleBlockType.Mermaid:
-                        <figure class="diagram-block mermaid-block">
-                            <figcaption>@GetMermaidDiagramTitle(block)</figcaption>
+                        <figure class="@GetDiagramBlockCssClass(block, "mermaid-block")">
+                            @if (block.ShowDiagramTitleBar)
+                            {
+                                <figcaption>@GetMermaidDiagramTitle(block)</figcaption>
+                            }
+
                             <pre class="mermaid">@block.Diagram</pre>
                         </figure>
                         break;
 
                     case ArticleBlockType.PlantUml:
-                        <figure class="diagram-block plantuml-block">
-                            <figcaption>@GetPlantUmlDiagramTitle(block)</figcaption>
+                        <figure class="@GetDiagramBlockCssClass(block, "plantuml-block")">
+                            @if (block.ShowDiagramTitleBar)
+                            {
+                                <figcaption>@GetPlantUmlDiagramTitle(block)</figcaption>
+                            }
+
                             <img src="@CreatePlantUmlUrl(block.Diagram, _plantUmlTheme)" alt="PlantUML diagram" />
                         </figure>
                         break;
@@ -142,6 +150,13 @@
             .Split('\n')
             .Select((text, index) => new CodeLine(index + 1, text))
             .ToArray();
+    }
+
+    private static string GetDiagramBlockCssClass(ArticleBlockDto block, string diagramTypeClass)
+    {
+        return block.ShowDiagramTitleBar
+            ? $"diagram-block {diagramTypeClass}"
+            : $"diagram-block {diagramTypeClass} diagram-block-without-title";
     }
 
     private static string GetMermaidDiagramTitle(ArticleBlockDto block)
