@@ -19,6 +19,7 @@ public sealed class BlogSeedRoadmapStep
     public string Key { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public int Order { get; set; }
+    public string Icon { get; set; } = "📘";
 }
 
 public sealed class BlogSeedArticle

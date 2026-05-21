@@ -26,7 +26,8 @@ public sealed class RoadmapSeedService : IRoadmapSeedService
                     .Select(step => DotnetRoadmapStep.Create(
                         step.Key,
                         step.Name,
-                        step.Order))))
+                        step.Order,
+                        step.Icon))))
             .ToList();
 
         if (zones.Count == 0)

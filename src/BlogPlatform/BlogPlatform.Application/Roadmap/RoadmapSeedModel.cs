@@ -12,4 +12,5 @@ public sealed record RoadmapSeedZoneModel(
 public sealed record RoadmapSeedStepModel(
     string Key,
     string Name,
-    int Order);
+    int Order,
+    string Icon);

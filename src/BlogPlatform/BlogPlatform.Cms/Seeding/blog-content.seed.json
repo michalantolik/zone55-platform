@@ -8,27 +8,32 @@
         {
           "key": "csharp-dotnet",
           "name": "C# & .NET",
-          "order": 1
+          "order": 1,
+          "icon": "💻"
         },
         {
           "key": "basic-syntax",
           "name": "Basic Syntax",
-          "order": 2
+          "order": 2,
+          "icon": "📝"
         },
         {
           "key": "types-operators",
           "name": "Types & Operators",
-          "order": 3
+          "order": 3,
+          "icon": "🔢"
         },
         {
           "key": "functions-classes",
           "name": "Functions & Classes",
-          "order": 4
+          "order": 4,
+          "icon": "🏗️"
         },
         {
           "key": "console-apps",
           "name": "Console Apps",
-          "order": 5
+          "order": 5,
+          "icon": "🖥️"
         }
       ]
     },
@@ -40,32 +45,38 @@
         {
           "key": "aspnet-core-ecosystem",
           "name": "ASP.NET Core Ecosystem",
-          "order": 1
+          "order": 1,
+          "icon": "🌐"
         },
         {
           "key": "aspnet-core-mvc",
           "name": "ASP.NET Core MVC",
-          "order": 2
+          "order": 2,
+          "icon": "🧭"
         },
         {
           "key": "aspnet-core-web-api",
           "name": "ASP.NET Core Web API",
-          "order": 3
+          "order": 3,
+          "icon": "🔌"
         },
         {
           "key": "linq-collections",
           "name": "LINQ & Collections",
-          "order": 4
+          "order": 4,
+          "icon": "🔎"
         },
         {
           "key": "dependency-injection",
           "name": "Dependency Injection",
-          "order": 5
+          "order": 5,
+          "icon": "🔗"
         },
         {
           "key": "desktop-apps",
           "name": "Desktop Apps",
-          "order": 6
+          "order": 6,
+          "icon": "🪟"
         }
       ]
     },
@@ -77,32 +88,38 @@
         {
           "key": "sql-fundamentals",
           "name": "SQL Fundamentals",
-          "order": 1
+          "order": 1,
+          "icon": "🗄️"
         },
         {
           "key": "entity-framework-core",
           "name": "Entity Framework Core",
-          "order": 2
+          "order": 2,
+          "icon": "🧱"
         },
         {
           "key": "async-programming",
           "name": "Async Programming",
-          "order": 3
+          "order": 3,
+          "icon": "⚡"
         },
         {
           "key": "testing",
           "name": "Testing",
-          "order": 4
+          "order": 4,
+          "icon": "🧪"
         },
         {
           "key": "clean-architecture",
           "name": "Clean Architecture",
-          "order": 5
+          "order": 5,
+          "icon": "🏛️"
         },
         {
           "key": "design-patterns",
           "name": "Design Patterns",
-          "order": 6
+          "order": 6,
+          "icon": "🧩"
         }
       ]
     },
@@ -114,27 +131,32 @@
         {
           "key": "microservices",
           "name": "Microservices",
-          "order": 1
+          "order": 1,
+          "icon": "🛰️"
         },
         {
           "key": "azure-integration",
           "name": "Azure Integration",
-          "order": 2
+          "order": 2,
+          "icon": "☁️"
         },
         {
           "key": "cicd-pipelines",
           "name": "CI/CD Pipelines",
-          "order": 3
+          "order": 3,
+          "icon": "🚀"
         },
         {
           "key": "performance-tuning",
           "name": "Performance Tuning",
-          "order": 4
+          "order": 4,
+          "icon": "⚙️"
         },
         {
           "key": "advanced-csharp",
           "name": "Advanced C#",
-          "order": 5
+          "order": 5,
+          "icon": "🧠"
         }
       ]
     }
@@ -261,7 +283,7 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Variables.cs",
-          "code": "string name = \"Micha\u0142\";\nint articleCount = 6;\nbool isPublished = true;\n\nConsole.WriteLine(name);\nConsole.WriteLine(articleCount);\nConsole.WriteLine(isPublished);\n"
+          "code": "string name = \"Michał\";\nint articleCount = 6;\nbool isPublished = true;\n\nConsole.WriteLine(name);\nConsole.WriteLine(articleCount);\nConsole.WriteLine(isPublished);\n"
         },
         {
           "type": "text",

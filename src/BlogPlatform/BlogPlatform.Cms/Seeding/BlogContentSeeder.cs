@@ -100,7 +100,8 @@ public sealed class BlogContentSeeder
                     .Select(step => new RoadmapSeedStepModel(
                         step.Key,
                         step.Name,
-                        step.Order))
+                        step.Order,
+                        step.Icon))
                     .ToList()))
             .ToList();
 
