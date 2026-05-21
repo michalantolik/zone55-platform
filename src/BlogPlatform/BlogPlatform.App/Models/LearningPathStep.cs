@@ -7,5 +7,6 @@ public sealed record LearningPathStep(
     string Title,
     string Description,
     string Difficulty,
+    string Icon,
     IReadOnlyCollection<string> Keywords,
     IReadOnlyCollection<PostListItem> Posts);

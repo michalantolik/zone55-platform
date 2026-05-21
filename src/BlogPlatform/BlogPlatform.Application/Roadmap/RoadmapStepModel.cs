@@ -3,4 +3,5 @@
 public sealed record RoadmapStepModel(
     string Key,
     string Name,
-    int Order);
+    int Order,
+    string Icon);

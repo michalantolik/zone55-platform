@@ -32,6 +32,7 @@ public sealed class RoadmapViewService : IRoadmapViewService
                         StepOrder: step.Order,
                         Key: step.Key,
                         Title: step.Name,
+                        Icon: step.Icon,
                         Description: $"Learn {step.Name}.",
                         Difficulty: "Guided",
                         Keywords: [],

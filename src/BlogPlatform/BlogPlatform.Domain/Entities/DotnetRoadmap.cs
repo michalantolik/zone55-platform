@@ -23,23 +23,15 @@ public sealed class DotnetRoadmap
         return roadmap;
     }
 
-    public DotnetRoadmapZone? FindZone(string? zoneKey)
-    {
-        return _zones.FirstOrDefault(zone =>
+    public DotnetRoadmapZone? FindZone(string? zoneKey) =>
+        _zones.FirstOrDefault(zone =>
             string.Equals(zone.Key, zoneKey?.Trim(), StringComparison.OrdinalIgnoreCase));
-    }
 
-    public bool ContainsZone(string? zoneKey)
-    {
-        return FindZone(zoneKey) is not null;
-    }
+    public bool ContainsZone(string? zoneKey) => FindZone(zoneKey) is not null;
 
-    public bool ContainsStep(string? stepKey)
-    {
-        return _zones
-            .SelectMany(zone => zone.Steps)
+    public bool ContainsStep(string? stepKey) =>
+        _zones.SelectMany(zone => zone.Steps)
             .Any(step => string.Equals(step.Key, stepKey?.Trim(), StringComparison.OrdinalIgnoreCase));
-    }
 
     public void AddZone(string name, string? requestedKey)
     {
@@ -52,11 +44,7 @@ public sealed class DotnetRoadmap
             throw new InvalidOperationException("Zone key already exists.");
         }
 
-        _zones.Add(DotnetRoadmapZone.Create(
-            key,
-            name.Trim(),
-            _zones.Count + 1,
-            []));
+        _zones.Add(DotnetRoadmapZone.Create(key, name.Trim(), _zones.Count + 1, []));
     }
 
     public void RenameZone(string zoneKey, string name)
@@ -78,7 +66,7 @@ public sealed class DotnetRoadmap
         ReorderZones();
     }
 
-    public void AddStep(string zoneKey, string name, string? requestedKey)
+    public void AddStep(string zoneKey, string name, string? requestedKey, string? icon)
     {
         EnsureRequired(name, "Step name is required.");
 
@@ -92,10 +80,10 @@ public sealed class DotnetRoadmap
             throw new InvalidOperationException("Step key already exists.");
         }
 
-        zone.AddStep(key, name);
+        zone.AddStep(key, name, icon);
     }
 
-    public void RenameStep(string zoneKey, string stepKey, string name)
+    public void RenameStep(string zoneKey, string stepKey, string name, string? icon)
     {
         EnsureRequired(name, "Step name is required.");
 
@@ -103,6 +91,7 @@ public sealed class DotnetRoadmap
             ?? throw new InvalidOperationException("Step not found.");
 
         step.Rename(name);
+        step.ChangeIcon(icon);
     }
 
     public void DeleteStep(string zoneKey, string stepKey)
@@ -116,7 +105,6 @@ public sealed class DotnetRoadmap
     public bool IsValidAssignment(string? zoneKey, string? stepKey)
     {
         var zone = FindZone(zoneKey);
-
         return zone is not null && zone.ContainsStep(stepKey);
     }
 
@@ -130,15 +118,10 @@ public sealed class DotnetRoadmap
         }
     }
 
-    private DotnetRoadmapStep? FindStep(string zoneKey, string stepKey)
-    {
-        return FindZone(zoneKey)?.FindStep(stepKey);
-    }
+    private DotnetRoadmapStep? FindStep(string zoneKey, string stepKey) =>
+        FindZone(zoneKey)?.FindStep(stepKey);
 
-    private static string CreateKey(string value)
-    {
-        return Slug.Create(value).Value;
-    }
+    private static string CreateKey(string value) => Slug.Create(value).Value;
 
     private static void EnsureRequired(string? value, string message)
     {
@@ -159,8 +142,8 @@ public sealed class DotnetRoadmapZone
         int order,
         IEnumerable<DotnetRoadmapStep> steps)
     {
-        Key = key;
-        Name = name;
+        Key = key.Trim();
+        Name = name.Trim();
         Order = order;
         _steps.AddRange(steps.OrderBy(step => step.Order));
         ReorderSteps();
@@ -181,30 +164,18 @@ public sealed class DotnetRoadmapZone
         int order,
         IEnumerable<DotnetRoadmapStep> steps)
     {
-        return new DotnetRoadmapZone(
-            key.Trim(),
-            name.Trim(),
-            order,
-            steps);
+        return new DotnetRoadmapZone(key, name, order, steps);
     }
 
-    public DotnetRoadmapStep? FindStep(string? stepKey)
-    {
-        return _steps.FirstOrDefault(step =>
+    public DotnetRoadmapStep? FindStep(string? stepKey) =>
+        _steps.FirstOrDefault(step =>
             string.Equals(step.Key, stepKey?.Trim(), StringComparison.OrdinalIgnoreCase));
-    }
 
-    public bool ContainsStep(string? stepKey)
-    {
-        return FindStep(stepKey) is not null;
-    }
+    public bool ContainsStep(string? stepKey) => FindStep(stepKey) is not null;
 
-    public void AddStep(string key, string name)
+    public void AddStep(string key, string name, string? icon)
     {
-        _steps.Add(DotnetRoadmapStep.Create(
-            key,
-            name.Trim(),
-            _steps.Count + 1));
+        _steps.Add(DotnetRoadmapStep.Create(key, name.Trim(), _steps.Count + 1, icon));
     }
 
     public void DeleteStep(string stepKey)
@@ -216,15 +187,9 @@ public sealed class DotnetRoadmapZone
         ReorderSteps();
     }
 
-    public void Rename(string name)
-    {
-        Name = name.Trim();
-    }
+    public void Rename(string name) => Name = name.Trim();
 
-    public void SetOrder(int order)
-    {
-        Order = order;
-    }
+    public void SetOrder(int order) => Order = order;
 
     public void ReorderSteps()
     {
@@ -239,11 +204,12 @@ public sealed class DotnetRoadmapZone
 
 public sealed class DotnetRoadmapStep
 {
-    private DotnetRoadmapStep(string key, string name, int order)
+    private DotnetRoadmapStep(string key, string name, int order, string icon)
     {
         Key = key.Trim();
         Name = name.Trim();
         Order = order;
+        Icon = NormalizeIcon(icon);
     }
 
     public string Key { get; }
@@ -252,21 +218,23 @@ public sealed class DotnetRoadmapStep
 
     public int Order { get; private set; }
 
+    public string Icon { get; private set; }
+
     public static DotnetRoadmapStep Create(
         string key,
         string name,
-        int order)
+        int order,
+        string? icon = null)
     {
-        return new DotnetRoadmapStep(key, name, order);
+        return new DotnetRoadmapStep(key, name, order, icon ?? "📘");
     }
 
-    public void Rename(string name)
-    {
-        Name = name.Trim();
-    }
+    public void Rename(string name) => Name = name.Trim();
 
-    public void SetOrder(int order)
-    {
-        Order = order;
-    }
+    public void ChangeIcon(string? icon) => Icon = NormalizeIcon(icon);
+
+    public void SetOrder(int order) => Order = order;
+
+    private static string NormalizeIcon(string? icon) =>
+        string.IsNullOrWhiteSpace(icon) ? "📘" : icon.Trim();
 }

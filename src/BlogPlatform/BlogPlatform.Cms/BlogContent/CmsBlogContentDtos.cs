@@ -11,6 +11,7 @@ public sealed record CmsDotnetZoneStepListItemDto(
     string Key,
     string Name,
     int Order,
+    string Icon,
     int ArticleCount);
 
 public sealed record CmsDocumentTypeListItemDto(
@@ -73,7 +74,8 @@ public sealed record CmsSaveRoadmapZoneRequest(
 
 public sealed record CmsSaveRoadmapStepRequest(
     string Name,
-    string? Key);
+    string? Key,
+    string? Icon);
 
 public sealed record CmsSaveRoadmapResponse(
     bool Success,

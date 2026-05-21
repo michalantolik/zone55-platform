@@ -48,7 +48,14 @@ else
 {
     <section class="hero container-xl dotnet-standard-hero">
         <div class="hero-main dotnet-standard-hero-main">
-            <h1>@SelectedStepTitle</h1>
+            <h1>
+                @if (!string.IsNullOrWhiteSpace(SelectedStep?.Icon))
+                {
+                    <span class="dotnet-hero-step-icon" aria-hidden="true">@SelectedStep.Icon</span>
+                }
+
+                <span>@SelectedStepTitle</span>
+            </h1>
             <p>@SelectedStepDescription</p>
         </div>
     </section>

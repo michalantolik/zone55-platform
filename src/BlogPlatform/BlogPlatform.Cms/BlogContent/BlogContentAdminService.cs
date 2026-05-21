@@ -58,6 +58,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                         step.Key,
                         step.Name,
                         step.Order,
+                        step.Icon,
                         articles.Count(article =>
                             article.DotnetZone == zone.Key &&
                             article.DotnetZoneStep == step.Key)))
@@ -414,6 +415,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             zoneKey,
             request.Name,
             request.Key,
+            request.Icon,
             cancellationToken);
 
         ClearCachesIfSuccessful(result);
@@ -431,6 +433,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             zoneKey,
             stepKey,
             request.Name,
+            request.Icon,
             cancellationToken);
 
         ClearCachesIfSuccessful(result);

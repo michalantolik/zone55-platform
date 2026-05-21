@@ -20,12 +20,14 @@ public interface IRoadmapCommandService
         string zoneKey,
         string? name,
         string? requestedKey,
+        string? icon,
         CancellationToken cancellationToken = default);
 
     Task<RoadmapOperationResult> UpdateStepAsync(
         string zoneKey,
         string stepKey,
         string? name,
+        string? icon,
         CancellationToken cancellationToken = default);
 
     Task<RoadmapOperationResult> DeleteStepAsync(

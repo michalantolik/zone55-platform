@@ -38,7 +38,8 @@ public sealed class SqlDotnetRoadmapStore : IDotnetRoadmapStore
                     .Select(step => DotnetRoadmapStep.Create(
                         step.Key,
                         step.Name,
-                        step.Order)))));
+                        step.Order,
+                        step.Icon)))));
     }
 
     public async Task SaveAsync(
@@ -106,6 +107,7 @@ public sealed class SqlDotnetRoadmapStore : IDotnetRoadmapStore
                 }
 
                 stepEntity.Name = step.Name;
+                stepEntity.Icon = step.Icon;
                 stepEntity.Order = step.Order;
             }
         }

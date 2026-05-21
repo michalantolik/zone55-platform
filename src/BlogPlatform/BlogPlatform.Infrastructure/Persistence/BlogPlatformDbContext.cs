@@ -55,6 +55,11 @@ public sealed class BlogPlatformDbContext : DbContext
                 .HasMaxLength(200)
                 .IsRequired();
 
+            entity.Property(step => step.Icon)
+                .HasMaxLength(32)
+                .HasDefaultValue("📘")
+                .IsRequired();
+
             entity.Property(step => step.Order)
                 .IsRequired();
 

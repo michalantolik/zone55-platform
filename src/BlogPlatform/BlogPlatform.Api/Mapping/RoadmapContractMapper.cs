@@ -22,6 +22,7 @@ internal static class RoadmapContractMapper
         return new RoadmapStepDto(
             step.Key,
             step.Name,
-            step.Order);
+            step.Order,
+            step.Icon);
     }
 }

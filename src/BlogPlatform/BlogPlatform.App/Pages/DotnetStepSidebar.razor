@@ -9,7 +9,15 @@
             {
                 <a class="dotnet-step-list-item @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
                        href="@GetStepUrl(step)">
-                    <span class="dotnet-step-number">@step.StepOrder</span>
+                    @if (IsActive(step))
+                    {
+                        <span class="dotnet-step-emoji-chip" aria-hidden="true">@step.Icon</span>
+                    }
+                    else
+                    {
+                        <span class="dotnet-step-number">@step.StepOrder</span>
+                    }
+
                     <span class="dotnet-step-title">@step.Title</span>
                 </a>
             }

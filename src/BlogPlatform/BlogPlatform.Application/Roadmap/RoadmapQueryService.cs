@@ -25,7 +25,8 @@ public sealed class RoadmapQueryService : IRoadmapQueryService
                     .Select(step => new RoadmapStepModel(
                         step.Key,
                         step.Name,
-                        step.Order))
+                        step.Order,
+                        step.Icon))
                     .ToList()))
             .ToList();
     }

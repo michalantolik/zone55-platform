@@ -103,6 +103,7 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         string zoneKey,
         string? name,
         string? requestedKey,
+        string? icon,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -130,7 +131,7 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
                 "Step key already exists.");
         }
 
-        roadmap.AddStep(zoneKey, name, requestedKey);
+        roadmap.AddStep(zoneKey, name, requestedKey, icon);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 
@@ -141,6 +142,7 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
         string zoneKey,
         string stepKey,
         string? name,
+        string? icon,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -159,7 +161,7 @@ public sealed class RoadmapCommandService : IRoadmapCommandService
                 "Step not found.");
         }
 
-        roadmap.RenameStep(zoneKey, stepKey, name);
+        roadmap.RenameStep(zoneKey, stepKey, name, icon);
 
         await _roadmapStore.SaveAsync(roadmap, cancellationToken);
 

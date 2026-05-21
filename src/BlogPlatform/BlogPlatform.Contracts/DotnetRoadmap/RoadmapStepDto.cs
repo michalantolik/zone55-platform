@@ -3,4 +3,5 @@
 public sealed record RoadmapStepDto(
     string Key,
     string Name,
-    int Order);
+    int Order,
+    string Icon);

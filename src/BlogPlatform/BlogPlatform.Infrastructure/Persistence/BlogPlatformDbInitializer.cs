@@ -79,6 +79,7 @@ public static class BlogPlatformDbInitializer
                     [RoadmapZoneId] INT NOT NULL,
                     [Key] NVARCHAR(100) NOT NULL,
                     [Name] NVARCHAR(200) NOT NULL,
+                    [Icon] NVARCHAR(32) NOT NULL CONSTRAINT [DF_BlogStep_Icon] DEFAULT N'📘',
                     [Order] INT NOT NULL,
 
                     CONSTRAINT [PK_BlogStep]
@@ -92,6 +93,17 @@ public static class BlogPlatformDbInitializer
                     CONSTRAINT [UX_BlogStep_Key]
                         UNIQUE ([Key])
                 )
+            END
+            """,
+            cancellationToken);
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            """
+            IF COL_LENGTH('[blogPlatform].[BlogStep]', 'Icon') IS NULL
+            BEGIN
+                ALTER TABLE [blogPlatform].[BlogStep]
+                ADD [Icon] NVARCHAR(32) NOT NULL
+                    CONSTRAINT [DF_BlogStep_Icon] DEFAULT N'📘'
             END
             """,
             cancellationToken);
