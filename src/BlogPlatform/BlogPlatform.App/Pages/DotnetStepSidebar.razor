@@ -9,7 +9,7 @@
             {
                 <a class="dotnet-step-list-item @SelectedLevelAccentClass @(IsActive(step) ? "active" : null)"
                        href="@GetStepUrl(step)">
-                    @if (IsActive(step))
+                    @if (DisplayStepIcons && IsActive(step) && !string.IsNullOrWhiteSpace(step.Icon))
                     {
                         <span class="dotnet-step-emoji-chip" aria-hidden="true">@step.Icon</span>
                     }
@@ -33,6 +33,9 @@
 
     [Parameter]
     public LearningPathStep? SelectedStep { get; set; }
+
+    [Parameter]
+    public bool DisplayStepIcons { get; set; }
 
     private IReadOnlyCollection<LearningPathStep> Steps => SelectedLevel?.Steps ?? [];
 
