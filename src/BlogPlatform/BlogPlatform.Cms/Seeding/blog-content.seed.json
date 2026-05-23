@@ -7,156 +7,156 @@
       "steps": [
         {
           "key": "csharp-dotnet",
-          "name": "C# & .NET",
+          "name": "C# \u0026 .NET",
           "order": 1,
-          "icon": "💻"
+          "icon": "\uD83D\uDCBB"
         },
         {
           "key": "basic-syntax",
           "name": "Basic Syntax",
           "order": 2,
-          "icon": "📝"
+          "icon": "\uD83D\uDCDD"
         },
         {
           "key": "types-operators",
-          "name": "Types & Operators",
+          "name": "Types \u0026 Operators",
           "order": 3,
-          "icon": "🔢"
+          "icon": "\uD83D\uDD22"
         },
         {
           "key": "functions-classes",
-          "name": "Functions & Classes",
+          "name": "Functions \u0026 Classes",
           "order": 4,
-          "icon": "🏗️"
+          "icon": "\uD83C\uDFD7\uFE0F"
         },
         {
           "key": "console-apps",
           "name": "Console Apps",
           "order": 5,
-          "icon": "🖥️"
+          "icon": "\uD83D\uDDA5\uFE0F"
         }
       ]
     },
     {
       "key": "web-app-development",
-      "name": "Web & App Development",
+      "name": "Web \u0026 App Development",
       "order": 2,
       "steps": [
         {
           "key": "aspnet-core-ecosystem",
           "name": "ASP.NET Core Ecosystem",
           "order": 1,
-          "icon": "🌐"
+          "icon": "\uD83C\uDF10"
         },
         {
           "key": "aspnet-core-mvc",
           "name": "ASP.NET Core MVC",
           "order": 2,
-          "icon": "🧭"
+          "icon": "\uD83E\uDDED"
         },
         {
           "key": "aspnet-core-web-api",
           "name": "ASP.NET Core Web API",
           "order": 3,
-          "icon": "🔌"
+          "icon": "\uD83D\uDD0C"
         },
         {
           "key": "linq-collections",
-          "name": "LINQ & Collections",
+          "name": "LINQ \u0026 Collections",
           "order": 4,
-          "icon": "🔎"
+          "icon": "\uD83D\uDD0E"
         },
         {
           "key": "dependency-injection",
           "name": "Dependency Injection",
           "order": 5,
-          "icon": "🔗"
+          "icon": "\uD83D\uDD17"
         },
         {
           "key": "desktop-apps",
           "name": "Desktop Apps",
           "order": 6,
-          "icon": "🪟"
+          "icon": "\uD83E\uDE9F"
         }
       ]
     },
     {
       "key": "architecture-data",
-      "name": "Architecture & Data",
+      "name": "Architecture \u0026 Data",
       "order": 3,
       "steps": [
         {
           "key": "sql-fundamentals",
           "name": "SQL Fundamentals",
           "order": 1,
-          "icon": "🗄️"
+          "icon": "\uD83D\uDDC4\uFE0F"
         },
         {
           "key": "entity-framework-core",
           "name": "Entity Framework Core",
           "order": 2,
-          "icon": "🧱"
+          "icon": "\uD83E\uDDF1"
         },
         {
           "key": "async-programming",
           "name": "Async Programming",
           "order": 3,
-          "icon": "⚡"
+          "icon": "\u26A1"
         },
         {
           "key": "testing",
           "name": "Testing",
           "order": 4,
-          "icon": "🧪"
+          "icon": "\uD83E\uDDEA"
         },
         {
           "key": "clean-architecture",
           "name": "Clean Architecture",
           "order": 5,
-          "icon": "🏛️"
+          "icon": "\uD83C\uDFDB\uFE0F"
         },
         {
           "key": "design-patterns",
           "name": "Design Patterns",
           "order": 6,
-          "icon": "🧩"
+          "icon": "\uD83E\uDDE9"
         }
       ]
     },
     {
       "key": "cloud-advanced",
-      "name": "Cloud & Advanced",
+      "name": "Cloud \u0026 Advanced",
       "order": 4,
       "steps": [
         {
           "key": "microservices",
           "name": "Microservices",
           "order": 1,
-          "icon": "🛰️"
+          "icon": "\uD83D\uDEF0\uFE0F"
         },
         {
           "key": "azure-integration",
           "name": "Azure Integration",
           "order": 2,
-          "icon": "☁️"
+          "icon": "\u2601\uFE0F"
         },
         {
           "key": "cicd-pipelines",
           "name": "CI/CD Pipelines",
           "order": 3,
-          "icon": "🚀"
+          "icon": "\uD83D\uDE80"
         },
         {
           "key": "performance-tuning",
           "name": "Performance Tuning",
           "order": 4,
-          "icon": "⚙️"
+          "icon": "\u2699\uFE0F"
         },
         {
           "key": "advanced-csharp",
           "name": "Advanced C#",
           "order": 5,
-          "icon": "🧠"
+          "icon": "\uD83E\uDDE0"
         }
       ]
     }
@@ -168,6 +168,9 @@
       "level": "Intermediate",
       "focus": "Practical",
       "summary": "A practical approach to appsettings, environments, Options pattern, and cloud-ready configuration.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "basic-syntax",
+      "order": 19,
       "tags": [
         ".NET",
         "ASP.NET Core",
@@ -188,24 +191,24 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
-          "code": "builder.Services.Configure<MyOptions>(\n    builder.Configuration.GetSection(\"MyOptions\"));\n"
+          "code": "builder.Services.Configure\u003CMyOptions\u003E(\n    builder.Configuration.GetSection(\u0022MyOptions\u0022));\n"
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart LR\n    A[appsettings.json] --> B[Options pattern]\n    B --> C[Application services]\n    C --> D[Controllers / UI]\n"
+          "diagram": "flowchart LR\n    A[appsettings.json] --\u003E B[Options pattern]\n    B --\u003E C[Application services]\n    C --\u003E D[Controllers / UI]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "callout",
-          "kind": "tip",
-          "text": "Keep configuration boring. Boring configuration is easier to deploy, debug and automate."
+          "text": "Keep configuration boring. Boring configuration is easier to deploy, debug and automate.",
+          "kind": "tip"
         },
         {
           "type": "text",
           "text": "For cloud-hosted applications, the cleanest approach is to treat appsettings.json as defaults and environment variables or managed configuration services as runtime overrides."
         }
-      ],
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "basic-syntax"
+      ]
     },
     {
       "name": "Using PlantUML to Document Software Architecture",
@@ -213,6 +216,9 @@
       "level": "Beginner",
       "focus": "Documentation",
       "summary": "Simple diagrams that explain system context, components, deployment, and data flow.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "basic-syntax",
+      "order": 20,
       "tags": [
         "PlantUML",
         "C4",
@@ -231,7 +237,9 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\nactor Reader\nrectangle \"BlogPlatform.App\" as App\nrectangle \"BlogPlatform.Cms\" as Cms\nrectangle \"Umbraco Delivery API\" as Api\n\nReader --> App\nApp --> Api\nApi --> Cms\n@enduml\n"
+          "diagram": "@startuml\nactor Reader\nrectangle \u0022BlogPlatform.App\u0022 as App\nrectangle \u0022BlogPlatform.Cms\u0022 as Cms\nrectangle \u0022Umbraco Delivery API\u0022 as Api\n\nReader --\u003E App\nApp --\u003E Api\nApi --\u003E Cms\n@enduml\n",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -240,22 +248,22 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart TD\n    A[Write architecture note] --> B[Add PlantUML diagram]\n    B --> C[Review with code changes]\n    C --> D[Publish article]\n"
+          "diagram": "flowchart TD\n    A[Write architecture note] --\u003E B[Add PlantUML diagram]\n    B --\u003E C[Review with code changes]\n    C --\u003E D[Publish article]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "codeSnippet",
           "language": "plantuml",
           "fileName": "context.puml",
-          "code": "@startuml\nactor Reader\nrectangle BlogPlatform\nReader --> BlogPlatform\n@enduml\n"
+          "code": "@startuml\nactor Reader\nrectangle BlogPlatform\nReader --\u003E BlogPlatform\n@enduml\n"
         },
         {
           "type": "callout",
-          "kind": "note",
-          "text": "Store diagrams as text, not screenshots. Text-based diagrams are versionable, searchable and easier to maintain."
+          "text": "Store diagrams as text, not screenshots. Text-based diagrams are versionable, searchable and easier to maintain.",
+          "kind": "note"
         }
-      ],
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "basic-syntax"
+      ]
     },
     {
       "name": "C# Variables and Simple Values",
@@ -263,6 +271,9 @@
       "level": "Beginner",
       "focus": "C# Basics",
       "summary": "Learn how variables store text, numbers, booleans, and simple program state.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "basic-syntax",
+      "order": 21,
       "tags": [
         "C#",
         "Variables",
@@ -283,7 +294,7 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Variables.cs",
-          "code": "string name = \"Michał\";\nint articleCount = 6;\nbool isPublished = true;\n\nConsole.WriteLine(name);\nConsole.WriteLine(articleCount);\nConsole.WriteLine(isPublished);\n"
+          "code": "string name = \u0022Micha\u0142\u0022;\nint articleCount = 6;\nbool isPublished = true;\n\nConsole.WriteLine(name);\nConsole.WriteLine(articleCount);\nConsole.WriteLine(isPublished);\n"
         },
         {
           "type": "text",
@@ -291,12 +302,14 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart LR\n    A[Value] --> B[Variable name]\n    B --> C[Use later in code]\n"
+          "diagram": "flowchart LR\n    A[Value] --\u003E B[Variable name]\n    B --\u003E C[Use later in code]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "callout",
-          "kind": "tip",
-          "text": "Use clear names that explain the meaning of the value, not only the type of value."
+          "text": "Use clear names that explain the meaning of the value, not only the type of value.",
+          "kind": "tip"
         },
         {
           "type": "heading",
@@ -311,15 +324,13 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Naming.cs",
-          "code": "int score = 10;\nint bonus = 5;\nint totalScore = score + bonus;\n\nConsole.WriteLine(totalScore);\n"
+          "code": "int score = 10;\nint bonus = 5;\nint totalScore = score \u002B bonus;\n\nConsole.WriteLine(totalScore);\n"
         },
         {
           "type": "text",
           "text": "Start with explicit types while learning. Later, var can reduce repetition when the assigned value already makes the type obvious."
         }
-      ],
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "basic-syntax"
+      ]
     },
     {
       "name": "C# Conditions and Branching",
@@ -327,6 +338,9 @@
       "level": "Beginner",
       "focus": "C# Basics",
       "summary": "Use if statements, comparisons, and boolean logic to control program decisions.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "basic-syntax",
+      "order": 22,
       "tags": [
         "C#",
         "Conditions",
@@ -347,7 +361,7 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Conditions.cs",
-          "code": "int points = 80;\n\nif (points >= 60)\n{\n    Console.WriteLine(\"Passed\");\n}\nelse\n{\n    Console.WriteLine(\"Try again\");\n}\n"
+          "code": "int points = 80;\n\nif (points \u003E= 60)\n{\n    Console.WriteLine(\u0022Passed\u0022);\n}\nelse\n{\n    Console.WriteLine(\u0022Try again\u0022);\n}\n"
         },
         {
           "type": "text",
@@ -355,7 +369,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart TD\n    A[Start] --> B{points >= 60?}\n    B -->|true| C[Print Passed]\n    B -->|false| D[Print Try again]\n"
+          "diagram": "flowchart TD\n    A[Start] --\u003E B{points \u003E= 60?}\n    B --\u003E|true| C[Print Passed]\n    B --\u003E|false| D[Print Try again]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -364,22 +380,20 @@
         },
         {
           "type": "text",
-          "text": "Use && when both conditions must be true. Use || when at least one condition must be true. Use ! when you want to reverse a boolean value."
+          "text": "Use \u0026\u0026 when both conditions must be true. Use || when at least one condition must be true. Use ! when you want to reverse a boolean value."
         },
         {
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "BooleanLogic.cs",
-          "code": "bool isLoggedIn = true;\nbool hasAccess = false;\n\nif (isLoggedIn && hasAccess)\n{\n    Console.WriteLine(\"Open dashboard\");\n}\n"
+          "code": "bool isLoggedIn = true;\nbool hasAccess = false;\n\nif (isLoggedIn \u0026\u0026 hasAccess)\n{\n    Console.WriteLine(\u0022Open dashboard\u0022);\n}\n"
         },
         {
           "type": "callout",
-          "kind": "note",
-          "text": "Good conditions read almost like business rules. Keep them short and name complex checks clearly."
+          "text": "Good conditions read almost like business rules. Keep them short and name complex checks clearly.",
+          "kind": "note"
         }
-      ],
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "basic-syntax"
+      ]
     },
     {
       "name": "C# Loops and Repeated Work",
@@ -387,6 +401,9 @@
       "level": "Beginner",
       "focus": "C# Basics",
       "summary": "Repeat work with for, while, and foreach loops without duplicating code.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "basic-syntax",
+      "order": 23,
       "tags": [
         "C#",
         "Loops",
@@ -407,7 +424,7 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "ForLoop.cs",
-          "code": "for (int i = 1; i <= 3; i++)\n{\n    Console.WriteLine($\"Step {i}\");\n}\n"
+          "code": "for (int i = 1; i \u003C= 3; i\u002B\u002B)\n{\n    Console.WriteLine($\u0022Step {i}\u0022);\n}\n"
         },
         {
           "type": "text",
@@ -415,7 +432,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart LR\n    A[Start loop] --> B{Condition true?}\n    B -->|yes| C[Run body]\n    C --> D[Update counter]\n    D --> B\n    B -->|no| E[Continue program]\n"
+          "diagram": "flowchart LR\n    A[Start loop] --\u003E B{Condition true?}\n    B --\u003E|yes| C[Run body]\n    C --\u003E D[Update counter]\n    D --\u003E B\n    B --\u003E|no| E[Continue program]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -430,16 +449,14 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "ForeachLoop.cs",
-          "code": "string[] topics = [\"syntax\", \"types\", \"loops\"];\n\nforeach (string topic in topics)\n{\n    Console.WriteLine(topic);\n}\n"
+          "code": "string[] topics = [\u0022syntax\u0022, \u0022types\u0022, \u0022loops\u0022];\n\nforeach (string topic in topics)\n{\n    Console.WriteLine(topic);\n}\n"
         },
         {
           "type": "callout",
-          "kind": "warning",
-          "text": "Every while loop needs a condition that eventually becomes false. Otherwise the program can run forever."
+          "text": "Every while loop needs a condition that eventually becomes false. Otherwise the program can run forever.",
+          "kind": "warning"
         }
-      ],
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "basic-syntax"
+      ]
     },
     {
       "name": "ASP.NET Core Web API Fundamentals",
@@ -447,6 +464,9 @@
       "level": "Beginner",
       "focus": "Course Notes",
       "summary": "A standalone study note explaining the ASP.NET Core Web API.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "basic-syntax",
+      "order": 24,
       "tags": [
         ".NET",
         "ASP.NET Core",
@@ -484,12 +504,14 @@
         },
         {
           "type": "callout",
-          "kind": "note",
-          "text": ".NET 8 is a long-term support release. .NET 9 is a current release. For production learning projects, .NET 8 is often the safer baseline because it has longer support."
+          "text": ".NET 8 is a long-term support release. .NET 9 is a current release. For production learning projects, .NET 8 is often the safer baseline because it has longer support.",
+          "kind": "note"
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart TD\n    A[.NET Developer Platform] --> B[ASP.NET Core Web Framework]\n    B --> C[Web APIs]\n    B --> D[Web Apps]\n    B --> E[Cloud Services]\n    B --> F[Mobile Backends]\n    C --> G[Controllers / Minimal APIs]\n"
+          "diagram": "flowchart TD\n    A[.NET Developer Platform] --\u003E B[ASP.NET Core Web Framework]\n    B --\u003E C[Web APIs]\n    B --\u003E D[Web Apps]\n    B --\u003E E[Cloud Services]\n    B --\u003E F[Mobile Backends]\n    C --\u003E G[Controllers / Minimal APIs]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -506,7 +528,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart LR\n    A[ASP.NET Core API Options] --> B[MVC Controllers]\n    A --> C[Minimal APIs]\n\n    B --> B1[Full-featured]\n    B --> B2[Controllers and actions]\n    B --> B3[Good for larger APIs]\n\n    C --> C1[Lightweight]\n    C --> C2[Less ceremony]\n    C --> C3[Good for small services]\n"
+          "diagram": "flowchart LR\n    A[ASP.NET Core API Options] --\u003E B[MVC Controllers]\n    A --\u003E C[Minimal APIs]\n\n    B --\u003E B1[Full-featured]\n    B --\u003E B2[Controllers and actions]\n    B --\u003E B3[Good for larger APIs]\n\n    C --\u003E C1[Lightweight]\n    C --\u003E C2[Less ceremony]\n    C --\u003E C3[Good for small services]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -525,7 +549,7 @@
           "type": "codeSnippet",
           "language": "xml",
           "fileName": "CityInfo.API.csproj",
-          "code": "<Project Sdk=\"Microsoft.NET.Sdk.Web\">\n\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n    <Nullable>enable</Nullable>\n    <ImplicitUsings>enable</ImplicitUsings>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"Swashbuckle.AspNetCore\" Version=\"6.5.0\" />\n  </ItemGroup>\n\n</Project>\n"
+          "code": "\u003CProject Sdk=\u0022Microsoft.NET.Sdk.Web\u0022\u003E\n\n  \u003CPropertyGroup\u003E\n    \u003CTargetFramework\u003Enet8.0\u003C/TargetFramework\u003E\n    \u003CNullable\u003Eenable\u003C/Nullable\u003E\n    \u003CImplicitUsings\u003Eenable\u003C/ImplicitUsings\u003E\n  \u003C/PropertyGroup\u003E\n\n  \u003CItemGroup\u003E\n    \u003CPackageReference Include=\u0022Swashbuckle.AspNetCore\u0022 Version=\u00226.5.0\u0022 /\u003E\n  \u003C/ItemGroup\u003E\n\n\u003C/Project\u003E\n"
         },
         {
           "type": "text",
@@ -548,8 +572,8 @@
         },
         {
           "type": "callout",
-          "kind": "tip",
-          "text": "Swagger is very useful during development because it gives immediate feedback about available endpoints, HTTP methods, request shapes, and response shapes."
+          "text": "Swagger is very useful during development because it gives immediate feedback about available endpoints, HTTP methods, request shapes, and response shapes.",
+          "kind": "tip"
         },
         {
           "type": "heading",
@@ -568,7 +592,7 @@
           "type": "codeSnippet",
           "language": "json",
           "fileName": "launchSettings.json",
-          "code": "{\n  \"profiles\": {\n    \"https\": {\n      \"commandName\": \"Project\",\n      \"launchBrowser\": false,\n      \"launchUrl\": \"swagger\",\n      \"applicationUrl\": \"https://localhost:7206;http://localhost:5206\",\n      \"environmentVariables\": {\n        \"ASPNETCORE_ENVIRONMENT\": \"Development\"\n      }\n    }\n  }\n}\n"
+          "code": "{\n  \u0022profiles\u0022: {\n    \u0022https\u0022: {\n      \u0022commandName\u0022: \u0022Project\u0022,\n      \u0022launchBrowser\u0022: false,\n      \u0022launchUrl\u0022: \u0022swagger\u0022,\n      \u0022applicationUrl\u0022: \u0022https://localhost:7206;http://localhost:5206\u0022,\n      \u0022environmentVariables\u0022: {\n        \u0022ASPNETCORE_ENVIRONMENT\u0022: \u0022Development\u0022\n      }\n    }\n  }\n}\n"
         },
         {
           "type": "heading",
@@ -577,7 +601,7 @@
         },
         {
           "type": "text",
-          "text": "The application can be started from Visual Studio with F5 when debugging is needed, or Ctrl+F5 when running without the debugger. The selected launch profile controls whether the app starts with HTTP, HTTPS, or IIS Express."
+          "text": "The application can be started from Visual Studio with F5 when debugging is needed, or Ctrl\u002BF5 when running without the debugger. The selected launch profile controls whether the app starts with HTTP, HTTPS, or IIS Express."
         },
         {
           "type": "text",
@@ -591,8 +615,8 @@
         },
         {
           "type": "callout",
-          "kind": "note",
-          "text": "There is no single best way to run an ASP.NET Core application. Visual Studio, Visual Studio Code, Rider, and the dotnet CLI all use the same underlying toolchain."
+          "text": "There is no single best way to run an ASP.NET Core application. Visual Studio, Visual Studio Code, Rider, and the dotnet CLI all use the same underlying toolchain.",
+          "kind": "note"
         },
         {
           "type": "heading",
@@ -615,7 +639,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart TD\n    A[Create WebApplicationBuilder] --> B[Register services]\n    B --> C[Build WebApplication]\n    C --> D[Configure middleware pipeline]\n    D --> E[Map endpoints]\n    E --> F[Run application]\n"
+          "diagram": "flowchart TD\n    A[Create WebApplicationBuilder] --\u003E B[Register services]\n    B --\u003E C[Build WebApplication]\n    C --\u003E D[Configure middleware pipeline]\n    D --\u003E E[Map endpoints]\n    E --\u003E F[Run application]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -638,8 +664,8 @@
         },
         {
           "type": "callout",
-          "kind": "tip",
-          "text": "Think of dependency injection as the place where the application declares what components exist and how other parts of the system can receive them."
+          "text": "Think of dependency injection as the place where the application declares what components exist and how other parts of the system can receive them.",
+          "kind": "tip"
         },
         {
           "type": "heading",
@@ -656,7 +682,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "sequenceDiagram\n    participant Client\n    participant M1 as Middleware 1\n    participant M2 as Middleware 2\n    participant M3 as Endpoint / Controller\n\n    Client->>M1: HTTP request\n    M1->>M2: pass request\n    M2->>M3: pass request\n    M3-->>M2: response\n    M2-->>M1: response\n    M1-->>Client: HTTP response\n"
+          "diagram": "sequenceDiagram\n    participant Client\n    participant M1 as Middleware 1\n    participant M2 as Middleware 2\n    participant M3 as Endpoint / Controller\n\n    Client-\u003E\u003EM1: HTTP request\n    M1-\u003E\u003EM2: pass request\n    M2-\u003E\u003EM3: pass request\n    M3--\u003E\u003EM2: response\n    M2--\u003E\u003EM1: response\n    M1--\u003E\u003EClient: HTTP response\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "text",
@@ -675,7 +703,7 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
-          "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\n\napp.Run(async context =>\n{\n    await context.Response.WriteAsync(\"Hello World!\");\n});\n\napp.Run();\n"
+          "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\n\napp.Run(async context =\u003E\n{\n    await context.Response.WriteAsync(\u0022Hello World!\u0022);\n});\n\napp.Run();\n"
         },
         {
           "type": "text",
@@ -692,18 +720,20 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart TD\n    A[Incoming request: /swagger] --> B{Swagger middleware first?}\n    B -->|Yes| C[Show Swagger UI]\n    B -->|No| D[Hello World middleware]\n    D --> E[Return Hello World]\n"
+          "diagram": "flowchart TD\n    A[Incoming request: /swagger] --\u003E B{Swagger middleware first?}\n    B --\u003E|Yes| C[Show Swagger UI]\n    B --\u003E|No| D[Hello World middleware]\n    D --\u003E E[Return Hello World]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
-          "code": "if (app.Environment.IsDevelopment())\n{\n    app.UseSwagger();\n    app.UseSwaggerUI();\n}\n\napp.Run(async context =>\n{\n    await context.Response.WriteAsync(\"Hello World!\");\n});\n"
+          "code": "if (app.Environment.IsDevelopment())\n{\n    app.UseSwagger();\n    app.UseSwaggerUI();\n}\n\napp.Run(async context =\u003E\n{\n    await context.Response.WriteAsync(\u0022Hello World!\u0022);\n});\n"
         },
         {
           "type": "callout",
-          "kind": "warning",
-          "text": "Middleware order is not cosmetic. It directly changes the runtime behavior of the application."
+          "text": "Middleware order is not cosmetic. It directly changes the runtime behavior of the application.",
+          "kind": "warning"
         },
         {
           "type": "heading",
@@ -736,7 +766,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart LR\n    A[ASPNETCORE_ENVIRONMENT] --> B{Environment}\n    B --> C[Development]\n    B --> D[Staging]\n    B --> E[Production]\n\n    C --> F[Enable Swagger UI]\n    E --> G[Disable development-only middleware]\n"
+          "diagram": "flowchart LR\n    A[ASPNETCORE_ENVIRONMENT] --\u003E B{Environment}\n    B --\u003E C[Development]\n    B --\u003E D[Staging]\n    B --\u003E E[Production]\n\n    C --\u003E F[Enable Swagger UI]\n    E --\u003E G[Disable development-only middleware]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -764,7 +796,9 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\ntitle ASP.NET Core Web API Startup Model\n\nrectangle \"Program.cs\" as Program\nrectangle \"WebApplicationBuilder\" as Builder\nrectangle \"Service Collection\\nDependency Injection\" as Services\nrectangle \"WebApplication\" as App\nrectangle \"Middleware Pipeline\" as Pipeline\nrectangle \"Controllers\" as Controllers\n\nProgram --> Builder : CreateBuilder(args)\nBuilder --> Services : Register framework and app services\nServices --> App : builder.Build()\nApp --> Pipeline : Configure request handling\nPipeline --> Controllers : Map controller endpoints\n\n@enduml\n"
+          "diagram": "@startuml\ntitle ASP.NET Core Web API Startup Model\n\nrectangle \u0022Program.cs\u0022 as Program\nrectangle \u0022WebApplicationBuilder\u0022 as Builder\nrectangle \u0022Service Collection\\nDependency Injection\u0022 as Services\nrectangle \u0022WebApplication\u0022 as App\nrectangle \u0022Middleware Pipeline\u0022 as Pipeline\nrectangle \u0022Controllers\u0022 as Controllers\n\nProgram --\u003E Builder : CreateBuilder(args)\nBuilder --\u003E Services : Register framework and app services\nServices --\u003E App : builder.Build()\nApp --\u003E Pipeline : Configure request handling\nPipeline --\u003E Controllers : Map controller endpoints\n\n@enduml\n",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -777,7 +811,9 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart TD\n    A[ASP.NET Core Web API Project] --> B[.csproj]\n    A --> C[Program.cs]\n    A --> D[appsettings.json]\n    A --> E[launchSettings.json]\n    A --> F[Controllers]\n\n    B --> B1[Target framework and packages]\n    C --> C1[Services and middleware]\n    D --> D1[Application configuration]\n    E --> E1[Local development profiles]\n    F --> F1[API endpoints]\n"
+          "diagram": "flowchart TD\n    A[ASP.NET Core Web API Project] --\u003E B[.csproj]\n    A --\u003E C[Program.cs]\n    A --\u003E D[appsettings.json]\n    A --\u003E E[launchSettings.json]\n    A --\u003E F[Controllers]\n\n    B --\u003E B1[Target framework and packages]\n    C --\u003E C1[Services and middleware]\n    D --\u003E D1[Application configuration]\n    E --\u003E E1[Local development profiles]\n    F --\u003E F1[API endpoints]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         },
         {
           "type": "heading",
@@ -798,8 +834,8 @@
         },
         {
           "type": "callout",
-          "kind": "summary",
-          "text": "At the end of this module, you should understand the ASP.NET Core big picture, project structure, Program.cs startup flow, dependency injection registration, middleware pipeline, launch profiles, CLI usage, Swagger setup, and environment-based behavior."
+          "text": "At the end of this module, you should understand the ASP.NET Core big picture, project structure, Program.cs startup flow, dependency injection registration, middleware pipeline, launch profiles, CLI usage, Swagger setup, and environment-based behavior.",
+          "kind": "summary"
         },
         {
           "type": "heading",
@@ -812,11 +848,43 @@
         },
         {
           "type": "mermaidDiagram",
-          "diagram": "flowchart LR\n    A[HTTP Request] --> B[Kestrel]\n    B --> C[Middleware Pipeline]\n    C --> D[Routing]\n    D --> E[Controller Action]\n    E --> F[HTTP Response]\n"
+          "diagram": "flowchart LR\n    A[HTTP Request] --\u003E B[Kestrel]\n    B --\u003E C[Middleware Pipeline]\n    C --\u003E D[Routing]\n    D --\u003E E[Controller Action]\n    E --\u003E F[HTTP Response]\n",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
         }
-      ],
+      ]
+    },
+    {
+      "name": "Raz dwa trzy",
+      "slug": "example-article-123",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Raz dwa trzy",
       "dotnetZone": "foundation",
-      "dotnetZoneStep": "basic-syntax"
+      "dotnetZoneStep": "csharp-dotnet",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Cztery pi\u0119\u0107 sze\u015B\u0107",
+      "slug": "example-article-456",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Cztery pi\u0119\u0107 sze\u015B\u0107",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "csharp-dotnet",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
     }
   ]
 }
