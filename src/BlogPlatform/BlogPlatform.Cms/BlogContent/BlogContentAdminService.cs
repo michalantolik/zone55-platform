@@ -583,7 +583,10 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
     private BlogSeedBlock? CreateSeedBlockFromBlockListContent(JsonElement blockElement)
     {
-        var elementTypeAlias = GetElementTypeAlias(blockElement);
+        var elementTypeAlias =
+            GetElementTypeAlias(blockElement) ??
+            GetElementTypeAliasFromEditorType(blockElement) ??
+            InferElementTypeAlias(blockElement);
 
         return elementTypeAlias switch
         {
@@ -613,7 +616,9 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                 Type = "mermaidDiagram",
                 Title = GetJsonString(blockElement, "title"),
                 ShowDiagramTitleBar = GetJsonBool(blockElement, "showDiagramTitleBar"),
-                Diagram = GetJsonString(blockElement, "diagram")
+                Diagram =
+                    GetJsonString(blockElement, "diagram") ??
+                    GetJsonString(blockElement, "mermaid")
             },
 
             BlogContentAliases.PlantUmlDiagramBlock => new BlogSeedBlock
@@ -621,13 +626,18 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                 Type = "plantUmlDiagram",
                 Title = GetJsonString(blockElement, "title"),
                 ShowDiagramTitleBar = GetJsonBool(blockElement, "showDiagramTitleBar"),
-                Diagram = GetJsonString(blockElement, "diagram")
+                Diagram =
+                    GetJsonString(blockElement, "diagram") ??
+                    GetJsonString(blockElement, "plantUml") ??
+                    GetJsonString(blockElement, "plantuml")
             },
 
             BlogContentAliases.CalloutBlock => new BlogSeedBlock
             {
                 Type = "callout",
-                Kind = GetJsonString(blockElement, "kind"),
+                Kind =
+                    GetJsonString(blockElement, "kind") ??
+                    GetJsonString(blockElement, "calloutType"),
                 Text = GetJsonString(blockElement, "text")
             },
 
@@ -804,12 +814,171 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         article.SetValue(BlogContentAliases.DotnetZoneStep, step);
         article.SetValue(BlogContentAliases.Order, order);
         article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
-        article.SetValue(BlogContentAliases.BodyBlocks, request.BodyBlocks ?? string.Empty);
+        article.SetValue(
+            BlogContentAliases.BodyBlocks,
+            NormalizeBodyBlocksForUmbraco(request.BodyBlocks));
 
         if (GetDateTimeOffset(article, BlogContentAliases.PublishedDate) is null)
         {
             article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
         }
+    }
+
+    private string NormalizeBodyBlocksForUmbraco(string? bodyBlocksJson)
+    {
+        if (string.IsNullOrWhiteSpace(bodyBlocksJson))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(bodyBlocksJson);
+            var root = document.RootElement;
+
+            if (!root.TryGetProperty("contentData", out var contentData) ||
+                contentData.ValueKind != JsonValueKind.Array)
+            {
+                return bodyBlocksJson;
+            }
+
+            var normalizedContentData = new List<Dictionary<string, object?>>();
+            var layoutItems = new List<Dictionary<string, object?>>();
+
+            foreach (var item in contentData.EnumerateArray())
+            {
+                var normalized = JsonSerializer.Deserialize<Dictionary<string, object?>>(
+                    item.GetRawText()) ?? [];
+
+                var alias =
+                    GetElementTypeAlias(item) ??
+                    GetElementTypeAliasFromEditorType(item) ??
+                    InferElementTypeAlias(item);
+
+                if (string.IsNullOrWhiteSpace(alias))
+                {
+                    continue;
+                }
+
+                var elementType = _contentTypeService.Get(alias);
+
+                if (elementType is null)
+                {
+                    continue;
+                }
+
+                var udi = GetJsonString(item, "udi");
+
+                if (string.IsNullOrWhiteSpace(udi))
+                {
+                    udi = $"umb://element/{Guid.NewGuid():N}";
+                }
+
+                normalized["udi"] = udi;
+                normalized["contentTypeKey"] = elementType.Key;
+
+                normalizedContentData.Add(normalized);
+
+                layoutItems.Add(new Dictionary<string, object?>
+                {
+                    ["contentUdi"] = udi,
+                    ["settingsUdi"] = null
+                });
+            }
+
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["layout"] = new Dictionary<string, object?>
+                {
+                    ["Umbraco.BlockList"] = layoutItems
+                },
+                ["contentData"] = normalizedContentData,
+                ["settingsData"] = Array.Empty<object>()
+            });
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Could not normalize article body blocks before saving.");
+
+            return bodyBlocksJson;
+        }
+    }
+
+    private static string? GetElementTypeAliasFromEditorType(JsonElement blockElement)
+    {
+        var type = GetJsonString(blockElement, "type");
+
+        return type?.Trim().ToLowerInvariant() switch
+        {
+            "text" => BlogContentAliases.TextBlock,
+            "heading" => BlogContentAliases.HeadingBlock,
+            "code" => BlogContentAliases.CodeSnippetBlock,
+            "codesnippet" => BlogContentAliases.CodeSnippetBlock,
+            "mermaid" => BlogContentAliases.MermaidDiagramBlock,
+            "mermaiddiagram" => BlogContentAliases.MermaidDiagramBlock,
+            "plantuml" => BlogContentAliases.PlantUmlDiagramBlock,
+            "plantumldiagram" => BlogContentAliases.PlantUmlDiagramBlock,
+            "plantumldiagramblock" => BlogContentAliases.PlantUmlDiagramBlock,
+            "callout" => BlogContentAliases.CalloutBlock,
+            "summary" => BlogContentAliases.SummaryBlock,
+            _ => null
+        };
+    }
+
+    private static string? InferElementTypeAlias(JsonElement blockElement)
+    {
+        if (blockElement.TryGetProperty("summary", out _))
+        {
+            return BlogContentAliases.SummaryBlock;
+        }
+
+        if (blockElement.TryGetProperty("plantUml", out _) ||
+            blockElement.TryGetProperty("plantuml", out _))
+        {
+            return BlogContentAliases.PlantUmlDiagramBlock;
+        }
+
+        if (blockElement.TryGetProperty("mermaid", out _))
+        {
+            return BlogContentAliases.MermaidDiagramBlock;
+        }
+
+        if (blockElement.TryGetProperty("diagram", out var diagram))
+        {
+            var text = diagram.GetString() ?? string.Empty;
+
+            return text.TrimStart().StartsWith("@startuml", StringComparison.OrdinalIgnoreCase) ||
+                   text.TrimStart().StartsWith("@@startuml", StringComparison.OrdinalIgnoreCase)
+                ? BlogContentAliases.PlantUmlDiagramBlock
+                : BlogContentAliases.MermaidDiagramBlock;
+        }
+
+        if (blockElement.TryGetProperty("code", out _) ||
+            blockElement.TryGetProperty("language", out _) ||
+            blockElement.TryGetProperty("fileName", out _))
+        {
+            return BlogContentAliases.CodeSnippetBlock;
+        }
+
+        if (blockElement.TryGetProperty("kind", out _) ||
+            blockElement.TryGetProperty("calloutType", out _))
+        {
+            return BlogContentAliases.CalloutBlock;
+        }
+
+        if (blockElement.TryGetProperty("level", out _))
+        {
+            return BlogContentAliases.HeadingBlock;
+        }
+
+        if (blockElement.TryGetProperty("text", out _))
+        {
+            return BlogContentAliases.TextBlock;
+        }
+
+        return null;
     }
 
     private IReadOnlyCollection<IContent> GetRootArticles()

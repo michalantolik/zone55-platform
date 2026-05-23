@@ -161,5 +161,57 @@
       ]
     }
   ],
-  "articles": []
+  "articles": [
+    {
+      "name": "Components of the .NET Framework",
+      "slug": "components-of-the-dotnet-framework",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": ".NET Framework consists of three components. Execution environment is called the Common Language Runtime (CLR). The CLR manages program execution at run time. The Base Class Library (BCL) is a large class library used by the .NET Framework and available for you to use in your programs as well.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "csharp-dotnet",
+      "order": 1,
+      "tags": [
+        ".NET Framework"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "Components of the .NET Framework are presented here:"
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam linetype ortho\n\nrectangle \u0022Programming\\nTools\u0022 as Tools\nrectangle \u0022Compiled\\nCode\u0022 as Code\nrectangle \u0022Base Class\\nLibrary (BCL)\u0022 as BCL\nrectangle \u0022Common Language Runtime (CLR)\u0022 as CLR\n\nTools -down-\u003E Code : Produces\nCode -right-\u003E BCL : Uses\nCode -down-\u003E CLR : Executed By\nBCL -down-\u003E CLR : Executed By\n\n@enduml",
+          "title": "Components of the .NET Framework",
+          "showDiagramTitleBar": true
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "ggdfgdf"
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "code": "// Add your code snippet here\n\ntrete\nt\nert"
+        },
+        {
+          "type": "mermaidDiagram",
+          "diagram": "flowchart TD\n    A[Start] --\u003E B[Next step]",
+          "title": "Mermaid diagram",
+          "showDiagramTitleBar": true
+        },
+        {
+          "type": "callout",
+          "text": "hteterter",
+          "kind": "tip"
+        },
+        {
+          "type": "summary",
+          "summary": "tret ert ert "
+        }
+      ]
+    }
+  ]
 }
