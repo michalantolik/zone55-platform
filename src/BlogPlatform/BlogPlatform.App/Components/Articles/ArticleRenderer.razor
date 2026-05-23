@@ -1,6 +1,7 @@
 ﻿@using System.IO.Compression
 @using System.Text
 @using BlogPlatform.App.Models
+@using BlogPlatform.App.Services
 @using BlogPlatform.Contracts.Posts
 @using Microsoft.JSInterop
 @inject IJSRuntime JS
@@ -27,7 +28,7 @@
         </div>
 
         <div class="article-summary">
-            @Article.Summary
+            @RenderMarkdown(Article.Summary)
         </div>
 
         <div class="article-body">
@@ -40,7 +41,9 @@
                         break;
 
                     case ArticleBlockType.Text:
-                        <p>@block.Text</p>
+                        <div class="article-markdown-block">
+                            @RenderMarkdown(block.Text)
+                        </div>
                         break;
 
                     case ArticleBlockType.Code:
@@ -82,7 +85,7 @@
 
                     case ArticleBlockType.Summary:
                         <div class="article-summary article-summary-block">
-                            @(block.Summary ?? block.Text)
+                            @RenderMarkdown(block.Summary ?? block.Text)
                         </div>
                         break;
 
@@ -129,6 +132,11 @@
             Console.WriteLine(
                 $"Diagram rendering failed: {ex.Message}");
         }
+    }
+
+    private static MarkupString RenderMarkdown(string? markdown)
+    {
+        return new MarkupString(MarkdownTextRenderer.ToHtml(markdown));
     }
 
     private static RenderFragment RenderHeading(ArticleBlockDto block) => builder =>
@@ -365,23 +373,23 @@ skinparam package {
         }
 
         var protectedBlockNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "rectangle",
-        "class",
-        "component",
-        "package"
-    };
+        {
+            "rectangle",
+            "class",
+            "component",
+            "package"
+        };
 
         var protectedSingleParams = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "backgroundColor",
-        "shadowing",
-        "defaultFontName",
-        "defaultFontColor",
-        "ArrowColor",
-        "ArrowFontColor",
-        "ArrowThickness"
-    };
+        {
+            "backgroundColor",
+            "shadowing",
+            "defaultFontName",
+            "defaultFontColor",
+            "ArrowColor",
+            "ArrowFontColor",
+            "ArrowThickness"
+        };
 
         var lines = source.Replace("\r\n", "\n").Split('\n');
         var result = new List<string>();
