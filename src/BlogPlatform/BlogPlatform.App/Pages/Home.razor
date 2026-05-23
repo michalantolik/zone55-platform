@@ -11,7 +11,7 @@
 
 @if (IsLearningPathView)
 {
-    @if (_isLoading)
+    @if (_isInitialPageLoading)
     {
         <section class="content-frame loading-content-frame container-xl"
                  aria-live="polite"
@@ -60,7 +60,7 @@ else
         </div>
     </section>
 
-    @if (_isLoading)
+    @if (_isInitialPageLoading)
     {
         <section class="content-frame loading-content-frame container-xl"
                  aria-live="polite"
@@ -95,72 +95,98 @@ else
                                    DisplayStepIcons="@DisplayStepIcons" />
             </aside>
 
-            <section class="posts-area dotnet-standard-posts-area">
-                @if (IsArticleReaderMode)
-                {
-                    <div class="dotnet-inline-article-reader">
-                        <div class="dotnet-inline-article-reader-top">
-                            <a class="dotnet-inline-article-back" href="@SelectedStepUrl">
-                                ← Back to @SelectedStepTitle
-                            </a>
-
-                            <span class="dotnet-inline-article-pill">
-                                Article @SelectedArticleOrder of @_posts.Count
-                            </span>
-                        </div>
-
-                        <ArticleRenderer Article="_selectedArticle" />
-                    </div>
-                }
-                else if (_posts.Count == 0)
-                {
-                    <div class="dotnet-empty-step-card">
-                        <strong>No articles yet</strong>
-                    </div>
-                }
-                else
-                {
-                    <div class="post-grid">
-                        @foreach (var article in PagedPosts.Select((post, index) => new
+            <section class="posts-area dotnet-standard-posts-area"
+                     aria-live="polite"
+                     aria-busy="@_isArticleAreaLoading">
+                <div class="dotnet-article-content-shell @ArticleContentShellCssClass">
+                    <div class="dotnet-article-content" @key="_articleContentVersion">
+                        @if (IsArticleReaderMode)
                         {
-                            Post = post,
-                            Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
-                        }))
+                            <div class="dotnet-inline-article-reader">
+                                <div class="dotnet-inline-article-reader-top">
+                                    <a class="dotnet-inline-article-back" href="@SelectedStepUrl">
+                                        ← Back to @SelectedStepTitle
+                                    </a>
+
+                                    <span class="dotnet-inline-article-pill">
+                                        Article @SelectedArticleOrder of @_posts.Count
+                                    </span>
+                                </div>
+
+                                <ArticleRenderer Article="_selectedArticle" />
+                            </div>
+                        }
+                        else if (_posts.Count == 0)
                         {
-                            <PostCard Title="@article.Post.Title"
-                                      Summary="@article.Post.Summary"
-                                      StepTitle="@SelectedStepTitle"
-                                      Level="@article.Post.Level"
-                                      Focus="@article.Post.Focus"
-                                      Url="@GetInlineArticleUrl(article.Post.Slug)"
-                                      TechStack="@article.Post.Tags"
-                                      ArticleOrder="@(article.Post.Order > 0 ? article.Post.Order : article.Order)" />
+                            <div class="dotnet-empty-step-card">
+                                <strong>No articles yet</strong>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="post-grid">
+                                @foreach (var article in PagedPosts.Select((post, index) => new
+                                {
+                                    Post = post,
+                                    Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
+                                }))
+                                {
+                                    <PostCard Title="@article.Post.Title"
+                                              Summary="@article.Post.Summary"
+                                              StepTitle="@SelectedStepTitle"
+                                              Level="@article.Post.Level"
+                                              Focus="@article.Post.Focus"
+                                              Url="@GetInlineArticleUrl(article.Post.Slug)"
+                                              TechStack="@article.Post.Tags"
+                                              ArticleOrder="@(article.Post.Order > 0 ? article.Post.Order : article.Order)" />
+                                }
+                            </div>
+
+                            @if (ShouldShowArticlePager)
+                            {
+                                <nav class="dotnet-article-pager" aria-label="Step articles pages">
+                                    <button type="button"
+                                            class="dotnet-article-pager-button"
+                                            disabled="@IsFirstArticlePage"
+                                            @onclick="GoToPreviousArticlePage">
+                                        <span aria-hidden="true">‹</span> Previous
+                                    </button>
+
+                                    <span class="dotnet-article-pager-status">
+                                        Page @_currentArticlePage of @TotalArticlePages
+                                    </span>
+
+                                    <button type="button"
+                                            class="dotnet-article-pager-button"
+                                            disabled="@IsLastArticlePage"
+                                            @onclick="GoToNextArticlePage">
+                                        Next <span aria-hidden="true">›</span>
+                                    </button>
+                                </nav>
+                            }
                         }
                     </div>
 
-                    @if (ShouldShowArticlePager)
+                    @if (_isArticleAreaLoading)
                     {
-                        <nav class="dotnet-article-pager" aria-label="Step articles pages">
-                            <button type="button"
-                                    class="dotnet-article-pager-button"
-                                    disabled="@IsFirstArticlePage"
-                                    @onclick="GoToPreviousArticlePage">
-                                <span aria-hidden="true">‹</span> Previous
-                            </button>
+                        <div class="dotnet-article-loading-overlay"
+                             role="status"
+                             aria-label="Loading articles">
+                            <div class="dotnet-article-skeleton-card">
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-short"></span>
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-title"></span>
+                                <span class="dotnet-article-skeleton-line"></span>
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-medium"></span>
+                            </div>
 
-                            <span class="dotnet-article-pager-status">
-                                Page @_currentArticlePage of @TotalArticlePages
-                            </span>
-
-                            <button type="button"
-                                    class="dotnet-article-pager-button"
-                                    disabled="@IsLastArticlePage"
-                                    @onclick="GoToNextArticlePage">
-                                Next <span aria-hidden="true">›</span>
-                            </button>
-                        </nav>
+                            <div class="dotnet-article-skeleton-card dotnet-article-skeleton-card-muted">
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-short"></span>
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-title"></span>
+                                <span class="dotnet-article-skeleton-line"></span>
+                            </div>
+                        </div>
                     }
-                }
+                </div>
             </section>
         </section>
     }
@@ -169,7 +195,6 @@ else
 @code {
     private const string DotnetStandardView = "DotnetStandard";
     private const string DotnetRoadmapView = "DotnetRoadmap";
-
 
     [SupplyParameterFromQuery(Name = "view")]
     public string? View { get; set; }
@@ -186,7 +211,10 @@ else
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
     private PostDetails? _selectedArticle;
-    private bool _isLoading = true;
+    private bool _hasCompletedInitialLoad;
+    private bool _isInitialPageLoading = true;
+    private bool _isArticleAreaLoading;
+    private int _articleContentVersion;
     private int _currentArticlePage = 1;
 
     private bool IsLearningPathView =>
@@ -197,6 +225,9 @@ else
 
     private bool DisplayStepIcons =>
         Configuration.GetValue<bool?>("Features:DisplayStepIcons") ?? false;
+
+    private string ArticleContentShellCssClass =>
+        _isArticleAreaLoading ? "is-loading" : "is-loaded";
 
     private string CurrentView =>
         NormalizeBlogDisplayMode(View)
@@ -297,7 +328,19 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        _isLoading = true;
+        if (!_hasCompletedInitialLoad)
+        {
+            await LoadInitialPageAsync();
+            return;
+        }
+
+        await RefreshArticleAreaAsync();
+    }
+
+    private async Task LoadInitialPageAsync()
+    {
+        _isInitialPageLoading = true;
+        _isArticleAreaLoading = false;
         _selectedArticle = null;
 
         var homeContent = await BlogApi.GetHomeContentAsync();
@@ -314,18 +357,53 @@ else
 
         _currentArticlePage = 1;
 
-        if (!IsLearningPathView && !string.IsNullOrWhiteSpace(ArticleSlug))
-        {
-            var articleBelongsToSelectedStep = _posts.Any(post =>
-                string.Equals(post.Slug, ArticleSlug, StringComparison.OrdinalIgnoreCase));
+        await LoadSelectedArticleIfNeededAsync();
 
-            if (articleBelongsToSelectedStep)
-            {
-                _selectedArticle = await BlogApi.GetPostBySlugAsync(ArticleSlug);
-            }
+        _hasCompletedInitialLoad = true;
+        _isInitialPageLoading = false;
+        _articleContentVersion++;
+    }
+
+    private async Task RefreshArticleAreaAsync()
+    {
+        _isArticleAreaLoading = true;
+        StateHasChanged();
+
+        var homeContent = await BlogApi.GetHomeContentAsync();
+
+        _learningPathLevels = await RoadmapView.GetDotnetRoadmapAsync(
+            homeContent.Posts,
+            cancellationToken: default);
+
+        _posts = IsLearningPathView
+            ? homeContent.Posts
+            : await BlogApi.GetPostsByStepAsync(
+                SelectedZoneKey,
+                SelectedStepKey);
+
+        _currentArticlePage = 1;
+        _selectedArticle = null;
+
+        await LoadSelectedArticleIfNeededAsync();
+
+        _articleContentVersion++;
+        _isArticleAreaLoading = false;
+    }
+
+    private async Task LoadSelectedArticleIfNeededAsync()
+    {
+        if (IsLearningPathView || string.IsNullOrWhiteSpace(ArticleSlug))
+        {
+            return;
         }
 
-        _isLoading = false;
+        var articleBelongsToSelectedStep = _posts.Any(post =>
+            string.Equals(post.Slug, ArticleSlug, StringComparison.OrdinalIgnoreCase));
+
+        if (articleBelongsToSelectedStep)
+        {
+            _selectedArticle = await BlogApi.GetPostBySlugAsync(ArticleSlug);
+        }
     }
 
     private void GoToPreviousArticlePage()
@@ -333,6 +411,7 @@ else
         if (!IsFirstArticlePage)
         {
             _currentArticlePage--;
+            _articleContentVersion++;
         }
     }
 
@@ -341,6 +420,7 @@ else
         if (!IsLastArticlePage)
         {
             _currentArticlePage++;
+            _articleContentVersion++;
         }
     }
 
@@ -370,6 +450,86 @@ else
 }
 
 <style>
+    .dotnet-article-content-shell {
+        position: relative;
+        min-height: 160px;
+    }
+
+    .dotnet-article-content {
+        animation: dotnetArticleContentFadeIn .2s ease-out both;
+        transition: opacity .2s ease, transform .2s ease, filter .2s ease;
+    }
+
+    .dotnet-article-content-shell.is-loading .dotnet-article-content {
+        opacity: .42;
+        transform: translateY(2px);
+        filter: saturate(.92);
+        pointer-events: none;
+    }
+
+    .dotnet-article-loading-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: grid;
+        align-content: start;
+        gap: 14px;
+        min-height: 160px;
+        padding: 0;
+        pointer-events: none;
+    }
+
+    .dotnet-article-skeleton-card {
+        position: relative;
+        display: grid;
+        gap: 12px;
+        padding: 18px 20px;
+        overflow: hidden;
+        border: 1px solid rgba(125, 211, 252, .18);
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .03)), rgba(10, 28, 52, .92);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 16px 42px rgba(0, 0, 0, .18);
+    }
+
+        .dotnet-article-skeleton-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(125, 211, 252, .12), transparent);
+            transform: translateX(-100%);
+            animation: dotnetArticleSkeletonSweep 1.45s ease-in-out infinite;
+        }
+
+    .dotnet-article-skeleton-card-muted {
+        opacity: .72;
+    }
+
+    .dotnet-article-skeleton-line {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 100%;
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(125, 211, 252, .12), rgba(125, 211, 252, .32), rgba(125, 211, 252, .12));
+        background-size: 220% 100%;
+        animation: dotnetArticleSkeletonLine 1.35s ease-in-out infinite;
+    }
+
+    .dotnet-article-skeleton-line-short {
+        width: 22%;
+        height: 9px;
+    }
+
+    .dotnet-article-skeleton-line-title {
+        width: 68%;
+        height: 18px;
+    }
+
+    .dotnet-article-skeleton-line-medium {
+        width: 54%;
+    }
+
     .dotnet-inline-article-reader {
         display: flex;
         flex-direction: column;
@@ -483,6 +643,44 @@ else
         white-space: nowrap;
     }
 
+    @@keyframes dotnetArticleContentFadeIn {
+        from {
+            opacity: .72;
+            transform: translateY(3px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes dotnetArticleSkeletonSweep {
+        0% {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        35% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    @@keyframes dotnetArticleSkeletonLine {
+        0% {
+            background-position: 120% 0;
+        }
+
+        100% {
+            background-position: -120% 0;
+        }
+    }
+
     @@media (max-width: 680px) {
         .dotnet-inline-article-reader-top,
         .dotnet-article-pager {
@@ -506,6 +704,19 @@ else
 
         .dotnet-article-pager-status {
             text-align: center;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .dotnet-article-content,
+        .dotnet-article-skeleton-card::after,
+        .dotnet-article-skeleton-line {
+            animation: none;
+            transition: none;
+        }
+
+        .dotnet-article-content-shell.is-loading .dotnet-article-content {
+            transform: none;
         }
     }
 </style>
