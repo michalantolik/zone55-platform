@@ -212,7 +212,7 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("title", "Title", "Textstring"),
-                Property("showDiagramTitleBar", "Show diagram title bar", "Checkbox"),
+                Property("showDiagramTitleBar", "Show diagram title bar", "True/false"),
                 Property("diagram", "Diagram", "Textarea")
             });
 
@@ -223,7 +223,7 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("title", "Title", "Textstring"),
-                Property("showDiagramTitleBar", "Show diagram title bar", "Checkbox"),
+                Property("showDiagramTitleBar", "Show diagram title bar", "True/false"),
                 Property("diagram", "Diagram", "Textarea")
             });
 

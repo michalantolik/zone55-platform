@@ -1,6 +1,12 @@
 using BlogPlatform.Cms;
+using BlogPlatform.Cms.Seeding;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Runtime;
+using Umbraco.Cms.Core.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -78,15 +84,11 @@ try
     app.UseUmbraco()
         .WithMiddleware(u =>
         {
-            Log.Information("CMS configuring Umbraco middleware.");
-
             u.UseBackOffice();
             u.UseWebsite();
         })
         .WithEndpoints(u =>
         {
-            Log.Information("CMS configuring Umbraco endpoints.");
-
             u.UseBackOfficeEndpoints();
             u.UseWebsiteEndpoints();
         });
