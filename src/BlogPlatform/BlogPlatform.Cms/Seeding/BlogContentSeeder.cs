@@ -168,6 +168,9 @@ public sealed class BlogContentSeeder
                 block.Kind ?? "note",
                 block.Text ?? string.Empty),
 
+            "summary" => SummaryBlock(
+                block.Summary ?? block.Text ?? string.Empty),
+
             _ => throw new InvalidOperationException(
                 $"Unsupported seed block type: {block.Type}")
         };
@@ -209,7 +212,7 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("title", "Title", "Textstring"),
-                Property("showDiagramTitleBar", "Show diagram title bar", "TrueFalse"),
+                Property("showDiagramTitleBar", "Show diagram title bar", "Checkbox"),
                 Property("diagram", "Diagram", "Textarea")
             });
 
@@ -220,7 +223,7 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("title", "Title", "Textstring"),
-                Property("showDiagramTitleBar", "Show diagram title bar", "TrueFalse"),
+                Property("showDiagramTitleBar", "Show diagram title bar", "Checkbox"),
                 Property("diagram", "Diagram", "Textarea")
             });
 
@@ -355,12 +358,6 @@ public sealed class BlogContentSeeder
                     BlogContentAliases.BlogArticleBodyBlocksDataTypeName,
                     StringComparison.OrdinalIgnoreCase));
 
-        if (existing is not null)
-        {
-            _logger.LogInformation("Block List data type already exists: {Name}.", existing.Name);
-            return;
-        }
-
         var blockEditor = _propertyEditors
             .FirstOrDefault(x => x.Alias == BlockListEditorAlias);
 
@@ -369,11 +366,9 @@ public sealed class BlogContentSeeder
             throw new InvalidOperationException($"Could not find property editor: {BlockListEditorAlias}");
         }
 
-        var allowedBlocks = CreateAllowedBlockConfiguration();
-
         var configuration = new Dictionary<string, object>
         {
-            ["blocks"] = allowedBlocks,
+            ["blocks"] = CreateAllowedBlockConfiguration(),
             ["validationLimit"] = new Dictionary<string, object>
             {
                 ["min"] = null!,
@@ -381,6 +376,23 @@ public sealed class BlogContentSeeder
             },
             ["useSingleBlockMode"] = false
         };
+
+        if (existing is DataType existingDataType)
+        {
+            existingDataType.EditorUiAlias = "Umb.PropertyEditorUi.BlockList";
+            existingDataType.DatabaseType = ValueStorageType.Ntext;
+            existingDataType.ConfigurationData = configuration;
+
+            await _dataTypeService.UpdateAsync(
+                existingDataType,
+                Constants.Security.SuperUserKey);
+
+            _logger.LogInformation(
+                "Updated Block List data type: {DataTypeName}.",
+                BlogContentAliases.BlogArticleBodyBlocksDataTypeName);
+
+            return;
+        }
 
         var dataType = new DataType(
             blockEditor,
@@ -690,6 +702,16 @@ public sealed class BlogContentSeeder
             {
                 ["kind"] = kind,
                 ["text"] = text
+            });
+    }
+
+    private static SeedBlock SummaryBlock(string summary)
+    {
+        return new SeedBlock(
+            BlogContentAliases.SummaryBlock,
+            new Dictionary<string, object?>
+            {
+                ["summary"] = summary
             });
     }
 
