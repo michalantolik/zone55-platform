@@ -65,7 +65,7 @@
                                 <figcaption>@GetMermaidDiagramTitle(block)</figcaption>
                             }
 
-                            <pre class="mermaid">@block.Diagram</pre>
+                            <pre class="mermaid" data-mermaid-source="@block.Diagram">@block.Diagram</pre>
                         </figure>
                         break;
 
@@ -119,7 +119,16 @@
             StateHasChanged();
         }
 
-        await JS.InvokeVoidAsync("blogPlatformArticle.renderDiagrams");
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "blogPlatformArticle.renderDiagrams");
+        }
+        catch (JSException ex)
+        {
+            Console.WriteLine(
+                $"Diagram rendering failed: {ex.Message}");
+        }
     }
 
     private static RenderFragment RenderHeading(ArticleBlockDto block) => builder =>

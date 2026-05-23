@@ -1488,3 +1488,13 @@ html.top-nav-is-stuck .top-nav-sticky {
     border-radius: 0 0 22px 22px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, .28);
 }
+
+.diagram-render-error {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    color: #fca5a5;
+    font-size: 0.9rem;
+}

@@ -96,7 +96,7 @@
                 theme: 'base',
                 securityLevel: 'loose',
                 flowchart: {
-                    htmlLabels: true,
+                    htmlLabels: false,
                     curve: 'basis'
                 },
                 themeVariables: {
@@ -140,13 +140,59 @@
                 const diagrams = document.querySelectorAll('.mermaid');
 
                 for (const diagram of diagrams) {
-                    diagram.removeAttribute('data-processed');
-                }
+                    try {
+                        const source = diagram.dataset.mermaidSource;
 
-                if (diagrams.length > 0) {
-                    await mermaid.run({
-                        nodes: diagrams
-                    });
+                        if (!source || source.trim().length === 0) {
+                            continue;
+                        }
+
+                        diagram.textContent = source;
+                        diagram.removeAttribute('data-processed');
+
+                        const oldError =
+                            diagram.parentElement?.querySelector('.diagram-render-error');
+
+                        oldError?.remove();
+
+                        await mermaid.run({
+                            nodes: [diagram]
+                        });
+                    }
+                    catch (error) {
+                        const hasRenderedSvg =
+                            diagram.querySelector('svg') !== null ||
+                            diagram.innerHTML.includes('<svg');
+
+                        if (hasRenderedSvg) {
+                            console.warn(
+                                '[BlogPlatform] Mermaid reported an error, but SVG was rendered:',
+                                error);
+
+                            const existingError =
+                                diagram.parentElement?.querySelector('.diagram-render-error');
+
+                            existingError?.remove();
+                            continue;
+                        }
+
+                        console.error(
+                            '[BlogPlatform] Mermaid render failed:',
+                            error);
+
+                        const existingError =
+                            diagram.parentElement?.querySelector('.diagram-render-error');
+
+                        if (!existingError) {
+                            const errorBox = document.createElement('div');
+
+                            errorBox.className = 'diagram-render-error';
+                            errorBox.innerText =
+                                'Unable to render Mermaid diagram.';
+
+                            diagram.parentElement?.appendChild(errorBox);
+                        }
+                    }
                 }
             },
 
