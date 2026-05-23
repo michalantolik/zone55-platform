@@ -240,7 +240,7 @@
 
         .zone-step-row {
             display: grid;
-            grid-template-columns: auto auto 1fr auto auto;
+            grid-template-columns: auto 1fr auto auto;
             gap: 12px;
             align-items: center;
             border: 1px solid rgba(36, 64, 95, 0.86);
@@ -248,45 +248,7 @@
             background: rgba(8, 28, 49, 0.72);
             padding: 12px 14px;
         }
-
-        .step-icon-preview {
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .96);
-    border: 1px solid rgba(255, 255, 255, .62);
-    font-size: 18px;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
-}
-
-.emoji-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.emoji-picker button {
-    width: 42px;
-    height: 42px;
-    border: 1px solid #35527a;
-    border-radius: 12px;
-    background: rgba(132, 187, 255, .08);
-    color: #ffffff;
-    font-size: 22px;
-    cursor: pointer;
-    transition: transform .16s ease, background .16s ease, border-color .16s ease;
-}
-
-.emoji-picker button:hover {
-    transform: translateY(-1px);
-    border-color: #84bbff;
-    background: rgba(132, 187, 255, .18);
-}
-
-        .step-order-mark {
+.step-order-mark {
             width: 30px;
             height: 30px;
             font-size: 12px;
@@ -1255,35 +1217,7 @@
                 Key is used by articles. Keep it stable after creation.
             </p>
 
-<label id="roadmapIconLabel" class="field-label" for="roadmapIconInput">Emoji icon</label>
-<input id="roadmapIconInput" class="search" type="text" maxlength="8" placeholder="Example: 📝" />
-
-<div id="roadmapIconPicker" class="emoji-picker">
-    <button type="button" onclick="selectRoadmapIcon('⚙️')">⚙️</button>
-    <button type="button" onclick="selectRoadmapIcon('📝')">📝</button>
-    <button type="button" onclick="selectRoadmapIcon('🔣')">🔣</button>
-    <button type="button" onclick="selectRoadmapIcon('🧩')">🧩</button>
-    <button type="button" onclick="selectRoadmapIcon('⌨️')">⌨️</button>
-    <button type="button" onclick="selectRoadmapIcon('🌐')">🌐</button>
-    <button type="button" onclick="selectRoadmapIcon('🪟')">🪟</button>
-    <button type="button" onclick="selectRoadmapIcon('🔌')">🔌</button>
-    <button type="button" onclick="selectRoadmapIcon('🔍')">🔍</button>
-    <button type="button" onclick="selectRoadmapIcon('🔗')">🔗</button>
-    <button type="button" onclick="selectRoadmapIcon('🖥️')">🖥️</button>
-    <button type="button" onclick="selectRoadmapIcon('🗄️')">🗄️</button>
-    <button type="button" onclick="selectRoadmapIcon('🧬')">🧬</button>
-    <button type="button" onclick="selectRoadmapIcon('⚡')">⚡</button>
-    <button type="button" onclick="selectRoadmapIcon('🧪')">🧪</button>
-    <button type="button" onclick="selectRoadmapIcon('🏗️')">🏗️</button>
-    <button type="button" onclick="selectRoadmapIcon('♟️')">♟️</button>
-    <button type="button" onclick="selectRoadmapIcon('🔀')">🔀</button>
-    <button type="button" onclick="selectRoadmapIcon('☁️')">☁️</button>
-    <button type="button" onclick="selectRoadmapIcon('🚀')">🚀</button>
-    <button type="button" onclick="selectRoadmapIcon('📈')">📈</button>
-    <button type="button" onclick="selectRoadmapIcon('💠')">💠</button>
-</div>
-
-            <div class="modal-buttons">
+<div class="modal-buttons">
                 <button class="btn btn-secondary" type="button" onclick="closeRoadmapModal()">Cancel</button>
                 <button id="saveRoadmapButton" class="btn btn-success" type="button" onclick="saveRoadmapItem()">Save</button>
             </div>
@@ -1497,8 +1431,6 @@
                 <div class="zone-step-row">
                     <div class="step-order-mark">${step.order}</div>
 
-                    <div class="step-icon-preview">${escapeHtml(step.icon || "📘")}</div>
-
                     <div>
                         <div class="step-name">${escapeHtml(step.name)}</div>
                         <div class="step-key">${escapeHtml(step.key)}</div>
@@ -1513,12 +1445,7 @@
                 </div>
             `;
         }
-
-        function selectRoadmapIcon(icon) {
-            document.getElementById("roadmapIconInput").value = icon;
-}
-
-        function initializeReorderSelectors() {
+function initializeReorderSelectors() {
             const zoneSelect = document.getElementById("reorderZoneSelect");
 
             if (!zoneSelect) {
@@ -2160,7 +2087,7 @@
 
         function openCreateZoneModal() {
             roadmapModalState = { mode: "create-zone" };
-            openRoadmapModal("Create zone", "", "", false, "", false);
+            openRoadmapModal("Create zone", "", "", false);
         }
 
         function openEditZoneModal(zoneKey) {
@@ -2172,7 +2099,7 @@
             }
 
             roadmapModalState = { mode: "edit-zone", zoneKey };
-            openRoadmapModal("Edit zone", zone.name, zone.key, true, "", false);
+            openRoadmapModal("Edit zone", zone.name, zone.key, true);
         }
 
         function openCreateStepModal(zoneKey) {
@@ -2184,7 +2111,7 @@
             }
 
             roadmapModalState = { mode: "create-step", zoneKey };
-            openRoadmapModal(`Create step in ${zone.name}`, "", "", false, "📘", true);
+            openRoadmapModal(`Create step in ${zone.name}`, "", "", false);
         }
 
         function openEditStepModal(zoneKey, stepKey) {
@@ -2197,14 +2124,11 @@
             }
 
             roadmapModalState = { mode: "edit-step", zoneKey, stepKey };
-            openRoadmapModal("Edit step", step.name, step.key, true, step.icon || "📘", true);
+            openRoadmapModal("Edit step", step.name, step.key, true);
         }
 
-        function openRoadmapModal(title, name, key, keyReadonly, icon, showIconPicker) {
+        function openRoadmapModal(title, name, key, keyReadonly) {
             const keyInput = document.getElementById("roadmapKeyInput");
-            const iconInput = document.getElementById("roadmapIconInput");
-            const iconLabel = document.getElementById("roadmapIconLabel");
-            const iconPicker = document.getElementById("roadmapIconPicker");
 
             document.getElementById("roadmapModalTitle").innerText = title;
             document.getElementById("roadmapNameInput").value = name;
@@ -2212,11 +2136,6 @@
             keyInput.value = key;
             keyInput.readOnly = keyReadonly;
             keyInput.style.opacity = keyReadonly ? "0.62" : "1";
-
-            iconInput.value = icon || "📘";
-            iconInput.style.display = showIconPicker ? "block" : "none";
-            iconLabel.style.display = showIconPicker ? "block" : "none";
-            iconPicker.style.display = showIconPicker ? "flex" : "none";
 
             document.getElementById("roadmapModal").style.display = "flex";
         }
@@ -2243,13 +2162,11 @@
             button.disabled = true;
             button.innerText = "Saving...";
 
-            const icon = document.getElementById("roadmapIconInput").value.trim();
-
             try {
                 const request = {
                     name,
                     key: key || null,
-                    icon: roadmapModalState.mode.includes("step") ? (icon || "📘") : null
+                    icon: null
                 };
 
                 const endpoint = getRoadmapSaveEndpoint();
