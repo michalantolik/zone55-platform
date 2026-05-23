@@ -1225,8 +1225,10 @@ button {
 }
 
 .article-body .article-summary-block {
+    width: 100%;
+    max-width: none;
     margin: 0 0 34px;
-    max-width: 860px;
+    box-sizing: border-box;
 }
 
 .code-block,
