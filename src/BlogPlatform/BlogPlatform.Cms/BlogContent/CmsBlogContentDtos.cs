@@ -37,6 +37,11 @@ public sealed record CmsArticleListItemDto(
     string BodyHtml,
     DateTime UpdatedUtc);
 
+public sealed record CmsDatabaseSummaryDto(
+    int Zones,
+    int ZoneSteps,
+    int Articles);
+
 public sealed record CmsArticleEditorDto(
     Guid Key,
     string Title,

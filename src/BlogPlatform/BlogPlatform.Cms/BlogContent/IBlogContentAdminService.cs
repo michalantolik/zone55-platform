@@ -1,8 +1,16 @@
-﻿namespace BlogPlatform.Cms.BlogContent;
+﻿using BlogPlatform.Cms.Seeding;
+
+namespace BlogPlatform.Cms.BlogContent;
 
 public interface IBlogContentAdminService
 {
     Task<IReadOnlyCollection<CmsDotnetZoneListItemDto>> GetDotnetRoadmapAsync(
+        CancellationToken cancellationToken);
+
+    Task<CmsDatabaseSummaryDto> GetDatabaseSummaryAsync(
+        CancellationToken cancellationToken);
+
+    Task<BlogSeedContent> BuildSeedContentAsync(
         CancellationToken cancellationToken);
 
     IReadOnlyCollection<CmsDocumentTypeListItemDto> GetDocumentTypes();

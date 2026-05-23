@@ -931,6 +931,143 @@
         .modal h2 { margin: 0 0 12px 0; }
         .modal p { margin: 0; color: #c8d8ef; line-height: 1.6; }
         .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+        .database-hero {
+            border: 1px solid #24405f;
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at top left, rgba(42, 126, 255, 0.22), transparent 34%),
+                linear-gradient(135deg, rgba(20, 48, 82, 0.9), rgba(4, 17, 29, 0.96));
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+        }
+
+        .database-kicker,
+        .database-export-kicker {
+            color: #84bbff;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            margin-bottom: 8px;
+        }
+
+        .database-hero h2 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+
+        .database-hero p {
+            margin: 0;
+            color: #aac2de;
+            line-height: 1.6;
+        }
+
+        .database-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .database-card,
+        .database-export-card {
+            border: 1px solid #24405f;
+            border-radius: 20px;
+            background:
+                linear-gradient(135deg, rgba(20, 48, 82, 0.88), rgba(4, 17, 29, 0.96));
+            padding: 24px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+        }
+
+        .database-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .database-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -40px -50px auto;
+            width: 120px;
+            height: 120px;
+            background: rgba(42, 126, 255, 0.16);
+            border-radius: 999px;
+        }
+
+        .database-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: rgba(42, 126, 255, 0.18);
+            border: 1px solid rgba(132, 187, 255, 0.34);
+            margin-bottom: 18px;
+            font-size: 22px;
+        }
+
+        .database-number {
+            font-size: 46px;
+            line-height: 1;
+            font-weight: 900;
+            color: #84bbff;
+            margin-bottom: 10px;
+        }
+
+        .database-label {
+            color: #c8d8ef;
+            font-weight: 800;
+        }
+
+        .database-export-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .database-export-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        .database-export-card p {
+            margin: 0;
+            color: #aac2de;
+            line-height: 1.6;
+        }
+
+        .database-export-button {
+            border: 1px solid #5fa8ff;
+            border-radius: 999px;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #2a7eff, #1761d6);
+            color: white;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+            white-space: nowrap;
+            box-shadow: 0 14px 32px rgba(42, 126, 255, 0.32);
+        }
+
+        .database-export-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 38px rgba(42, 126, 255, 0.42);
+        }
+
+        .database-export-button-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            display: inline-grid;
+            place-items: center;
+        }
+
     </style>
 </head>
 
@@ -947,6 +1084,7 @@
                 <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
                 <button id="reorderArticlesTab" type="button" onclick="showPanel('reorderArticles')">Reorder articles</button>
                 <button id="documentTypesTab" type="button" onclick="showPanel('documentTypes')">Document Types</button>
+                <button id="databaseTab" type="button" onclick="showPanel('database')">Database</button>
             </nav>
         </header>
 
@@ -1002,6 +1140,55 @@
 
             <section id="documentTypesPanel" class="panel">
                 <div id="documentTypesGrid" class="document-types-grid"></div>
+            </section>
+
+            <section id="databasePanel" class="panel">
+                <div class="database-hero">
+                    <div>
+                        <div class="database-kicker">SQL database snapshot</div>
+                        <h2>Database</h2>
+                        <p>
+                            Check current content stored in the database and export it into a reusable
+                            <strong>blog-content.seed.json</strong> file.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="database-grid">
+                    <article class="database-card">
+                        <div class="database-card-icon">🗺️</div>
+                        <div class="database-number" id="databaseZonesCount">0</div>
+                        <div class="database-label">Zones in database</div>
+                    </article>
+
+                    <article class="database-card">
+                        <div class="database-card-icon">🧭</div>
+                        <div class="database-number" id="databaseZoneStepsCount">0</div>
+                        <div class="database-label">Zone steps in database</div>
+                    </article>
+
+                    <article class="database-card">
+                        <div class="database-card-icon">📚</div>
+                        <div class="database-number" id="databaseArticlesCount">0</div>
+                        <div class="database-label">Articles in database</div>
+                    </article>
+                </div>
+
+                <div class="database-export-card">
+                    <div>
+                        <div class="database-export-kicker">Export seed file</div>
+                        <h3>Save current database content</h3>
+                        <p>
+                            Download zones, zone steps and articles from the current SQL database.
+                            The file will use the same structure as your seed JSON.
+                        </p>
+                    </div>
+
+                    <button class="database-export-button" type="button" onclick="exportSeedContent()">
+                        <span class="database-export-button-icon">⬇</span>
+                        <span>Save blog-content.seed.json</span>
+                    </button>
+                </div>
             </section>
 
             <section id="articlesPanel" class="panel">
@@ -1123,6 +1310,7 @@
         let dotnetRoadmap = [];
         let articles = [];
         let documentTypes = [];
+        let databaseSummary = null;
         let activePanel = "zones";
         let reorderArticles = [];
         let selectedReorderZoneKey = null;
@@ -1148,15 +1336,22 @@
         });
 
         async function loadContent() {
-            const [roadmapResponse, articlesResponse, documentTypesResponse] = await Promise.all([
+            const [
+                roadmapResponse,
+                articlesResponse,
+                documentTypesResponse,
+                databaseSummaryResponse
+            ] = await Promise.all([
                 fetch("/api/blog-content/dotnet-roadmap"),
                 fetch("/api/blog-content/articles"),
-                fetch("/api/blog-content/document-types")
+                fetch("/api/blog-content/document-types"),
+                fetch("/api/blog-content/database-summary")
             ]);
 
             dotnetRoadmap = await roadmapResponse.json();
             articles = await articlesResponse.json();
             documentTypes = await documentTypesResponse.json();
+            databaseSummary = await databaseSummaryResponse.json();
 
             initializeReorderSelectors();
             renderActivePanel();
@@ -1172,11 +1367,13 @@
             document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
             document.getElementById("reorderArticlesTab").classList.toggle("active", panel === "reorderArticles");
             document.getElementById("documentTypesTab").classList.toggle("active", panel === "documentTypes");
+            document.getElementById("databaseTab").classList.toggle("active", panel === "database");
 
             document.getElementById("zonesPanel").classList.toggle("active", panel === "zones");
             document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
             document.getElementById("reorderArticlesPanel").classList.toggle("active", panel === "reorderArticles");
             document.getElementById("documentTypesPanel").classList.toggle("active", panel === "documentTypes");
+            document.getElementById("databasePanel").classList.toggle("active", panel === "database");
 
             const articlesEditorIsOpen = panel === "articles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
 
@@ -1210,7 +1407,28 @@
 
             if (activePanel === "documentTypes") {
                 renderDocumentTypes();
+                return;
             }
+
+            if (activePanel === "database") {
+                renderDatabase();
+            }
+        }
+
+        function renderDatabase() {
+            const summary = databaseSummary ?? {
+                zones: dotnetRoadmap.length,
+                zoneSteps: getTotalStepCount(),
+                articles: articles.length
+            };
+
+            document.getElementById("databaseZonesCount").innerText = summary.zones;
+            document.getElementById("databaseZoneStepsCount").innerText = summary.zoneSteps;
+            document.getElementById("databaseArticlesCount").innerText = summary.articles;
+        }
+
+        function exportSeedContent() {
+            window.location.href = "/api/blog-content/seed-export";
         }
 
         function renderZones() {

@@ -1,5 +1,8 @@
 ﻿using BlogPlatform.Cms.BlogContent;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BlogPlatform.Cms.Controllers;
 
@@ -19,6 +22,34 @@ public sealed class BlogContentController : ControllerBase
         CancellationToken cancellationToken)
     {
         return Ok(await _blogContent.GetDotnetRoadmapAsync(cancellationToken));
+    }
+
+    [HttpGet("database-summary")]
+    public async Task<ActionResult<CmsDatabaseSummaryDto>> GetDatabaseSummary(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _blogContent.GetDatabaseSummaryAsync(cancellationToken));
+    }
+
+    [HttpGet("seed-export")]
+    public async Task<IActionResult> ExportSeedContent(
+        CancellationToken cancellationToken)
+    {
+        var seedContent = await _blogContent.BuildSeedContentAsync(cancellationToken);
+
+        var json = JsonSerializer.Serialize(
+            seedContent,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+
+        return File(
+            Encoding.UTF8.GetBytes(json),
+            "application/json",
+            "blog-content.seed.json");
     }
 
     [HttpGet("document-types")]

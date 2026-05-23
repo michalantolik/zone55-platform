@@ -2,6 +2,7 @@
 using BlogPlatform.Cms.Seeding;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
+using System.Text.Json;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 
@@ -72,6 +73,76 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                     steps);
             })
             .ToList();
+    }
+
+
+    public async Task<CmsDatabaseSummaryDto> GetDatabaseSummaryAsync(
+        CancellationToken cancellationToken)
+    {
+        var roadmap = await _roadmapQueries.GetRoadmapAsync(cancellationToken);
+
+        return new CmsDatabaseSummaryDto(
+            roadmap.Count,
+            roadmap.Sum(zone => zone.Steps.Count),
+            GetRootArticles().Count);
+    }
+
+    public async Task<BlogSeedContent> BuildSeedContentAsync(
+        CancellationToken cancellationToken)
+    {
+        var roadmap = await _roadmapQueries.GetRoadmapAsync(cancellationToken);
+
+        return new BlogSeedContent
+        {
+            RoadmapZones = roadmap
+                .OrderBy(zone => zone.Order)
+                .Select(zone => new BlogSeedRoadmapZone
+                {
+                    Key = zone.Key,
+                    Name = zone.Name,
+                    Order = zone.Order,
+                    Steps = zone.Steps
+                        .OrderBy(step => step.Order)
+                        .Select(step => new BlogSeedRoadmapStep
+                        {
+                            Key = step.Key,
+                            Name = step.Name,
+                            Order = step.Order,
+                            Icon = string.IsNullOrWhiteSpace(step.Icon)
+                                ? "📘"
+                                : step.Icon
+                        })
+                        .ToList()
+                })
+                .ToList(),
+
+            Articles = GetRootArticles()
+                .Select(article =>
+                {
+                    var title = GetString(article, BlogContentAliases.Title)
+                        ?? article.Name
+                        ?? "Untitled";
+
+                    return new BlogSeedArticle
+                    {
+                        Name = title,
+                        Slug = GetString(article, BlogContentAliases.Slug) ?? CreateSlug(title),
+                        Level = GetString(article, BlogContentAliases.Level) ?? "Intermediate",
+                        Focus = GetString(article, BlogContentAliases.Focus) ?? "Practical",
+                        Summary = GetString(article, BlogContentAliases.Summary) ?? string.Empty,
+                        DotnetZone = GetString(article, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
+                        DotnetZoneStep = GetString(article, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
+                        Order = GetInt(article, BlogContentAliases.Order),
+                        Tags = GetSeedTags(article),
+                        BodyBlocks = GetSeedBodyBlocks(article)
+                    };
+                })
+                .OrderBy(article => article.DotnetZone)
+                .ThenBy(article => article.DotnetZoneStep)
+                .ThenBy(article => article.Order <= 0 ? int.MaxValue : article.Order)
+                .ThenBy(article => article.Name)
+                .ToList()
+        };
     }
 
     public IReadOnlyCollection<CmsDocumentTypeListItemDto> GetDocumentTypes()
@@ -454,6 +525,38 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         ClearCachesIfSuccessful(result);
 
         return new CmsDeleteResponse(result.Success, result.Message);
+    }
+
+    private static List<string> GetSeedTags(IContent content)
+    {
+        return GetString(content, BlogContentAliases.Tags)?
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .ToList() ?? [];
+    }
+
+    private static List<BlogSeedBlock> GetSeedBodyBlocks(IContent content)
+    {
+        var bodyBlocksJson = GetString(content, BlogContentAliases.BodyBlocks);
+
+        if (string.IsNullOrWhiteSpace(bodyBlocksJson))
+        {
+            return [];
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<BlogSeedBlock>>(
+                bodyBlocksJson,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? [];
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     private CmsArticleListItemDto MapArticleListItem(IContent content)
