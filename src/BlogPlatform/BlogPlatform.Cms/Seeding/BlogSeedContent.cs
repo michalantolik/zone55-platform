@@ -52,6 +52,7 @@ public sealed class BlogSeedBlock
     public bool? HasHeaderRow { get; set; }
     public bool? HasHeaderColumn { get; set; }
     public bool? AutoNumberRows { get; set; }
+    public string? TableStyle { get; set; }
     public string? DefaultHorizontalAlignment { get; set; }
     public string? DefaultVerticalAlignment { get; set; }
     public List<List<BlogSeedTableCell>> Rows { get; set; } = [];

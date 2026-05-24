@@ -562,6 +562,15 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             {
                 var block = CreateSeedBlockFromBlockListContent(blockElement);
 
+                _logger.LogInformation(
+                    "Seed export body block mapped. Article: {ArticleName}, BlockType: {BlockType}, Exported: {Exported}.",
+                    content.Name,
+                    GetElementTypeAlias(blockElement) ??
+                    GetElementTypeAliasFromEditorType(blockElement) ??
+                    InferElementTypeAlias(blockElement) ??
+                    "unknown",
+                    block is not null);
+
                 if (block is not null)
                 {
                     blocks.Add(block);
@@ -584,9 +593,9 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
     private BlogSeedBlock? CreateSeedBlockFromBlockListContent(JsonElement blockElement)
     {
         var elementTypeAlias =
-            GetElementTypeAlias(blockElement) ??
             GetElementTypeAliasFromEditorType(blockElement) ??
-            InferElementTypeAlias(blockElement);
+            InferElementTypeAlias(blockElement) ??
+            GetElementTypeAlias(blockElement);
 
         return elementTypeAlias switch
         {
@@ -645,6 +654,19 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             {
                 Type = "summary",
                 Summary = GetJsonString(blockElement, "summary")
+            },
+
+            BlogContentAliases.TableBlock => new BlogSeedBlock
+            {
+                Type = "table",
+                HasHeaderRow = GetJsonBool(blockElement, "hasHeaderRow"),
+                HasHeaderColumn = GetJsonBool(blockElement, "hasHeaderColumn"),
+                AutoNumberRows = GetJsonBool(blockElement, "autoNumberRows"),
+                DefaultHorizontalAlignment =
+                    GetJsonString(blockElement, "defaultHorizontalAlignment") ?? "left",
+                DefaultVerticalAlignment =
+                    GetJsonString(blockElement, "defaultVerticalAlignment") ?? "middle",
+                Rows = GetSeedTableRows(blockElement)
             },
 
             _ => null
@@ -717,6 +739,61 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             JsonValueKind.String when bool.TryParse(property.GetString(), out var value) => value,
             _ => null
         };
+    }
+
+    private static string NormalizeSeedTableStyle(string? value)
+    {
+        return string.Equals(value, "minimal-reference", StringComparison.OrdinalIgnoreCase)
+            ? "minimal-reference"
+            : "dense-engineering";
+    }
+
+    private static List<List<BlogSeedTableCell>> GetSeedTableRows(JsonElement blockElement)
+    {
+        if (!blockElement.TryGetProperty("rows", out var rowsProperty))
+        {
+            return [];
+        }
+
+        if (rowsProperty.ValueKind == JsonValueKind.String)
+        {
+            var rawRowsJson = rowsProperty.GetString();
+
+            if (string.IsNullOrWhiteSpace(rawRowsJson))
+            {
+                return [];
+            }
+
+            try
+            {
+                using var document = JsonDocument.Parse(rawRowsJson);
+
+                return ParseSeedTableRows(document.RootElement);
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        return ParseSeedTableRows(rowsProperty);
+    }
+
+    private static List<List<BlogSeedTableCell>> ParseSeedTableRows(JsonElement rowsElement)
+    {
+        if (rowsElement.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return rowsElement
+            .EnumerateArray()
+            .Where(row => row.ValueKind == JsonValueKind.Array)
+            .Select(row => row
+                .EnumerateArray()
+                .Select(ParseSeedTableCell)
+                .ToList())
+            .ToList();
     }
 
     private CmsArticleListItemDto MapArticleListItem(IContent content)
@@ -851,9 +928,9 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                     item.GetRawText()) ?? [];
 
                 var alias =
-                    GetElementTypeAlias(item) ??
                     GetElementTypeAliasFromEditorType(item) ??
-                    InferElementTypeAlias(item);
+                    InferElementTypeAlias(item) ??
+                    GetElementTypeAlias(item);
 
                 if (string.IsNullOrWhiteSpace(alias))
                 {
@@ -923,6 +1000,8 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             "plantumldiagramblock" => BlogContentAliases.PlantUmlDiagramBlock,
             "callout" => BlogContentAliases.CalloutBlock,
             "summary" => BlogContentAliases.SummaryBlock,
+            "table" => BlogContentAliases.TableBlock,
+            "tableblock" => BlogContentAliases.TableBlock,
             _ => null
         };
     }
@@ -971,6 +1050,12 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         if (blockElement.TryGetProperty("level", out _))
         {
             return BlogContentAliases.HeadingBlock;
+        }
+
+        if (blockElement.TryGetProperty("rows", out var rows) &&
+            rows.ValueKind == JsonValueKind.Array)
+        {
+            return BlogContentAliases.TableBlock;
         }
 
         if (blockElement.TryGetProperty("text", out _))
@@ -1028,6 +1113,32 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             : null;
     }
 
+    private static BlogSeedTableCell ParseSeedTableCell(JsonElement cellElement)
+    {
+        if (cellElement.ValueKind == JsonValueKind.String)
+        {
+            return new BlogSeedTableCell
+            {
+                Text = cellElement.GetString()
+            };
+        }
+
+        if (cellElement.ValueKind != JsonValueKind.Object)
+        {
+            return new BlogSeedTableCell();
+        }
+
+        return new BlogSeedTableCell
+        {
+            Text = GetJsonString(cellElement, "text"),
+            Emoji = GetJsonString(cellElement, "emoji"),
+            ImageUrl = GetJsonString(cellElement, "imageUrl"),
+            ImageAlt = GetJsonString(cellElement, "imageAlt"),
+            HorizontalAlignment = GetJsonString(cellElement, "horizontalAlignment"),
+            VerticalAlignment = GetJsonString(cellElement, "verticalAlignment")
+        };
+    }
+
     private static string CreateSlug(string value)
     {
         var normalized = value.Trim().ToLowerInvariant();
@@ -1060,6 +1171,8 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             ClearCaches();
         }
     }
+
+
 
     private void ClearCaches()
     {

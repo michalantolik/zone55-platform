@@ -257,6 +257,7 @@ public sealed class BlogContentSeeder
         Property("hasHeaderRow", "Header row", "True/false"),
         Property("hasHeaderColumn", "Header column", "True/false"),
         Property("autoNumberRows", "Auto-number rows", "True/false"),
+        Property("tableStyle", "Table style", "Textstring"),
         Property("defaultHorizontalAlignment", "Default horizontal alignment", "Textstring"),
         Property("defaultVerticalAlignment", "Default vertical alignment", "Textstring"),
         Property("rows", "Rows JSON", "Textarea")
@@ -740,6 +741,9 @@ public sealed class BlogContentSeeder
                 ["hasHeaderRow"] = block.HasHeaderRow ?? true,
                 ["hasHeaderColumn"] = block.HasHeaderColumn ?? false,
                 ["autoNumberRows"] = block.AutoNumberRows ?? false,
+                ["tableStyle"] = string.IsNullOrWhiteSpace(block.TableStyle)
+                    ? "dense-engineering"
+                    : block.TableStyle,
                 ["defaultHorizontalAlignment"] = block.DefaultHorizontalAlignment ?? "left",
                 ["defaultVerticalAlignment"] = block.DefaultVerticalAlignment ?? "middle",
                 ["rows"] = block.Rows
