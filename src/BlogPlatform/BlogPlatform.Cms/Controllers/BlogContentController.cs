@@ -11,10 +11,12 @@ namespace BlogPlatform.Cms.Controllers;
 public sealed class BlogContentController : ControllerBase
 {
     private readonly IBlogContentAdminService _blogContent;
+    private readonly ILogger<BlogContentController> _logger;
 
-    public BlogContentController(IBlogContentAdminService blogContent)
+    public BlogContentController(IBlogContentAdminService blogContent, ILogger<BlogContentController> logger)
     {
         _blogContent = blogContent;
+        _logger = logger;
     }
 
     [HttpGet("dotnet-roadmap")]
@@ -32,24 +34,49 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpGet("seed-export")]
-    public async Task<IActionResult> ExportSeedContent(
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ExportSeedContent(CancellationToken cancellationToken)
     {
-        var seedContent = await _blogContent.BuildSeedContentAsync(cancellationToken);
+        _logger.LogInformation("Seed export started.");
 
-        var json = JsonSerializer.Serialize(
-            seedContent,
-            new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            });
+        try
+        {
+            var seedContent = await _blogContent.BuildSeedContentAsync(cancellationToken);
 
-        return File(
-            Encoding.UTF8.GetBytes(json),
-            "application/json",
-            "blog-content.seed.json");
+            var zoneCount = seedContent.RoadmapZones.Count;
+            var stepCount = seedContent.RoadmapZones.Sum(zone => zone.Steps.Count);
+            var articleCount = seedContent.Articles.Count;
+            var blockCount = seedContent.Articles.Sum(article => article.BodyBlocks.Count);
+
+            _logger.LogInformation(
+                "Seed export content built. Zones: {ZoneCount}, Steps: {StepCount}, Articles: {ArticleCount}, BodyBlocks: {BodyBlockCount}.",
+                zoneCount,
+                stepCount,
+                articleCount,
+                blockCount);
+
+            var json = JsonSerializer.Serialize(
+                seedContent,
+                new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                });
+
+            _logger.LogInformation(
+                "Seed export JSON serialized. Size: {JsonSizeBytes} bytes.",
+                Encoding.UTF8.GetByteCount(json));
+
+            return File(
+                Encoding.UTF8.GetBytes(json),
+                "application/json",
+                "blog-content.seed.json");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Seed export failed.");
+            throw;
+        }
     }
 
     [HttpGet("document-types")]
