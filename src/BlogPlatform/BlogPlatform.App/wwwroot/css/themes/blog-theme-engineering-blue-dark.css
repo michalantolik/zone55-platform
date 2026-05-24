@@ -323,3 +323,155 @@ html[data-blog-theme="engineering-blue-dark"] {
     font-weight: 900;
     color: #93c5fd;
 }
+
+/* =========================================================
+   Article Table Block styles
+   ========================================================= */
+
+.article-table-wrap {
+    width: 100%;
+    margin: 22px 0;
+    overflow-x: auto;
+}
+
+.article-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+    .article-table th,
+    .article-table td {
+        vertical-align: middle;
+    }
+
+    .article-table .table-cell-markdown {
+        color: var(--article-text, #d6e3f5);
+        line-height: 1.42;
+    }
+
+        .article-table .table-cell-markdown p {
+            margin: 0;
+        }
+
+            .article-table .table-cell-markdown p + p {
+                margin-top: 6px;
+            }
+
+        .article-table .table-cell-markdown ul,
+        .article-table .table-cell-markdown ol {
+            margin: 7px 0 0 1rem;
+            padding: 0;
+        }
+
+        .article-table .table-cell-markdown li {
+            margin: 3px 0;
+        }
+
+        .article-table .table-cell-markdown code {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 6px;
+            color: #ff4fb3;
+            background: rgba(255, 79, 179, 0.10);
+            border: 1px solid rgba(255, 79, 179, 0.16);
+            font-size: 0.86em;
+        }
+
+/* Dense Engineering Table */
+
+.article-table-style-dense-engineering {
+    border: 1px solid rgba(132, 187, 255, 0.24);
+    border-radius: 14px;
+    background: rgba(8, 28, 54, 0.78);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.20);
+}
+
+    .article-table-style-dense-engineering .article-table th {
+        padding: 10px 12px;
+        text-align: left;
+        color: #f8fafc;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        background: rgba(96, 165, 250, 0.09);
+        border-bottom: 1px solid rgba(132, 187, 255, 0.18);
+    }
+
+    .article-table-style-dense-engineering .article-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(132, 187, 255, 0.12);
+        border-right: 1px solid rgba(132, 187, 255, 0.10);
+    }
+
+    .article-table-style-dense-engineering .article-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .article-table-style-dense-engineering .article-table th:last-child,
+    .article-table-style-dense-engineering .article-table td:last-child {
+        border-right: 0;
+    }
+
+/* Minimal Reference Table */
+
+.article-table-style-minimal-reference {
+    border-top: 1px solid rgba(132, 187, 255, 0.22);
+    border-bottom: 1px solid rgba(132, 187, 255, 0.22);
+    background: transparent;
+}
+
+    .article-table-style-minimal-reference .article-table {
+        border-collapse: collapse;
+    }
+
+        .article-table-style-minimal-reference .article-table th {
+            width: 118px;
+            padding: 9px 12px 9px 0;
+            color: #93c5fd;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(132, 187, 255, 0.12);
+            background: transparent;
+        }
+
+        .article-table-style-minimal-reference .article-table td {
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(132, 187, 255, 0.12);
+        }
+
+        .article-table-style-minimal-reference .article-table tr:last-child th,
+        .article-table-style-minimal-reference .article-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+.table-row-number {
+    display: inline-flex;
+    min-width: 22px;
+    height: 22px;
+    margin-right: 8px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #bfdbfe;
+    background: rgba(96, 165, 250, 0.14);
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.table-cell-emoji {
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.table-cell-image {
+    display: block;
+    max-width: 100%;
+    max-height: 180px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+}

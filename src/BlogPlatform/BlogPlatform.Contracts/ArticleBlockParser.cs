@@ -119,6 +119,7 @@ public static class ArticleBlockParser
                     HasHeaderRow = GetBool(block, "hasHeaderRow") ?? false,
                     HasHeaderColumn = GetBool(block, "hasHeaderColumn") ?? false,
                     AutoNumberRows = GetBool(block, "autoNumberRows") ?? false,
+                    TableStyle = NormalizeTableStyle(GetString(block, "tableStyle")),
                     DefaultHorizontalAlignment = GetString(block, "defaultHorizontalAlignment") ?? "left",
                     DefaultVerticalAlignment = GetString(block, "defaultVerticalAlignment") ?? "middle"
                 },
@@ -180,6 +181,13 @@ public static class ArticleBlockParser
                value.TryGetInt32(out var number)
             ? number
             : null;
+    }
+
+    private static string NormalizeTableStyle(string? value)
+    {
+        return value is "minimal-reference"
+            ? "minimal-reference"
+            : "dense-engineering";
     }
 
     private static IReadOnlyList<IReadOnlyList<ArticleTableCellDto>> ParseTableRows(JsonElement rowsElement)

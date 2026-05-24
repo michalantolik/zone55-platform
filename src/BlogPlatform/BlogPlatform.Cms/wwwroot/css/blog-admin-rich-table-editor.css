@@ -465,3 +465,56 @@
         max-height: 320px;
     }
 }
+
+.table-style-group {
+    min-width: 260px;
+}
+
+.table-style-picker {
+    display: grid;
+    gap: 8px;
+}
+
+.table-style-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px;
+    border: 1px solid rgba(132, 187, 255, 0.22);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.035);
+    cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+    .table-style-card:hover {
+        border-color: rgba(132, 187, 255, 0.52);
+        background: rgba(132, 187, 255, 0.08);
+    }
+
+    .table-style-card.selected {
+        border-color: rgba(53, 208, 127, 0.72);
+        background: rgba(53, 208, 127, 0.12);
+        box-shadow: 0 0 0 3px rgba(53, 208, 127, 0.10);
+    }
+
+    .table-style-card input {
+        width: auto;
+        margin-top: 3px;
+        accent-color: #35d07f;
+    }
+
+    .table-style-card strong {
+        display: block;
+        color: #f5f7fb;
+        font-size: 13px;
+    }
+
+    .table-style-card small {
+        display: block;
+        margin-top: 4px;
+        color: #a9bdd8;
+        font-size: 12px;
+        line-height: 1.35;
+    }

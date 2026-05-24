@@ -3,6 +3,25 @@
     column: 0
 };
 
+const tableStyleOptions = [
+    {
+        value: "dense-engineering",
+        title: "Dense Engineering Table",
+        description: "Compact technical table with clear borders, header bar and strong readability."
+    },
+    {
+        value: "minimal-reference",
+        title: "Minimal Reference Table",
+        description: "Very light reference layout with thin separators and no heavy table frame."
+    }
+];
+
+function normalizeTableStyle(value) {
+    return value === "minimal-reference"
+        ? "minimal-reference"
+        : "dense-engineering";
+}
+
 function createEmptyTableRows(rowCount, columnCount) {
     return Array.from({ length: rowCount }, (_, rowIndex) =>
         Array.from({ length: columnCount }, (_, columnIndex) => ({
@@ -277,6 +296,25 @@ function renderTableEditor(block) {
                     </label>
                 </div>
 
+                <div class="table-ribbon-group table-style-group">
+                    <div class="table-ribbon-title">Article style</div>
+                    <div class="table-style-picker">
+                        ${tableStyleOptions.map(option => `
+                            <label class="table-style-card ${normalizeTableStyle(block.tableStyle) === option.value ? "selected" : ""}">
+                                <input type="radio"
+                                       name="tableStyle"
+                                       value="${option.value}"
+                                       ${normalizeTableStyle(block.tableStyle) === option.value ? "checked" : ""}
+                                       onchange="updateTableOption('tableStyle', this.value)">
+                                <span>
+                                    <strong>${option.title}</strong>
+                                    <small>${option.description}</small>
+                                </span>
+                            </label>
+                        `).join("")}
+                    </div>
+                </div>
+
                 <div class="table-ribbon-group">
                     <div class="table-ribbon-title">Default alignment</div>
                     <div class="table-ribbon-selects">
@@ -480,12 +518,19 @@ function selectTableCell(row, column) {
     }
 }
 
-function updateTableOption(optionName, value) {
+function updateTableOption(propertyName, value) {
     const block = bodyBlocks[editedBlockIndex];
 
-    block[optionName] = value;
+    if (!block || getBlockType(block) !== "table") {
+        return;
+    }
 
-    refreshOnlyTablePreview(block);
+    block[propertyName] = propertyName === "tableStyle"
+        ? normalizeTableStyle(value)
+        : value;
+
+    renderTableEditor(block);
+    onEditorChanged();
 }
 
 function updateSelectedCellText(value) {
@@ -844,6 +889,8 @@ function readTableEditorRows() {
         }
 
         block.rows = readTableEditorRows();
+        block.tableStyle = normalizeTableStyle(
+            document.querySelector('input[name="tableStyle"]:checked')?.value);
         block.hasHeaderRow = document.getElementById("tableHasHeaderRow")?.checked === true;
         block.hasHeaderColumn = document.getElementById("tableHasHeaderColumn")?.checked === true;
         block.autoNumberRows = document.getElementById("tableAutoNumberRows")?.checked === true;

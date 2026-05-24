@@ -49,6 +49,10 @@ public sealed class ArticleTableOptionsDto
     public bool HasHeaderRow { get; init; }
     public bool HasHeaderColumn { get; init; }
     public bool AutoNumberRows { get; init; }
+
+    public string TableStyle { get; init; } = "dense-engineering";
+
     public string DefaultHorizontalAlignment { get; init; } = "left";
+
     public string DefaultVerticalAlignment { get; init; } = "middle";
 }
