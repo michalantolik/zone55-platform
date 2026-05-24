@@ -8,213 +8,363 @@
 
     .table-editor-host.active {
         display: block;
-        height: 100%;
         min-height: 0;
+    }
+
+.table-block-modal {
+    width: min(1280px, calc(100vw - 36px)) !important;
+    max-height: calc(100vh - 36px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+    .table-block-modal h2 {
+        flex: 0 0 auto;
+    }
+
+    .table-block-modal .modal-actions {
+        flex: 0 0 auto;
     }
 
 .table-block-modal-layout {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    height: 100%;
-    min-height: 0;
-}
-
-.table-block-topbar {
-    display: flex;
-    flex-direction: column;
     gap: 14px;
-    padding: 18px;
-    border-radius: 18px;
-    border: 1px solid rgba(96, 165, 250, .22);
-    background: rgba(5, 18, 37, .72);
+    min-height: 0;
+    flex: 1 1 auto;
 }
 
-.table-block-options {
+.table-ribbon {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(132, 187, 255, .24);
+    background: linear-gradient(180deg, rgba(9, 30, 58, .96), rgba(6, 21, 43, .96));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+
+.table-ribbon-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-right: 12px;
+    border-right: 1px solid rgba(132, 187, 255, .18);
+}
+
+    .table-ribbon-group:last-child {
+        border-right: 0;
+        padding-right: 0;
+    }
+
+.table-ribbon-group-primary {
+    flex: 1 1 360px;
+}
+
+.table-ribbon-title {
+    width: 100%;
+    color: #84bbff;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .9px;
+    text-transform: uppercase;
 }
 
 .table-checkbox {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
+    min-height: 36px;
     color: #dbeafe;
-    font-size: .95rem;
-    font-weight: 700;
-}
-
-.table-block-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.table-action-btn {
-    border: 1px solid rgba(96, 165, 250, .28);
-    background: linear-gradient( 180deg, rgba(37, 99, 235, .22), rgba(15, 23, 42, .82) );
-    color: #f8fafc;
-    border-radius: 12px;
-    padding: 10px 16px;
+    font-size: 13px;
     font-weight: 800;
     cursor: pointer;
-    transition: .18s ease;
+}
+
+    .table-checkbox input {
+        width: auto;
+        margin: 0;
+    }
+
+.table-ribbon-selects {
+    display: flex;
+    gap: 8px;
+}
+
+    .table-ribbon-selects select {
+        width: 120px;
+        min-height: 38px;
+        padding: 8px 10px;
+        border-radius: 10px;
+    }
+
+.table-action-btn {
+    border: 1px solid rgba(132, 187, 255, .28);
+    background: linear-gradient(180deg, rgba(37, 99, 235, .25), rgba(15, 23, 42, .86));
+    color: #f8fafc;
+    border-radius: 11px;
+    padding: 9px 13px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
 }
 
     .table-action-btn:hover {
         transform: translateY(-1px);
-        border-color: rgba(147, 197, 253, .6);
+        border-color: rgba(147, 197, 253, .72);
+        background: linear-gradient(180deg, rgba(59, 130, 246, .34), rgba(15, 23, 42, .92));
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .22);
+    }
+
+    .table-action-btn.compact {
+        padding: 8px 10px;
     }
 
     .table-action-btn.danger {
-        border-color: rgba(248, 113, 113, .3);
+        border-color: rgba(248, 113, 113, .34);
+        background: linear-gradient(180deg, rgba(220, 51, 84, .24), rgba(15, 23, 42, .86));
     }
 
-.table-block-content {
+.table-editor-workspace {
     display: grid;
-    grid-template-columns: minmax(0, 1.6fr) 380px;
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 14px;
     min-height: 0;
-    flex: 1;
+    flex: 1 1 auto;
 }
 
-.table-preview-panel {
-    overflow: auto;
+.table-editor-paper,
+.table-cell-editor-panel {
     border-radius: 18px;
-    border: 1px solid rgba(96, 165, 250, .22);
-    background: rgba(5, 18, 37, .82);
+    border: 1px solid rgba(132, 187, 255, .22);
+    background: rgba(5, 18, 37, .86);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.table-editor-paper {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 360px;
+    overflow: hidden;
+}
+
+.table-editor-hint {
+    flex: 0 0 auto;
+    padding: 12px 16px;
+    color: #b9d5f5;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(132, 187, 255, .14);
+    background: rgba(132, 187, 255, .06);
+}
+
+.table-preview-scroll {
+    flex: 1 1 auto;
+    overflow: auto;
     padding: 18px;
 }
 
 .table-preview-grid {
     width: 100%;
-    border-collapse: collapse;
+    min-width: 620px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    overflow: hidden;
+    border: 1px solid rgba(132, 187, 255, .22);
+    border-radius: 14px;
+    background: rgba(2, 11, 24, .96);
 }
 
 .table-preview-cell {
-    border: 1px solid rgba(96, 165, 250, .18);
-    min-width: 140px;
-    height: 112px;
-    vertical-align: top;
+    position: relative;
+    min-width: 150px;
+    height: 92px;
+    border-right: 1px solid rgba(132, 187, 255, .20);
+    border-bottom: 1px solid rgba(132, 187, 255, .20);
     padding: 10px;
-    cursor: pointer;
-    transition: .16s ease;
-    background: rgba(15, 23, 42, .82);
+    cursor: text;
+    background: rgba(255, 255, 255, .025);
+    transition: background .14s ease, outline-color .14s ease, box-shadow .14s ease;
 }
 
-    .table-preview-cell:hover {
-        background: rgba(30, 41, 59, .82);
+    .table-preview-cell:last-child {
+        border-right: 0;
     }
 
-    .table-preview-cell.selected {
-        outline: 2px solid #60a5fa;
-        background: rgba(37, 99, 235, .18);
-    }
+.table-preview-grid tr:last-child .table-preview-cell {
+    border-bottom: 0;
+}
 
-.table-preview-cell-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.table-preview-cell:hover {
+    background: rgba(132, 187, 255, .07);
+}
+
+.table-preview-cell.header {
+    background: linear-gradient(180deg, rgba(132, 187, 255, .16), rgba(132, 187, 255, .07));
+    font-weight: 900;
+}
+
+.table-preview-cell.selected {
+    z-index: 1;
+    outline: 2px solid #84bbff;
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 999px rgba(132, 187, 255, .055), 0 0 0 3px rgba(132, 187, 255, .16);
+}
+
+.table-row-number {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(132, 187, 255, .14);
+    color: #d7eaff;
+    font-size: 11px;
+    font-weight: 900;
 }
 
 .table-preview-emoji {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
+    line-height: 1;
+    margin-bottom: 8px;
 }
 
 .table-preview-image {
     width: 100%;
-    max-height: 70px;
+    max-height: 78px;
     object-fit: cover;
     border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(132, 187, 255, .16);
 }
 
 .table-preview-text {
-    color: #dbeafe;
-    font-size: .92rem;
+    min-height: 52px;
+    color: #eff6ff;
+    font-size: 14px;
     line-height: 1.45;
     word-break: break-word;
+    white-space: pre-wrap;
+    outline: 0;
 }
 
+    .table-preview-text:empty::before {
+        content: "Type here";
+        color: rgba(219, 234, 254, .38);
+        font-weight: 600;
+    }
+
 .table-cell-editor-panel {
+    min-width: 0;
     overflow: auto;
-    border-radius: 18px;
-    border: 1px solid rgba(96, 165, 250, .22);
-    background: rgba(5, 18, 37, .82);
-    padding: 18px;
+    padding: 16px;
 }
 
 .table-cell-editor {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
+}
+
+.table-cell-kicker,
+.table-side-label {
+    color: #84bbff;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .9px;
+    text-transform: uppercase;
 }
 
 .table-cell-title {
+    margin-top: 4px;
     color: #f8fafc;
-    font-size: 1.1rem;
+    font-size: 18px;
     font-weight: 900;
 }
 
 .table-cell-toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
 .table-editor-image-preview {
     width: 100%;
-    max-height: 220px;
+    max-height: 180px;
     object-fit: cover;
     border-radius: 14px;
+    border: 1px solid rgba(132, 187, 255, .20);
+}
+
+.table-empty-media {
+    padding: 14px;
+    border: 1px dashed rgba(132, 187, 255, .26);
+    border-radius: 14px;
+    color: #9fbce1;
+    background: rgba(132, 187, 255, .045);
+    font-size: 13px;
+    text-align: center;
 }
 
 .table-editor-textarea {
     width: 100%;
-    min-height: 180px;
+    min-height: 150px;
     resize: vertical;
     border-radius: 14px;
-    border: 1px solid rgba(96, 165, 250, .24);
+    border: 1px solid rgba(132, 187, 255, .24);
     background: rgba(2, 6, 23, .82);
     color: #f8fafc;
-    padding: 16px;
-    font-size: 1rem;
-    line-height: 1.6;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.55;
 }
 
 .table-alignments {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
 }
 
 .table-alignment-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
 }
 
     .table-alignment-group label {
         color: #cbd5e1;
-        font-size: .9rem;
-        font-weight: 800;
+        font-size: 12px;
+        font-weight: 900;
     }
 
     .table-alignment-group select {
-        height: 46px;
+        height: 42px;
         border-radius: 12px;
-        border: 1px solid rgba(96, 165, 250, .22);
+        border: 1px solid rgba(132, 187, 255, .22);
         background: rgba(2, 6, 23, .92);
         color: #f8fafc;
-        padding: 0 12px;
+        padding: 0 10px;
     }
 
-@media (max-width: 1400px) {
-    .table-block-content {
+@media (max-width: 1100px) {
+    .table-block-modal {
+        width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 24px);
+    }
+
+    .table-editor-workspace {
         grid-template-columns: 1fr;
     }
 
     .table-cell-editor-panel {
-        max-height: 420px;
+        max-height: 320px;
     }
 }
