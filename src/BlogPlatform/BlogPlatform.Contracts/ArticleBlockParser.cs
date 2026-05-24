@@ -109,21 +109,22 @@ public static class ArticleBlockParser
                 };
         }
 
-        if (block.TryGetProperty("rows", out var rowsElement) &&
-            rowsElement.ValueKind == JsonValueKind.Array)
+        if (block.TryGetProperty("rows", out var rowsElement))
         {
+            var rows = ParseTableRowsProperty(rowsElement);
+
             return new ArticleBlockDto(ArticleBlockType.Table)
             {
                 TableOptions = new ArticleTableOptionsDto
                 {
-                    HasHeaderRow = GetBool(block, "hasHeaderRow") ?? false,
+                    HasHeaderRow = GetBool(block, "hasHeaderRow") ?? true,
                     HasHeaderColumn = GetBool(block, "hasHeaderColumn") ?? false,
                     AutoNumberRows = GetBool(block, "autoNumberRows") ?? false,
                     TableStyle = NormalizeTableStyle(GetString(block, "tableStyle")),
                     DefaultHorizontalAlignment = GetString(block, "defaultHorizontalAlignment") ?? "left",
                     DefaultVerticalAlignment = GetString(block, "defaultVerticalAlignment") ?? "middle"
                 },
-                TableRows = ParseTableRows(rowsElement)
+                TableRows = rows
             };
         }
 
@@ -163,7 +164,9 @@ public static class ArticleBlockParser
     private static string? GetString(JsonElement element, string propertyName)
     {
         return element.TryGetProperty(propertyName, out var value)
-            ? value.GetString()
+            ? value.ValueKind == JsonValueKind.String
+                ? value.GetString()
+                : value.GetRawText()
             : null;
     }
 
@@ -185,9 +188,42 @@ public static class ArticleBlockParser
 
     private static string NormalizeTableStyle(string? value)
     {
-        return value is "minimal-reference"
+        return string.Equals(value, "minimal-reference", StringComparison.OrdinalIgnoreCase)
             ? "minimal-reference"
             : "dense-engineering";
+    }
+
+    private static IReadOnlyList<IReadOnlyList<ArticleTableCellDto>> ParseTableRowsProperty(JsonElement rowsElement)
+    {
+        if (rowsElement.ValueKind == JsonValueKind.Array)
+        {
+            return ParseTableRows(rowsElement);
+        }
+
+        if (rowsElement.ValueKind != JsonValueKind.String)
+        {
+            return [];
+        }
+
+        var rawRowsJson = rowsElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(rawRowsJson))
+        {
+            return [];
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(rawRowsJson);
+
+            return document.RootElement.ValueKind == JsonValueKind.Array
+                ? ParseTableRows(document.RootElement)
+                : [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     private static IReadOnlyList<IReadOnlyList<ArticleTableCellDto>> ParseTableRows(JsonElement rowsElement)

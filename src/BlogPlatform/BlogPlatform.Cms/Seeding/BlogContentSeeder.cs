@@ -432,15 +432,16 @@ public sealed class BlogContentSeeder
     private List<Dictionary<string, object>> CreateAllowedBlockConfiguration()
     {
         return new List<Dictionary<string, object>>
-        {
-            CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
-            CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
-            CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
-            CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
-            CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
-            CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}"),
-            CreateAllowedBlock(BlogContentAliases.SummaryBlock, "{umbValue: summary}")
-        };
+    {
+        CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
+        CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
+        CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
+        CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
+        CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
+        CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}"),
+        CreateAllowedBlock(BlogContentAliases.SummaryBlock, "{umbValue: summary}"),
+        CreateAllowedBlock(BlogContentAliases.TableBlock, "Table")
+    };
     }
 
     private Dictionary<string, object> CreateAllowedBlock(
@@ -746,7 +747,11 @@ public sealed class BlogContentSeeder
                     : block.TableStyle,
                 ["defaultHorizontalAlignment"] = block.DefaultHorizontalAlignment ?? "left",
                 ["defaultVerticalAlignment"] = block.DefaultVerticalAlignment ?? "middle",
-                ["rows"] = block.Rows
+
+                // IMPORTANT:
+                // "rows" is a Textarea property in Umbraco, so seed it as JSON text,
+                // not as a nested object.
+                ["rows"] = JsonSerializer.Serialize(block.Rows)
             });
     }
 

@@ -57,13 +57,76 @@ function normalizeTableCell(cell) {
     };
 }
 
-function normalizeTableRows(block) {
-    block.rows = (block.rows?.length ? block.rows : createEmptyTableRows(3, 3))
-        .map(row => (row?.length ? row : [normalizeTableCell({})]).map(normalizeTableCell));
+function parseTableRowsValue(rows) {
+    if (Array.isArray(rows)) {
+        return rows;
+    }
 
-    if (!block.rows.length) {
+    if (typeof rows !== "string") {
+        return [];
+    }
+
+    const trimmedRows = rows.trim();
+
+    if (!trimmedRows) {
+        return [];
+    }
+
+    try {
+        const parsedRows = JSON.parse(trimmedRows);
+
+        return Array.isArray(parsedRows)
+            ? parsedRows
+            : [];
+    }
+    catch {
+        return [];
+    }
+}
+
+function normalizeTableRow(row) {
+    if (Array.isArray(row)) {
+        return row.length
+            ? row.map(normalizeTableCell)
+            : [normalizeTableCell({})];
+    }
+
+    if (typeof row === "string") {
+        return [normalizeTableCell(row)];
+    }
+
+    if (Array.isArray(row?.cells)) {
+        return row.cells.length
+            ? row.cells.map(normalizeTableCell)
+            : [normalizeTableCell({})];
+    }
+
+    return [normalizeTableCell(row || {})];
+}
+
+function normalizeTableRows(block) {
+    const sourceRows = parseTableRowsValue(block.rows);
+
+    block.rows = (sourceRows.length ? sourceRows : createEmptyTableRows(3, 3))
+        .map(normalizeTableRow);
+
+    if (!block.rows.length || !Array.isArray(block.rows[0]) || !block.rows[0].length) {
         block.rows = createEmptyTableRows(3, 3);
     }
+
+    const firstRowColumnCount = block.rows[0].length;
+
+    block.rows = block.rows.map(row => {
+        const normalizedRow = Array.isArray(row) && row.length
+            ? row
+            : [normalizeTableCell({})];
+
+        while (normalizedRow.length < firstRowColumnCount) {
+            normalizedRow.push(normalizeTableCell({}));
+        }
+
+        return normalizedRow;
+    });
 
     if (selectedTableCell.row >= block.rows.length) {
         selectedTableCell.row = block.rows.length - 1;
