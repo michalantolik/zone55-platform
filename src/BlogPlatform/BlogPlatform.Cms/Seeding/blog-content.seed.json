@@ -197,12 +197,13 @@
           "hasHeaderRow": true,
           "hasHeaderColumn": false,
           "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
           "defaultHorizontalAlignment": "left",
           "defaultVerticalAlignment": "middle",
           "rows": [
             [
               {
-                "text": "Line Number",
+                "text": "fdsfsdf",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -210,7 +211,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "Description",
+                "text": "fsdgfsd",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -220,7 +221,7 @@
             ],
             [
               {
-                "text": "Line 1",
+                "text": "gsdgsdg",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -228,7 +229,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "Tells the compiler that this program uses types from the \u0060System\u0060 namespace.",
+                "text": "gsdgsd",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -238,7 +239,7 @@
             ],
             [
               {
-                "text": "Line 3",
+                "text": "Raz",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -246,7 +247,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "Declares a new namespace, called \u0060Simple\u0060.\n\n- The new namespace starts at the open curly brace on line 4 and extends through the matching curly brace on line 12.\n- Any types declared within this section are members of the namespace.",
+                "text": "Dwa",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -256,7 +257,7 @@
             ],
             [
               {
-                "text": "Line 5",
+                "text": "",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -264,7 +265,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "Declares a new class type, called \u0060Program\u0060.\n\n- Any members declared between the matching curly braces on lines 6 and 11 are members of this class.",
+                "text": "",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -274,7 +275,7 @@
             ],
             [
               {
-                "text": "Line 7",
+                "text": "",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -282,7 +283,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "Declares a method called \u0060Main\u0060 as a member of class \u0060Program\u0060.\n\n- In this program, \u0060Main\u0060 is the only member of the \u0060Program\u0060 class.\n- \u0060Main\u0060 is a special function used by the compiler as the starting point of the program.",
+                "text": "",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -292,7 +293,7 @@
             ],
             [
               {
-                "text": "Line 9",
+                "text": "",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -300,7 +301,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "Contains only a single, simple statement; this line constitutes the body of \u0060Main\u0060.\n\n- Simple statements are terminated by a semicolon.\n- This statement uses a class called \u0060Console\u0060, in namespace \u0060System\u0060, to print out the message to a window on the screen.\n- Without the using statement in line 1, the compiler wouldn\u2019t have known where to look for class \u0060Console\u0060.",
+                "text": "",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",

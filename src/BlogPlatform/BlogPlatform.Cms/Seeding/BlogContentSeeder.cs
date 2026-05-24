@@ -27,6 +27,12 @@ public sealed class BlogContentSeeder
     private readonly IRoadmapSeedService _roadmapSeedService;
     private readonly BlogContentSeederOptions _options;
 
+    private static readonly JsonSerializerOptions TableRowsJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    };
+
     public BlogContentSeeder(
         IContentTypeService contentTypeService,
         IContentService contentService,
@@ -570,9 +576,17 @@ public sealed class BlogContentSeeder
         article.SetValue(BlogContentAliases.Tags, string.Join(", ", tags));
         article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
 
+        var bodyBlocksJson = CreateBlockListValueJson(bodyBlocks);
+
+        _logger.LogInformation(
+            "Seeding article body blocks. Article: {ArticleName}, Blocks: {BlockCount}, HasTableBlock: {HasTableBlock}.",
+            name,
+            bodyBlocks.Count,
+            bodyBlocks.Any(block => block.ElementTypeAlias == BlogContentAliases.TableBlock));
+
         article.SetValue(
             BlogContentAliases.BodyBlocks,
-            CreateBlockListValueJson(bodyBlocks));
+            bodyBlocksJson);
 
         _contentService.Save(article);
         _contentService.Publish(article, new[] { "*" });
@@ -751,7 +765,7 @@ public sealed class BlogContentSeeder
                 // IMPORTANT:
                 // "rows" is a Textarea property in Umbraco, so seed it as JSON text,
                 // not as a nested object.
-                ["rows"] = JsonSerializer.Serialize(block.Rows)
+                ["rows"] = JsonSerializer.Serialize(block.Rows, TableRowsJsonOptions)
             });
     }
 

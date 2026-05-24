@@ -662,6 +662,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                 HasHeaderRow = GetJsonBool(blockElement, "hasHeaderRow"),
                 HasHeaderColumn = GetJsonBool(blockElement, "hasHeaderColumn"),
                 AutoNumberRows = GetJsonBool(blockElement, "autoNumberRows"),
+                TableStyle = NormalizeSeedTableStyle(GetJsonString(blockElement, "tableStyle")),
                 DefaultHorizontalAlignment =
                     GetJsonString(blockElement, "defaultHorizontalAlignment") ?? "left",
                 DefaultVerticalAlignment =
@@ -954,6 +955,18 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                 normalized["udi"] = udi;
                 normalized["contentTypeKey"] = elementType.Key;
 
+                if (string.Equals(alias, BlogContentAliases.TableBlock, StringComparison.OrdinalIgnoreCase))
+                {
+                    NormalizeTableBlockRowsForUmbraco(normalized);
+
+                    _logger.LogInformation(
+                        "Normalized table block before save. Udi: {Udi}, HasRows: {HasRows}.",
+                        udi,
+                        normalized.TryGetValue("rows", out var rowsValue) &&
+                        rowsValue is string rowsText &&
+                        !string.IsNullOrWhiteSpace(rowsText));
+                }
+
                 normalizedContentData.Add(normalized);
 
                 layoutItems.Add(new Dictionary<string, object?>
@@ -1004,6 +1017,35 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             "tableblock" => BlogContentAliases.TableBlock,
             _ => null
         };
+    }
+
+    private static void NormalizeTableBlockRowsForUmbraco(Dictionary<string, object?> block)
+    {
+        if (!block.TryGetValue("rows", out var rowsValue) || rowsValue is null)
+        {
+            block["rows"] = "[]";
+            return;
+        }
+
+        if (rowsValue is JsonElement rowsElement)
+        {
+            block["rows"] = rowsElement.ValueKind == JsonValueKind.String
+                ? rowsElement.GetString() ?? "[]"
+                : rowsElement.GetRawText();
+
+            return;
+        }
+
+        if (rowsValue is string rowsText)
+        {
+            block["rows"] = string.IsNullOrWhiteSpace(rowsText)
+                ? "[]"
+                : rowsText;
+
+            return;
+        }
+
+        block["rows"] = JsonSerializer.Serialize(rowsValue);
     }
 
     private static string? InferElementTypeAlias(JsonElement blockElement)
@@ -1130,12 +1172,16 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
         return new BlogSeedTableCell
         {
-            Text = GetJsonString(cellElement, "text"),
-            Emoji = GetJsonString(cellElement, "emoji"),
-            ImageUrl = GetJsonString(cellElement, "imageUrl"),
-            ImageAlt = GetJsonString(cellElement, "imageAlt"),
-            HorizontalAlignment = GetJsonString(cellElement, "horizontalAlignment"),
-            VerticalAlignment = GetJsonString(cellElement, "verticalAlignment")
+            Text = GetJsonString(cellElement, "text") ?? GetJsonString(cellElement, "Text"),
+            Emoji = GetJsonString(cellElement, "emoji") ?? GetJsonString(cellElement, "Emoji"),
+            ImageUrl = GetJsonString(cellElement, "imageUrl") ?? GetJsonString(cellElement, "ImageUrl"),
+            ImageAlt = GetJsonString(cellElement, "imageAlt") ?? GetJsonString(cellElement, "ImageAlt"),
+            HorizontalAlignment =
+                GetJsonString(cellElement, "horizontalAlignment") ??
+                GetJsonString(cellElement, "HorizontalAlignment"),
+            VerticalAlignment =
+                GetJsonString(cellElement, "verticalAlignment") ??
+                GetJsonString(cellElement, "VerticalAlignment")
         };
     }
 
