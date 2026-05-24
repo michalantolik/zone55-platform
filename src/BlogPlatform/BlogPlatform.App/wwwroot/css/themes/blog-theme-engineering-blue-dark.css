@@ -257,3 +257,69 @@ html[data-blog-theme="engineering-blue-dark"] {
             color: var(--diagram-mermaid-node-text) !important;
             fill: var(--diagram-mermaid-node-text) !important;
         }
+
+.article-table-wrap {
+    margin: 28px 0;
+    overflow-x: auto;
+    border: 1px solid rgba(132, 187, 255, 0.26);
+    border-radius: 18px;
+    background: rgba(7, 26, 51, 0.72);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
+}
+
+.article-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 560px;
+}
+
+    .article-table th,
+    .article-table td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(132, 187, 255, 0.16);
+        border-right: 1px solid rgba(132, 187, 255, 0.16);
+        color: var(--article-text, #dbeafe);
+        line-height: 1.55;
+    }
+
+    .article-table th {
+        font-weight: 900;
+        color: #f8fafc;
+        background: rgba(132, 187, 255, 0.12);
+    }
+
+    .article-table tr:last-child th,
+    .article-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .article-table th:last-child,
+    .article-table td:last-child {
+        border-right: 0;
+    }
+
+.table-cell-emoji {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 1.25rem;
+    vertical-align: middle;
+}
+
+.table-cell-image {
+    display: block;
+    max-width: 180px;
+    max-height: 130px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 0 0 10px 0;
+    border: 1px solid rgba(132, 187, 255, 0.22);
+}
+
+.table-row-number {
+    display: inline-flex;
+    justify-content: center;
+    min-width: 24px;
+    margin-right: 8px;
+    font-weight: 900;
+    color: #93c5fd;
+}

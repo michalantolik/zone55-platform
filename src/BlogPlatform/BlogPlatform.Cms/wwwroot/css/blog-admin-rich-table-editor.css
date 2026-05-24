@@ -1,0 +1,220 @@
+﻿.hidden {
+    display: none !important;
+}
+
+.table-editor-host {
+    display: none;
+}
+
+    .table-editor-host.active {
+        display: block;
+        height: 100%;
+        min-height: 0;
+    }
+
+.table-block-modal-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    height: 100%;
+    min-height: 0;
+}
+
+.table-block-topbar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(96, 165, 250, .22);
+    background: rgba(5, 18, 37, .72);
+}
+
+.table-block-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.table-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #dbeafe;
+    font-size: .95rem;
+    font-weight: 700;
+}
+
+.table-block-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.table-action-btn {
+    border: 1px solid rgba(96, 165, 250, .28);
+    background: linear-gradient( 180deg, rgba(37, 99, 235, .22), rgba(15, 23, 42, .82) );
+    color: #f8fafc;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+    .table-action-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(147, 197, 253, .6);
+    }
+
+    .table-action-btn.danger {
+        border-color: rgba(248, 113, 113, .3);
+    }
+
+.table-block-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) 380px;
+    gap: 18px;
+    min-height: 0;
+    flex: 1;
+}
+
+.table-preview-panel {
+    overflow: auto;
+    border-radius: 18px;
+    border: 1px solid rgba(96, 165, 250, .22);
+    background: rgba(5, 18, 37, .82);
+    padding: 18px;
+}
+
+.table-preview-grid {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-preview-cell {
+    border: 1px solid rgba(96, 165, 250, .18);
+    min-width: 140px;
+    height: 112px;
+    vertical-align: top;
+    padding: 10px;
+    cursor: pointer;
+    transition: .16s ease;
+    background: rgba(15, 23, 42, .82);
+}
+
+    .table-preview-cell:hover {
+        background: rgba(30, 41, 59, .82);
+    }
+
+    .table-preview-cell.selected {
+        outline: 2px solid #60a5fa;
+        background: rgba(37, 99, 235, .18);
+    }
+
+.table-preview-cell-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.table-preview-emoji {
+    font-size: 1.45rem;
+}
+
+.table-preview-image {
+    width: 100%;
+    max-height: 70px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.table-preview-text {
+    color: #dbeafe;
+    font-size: .92rem;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.table-cell-editor-panel {
+    overflow: auto;
+    border-radius: 18px;
+    border: 1px solid rgba(96, 165, 250, .22);
+    background: rgba(5, 18, 37, .82);
+    padding: 18px;
+}
+
+.table-cell-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.table-cell-title {
+    color: #f8fafc;
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+.table-cell-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.table-editor-image-preview {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.table-editor-textarea {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    border-radius: 14px;
+    border: 1px solid rgba(96, 165, 250, .24);
+    background: rgba(2, 6, 23, .82);
+    color: #f8fafc;
+    padding: 16px;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.table-alignments {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.table-alignment-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .table-alignment-group label {
+        color: #cbd5e1;
+        font-size: .9rem;
+        font-weight: 800;
+    }
+
+    .table-alignment-group select {
+        height: 46px;
+        border-radius: 12px;
+        border: 1px solid rgba(96, 165, 250, .22);
+        background: rgba(2, 6, 23, .92);
+        color: #f8fafc;
+        padding: 0 12px;
+    }
+
+@media (max-width: 1400px) {
+    .table-block-content {
+        grid-template-columns: 1fr;
+    }
+
+    .table-cell-editor-panel {
+        max-height: 420px;
+    }
+}

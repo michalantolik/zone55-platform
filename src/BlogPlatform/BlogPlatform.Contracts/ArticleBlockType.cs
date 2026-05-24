@@ -8,5 +8,6 @@ public enum ArticleBlockType
     Mermaid,
     PlantUml,
     Callout,
-    Summary
+    Summary,
+    Table
 }

@@ -11,6 +11,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Article editor</title>
+    <link rel="stylesheet" href="/css/blog-admin-rich-table-editor.css" />
 
     <style>
             * {
@@ -854,6 +855,22 @@
                         type: "summary",
                         summary: "Short article summary"
                     })
+                },
+                {
+                    type: "table",
+                    name: "Table Block",
+                    alias: "tableBlock",
+                    icon: "▦",
+                    create: () => ({
+                        udi: createElementUdi(),
+                        type: "table",
+                        hasHeaderRow: true,
+                        hasHeaderColumn: false,
+                        autoNumberRows: false,
+                        defaultHorizontalAlignment: "left",
+                        defaultVerticalAlignment: "middle",
+                        rows: createEmptyTableRows(3, 3)
+                    })
                 }
             ];
 
@@ -1493,6 +1510,10 @@
                     return "summary";
                 }
 
+                if (block.rows || block.type === "table") {
+                    return "table";
+                }
+
                 return "text";
             }
 
@@ -1527,6 +1548,10 @@
                     return "📌";
                 }
 
+                if (type === "table") {
+                    return "▦";
+                }
+
                 return "◇";
             }
 
@@ -1559,6 +1584,10 @@
 
                 if (type === "summary") {
                     return "summaryBlock";
+                }
+
+                if (type === "table") {
+                    return "tableBlock";
                 }
 
                 return "Unknown block";
@@ -1601,6 +1630,13 @@
 
                 if (type === "summary") {
                     return block.summary || block.text || "Summary Block";
+                }
+
+                if (type === "table") {
+                    const rowCount = block.rows?.length || 0;
+                    const columnCount = block.rows?.[0]?.length || 0;
+
+                    return `${rowCount}×${columnCount} Table Block`;
                 }
 
                 return block.text || "Text Block";
@@ -2236,5 +2272,6 @@
             }
 
     </script>
+    <script src="/js/blog-admin-rich-table-editor.js"></script>
 </body>
 </html>

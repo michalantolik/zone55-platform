@@ -109,6 +109,23 @@ public static class ArticleBlockParser
                 };
         }
 
+        if (block.TryGetProperty("rows", out var rowsElement) &&
+            rowsElement.ValueKind == JsonValueKind.Array)
+        {
+            return new ArticleBlockDto(ArticleBlockType.Table)
+            {
+                TableOptions = new ArticleTableOptionsDto
+                {
+                    HasHeaderRow = GetBool(block, "hasHeaderRow") ?? false,
+                    HasHeaderColumn = GetBool(block, "hasHeaderColumn") ?? false,
+                    AutoNumberRows = GetBool(block, "autoNumberRows") ?? false,
+                    DefaultHorizontalAlignment = GetString(block, "defaultHorizontalAlignment") ?? "left",
+                    DefaultVerticalAlignment = GetString(block, "defaultVerticalAlignment") ?? "middle"
+                },
+                TableRows = ParseTableRows(rowsElement)
+            };
+        }
+
         if (!string.IsNullOrWhiteSpace(summary))
         {
             return new ArticleBlockDto(ArticleBlockType.Summary)
@@ -163,5 +180,38 @@ public static class ArticleBlockParser
                value.TryGetInt32(out var number)
             ? number
             : null;
+    }
+
+    private static IReadOnlyList<IReadOnlyList<ArticleTableCellDto>> ParseTableRows(JsonElement rowsElement)
+    {
+        return rowsElement
+            .EnumerateArray()
+            .Where(row => row.ValueKind == JsonValueKind.Array)
+            .Select(row => row
+                .EnumerateArray()
+                .Select(ParseTableCell)
+                .ToArray() as IReadOnlyList<ArticleTableCellDto>)
+            .ToArray();
+    }
+
+    private static ArticleTableCellDto ParseTableCell(JsonElement cell)
+    {
+        if (cell.ValueKind == JsonValueKind.String)
+        {
+            return new ArticleTableCellDto
+            {
+                Text = cell.GetString()
+            };
+        }
+
+        return new ArticleTableCellDto
+        {
+            Text = GetString(cell, "text"),
+            Emoji = GetString(cell, "emoji"),
+            ImageUrl = GetString(cell, "imageUrl"),
+            ImageAlt = GetString(cell, "imageAlt"),
+            HorizontalAlignment = GetString(cell, "horizontalAlignment"),
+            VerticalAlignment = GetString(cell, "verticalAlignment")
+        };
     }
 }

@@ -49,4 +49,20 @@ public sealed class BlogSeedBlock
     public string? Title { get; set; }
     public bool? ShowDiagramTitleBar { get; set; }
     public string? Kind { get; set; }
+    public bool? HasHeaderRow { get; set; }
+    public bool? HasHeaderColumn { get; set; }
+    public bool? AutoNumberRows { get; set; }
+    public string? DefaultHorizontalAlignment { get; set; }
+    public string? DefaultVerticalAlignment { get; set; }
+    public List<List<BlogSeedTableCell>> Rows { get; set; } = [];
+}
+
+public sealed class BlogSeedTableCell
+{
+    public string? Text { get; set; }
+    public string? Emoji { get; set; }
+    public string? ImageUrl { get; set; }
+    public string? ImageAlt { get; set; }
+    public string? HorizontalAlignment { get; set; }
+    public string? VerticalAlignment { get; set; }
 }

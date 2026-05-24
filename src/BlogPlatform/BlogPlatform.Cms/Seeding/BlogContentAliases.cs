@@ -11,6 +11,7 @@ public static class BlogContentAliases
     public const string PlantUmlDiagramBlock = "plantUmlDiagramBlock";
     public const string CalloutBlock = "calloutBlock";
     public const string SummaryBlock = "summaryBlock";
+    public const string TableBlock = "tableBlock";
 
     public const string Title = "title";
     public const string Slug = "slug";

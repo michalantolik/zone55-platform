@@ -171,6 +171,8 @@ public sealed class BlogContentSeeder
             "summary" => SummaryBlock(
                 block.Summary ?? block.Text ?? string.Empty),
 
+            "table" => TableBlock(block),
+
             _ => throw new InvalidOperationException(
                 $"Unsupported seed block type: {block.Type}")
         };
@@ -244,6 +246,20 @@ public sealed class BlogContentSeeder
             new[]
             {
                 Property("summary", "Summary", "Textarea")
+            });
+
+        await CreateElementTypeAsync(
+            BlogContentAliases.TableBlock,
+            "Table Block",
+            "icon-table",
+            new[]
+            {
+        Property("hasHeaderRow", "Header row", "True/false"),
+        Property("hasHeaderColumn", "Header column", "True/false"),
+        Property("autoNumberRows", "Auto-number rows", "True/false"),
+        Property("defaultHorizontalAlignment", "Default horizontal alignment", "Textstring"),
+        Property("defaultVerticalAlignment", "Default vertical alignment", "Textstring"),
+        Property("rows", "Rows JSON", "Textarea")
             });
     }
 
@@ -712,6 +728,21 @@ public sealed class BlogContentSeeder
             new Dictionary<string, object?>
             {
                 ["summary"] = summary
+            });
+    }
+
+    private static SeedBlock TableBlock(BlogSeedBlock block)
+    {
+        return new SeedBlock(
+            BlogContentAliases.TableBlock,
+            new Dictionary<string, object?>
+            {
+                ["hasHeaderRow"] = block.HasHeaderRow ?? true,
+                ["hasHeaderColumn"] = block.HasHeaderColumn ?? false,
+                ["autoNumberRows"] = block.AutoNumberRows ?? false,
+                ["defaultHorizontalAlignment"] = block.DefaultHorizontalAlignment ?? "left",
+                ["defaultVerticalAlignment"] = block.DefaultVerticalAlignment ?? "middle",
+                ["rows"] = block.Rows
             });
     }
 
