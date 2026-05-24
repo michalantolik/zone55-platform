@@ -177,13 +177,138 @@
       "bodyBlocks": [
         {
           "type": "text",
-          "text": "- When the code is compiled and executed, it displays the string \u201CHi there!\u201D in a window on the screen.\n\n- Line 5 contains two contiguous slash characters. These characters\u2014and everything following them on the line\u2014are ignored by the compiler. This is called a *single-line comment*."
+          "text": "- When the code is compiled and executed, it displays the string \u201CHi there!\u201D in a window on the screen.\n\n- Line 5 contains two contiguous slash characters. These characters\u2014and everything following them on the line\u2014are ignored by the compiler. This is called a *single-line comment*.",
+          "rows": []
         },
         {
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Example.cs",
-          "code": "using System;\n\nnamespace Simple\n{\n    class Program // declare a class\n    {\n        static void Main()\n        {\n            Console.WriteLine(\u0022Hi there!\u0022);\n        }\n    }\n}"
+          "code": "using System;\n\nnamespace Simple\n{\n    class Program // declare a class\n    {\n        static void Main()\n        {\n            Console.WriteLine(\u0022Hi there!\u0022);\n        }\n    }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The \u0060SimpleProgram\u0060, line by line is presented here:",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Line Number",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Line 1",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Tells the compiler that this program uses types from the \u0060System\u0060 namespace.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Line 3",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Declares a new namespace, called \u0060Simple\u0060.\n\n- The new namespace starts at the open curly brace on line 4 and extends through the matching curly brace on line 12.\n- Any types declared within this section are members of the namespace.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Line 5",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Declares a new class type, called \u0060Program\u0060.\n\n- Any members declared between the matching curly braces on lines 6 and 11 are members of this class.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Line 7",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Declares a method called \u0060Main\u0060 as a member of class \u0060Program\u0060.\n\n- In this program, \u0060Main\u0060 is the only member of the \u0060Program\u0060 class.\n- \u0060Main\u0060 is a special function used by the compiler as the starting point of the program.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Line 9",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Contains only a single, simple statement; this line constitutes the body of \u0060Main\u0060.\n\n- Simple statements are terminated by a semicolon.\n- This statement uses a class called \u0060Console\u0060, in namespace \u0060System\u0060, to print out the message to a window on the screen.\n- Without the using statement in line 1, the compiler wouldn\u2019t have known where to look for class \u0060Console\u0060.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
         }
       ]
     },
@@ -202,13 +327,15 @@
       "bodyBlocks": [
         {
           "type": "text",
-          "text": "Components of the .NET Framework are presented here:"
+          "text": "Components of the .NET Framework are presented here:",
+          "rows": []
         },
         {
           "type": "plantUmlDiagram",
           "diagram": "@startuml\nskinparam linetype ortho\n\nrectangle \u0022Programming\\nTools\u0022 as Tools\nrectangle \u0022Compiled\\nCode\u0022 as Code\nrectangle \u0022Base Class\\nLibrary (BCL)\u0022 as BCL\nrectangle \u0022Common Language Runtime (CLR)\u0022 as CLR\n\nTools -down-\u003E Code : Produces\nCode -right-\u003E BCL : Uses\nCode -down-\u003E CLR : Executed By\nBCL -down-\u003E CLR : Executed By\n\n@enduml",
           "title": "Components of the .NET Framework",
-          "showDiagramTitleBar": true
+          "showDiagramTitleBar": true,
+          "rows": []
         }
       ]
     }
