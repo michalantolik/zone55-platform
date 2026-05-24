@@ -1607,39 +1607,9 @@
 
             function getBlockLabel(block) {
                 const type = getBlockType(block);
+                const definition = availableBlockTypes.find(item => item.type === type);
 
-                if (type === "heading") {
-                    return `H${block.level || 2}  ${block.text || "Heading Block"}`;
-                }
-
-                if (type === "code") {
-                    return `${block.language || "code"} - ${block.fileName || "Code Snippet Block"}`;
-                }
-
-                if (type === "mermaid") {
-                    return block.title || block.diagramTitle || "Mermaid diagram";
-                }
-
-                if (type === "plantuml") {
-                    return block.title || block.diagramTitle || "PlantUML diagram";
-                }
-
-                if (type === "callout") {
-                    return block.calloutType || "Callout Block";
-                }
-
-                if (type === "summary") {
-                    return block.summary || block.text || "Summary Block";
-                }
-
-                if (type === "table") {
-                    const rowCount = block.rows?.length || 0;
-                    const columnCount = block.rows?.[0]?.length || 0;
-
-                    return `${rowCount}×${columnCount} Table Block`;
-                }
-
-                return block.text || "Text Block";
+                return definition?.name || "Text Block";
             }
 
             function openBlockEditor(index) {
