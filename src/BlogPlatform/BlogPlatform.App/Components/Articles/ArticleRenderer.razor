@@ -217,8 +217,8 @@
                 }
 
                 builder.OpenElement(sequence++, "div");
-                builder.AddAttribute(sequence++, "class", "table-cell-text");
-                builder.AddContent(sequence++, cell.Text);
+                builder.AddAttribute(sequence++, "class", "table-cell-text table-cell-markdown");
+                builder.AddMarkupContent(sequence++, MarkdownTextRenderer.ToHtml(cell.Text));
                 builder.CloseElement();
 
                 builder.CloseElement();

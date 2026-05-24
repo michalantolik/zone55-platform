@@ -58,6 +58,184 @@ function normalizeTableRows(block) {
     selectedTableCell.column = Math.max(0, selectedTableCell.column);
 }
 
+function escapeHtml(value) {
+    return (value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function normalizeMarkdownSource(value) {
+    return (value || "")
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .replace(/\u00a0/g, " ");
+}
+
+function plainTextLooksLikeMarkdown(value) {
+    const text = value || "";
+
+    return /(^|\n)\s{0,3}#{1,6}\s/.test(text) ||
+        /(^|\n)\s*[-*+]\s+/.test(text) ||
+        /(^|\n)\s*\d+\.\s+/.test(text) ||
+        /\*\*[^*]+\*\*/.test(text) ||
+        /__[^_]+__/.test(text) ||
+        /`[^`]+`/.test(text) ||
+        /\[[^\]]+\]\([^)]+\)/.test(text) ||
+        /(^|\n)\s*>/.test(text) ||
+        /(^|\n)\s*\|.+\|/.test(text) ||
+        /```/.test(text);
+}
+
+function clipboardEventToMarkdown(event) {
+    const plainText = normalizeMarkdownSource(event.clipboardData?.getData("text/plain") || "");
+    const html = event.clipboardData?.getData("text/html") || "";
+
+    if (!html || plainTextLooksLikeMarkdown(plainText)) {
+        return plainText;
+    }
+
+    const markdown = normalizeMarkdownSource(convertHtmlToMarkdown(html));
+
+    return markdown || plainText;
+}
+
+function convertHtmlToMarkdown(html) {
+    const documentParser = new DOMParser();
+    const document = documentParser.parseFromString(html, "text/html");
+
+    return Array.from(document.body.childNodes)
+        .map(node => convertHtmlNodeToMarkdown(node, 0))
+        .join("")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+}
+
+function convertHtmlNodeToMarkdown(node, listDepth) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent || "";
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+        return "";
+    }
+
+    const element = node;
+    const tagName = element.tagName.toLowerCase();
+    const childrenMarkdown = () =>
+        Array.from(element.childNodes)
+            .map(child => convertHtmlNodeToMarkdown(child, listDepth))
+            .join("");
+
+    switch (tagName) {
+        case "h1":
+            return `# ${childrenMarkdown().trim()}\n\n`;
+        case "h2":
+            return `## ${childrenMarkdown().trim()}\n\n`;
+        case "h3":
+            return `### ${childrenMarkdown().trim()}\n\n`;
+        case "h4":
+            return `#### ${childrenMarkdown().trim()}\n\n`;
+        case "h5":
+            return `##### ${childrenMarkdown().trim()}\n\n`;
+        case "h6":
+            return `###### ${childrenMarkdown().trim()}\n\n`;
+        case "strong":
+        case "b":
+            return `**${childrenMarkdown().trim()}**`;
+        case "em":
+        case "i":
+            return `*${childrenMarkdown().trim()}*`;
+        case "code":
+            return `\`${element.textContent || ""}\``;
+        case "pre":
+            return `\n\`\`\`\n${(element.textContent || "").replace(/\n$/, "")}\n\`\`\`\n\n`;
+        case "a": {
+            const href = element.getAttribute("href");
+            const text = childrenMarkdown().trim();
+
+            return href
+                ? `[${text}](${href})`
+                : text;
+        }
+        case "br":
+            return "\n";
+        case "p":
+        case "div":
+            return `${childrenMarkdown().trim()}\n\n`;
+        case "blockquote":
+            return childrenMarkdown()
+                .trim()
+                .split("\n")
+                .map(line => `> ${line}`)
+                .join("\n") + "\n\n";
+        case "ul":
+            return Array.from(element.children)
+                .map(child => convertHtmlNodeToMarkdown(child, listDepth + 1))
+                .join("") + "\n";
+        case "ol":
+            return Array.from(element.children)
+                .map((child, index) => convertHtmlListItemToMarkdown(child, listDepth + 1, index + 1))
+                .join("") + "\n";
+        case "li":
+            return convertHtmlListItemToMarkdown(element, listDepth, null);
+        case "table":
+            return convertHtmlTableToMarkdown(element);
+        case "thead":
+        case "tbody":
+        case "tr":
+        case "th":
+        case "td":
+            return childrenMarkdown();
+        default:
+            return childrenMarkdown();
+    }
+}
+
+function convertHtmlListItemToMarkdown(element, listDepth, orderedNumber) {
+    const indent = "  ".repeat(Math.max(0, listDepth - 1));
+    const marker = orderedNumber ? `${orderedNumber}.` : "-";
+    const content = Array.from(element.childNodes)
+        .map(child => convertHtmlNodeToMarkdown(child, listDepth))
+        .join("")
+        .trim()
+        .replace(/\n/g, `\n${indent}  `);
+
+    return `${indent}${marker} ${content}\n`;
+}
+
+function convertHtmlTableToMarkdown(tableElement) {
+    const rows = Array.from(tableElement.querySelectorAll("tr"))
+        .map(row => Array.from(row.children)
+            .filter(cell => ["th", "td"].includes(cell.tagName.toLowerCase()))
+            .map(cell => convertHtmlNodeToMarkdown(cell, 0)
+                .replace(/\n+/g, " ")
+                .replace(/\|/g, "\\|")
+                .trim()))
+        .filter(row => row.length > 0);
+
+    if (!rows.length) {
+        return "";
+    }
+
+    const columnCount = Math.max(...rows.map(row => row.length));
+    const normalizedRows = rows.map(row => [
+        ...row,
+        ...Array.from({ length: columnCount - row.length }, () => "")
+    ]);
+
+    const header = normalizedRows[0];
+    const separator = Array.from({ length: columnCount }, () => "---");
+    const body = normalizedRows.slice(1);
+
+    return [
+        `| ${header.join(" | ")} |`,
+        `| ${separator.join(" | ")} |`,
+        ...body.map(row => `| ${row.join(" | ")} |`)
+    ].join("\n") + "\n\n";
+}
+
 function renderTableEditor(block) {
     normalizeTableRows(block);
 
@@ -115,7 +293,7 @@ function renderTableEditor(block) {
             <div class="table-editor-workspace">
                 <div class="table-editor-paper" role="region" aria-label="Editable table surface">
                     <div class="table-editor-hint">
-                        Click any cell and type directly, just like in a document editor. Use Shift + Enter for a new line.
+                        Paste Markdown source directly. Rich copied text is converted to clean Markdown source, then rendered in article view.
                     </div>
                     ${renderTablePreview(block)}
                 </div>
@@ -159,14 +337,16 @@ function renderEditableTableCell(block, cell, rowIndex, columnIndex) {
             onclick="selectTableCell(${rowIndex}, ${columnIndex})">
             ${numberLabel}
             ${renderPreviewCellMedia(cell)}
-            <div class="table-preview-text"
-                 contenteditable="true"
-                 spellcheck="true"
-                 data-row="${rowIndex}"
-                 data-column="${columnIndex}"
-                 onfocus="selectTableCell(${rowIndex}, ${columnIndex})"
-                 oninput="updateSelectedCellTextFromEditable(this)"
-                 onkeydown="handleTableCellKeyDown(event)">${escapeHtml(cell.text || "")}</div>
+            <textarea class="table-preview-text table-markdown-source"
+                      spellcheck="true"
+                      data-row="${rowIndex}"
+                      data-column="${columnIndex}"
+                      aria-label="Markdown source for row ${rowIndex + 1}, column ${columnIndex + 1}"
+                      placeholder="Markdown source..."
+                      onfocus="selectTableCell(${rowIndex}, ${columnIndex})"
+                      oninput="updateSelectedCellTextFromEditable(this)"
+                      onpaste="pasteMarkdownIntoTableCell(event, this)"
+                      onkeydown="handleTableCellKeyDown(event)">${escapeHtml(cell.text || "")}</textarea>
         </td>
     `;
 }
@@ -203,11 +383,27 @@ function renderSelectedCellEditor(block) {
             ? `<img class="table-editor-image-preview" src="${escapeHtml(cell.imageUrl)}" alt="${escapeHtml(cell.imageAlt || "")}" />`
             : `<div class="table-empty-media">No media in this cell</div>`}
 
-            <label class="table-side-label" for="tableCellText">Cell text</label>
+            <div class="table-side-label-row">
+                <label class="table-side-label" for="tableCellText">Markdown source</label>
+                <span class="table-side-hint">Paste keeps clean Markdown source</span>
+            </div>
+
             <textarea id="tableCellText"
-                      class="table-editor-textarea"
-                      placeholder="Write table cell content..."
-                      oninput="updateSelectedCellText(this.value)">${escapeHtml(cell.text || "")}</textarea>
+                      class="table-editor-textarea table-markdown-source"
+                      spellcheck="true"
+                      placeholder="Paste or write Markdown source..."
+                      oninput="updateSelectedCellText(this.value)"
+                      onpaste="pasteMarkdownIntoTableCell(event, this)">${escapeHtml(cell.text || "")}</textarea>
+
+            <div class="table-markdown-preview-card">
+                <div class="table-side-label-row">
+                    <div class="table-side-label">Rendered preview</div>
+                    <span class="table-side-hint">Approximate editor preview</span>
+                </div>
+                <div id="tableCellMarkdownPreview" class="table-markdown-preview">
+                    ${renderMarkdownPreview(cell.text || "")}
+                </div>
+            </div>
 
             <div class="table-alignments">
                 <div class="table-alignment-group">
@@ -228,6 +424,33 @@ function renderSelectedCellEditor(block) {
             </div>
         </div>
     `;
+}
+
+function renderMarkdownPreview(markdown) {
+    let html = escapeHtml(markdown || "");
+
+    html = html.replace(/^###### (.*)$/gm, "<h6>$1</h6>");
+    html = html.replace(/^##### (.*)$/gm, "<h5>$1</h5>");
+    html = html.replace(/^#### (.*)$/gm, "<h4>$1</h4>");
+    html = html.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+    html = html.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+    html = html.replace(/^# (.*)$/gm, "<h2>$1</h2>");
+    html = html.replace(/^&gt; (.*)$/gm, "<blockquote>$1</blockquote>");
+    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
+    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+|\/[^)]+)\)/g, `<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>`);
+    html = html.replace(/\n/g, "<br>");
+
+    return html;
+}
+
+function refreshSelectedCellPreview(value) {
+    const preview = document.getElementById("tableCellMarkdownPreview");
+
+    if (preview) {
+        preview.innerHTML = renderMarkdownPreview(value || "");
+    }
 }
 
 function renderAlignmentOptions(selected, values) {
@@ -272,9 +495,11 @@ function updateSelectedCellText(value) {
 
     const editable = document.querySelector(`[data-row="${selectedTableCell.row}"][data-column="${selectedTableCell.column}"]`);
 
-    if (editable && editable.innerText !== value) {
-        editable.innerText = value;
+    if (editable && editable.value !== value) {
+        editable.value = value;
     }
+
+    refreshSelectedCellPreview(value);
 }
 
 function updateSelectedCellTextFromEditable(element) {
@@ -283,13 +508,15 @@ function updateSelectedCellTextFromEditable(element) {
     const block = bodyBlocks[editedBlockIndex];
 
     selectedTableCell = { row, column };
-    block.rows[row][column].text = element.innerText;
+    block.rows[row][column].text = element.value;
 
     const textarea = document.getElementById("tableCellText");
 
-    if (textarea && textarea.value !== element.innerText) {
-        textarea.value = element.innerText;
+    if (textarea && textarea !== element && textarea.value !== element.value) {
+        textarea.value = element.value;
     }
+
+    refreshSelectedCellPreview(element.value);
 }
 
 function updateSelectedCellHorizontalAlignment(value) {
@@ -319,7 +546,7 @@ function refreshOnlyTablePreview(block) {
 
     paper.innerHTML = `
         <div class="table-editor-hint">
-            Click any cell and type directly, just like in a document editor. Use Shift + Enter for a new line.
+            Paste Markdown source directly. Rich copied text is converted to clean Markdown source, then rendered in article view.
         </div>
         ${renderTablePreview(block)}
     `;
@@ -328,10 +555,33 @@ function refreshOnlyTablePreview(block) {
 }
 
 function handleTableCellKeyDown(event) {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && event.ctrlKey) {
         event.preventDefault();
         moveToNextTableCell();
     }
+}
+
+function pasteMarkdownIntoTableCell(event, element) {
+    event.preventDefault();
+
+    const markdown = clipboardEventToMarkdown(event);
+    const selectionStart = element.selectionStart ?? element.value.length;
+    const selectionEnd = element.selectionEnd ?? selectionStart;
+    const beforeSelection = element.value.substring(0, selectionStart);
+    const afterSelection = element.value.substring(selectionEnd);
+    const nextValue = `${beforeSelection}${markdown}${afterSelection}`;
+    const nextCaretPosition = selectionStart + markdown.length;
+
+    element.value = nextValue;
+    element.selectionStart = nextCaretPosition;
+    element.selectionEnd = nextCaretPosition;
+
+    if (element.id === "tableCellText") {
+        updateSelectedCellText(nextValue);
+        return;
+    }
+
+    updateSelectedCellTextFromEditable(element);
 }
 
 function moveToNextTableCell() {
