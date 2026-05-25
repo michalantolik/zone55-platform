@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Cms.Seeding.Blocks;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Umbraco.Cms.Core;
@@ -25,13 +26,8 @@ public sealed class BlogContentSeeder
     private readonly ILogger<BlogContentSeeder> _logger;
     private readonly IWebHostEnvironment _environment;
     private readonly IRoadmapSeedService _roadmapSeedService;
+    private readonly BlogSeedBlockSerializationService _blockSerialization;
     private readonly BlogContentSeederOptions _options;
-
-    private static readonly JsonSerializerOptions TableRowsJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-    };
 
     public BlogContentSeeder(
         IContentTypeService contentTypeService,
@@ -43,7 +39,8 @@ public sealed class BlogContentSeeder
         IWebHostEnvironment environment,
         IOptions<BlogContentSeederOptions> options,
         ILogger<BlogContentSeeder> logger,
-        IRoadmapSeedService roadmapSeedService)
+        IRoadmapSeedService roadmapSeedService,
+        BlogSeedBlockSerializationService blockSerialization)
     {
         _contentTypeService = contentTypeService;
         _contentService = contentService;
@@ -55,6 +52,7 @@ public sealed class BlogContentSeeder
         _options = options.Value;
         _logger = logger;
         _roadmapSeedService = roadmapSeedService;
+        _blockSerialization = blockSerialization;
     }
 
     public async Task SeedAsync()
@@ -138,50 +136,13 @@ public sealed class BlogContentSeeder
                 focus: article.Focus,
                 summary: article.Summary,
                 tags: article.Tags.ToArray(),
-                bodyBlocks: article.BodyBlocks.Select(CreateSeedBlock).ToList(),
+                bodyBlocks: article.BodyBlocks
+                    .Select(_blockSerialization.ImportToSeedBlock)
+                    .ToList(),
                 order: article.Order,
                 dotnetZone: article.DotnetZone,
                 dotnetZoneStep: article.DotnetZoneStep);
         }
-    }
-
-    private static SeedBlock CreateSeedBlock(BlogSeedBlock block)
-    {
-        return block.Type switch
-        {
-            "text" => TextBlock(block.Text ?? string.Empty),
-
-            "heading" => HeadingBlock(
-                block.Level ?? 2,
-                block.Text ?? string.Empty),
-
-            "codeSnippet" => CodeSnippetBlock(
-                block.Language ?? string.Empty,
-                block.FileName ?? string.Empty,
-                block.Code ?? string.Empty),
-
-            "mermaidDiagram" => MermaidDiagramBlock(
-                block.Title ?? "Mermaid diagram",
-                block.Diagram ?? string.Empty,
-                block.ShowDiagramTitleBar ?? true),
-
-            "plantUmlDiagram" => PlantUmlDiagramBlock(
-                block.Title ?? "PlantUML diagram",
-                block.Diagram ?? string.Empty,
-                block.ShowDiagramTitleBar ?? true),
-
-            "callout" => CalloutBlock(
-                block.Kind ?? "note",
-                block.Text ?? string.Empty),
-
-            "summary" => SummaryBlock(
-                block.Summary ?? block.Text ?? string.Empty),
-
-            "table" => TableBlock(block),
-
-            _ => throw new InvalidOperationException(
-                $"Unsupported seed block type: {block.Type}")
-        };
     }
 
     private async Task SeedDocumentTypesAsync()
@@ -260,13 +221,13 @@ public sealed class BlogContentSeeder
             "icon-table",
             new[]
             {
-        Property("hasHeaderRow", "Header row", "True/false"),
-        Property("hasHeaderColumn", "Header column", "True/false"),
-        Property("autoNumberRows", "Auto-number rows", "True/false"),
-        Property("tableStyle", "Table style", "Textstring"),
-        Property("defaultHorizontalAlignment", "Default horizontal alignment", "Textstring"),
-        Property("defaultVerticalAlignment", "Default vertical alignment", "Textstring"),
-        Property("rows", "Rows JSON", "Textarea")
+                Property("hasHeaderRow", "Header row", "True/false"),
+                Property("hasHeaderColumn", "Header column", "True/false"),
+                Property("autoNumberRows", "Auto-number rows", "True/false"),
+                Property("tableStyle", "Table style", "Textstring"),
+                Property("defaultHorizontalAlignment", "Default horizontal alignment", "Textstring"),
+                Property("defaultVerticalAlignment", "Default vertical alignment", "Textstring"),
+                Property("rows", "Rows JSON", "Textarea")
             });
     }
 
@@ -438,16 +399,16 @@ public sealed class BlogContentSeeder
     private List<Dictionary<string, object>> CreateAllowedBlockConfiguration()
     {
         return new List<Dictionary<string, object>>
-    {
-        CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
-        CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
-        CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
-        CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
-        CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
-        CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}"),
-        CreateAllowedBlock(BlogContentAliases.SummaryBlock, "{umbValue: summary}"),
-        CreateAllowedBlock(BlogContentAliases.TableBlock, "Table")
-    };
+        {
+            CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
+            CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
+            CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
+            CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
+            CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
+            CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}"),
+            CreateAllowedBlock(BlogContentAliases.SummaryBlock, "{umbValue: summary}"),
+            CreateAllowedBlock(BlogContentAliases.TableBlock, "Table")
+        };
     }
 
     private Dictionary<string, object> CreateAllowedBlock(
@@ -538,6 +499,7 @@ public sealed class BlogContentSeeder
 
         _logger.LogInformation("Removed obsolete property: {Alias}.", alias);
     }
+
     private void CreateOrUpdateArticle(
         string name,
         string slug,
@@ -666,117 +628,10 @@ public sealed class BlogContentSeeder
         return JsonSerializer.Serialize(blockListValue);
     }
 
-    private static SeedBlock TextBlock(string text)
-    {
-        return new SeedBlock(
-            BlogContentAliases.TextBlock,
-            new Dictionary<string, object?>
-            {
-                ["text"] = text
-            });
-    }
-
-    private static SeedBlock HeadingBlock(int level, string text)
-    {
-        return new SeedBlock(
-            BlogContentAliases.HeadingBlock,
-            new Dictionary<string, object?>
-            {
-                ["level"] = level,
-                ["text"] = text
-            });
-    }
-
-    private static SeedBlock CodeSnippetBlock(
-        string language,
-        string fileName,
-        string code)
-    {
-        return new SeedBlock(
-            BlogContentAliases.CodeSnippetBlock,
-            new Dictionary<string, object?>
-            {
-                ["language"] = language,
-                ["fileName"] = fileName,
-                ["code"] = code
-            });
-    }
-
-    private static SeedBlock MermaidDiagramBlock(string title, string diagram, bool showDiagramTitleBar = true)
-    {
-        return new SeedBlock(
-            BlogContentAliases.MermaidDiagramBlock,
-            new Dictionary<string, object?>
-            {
-                ["title"] = title,
-                ["showDiagramTitleBar"] = showDiagramTitleBar,
-                ["diagram"] = diagram
-            });
-    }
-
-    private static SeedBlock PlantUmlDiagramBlock(string title, string diagram, bool showDiagramTitleBar = true)
-    {
-        return new SeedBlock(
-            BlogContentAliases.PlantUmlDiagramBlock,
-            new Dictionary<string, object?>
-            {
-                ["title"] = title,
-                ["showDiagramTitleBar"] = showDiagramTitleBar,
-                ["diagram"] = diagram
-            });
-    }
-
-    private static SeedBlock CalloutBlock(string kind, string text)
-    {
-        return new SeedBlock(
-            BlogContentAliases.CalloutBlock,
-            new Dictionary<string, object?>
-            {
-                ["kind"] = kind,
-                ["text"] = text
-            });
-    }
-
-    private static SeedBlock SummaryBlock(string summary)
-    {
-        return new SeedBlock(
-            BlogContentAliases.SummaryBlock,
-            new Dictionary<string, object?>
-            {
-                ["summary"] = summary
-            });
-    }
-
-    private static SeedBlock TableBlock(BlogSeedBlock block)
-    {
-        return new SeedBlock(
-            BlogContentAliases.TableBlock,
-            new Dictionary<string, object?>
-            {
-                ["hasHeaderRow"] = block.HasHeaderRow ?? true,
-                ["hasHeaderColumn"] = block.HasHeaderColumn ?? false,
-                ["autoNumberRows"] = block.AutoNumberRows ?? false,
-                ["tableStyle"] = string.IsNullOrWhiteSpace(block.TableStyle)
-                    ? "dense-engineering"
-                    : block.TableStyle,
-                ["defaultHorizontalAlignment"] = block.DefaultHorizontalAlignment ?? "left",
-                ["defaultVerticalAlignment"] = block.DefaultVerticalAlignment ?? "middle",
-
-                // IMPORTANT:
-                // "rows" is a Textarea property in Umbraco, so seed it as JSON text,
-                // not as a nested object.
-                ["rows"] = JsonSerializer.Serialize(block.Rows, TableRowsJsonOptions)
-            });
-    }
-
     private static SeedProperty Property(string alias, string name, string dataTypeName)
     {
         return new SeedProperty(alias, name, dataTypeName);
     }
 
     private sealed record SeedProperty(string Alias, string Name, string DataTypeName);
-
-    private sealed record SeedBlock(
-        string ElementTypeAlias,
-        Dictionary<string, object?> Properties);
 }

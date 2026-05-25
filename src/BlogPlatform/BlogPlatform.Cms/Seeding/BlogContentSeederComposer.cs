@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BlogPlatform.Cms.Seeding.Blocks;
+using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 
@@ -10,6 +11,17 @@ public sealed class BlogContentSeederComposer : IComposer
     {
         builder.Services.Configure<BlogContentSeederOptions>(
             builder.Config.GetSection("BlogContentSeeder"));
+
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, TextSeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, HeadingSeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, CodeSnippetSeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, MermaidDiagramSeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, PlantUmlDiagramSeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, CalloutSeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, SummarySeedBlockSerializationStrategy>();
+        builder.Services.AddSingleton<ISeedBlockSerializationStrategy, TableSeedBlockSerializationStrategy>();
+
+        builder.Services.AddSingleton<BlogSeedBlockSerializationService>();
 
         builder.Services.AddTransient<BlogContentSeeder>();
         builder.Services.AddHostedService<BlogContentSeederHostedService>();

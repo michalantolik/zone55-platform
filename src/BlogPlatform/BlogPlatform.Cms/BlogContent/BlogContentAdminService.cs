@@ -1,5 +1,6 @@
 ﻿using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Seeding;
+using BlogPlatform.Cms.Seeding.Blocks;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.Text.Json;
@@ -20,6 +21,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
     private readonly IMemoryCache _cache;
     private readonly IRoadmapQueryService _roadmapQueries;
     private readonly IRoadmapCommandService _roadmapCommands;
+    private readonly BlogSeedBlockSerializationService _blockSerialization;
 
     public BlogContentAdminService(
         IContentService contentService,
@@ -27,7 +29,8 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         ILogger<BlogContentAdminService> logger,
         IMemoryCache cache,
         IRoadmapQueryService roadmapQueries,
-        IRoadmapCommandService roadmapCommands)
+        IRoadmapCommandService roadmapCommands,
+        BlogSeedBlockSerializationService blockSerialization)
     {
         _contentService = contentService;
         _contentTypeService = contentTypeService;
@@ -35,6 +38,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         _cache = cache;
         _roadmapQueries = roadmapQueries;
         _roadmapCommands = roadmapCommands;
+        _blockSerialization = blockSerialization;
     }
 
     public async Task<IReadOnlyCollection<CmsDotnetZoneListItemDto>> GetDotnetRoadmapAsync(
@@ -548,11 +552,16 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         try
         {
             using var document = JsonDocument.Parse(bodyBlocksJson);
+
             var root = document.RootElement;
 
             if (!root.TryGetProperty("contentData", out var contentData) ||
                 contentData.ValueKind != JsonValueKind.Array)
             {
+                _logger.LogWarning(
+                    "Seed export failed because Block List JSON has no contentData array. Article: {ArticleName}.",
+                    content.Name);
+
                 return [];
             }
 
@@ -560,15 +569,13 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
             foreach (var blockElement in contentData.EnumerateArray())
             {
-                var block = CreateSeedBlockFromBlockListContent(blockElement);
+                var block =
+                    _blockSerialization.ExportFromBlockListContent(blockElement);
 
                 _logger.LogInformation(
-                    "Seed export body block mapped. Article: {ArticleName}, BlockType: {BlockType}, Exported: {Exported}.",
+                    "Seed export block processed. Article: {ArticleName}, BlockAlias: {BlockAlias}, Exported: {Exported}.",
                     content.Name,
-                    GetElementTypeAlias(blockElement) ??
-                    GetElementTypeAliasFromEditorType(blockElement) ??
-                    InferElementTypeAlias(blockElement) ??
-                    "unknown",
+                    _blockSerialization.ResolveElementTypeAlias(blockElement) ?? "unknown",
                     block is not null);
 
                 if (block is not null)
@@ -576,6 +583,11 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
                     blocks.Add(block);
                 }
             }
+
+            _logger.LogInformation(
+                "Seed export completed. Article: {ArticleName}, ExportedBlocks: {BlockCount}.",
+                content.Name,
+                blocks.Count);
 
             return blocks;
         }
@@ -588,213 +600,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
             return [];
         }
-    }
-
-    private BlogSeedBlock? CreateSeedBlockFromBlockListContent(JsonElement blockElement)
-    {
-        var elementTypeAlias =
-            GetElementTypeAliasFromEditorType(blockElement) ??
-            InferElementTypeAlias(blockElement) ??
-            GetElementTypeAlias(blockElement);
-
-        return elementTypeAlias switch
-        {
-            BlogContentAliases.TextBlock => new BlogSeedBlock
-            {
-                Type = "text",
-                Text = GetJsonString(blockElement, "text")
-            },
-
-            BlogContentAliases.HeadingBlock => new BlogSeedBlock
-            {
-                Type = "heading",
-                Level = GetJsonInt(blockElement, "level"),
-                Text = GetJsonString(blockElement, "text")
-            },
-
-            BlogContentAliases.CodeSnippetBlock => new BlogSeedBlock
-            {
-                Type = "codeSnippet",
-                Language = GetJsonString(blockElement, "language"),
-                FileName = GetJsonString(blockElement, "fileName"),
-                Code = GetJsonString(blockElement, "code")
-            },
-
-            BlogContentAliases.MermaidDiagramBlock => new BlogSeedBlock
-            {
-                Type = "mermaidDiagram",
-                Title = GetJsonString(blockElement, "title"),
-                ShowDiagramTitleBar = GetJsonBool(blockElement, "showDiagramTitleBar"),
-                Diagram =
-                    GetJsonString(blockElement, "diagram") ??
-                    GetJsonString(blockElement, "mermaid")
-            },
-
-            BlogContentAliases.PlantUmlDiagramBlock => new BlogSeedBlock
-            {
-                Type = "plantUmlDiagram",
-                Title = GetJsonString(blockElement, "title"),
-                ShowDiagramTitleBar = GetJsonBool(blockElement, "showDiagramTitleBar"),
-                Diagram =
-                    GetJsonString(blockElement, "diagram") ??
-                    GetJsonString(blockElement, "plantUml") ??
-                    GetJsonString(blockElement, "plantuml")
-            },
-
-            BlogContentAliases.CalloutBlock => new BlogSeedBlock
-            {
-                Type = "callout",
-                Kind =
-                    GetJsonString(blockElement, "kind") ??
-                    GetJsonString(blockElement, "calloutType"),
-                Text = GetJsonString(blockElement, "text")
-            },
-
-            BlogContentAliases.SummaryBlock => new BlogSeedBlock
-            {
-                Type = "summary",
-                Summary = GetJsonString(blockElement, "summary")
-            },
-
-            BlogContentAliases.TableBlock => new BlogSeedBlock
-            {
-                Type = "table",
-                HasHeaderRow = GetJsonBool(blockElement, "hasHeaderRow"),
-                HasHeaderColumn = GetJsonBool(blockElement, "hasHeaderColumn"),
-                AutoNumberRows = GetJsonBool(blockElement, "autoNumberRows"),
-                TableStyle = NormalizeSeedTableStyle(GetJsonString(blockElement, "tableStyle")),
-                DefaultHorizontalAlignment =
-                    GetJsonString(blockElement, "defaultHorizontalAlignment") ?? "left",
-                DefaultVerticalAlignment =
-                    GetJsonString(blockElement, "defaultVerticalAlignment") ?? "middle",
-                Rows = GetSeedTableRows(blockElement)
-            },
-
-            _ => null
-        };
-    }
-
-    private string? GetElementTypeAlias(JsonElement blockElement)
-    {
-        var contentTypeKeyValue = GetJsonString(blockElement, "contentTypeKey");
-
-        if (string.IsNullOrWhiteSpace(contentTypeKeyValue) ||
-            !Guid.TryParse(contentTypeKeyValue, out var contentTypeKey))
-        {
-            return null;
-        }
-
-        return _contentTypeService.Get(contentTypeKey)?.Alias;
-    }
-
-    private static string? GetJsonString(JsonElement element, string propertyName)
-    {
-        if (!element.TryGetProperty(propertyName, out var property))
-        {
-            return null;
-        }
-
-        return property.ValueKind switch
-        {
-            JsonValueKind.String => property.GetString(),
-            JsonValueKind.Number => property.GetRawText(),
-            JsonValueKind.True => "true",
-            JsonValueKind.False => "false",
-            _ => null
-        };
-    }
-
-    private static int? GetJsonInt(JsonElement element, string propertyName)
-    {
-        if (!element.TryGetProperty(propertyName, out var property))
-        {
-            return null;
-        }
-
-        if (property.ValueKind == JsonValueKind.Number &&
-            property.TryGetInt32(out var value))
-        {
-            return value;
-        }
-
-        if (property.ValueKind == JsonValueKind.String &&
-            int.TryParse(property.GetString(), out value))
-        {
-            return value;
-        }
-
-        return null;
-    }
-
-    private static bool? GetJsonBool(JsonElement element, string propertyName)
-    {
-        if (!element.TryGetProperty(propertyName, out var property))
-        {
-            return null;
-        }
-
-        return property.ValueKind switch
-        {
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            JsonValueKind.String when bool.TryParse(property.GetString(), out var value) => value,
-            _ => null
-        };
-    }
-
-    private static string NormalizeSeedTableStyle(string? value)
-    {
-        return string.Equals(value, "minimal-reference", StringComparison.OrdinalIgnoreCase)
-            ? "minimal-reference"
-            : "dense-engineering";
-    }
-
-    private static List<List<BlogSeedTableCell>> GetSeedTableRows(JsonElement blockElement)
-    {
-        if (!blockElement.TryGetProperty("rows", out var rowsProperty))
-        {
-            return [];
-        }
-
-        if (rowsProperty.ValueKind == JsonValueKind.String)
-        {
-            var rawRowsJson = rowsProperty.GetString();
-
-            if (string.IsNullOrWhiteSpace(rawRowsJson))
-            {
-                return [];
-            }
-
-            try
-            {
-                using var document = JsonDocument.Parse(rawRowsJson);
-
-                return ParseSeedTableRows(document.RootElement);
-            }
-            catch
-            {
-                return [];
-            }
-        }
-
-        return ParseSeedTableRows(rowsProperty);
-    }
-
-    private static List<List<BlogSeedTableCell>> ParseSeedTableRows(JsonElement rowsElement)
-    {
-        if (rowsElement.ValueKind != JsonValueKind.Array)
-        {
-            return [];
-        }
-
-        return rowsElement
-            .EnumerateArray()
-            .Where(row => row.ValueKind == JsonValueKind.Array)
-            .Select(row => row
-                .EnumerateArray()
-                .Select(ParseSeedTableCell)
-                .ToList())
-            .ToList();
     }
 
     private CmsArticleListItemDto MapArticleListItem(IContent content)
@@ -904,208 +709,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
     private string NormalizeBodyBlocksForUmbraco(string? bodyBlocksJson)
     {
-        if (string.IsNullOrWhiteSpace(bodyBlocksJson))
-        {
-            return string.Empty;
-        }
-
-        try
-        {
-            using var document = JsonDocument.Parse(bodyBlocksJson);
-            var root = document.RootElement;
-
-            if (!root.TryGetProperty("contentData", out var contentData) ||
-                contentData.ValueKind != JsonValueKind.Array)
-            {
-                return bodyBlocksJson;
-            }
-
-            var normalizedContentData = new List<Dictionary<string, object?>>();
-            var layoutItems = new List<Dictionary<string, object?>>();
-
-            foreach (var item in contentData.EnumerateArray())
-            {
-                var normalized = JsonSerializer.Deserialize<Dictionary<string, object?>>(
-                    item.GetRawText()) ?? [];
-
-                var alias =
-                    GetElementTypeAliasFromEditorType(item) ??
-                    InferElementTypeAlias(item) ??
-                    GetElementTypeAlias(item);
-
-                if (string.IsNullOrWhiteSpace(alias))
-                {
-                    continue;
-                }
-
-                var elementType = _contentTypeService.Get(alias);
-
-                if (elementType is null)
-                {
-                    continue;
-                }
-
-                var udi = GetJsonString(item, "udi");
-
-                if (string.IsNullOrWhiteSpace(udi))
-                {
-                    udi = $"umb://element/{Guid.NewGuid():N}";
-                }
-
-                normalized["udi"] = udi;
-                normalized["contentTypeKey"] = elementType.Key;
-
-                if (string.Equals(alias, BlogContentAliases.TableBlock, StringComparison.OrdinalIgnoreCase))
-                {
-                    NormalizeTableBlockRowsForUmbraco(normalized);
-
-                    _logger.LogInformation(
-                        "Normalized table block before save. Udi: {Udi}, HasRows: {HasRows}.",
-                        udi,
-                        normalized.TryGetValue("rows", out var rowsValue) &&
-                        rowsValue is string rowsText &&
-                        !string.IsNullOrWhiteSpace(rowsText));
-                }
-
-                normalizedContentData.Add(normalized);
-
-                layoutItems.Add(new Dictionary<string, object?>
-                {
-                    ["contentUdi"] = udi,
-                    ["settingsUdi"] = null
-                });
-            }
-
-            return JsonSerializer.Serialize(new Dictionary<string, object?>
-            {
-                ["layout"] = new Dictionary<string, object?>
-                {
-                    ["Umbraco.BlockList"] = layoutItems
-                },
-                ["contentData"] = normalizedContentData,
-                ["settingsData"] = Array.Empty<object>()
-            });
-        }
-        catch (Exception exception)
-        {
-            _logger.LogWarning(
-                exception,
-                "Could not normalize article body blocks before saving.");
-
-            return bodyBlocksJson;
-        }
-    }
-
-    private static string? GetElementTypeAliasFromEditorType(JsonElement blockElement)
-    {
-        var type = GetJsonString(blockElement, "type");
-
-        return type?.Trim().ToLowerInvariant() switch
-        {
-            "text" => BlogContentAliases.TextBlock,
-            "heading" => BlogContentAliases.HeadingBlock,
-            "code" => BlogContentAliases.CodeSnippetBlock,
-            "codesnippet" => BlogContentAliases.CodeSnippetBlock,
-            "mermaid" => BlogContentAliases.MermaidDiagramBlock,
-            "mermaiddiagram" => BlogContentAliases.MermaidDiagramBlock,
-            "plantuml" => BlogContentAliases.PlantUmlDiagramBlock,
-            "plantumldiagram" => BlogContentAliases.PlantUmlDiagramBlock,
-            "plantumldiagramblock" => BlogContentAliases.PlantUmlDiagramBlock,
-            "callout" => BlogContentAliases.CalloutBlock,
-            "summary" => BlogContentAliases.SummaryBlock,
-            "table" => BlogContentAliases.TableBlock,
-            "tableblock" => BlogContentAliases.TableBlock,
-            _ => null
-        };
-    }
-
-    private static void NormalizeTableBlockRowsForUmbraco(Dictionary<string, object?> block)
-    {
-        if (!block.TryGetValue("rows", out var rowsValue) || rowsValue is null)
-        {
-            block["rows"] = "[]";
-            return;
-        }
-
-        if (rowsValue is JsonElement rowsElement)
-        {
-            block["rows"] = rowsElement.ValueKind == JsonValueKind.String
-                ? rowsElement.GetString() ?? "[]"
-                : rowsElement.GetRawText();
-
-            return;
-        }
-
-        if (rowsValue is string rowsText)
-        {
-            block["rows"] = string.IsNullOrWhiteSpace(rowsText)
-                ? "[]"
-                : rowsText;
-
-            return;
-        }
-
-        block["rows"] = JsonSerializer.Serialize(rowsValue);
-    }
-
-    private static string? InferElementTypeAlias(JsonElement blockElement)
-    {
-        if (blockElement.TryGetProperty("summary", out _))
-        {
-            return BlogContentAliases.SummaryBlock;
-        }
-
-        if (blockElement.TryGetProperty("plantUml", out _) ||
-            blockElement.TryGetProperty("plantuml", out _))
-        {
-            return BlogContentAliases.PlantUmlDiagramBlock;
-        }
-
-        if (blockElement.TryGetProperty("mermaid", out _))
-        {
-            return BlogContentAliases.MermaidDiagramBlock;
-        }
-
-        if (blockElement.TryGetProperty("diagram", out var diagram))
-        {
-            var text = diagram.GetString() ?? string.Empty;
-
-            return text.TrimStart().StartsWith("@startuml", StringComparison.OrdinalIgnoreCase) ||
-                   text.TrimStart().StartsWith("@@startuml", StringComparison.OrdinalIgnoreCase)
-                ? BlogContentAliases.PlantUmlDiagramBlock
-                : BlogContentAliases.MermaidDiagramBlock;
-        }
-
-        if (blockElement.TryGetProperty("code", out _) ||
-            blockElement.TryGetProperty("language", out _) ||
-            blockElement.TryGetProperty("fileName", out _))
-        {
-            return BlogContentAliases.CodeSnippetBlock;
-        }
-
-        if (blockElement.TryGetProperty("kind", out _) ||
-            blockElement.TryGetProperty("calloutType", out _))
-        {
-            return BlogContentAliases.CalloutBlock;
-        }
-
-        if (blockElement.TryGetProperty("level", out _))
-        {
-            return BlogContentAliases.HeadingBlock;
-        }
-
-        if (blockElement.TryGetProperty("rows", out var rows) &&
-            rows.ValueKind == JsonValueKind.Array)
-        {
-            return BlogContentAliases.TableBlock;
-        }
-
-        if (blockElement.TryGetProperty("text", out _))
-        {
-            return BlogContentAliases.TextBlock;
-        }
-
-        return null;
+        return _blockSerialization.NormalizeBodyBlocksForUmbraco(bodyBlocksJson);
     }
 
     private IReadOnlyCollection<IContent> GetRootArticles()
@@ -1155,36 +759,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             : null;
     }
 
-    private static BlogSeedTableCell ParseSeedTableCell(JsonElement cellElement)
-    {
-        if (cellElement.ValueKind == JsonValueKind.String)
-        {
-            return new BlogSeedTableCell
-            {
-                Text = cellElement.GetString()
-            };
-        }
-
-        if (cellElement.ValueKind != JsonValueKind.Object)
-        {
-            return new BlogSeedTableCell();
-        }
-
-        return new BlogSeedTableCell
-        {
-            Text = GetJsonString(cellElement, "text") ?? GetJsonString(cellElement, "Text"),
-            Emoji = GetJsonString(cellElement, "emoji") ?? GetJsonString(cellElement, "Emoji"),
-            ImageUrl = GetJsonString(cellElement, "imageUrl") ?? GetJsonString(cellElement, "ImageUrl"),
-            ImageAlt = GetJsonString(cellElement, "imageAlt") ?? GetJsonString(cellElement, "ImageAlt"),
-            HorizontalAlignment =
-                GetJsonString(cellElement, "horizontalAlignment") ??
-                GetJsonString(cellElement, "HorizontalAlignment"),
-            VerticalAlignment =
-                GetJsonString(cellElement, "verticalAlignment") ??
-                GetJsonString(cellElement, "VerticalAlignment")
-        };
-    }
-
     private static string CreateSlug(string value)
     {
         var normalized = value.Trim().ToLowerInvariant();
@@ -1217,8 +791,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             ClearCaches();
         }
     }
-
-
 
     private void ClearCaches()
     {
