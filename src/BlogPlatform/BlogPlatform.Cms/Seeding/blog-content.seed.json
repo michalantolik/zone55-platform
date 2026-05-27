@@ -163,6 +163,115 @@
   ],
   "articles": [
     {
+      "name": "Strategy pattern",
+      "slug": "strategy-pattern",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Strategy pattern defines a family of algorithms and makes them interchangeable. This is achieved through the \u0022composition over inheritance\u0022. Strategies can vary independently from the clients that use it. Clients do NOT need to change. This is the example of the \u0022Open-Closed Principle (OCP)\u0022. Strategies may be injected into object.",
+      "dotnetZone": "architecture-data",
+      "dotnetZoneStep": "design-patterns",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Talk through",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In OOP objects may expose various \u0022behaviors\u0022. These behaviors may be implemented in a different way. That is using a different \u0022strategy\u0022.\n\nStrategy pattern is about defining an interface for a particular \u0022object behavior\u0022 and a family of its concrete implementations. That is the \u0022concrete strategies\u0022.\n\nAn object may expose this \u0022behavior\u0022 through the defined \u0022strategy interface\u0022 and each \u0022concrete strategy\u0022 may be injected into the object as needed.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Formal definition",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Formal definition of Strategy pattern is defined as follows:",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Strategy pattern defines a family of algorithms, encapsulate each one, and make them interchangeable.\n\nThe strategy allows the algorithm to vary independently of the clients who use it.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Class diagram",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A duck in a computer game may quack, may fly and may displayed on the screen:",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\ninterface IFlyBehavior\n{\n    \u002Bvoid Fly()\n}\n\nclass SimpleFly\n{\n    \u002Bvoid Fly()\n}\n\nclass JetFly\n{\n    \u002Bvoid Fly()\n}\n\nclass NoFly\n{\n    \u002Bvoid Fly()\n}\n\ninterface IQuackBehavior\n{\n    \u002Bvoid Quack()\n}\n\nclass SimpleQuack\n{\n    \u002Bvoid Quack()\n}\n\nclass NoQuack\n{\n    \u002Bvoid Quack()\n}\n\ninterface IDisplayBehavior\n{\n    \u002Bvoid Display()\n}\n\nclass DisplayAsText\n{\n    \u002Bvoid Display()\n}\n\nclass DisplayAsGraphics\n{\n    \u002Bvoid Display()\n}\n\nabstract class Duck\n{\n    -IFlyBehavior _flyBehavior\n    -IQuackBehavior _quackBehavior\n    -IDisplayBehavior _displayBehavior\n\n    \u002Bvoid Fly()\n    \u002Bvoid Quack()\n    \u002Bvoid Display()\n}\n\nIFlyBehavior \u003C|.. SimpleFly : IS-A\nIFlyBehavior \u003C|.. JetFly : IS-A\nIFlyBehavior \u003C|.. NoFly : IS-A\n\nIQuackBehavior \u003C|.. SimpleQuack : IS-A\nIQuackBehavior \u003C|.. NoQuack : IS-A\n\nIDisplayBehavior \u003C|.. DisplayAsText : IS-A\nIDisplayBehavior \u003C|.. DisplayAsGraphics : IS-A\n\nDuck --\u003E IFlyBehavior : HAS-A\nDuck --\u003E IQuackBehavior : HAS-A\nDuck --\u003E IDisplayBehavior : HAS-A\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Source code",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "code": "public class Duck\n{\n    private readonly IFlyBehavior _flyBehavior;\n    private readonly IQuackBehavior _quackBehavior;\n    private readonly IDisplayBehavior _displayBehavior;\n\n    public Duck(\n        IFlyBehavior flyBehavior,\n        IQuackBehavior quackBehavior,\n        IDisplayBehavior displayBehavior)\n    {\n        _flyBehavior = flyBehavior;\n        _quackBehavior = quackBehavior;\n        _displayBehavior = displayBehavior;\n    }\n\n    public void Fly()\n    {\n        _flyBehavior.Fly();\n    }\n\n    public void Quack()\n    {\n        _quackBehavior.Quack();\n    }\n\n    public void Display()\n    {\n        _displayBehavior.Display();\n    }\n}",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "code": "public interface IFlyBehavior\n{\n    void Fly();\n}\n\npublic interface IQuackBehavior\n{\n    void Quack();\n}\n\npublic interface IDisplayBehavior\n{\n    void Display();\n}",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "code": "public class SimpleFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\u0022Simple flying...\u0022);\n    }\n}\n\npublic class JetFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\u0022Jet flying...\u0022);\n    }\n}\n\npublic class SimpleQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\u0022Quack!\u0022);\n    }\n}\n\npublic class NoQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\u0022...\u0022);\n    }\n}\n\npublic class DisplayAsText : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\u0022Displaying as text.\u0022);\n    }\n}\n\npublic class DisplayAsGraphics : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\u0022Displaying as graphics.\u0022);\n    }\n}",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "code": "var duck = new Duck(\n    new JetFlying(),\n    new SimpleQuack(),\n    new DisplayAsGraphics());\n\nduck.Fly();\nduck.Quack();\nduck.Display();",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Generalized class diagram",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass Client {\n    -IBehavior _behavior\n    \u002Bvoid Execute()\n}\n\ninterface IBehavior {\n    \u002Bvoid Run()\n}\n\nclass ConcreteBehaviorA {\n    \u002Bvoid Run()\n}\n\nclass ConcreteBehaviorB {\n    \u002Bvoid Run()\n}\n\nClient --\u003E IBehavior : HAS-A\n\nIBehavior \u003C|.. ConcreteBehaviorA : IS-A\nIBehavior \u003C|.. ConcreteBehaviorB : IS-A\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "A Simple C# Program",
       "slug": "a-simple-csharp-program",
       "level": "Draft",
@@ -335,6 +444,71 @@
           "type": "plantUmlDiagram",
           "diagram": "@startuml\nskinparam linetype ortho\n\nrectangle \u0022Programming\\nTools\u0022 as Tools\nrectangle \u0022Compiled\\nCode\u0022 as Code\nrectangle \u0022Base Class\\nLibrary (BCL)\u0022 as BCL\nrectangle \u0022Common Language Runtime (CLR)\u0022 as CLR\n\nTools -down-\u003E Code : Produces\nCode -right-\u003E BCL : Uses\nCode -down-\u003E CLR : Executed By\nBCL -down-\u003E CLR : Executed By\n\n@enduml",
           "title": "Components of the .NET Framework",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What is ASP.NET Core?",
+      "slug": "what-is-asp-dotnet-core",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Website** is a static content. It is made up of individual HTML and CSS files that rarely change.\n\n**Web application** is a \u0022rich dynamic website\u0022 with  the data which usually comes from a database.\n\n**Web application framework** is a framework that gives us the structure and building blocks to create web applications. Web applications created with a web application framework are usually more maintainable and extendable than the application created without it.\n\n**ASP.NET Core** is a web application framework created by Microsoft.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-ecosystem",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What you can build with ASP.NET Core?",
+      "slug": "what-you-can-build-with-asp-dotnet-core",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Using ASP.NET Core you can build Frontend and Backend applications.\n\n**Frontend applications:** MVC, Razor Pages and Blazor.\n\n**Backend applications:** Full Web API, Minimal API and gRPC.\n\nYou can also use supporting technologies like SignalR.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-ecosystem",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Frontend Application VS Backend Application",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Frontend application** is responsible for delivering content to the browser (user interface).\n\n**Backend application** is responsible for providing data and applying business rules.\n\nThis separation:\n\n- gives us more maintainable application structure\n- enables us to form separate frontend and backend teams\n- enables reusability",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\u0027 title Frontend and Backend\n\nleft to right direction\n\n\n\nskinparam database {\n    BorderColor transparent\n    FontColor white\n    FontStyle bold\n}\n\n\n\u0027 Elements\ncloud \u0022\u003Cb\u003EBrowser\u003C/b\u003E\u0022 as Browser #3B82F6\n\nrectangle \u0022\u003Cb\u003EFrontend\u003C/b\u003E\u0022 as Frontend #FF0F7B\n\nrectangle \u0022\u003Cb\u003EBackend\u003C/b\u003E\\n\u003Cb\u003EAPI\u003C/b\u003E\u0022 as Backend #FF8A00\n\ndatabase \u0022\u003Cb\u003EDatabase\u003C/b\u003E\u0022 as Db #14B8A6\n\n\u0027 Connections\nBrowser \u003C--\u003E Frontend : HTML / CSS / JS\n\nFrontend \u003C--\u003E Backend : API Calls\n\nBackend \u003C--\u003E Db : ORM / SQL Queries\n\n@enduml",
+          "title": "Frontend and Backend",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\u0027 title The Centralized Backend\n\nleft to right direction\n\n\n\n\nrectangle \u0022\u003Cb\u003EFrontend\u003C/b\u003E\u0022 as Frontend1 #FF0F7B\nrectangle \u0022\u003Cb\u003EFrontend\u003C/b\u003E\u0022 as Frontend2 #FF0F7B\nrectangle \u0022\u003Cb\u003EBackend\u003C/b\u003E\u0022 as Backend1 #FF8A00\n\nrectangle \u0022\u003Cb\u003EBackend\u003C/b\u003E\u0022 as CentralBackend #FF8A00\n\nFrontend1 \u003C--\u003E CentralBackend : Data\nFrontend2 \u003C--\u003E CentralBackend : Data\nBackend1 \u003C--\u003E CentralBackend : Data\n\n@enduml",
+          "title": "Reusable Backend",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nskinparam roundcorner 20\n\n\u0027 title What to Build with ASP.NET Core?\n\nrectangle \u0022ASP.NET Core\u0022 as Core #FF0A78 {\n\n    rectangle \u0022\u003Ccolor:#7B1DFF\u003E\u003Cb\u003EFrontend\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EMVC\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003ERazor Pages\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EBlazor\u003C/b\u003E\u003C/color\u003E\u0022 as Frontend #FFCC42\n\n    rectangle \u0022\u003Ccolor:#7B1DFF\u003E\u003Cb\u003EBackend\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EFull Web API\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EMinimal Web API\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EgRPC\u003C/b\u003E\u003C/color\u003E\u0022 as Backend #FFCC42\n\n    rectangle \u0022\u003Ccolor:#7B1DFF\u003E\u003Cb\u003ESupporting\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003ESignalR\u003C/b\u003E\u003C/color\u003E\u0022 as Supporting #FFCC42\n}\n\nFrontend -[hidden]right- Backend\nBackend -[hidden]right- Supporting\n\n@enduml",
+          "title": "ASP.NET Core Application Types",
           "showDiagramTitleBar": true,
           "rows": []
         }
