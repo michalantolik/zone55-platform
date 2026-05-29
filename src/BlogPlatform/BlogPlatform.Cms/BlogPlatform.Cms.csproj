@@ -4,16 +4,17 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<CompressionEnabled>false</CompressionEnabled>
-		<!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
 		<UserSecretsId>9d27371d-d8d0-484c-a66f-22c878a4873e</UserSecretsId>
 	</PropertyGroup>
+
 	<ItemGroup>
-	  <AdditionalFiles Remove="Views\BlogAdmin\Index.cshtml" />
-	  <AdditionalFiles Remove="Views\BlogArticleEditor\Index.cshtml" />
+		<AdditionalFiles Remove="Views\BlogAdmin\Index.cshtml" />
+		<AdditionalFiles Remove="Views\BlogArticleEditor\Index.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="MailKit" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" />
 		<PackageReference Include="Polly.Extensions.Http" />
 		<PackageReference Include="Umbraco.Cms" />
@@ -23,7 +24,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
 		<PackageReference Include="Microsoft.ICU.ICU4C.Runtime" />
 		<RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
 	</ItemGroup>
@@ -35,9 +35,7 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<!-- Razor files are needed for the backoffice to work correctly -->
 		<CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
 	</PropertyGroup>
-
 
 </Project>

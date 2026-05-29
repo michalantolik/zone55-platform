@@ -29,6 +29,23 @@ try
 {
     Log.Information("CMS builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
 
+    var applicationInsightsConnectionString =
+        builder.Configuration["ApplicationInsights:ConnectionString"];
+
+    if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+    {
+        builder.Services.AddApplicationInsightsTelemetry(options =>
+        {
+            options.ConnectionString = applicationInsightsConnectionString;
+        });
+
+        Log.Information("CMS Application Insights telemetry is enabled.");
+    }
+    else
+    {
+        Log.Information("CMS Application Insights telemetry is not configured.");
+    }
+
     var hmacKey = builder.Configuration["Umbraco:CMS:Imaging:HMACSecretKey"];
 
     if (string.IsNullOrWhiteSpace(hmacKey))

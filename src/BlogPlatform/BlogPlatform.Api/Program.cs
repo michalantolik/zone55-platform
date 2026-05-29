@@ -27,6 +27,23 @@ builder.Host.UseSerilog();
 
 Log.Information("API builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
 
+var applicationInsightsConnectionString =
+    builder.Configuration["ApplicationInsights:ConnectionString"];
+
+if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+{
+    builder.Services.AddApplicationInsightsTelemetry(options =>
+    {
+        options.ConnectionString = applicationInsightsConnectionString;
+    });
+
+    Log.Information("API Application Insights telemetry is enabled.");
+}
+else
+{
+    Log.Information("API Application Insights telemetry is not configured.");
+}
+
 builder.Services.AddApiPresentation(builder.Configuration);
 builder.Services.AddApiApplicationComposition(builder.Configuration);
 

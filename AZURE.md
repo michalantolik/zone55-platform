@@ -3,8 +3,8 @@
 ## Legend
 
 - ✅ **DONE**
-- ⬜ **NOT DONE**
 - 🟡 **PARTIALLY DONE**
+- ⬜ **NOT DONE**
 
 ---
 
@@ -31,10 +31,20 @@ BlogPlatform is a working local .NET portfolio platform and is now partially pre
 - ✅ CMS health endpoints exist
 - ✅ SQL readiness health check exists
 - ✅ CMS dependency health check exists for API
+- ✅ Application Insights SDK wiring exists for API
+- ✅ Application Insights SDK wiring exists for CMS
+
+### 🟡 Partially Done
+
+- 🟡 Application Insights code integration exists
+- 🟡 Production configuration placeholders exist
+- 🟡 Azure architecture is documented
+- 🟡 Health checks are implemented locally
 
 ### ⬜ Not Done Yet
 
-- ⬜ Application Insights
+- ⬜ Real Azure Application Insights resource
+- ⬜ Real Application Insights connection string
 - ⬜ Azure Key Vault integration
 - ⬜ Managed Identity
 - ⬜ Terraform infrastructure
