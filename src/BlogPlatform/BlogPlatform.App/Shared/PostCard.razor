@@ -1,4 +1,5 @@
-﻿@inject NavigationManager Navigation
+﻿@using BlogPlatform.App.Components.Articles.Rendering.Context
+@inject NavigationManager Navigation
 @inject IConfiguration Configuration
 
 <article class="@PostCardCssClass"
@@ -33,7 +34,9 @@
         <a href="@Url" @onclick:stopPropagation="true">@Title</a>
     </h3>
 
-    <p class="post-summary">@Summary</p>
+    <div class="post-summary post-summary-markdown">
+        @ArticleBlockRenderContext.RenderMarkdown(Summary)
+    </div>
 
     @if (IsExtensiveArticleCard && TechStack?.Any() == true)
     {
@@ -125,6 +128,58 @@
     .post-card-tag-collapsed .post-title,
     .post-card-tag-collapsed .post-summary {
         padding-right: 56px;
+    }
+
+    .post-summary-markdown p {
+        margin: 0 0 10px;
+    }
+
+        .post-summary-markdown p:last-child {
+            margin-bottom: 0;
+        }
+
+    .post-summary-markdown strong {
+        color: inherit;
+        font-weight: 800;
+    }
+
+    .post-summary-markdown em {
+        color: inherit;
+    }
+
+    .post-summary-markdown code {
+        padding: 2px 6px;
+        border-radius: 7px;
+        color: rgba(238, 246, 255, .95);
+        background: rgba(15, 23, 42, .38);
+        border: 1px solid rgba(125, 211, 252, .18);
+        font-size: .92em;
+    }
+
+    .post-summary-markdown ul,
+    .post-summary-markdown ol {
+        margin: 8px 0 0;
+        padding-left: 20px;
+    }
+
+    .post-summary-markdown li {
+        margin: 4px 0;
+    }
+
+    .post-summary-markdown blockquote {
+        margin: 10px 0 0;
+        padding: 10px 14px;
+        border-left: 3px solid rgba(125, 211, 252, .55);
+        border-radius: 12px;
+        background: rgba(14, 47, 78, .24);
+    }
+
+    .post-summary-markdown h2,
+    .post-summary-markdown h3 {
+        margin: 12px 0 8px;
+        color: var(--post-title-text);
+        font-size: 1.05rem;
+        line-height: 1.25;
     }
 
     .post-card-order-badge {
