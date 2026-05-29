@@ -36,9 +36,11 @@ BlogPlatform is a working local .NET portfolio platform and is now partially pre
 - ✅ Azure Key Vault configuration provider exists for API
 - ✅ Azure Key Vault configuration provider exists for CMS
 - ✅ Key Vault URI placeholders exist in production config
+- ✅ Initial Terraform baseline exists in `infra/`
 
 ### 🟡 Partially Done
 
+- 🟡 Terraform structure exists, but it has not been applied to Azure yet
 - 🟡 Application Insights code integration exists, but no real Azure resource is connected yet
 - 🟡 Production configuration placeholders exist, but real Azure values are not set yet
 - 🟡 Azure architecture is documented, but infrastructure is not created yet
@@ -47,17 +49,15 @@ BlogPlatform is a working local .NET portfolio platform and is now partially pre
 
 ### ⬜ Not Done Yet
 
-- ⬜ Real Azure Application Insights resource
-- ⬜ Real Application Insights connection string
-- ⬜ Real Azure Key Vault resource
+- ⬜ Terraform apply against real Azure subscription
+- ⬜ Real Azure Application Insights resource connected to apps
+- ⬜ Real Azure Key Vault resource connected to apps
 - ⬜ Real Key Vault secrets
-- ⬜ Managed Identity
-- ⬜ Terraform infrastructure
+- ⬜ Managed Identity permissions
 - ⬜ GitHub Actions build pipeline
 - ⬜ GitHub Actions deployment pipeline
-- ⬜ Real Azure resources
 - ⬜ Real Azure App Settings
-- ⬜ Azure SQL Database
+- ⬜ Azure SQL connection string configuration
 - ⬜ Public Azure deployment
 - ⬜ README Azure portfolio story update
 
