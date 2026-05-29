@@ -1,4 +1,5 @@
 using BlogPlatform.Api;
+using BlogPlatform.Api.Health;
 using Serilog;
 using Serilog.Events;
 
@@ -45,6 +46,11 @@ app.UseHttpsRedirection();
 app.UseCors("BlazorApp");
 app.UseRateLimiter();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());
+app.MapHealthChecks("/health/live", HealthCheckResponseWriter.ChecksByTag("live"));
+app.MapHealthChecks("/health/ready", HealthCheckResponseWriter.ChecksByTag("ready"));
+
 app.MapControllers();
 
 Log.Information("API starting.");

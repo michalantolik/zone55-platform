@@ -1,8 +1,11 @@
 ﻿using BlogPlatform.Api.Controllers;
+using BlogPlatform.Api.Health;
 using BlogPlatform.Api.Roadmap;
 using BlogPlatform.Application;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure;
+using BlogPlatform.Infrastructure.Health;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
 
 namespace BlogPlatform.Api;
@@ -38,6 +41,20 @@ public static class DependencyInjection
                     });
             });
         });
+
+        services.AddHealthChecks()
+            .AddCheck(
+                "self",
+                () => HealthCheckResult.Healthy("API process is alive."),
+                tags: ["live"])
+            .AddCheck<SqlServerConnectionHealthCheck>(
+                "sql-server",
+                tags: ["ready"])
+            .AddCheck<UmbracoDeliveryApiHealthCheck>(
+                "umbraco-delivery-api",
+                tags: ["ready"]);
+
+        services.AddHttpClient("umbraco-delivery-api-health");
 
         services.AddCors(options =>
         {

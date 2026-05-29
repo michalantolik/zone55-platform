@@ -3,6 +3,8 @@ using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.BlogContent;
 using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
+using BlogPlatform.Infrastructure.Health;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BlogPlatform.Cms;
 
@@ -14,6 +16,15 @@ public static class DependencyInjection
     {
         services.AddMemoryCache();
         services.AddControllers();
+
+        services.AddHealthChecks()
+            .AddCheck(
+                "self",
+                () => HealthCheckResult.Healthy("CMS process is alive."),
+                tags: ["live"])
+            .AddCheck<SqlServerConnectionHealthCheck>(
+                "sql-server",
+                tags: ["ready"]);
 
         services.AddScoped<
             IRoadmapArticleAssignmentChecker,

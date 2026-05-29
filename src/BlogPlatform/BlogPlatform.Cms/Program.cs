@@ -1,12 +1,7 @@
 using BlogPlatform.Cms;
-using BlogPlatform.Cms.Seeding;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
+using BlogPlatform.Cms.Health;
 using Serilog;
 using Serilog.Events;
-using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Runtime;
-using Umbraco.Cms.Core.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +73,10 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseHttpsRedirection();
+
+    app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());
+    app.MapHealthChecks("/health/live", HealthCheckResponseWriter.ChecksByTag("live"));
+    app.MapHealthChecks("/health/ready", HealthCheckResponseWriter.ChecksByTag("ready"));
 
     app.MapControllers();
 
