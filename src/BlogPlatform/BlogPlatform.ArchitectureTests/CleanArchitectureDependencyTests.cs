@@ -348,7 +348,7 @@ public sealed class CleanArchitectureDependencyTests
         throw new DirectoryNotFoundException("Could not find BlogPlatform.slnx.");
     }
 
-    private static string BuildMessage(TestResult result)
+    private static string BuildMessage(NetArchTest.Rules.TestResult result)
     {
         if (result.FailingTypeNames is null || !result.FailingTypeNames.Any())
         {
