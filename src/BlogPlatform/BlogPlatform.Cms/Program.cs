@@ -1,3 +1,5 @@
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
 using BlogPlatform.Cms;
 using BlogPlatform.Cms.Health;
 using Serilog;
@@ -28,6 +30,8 @@ builder.Host.UseSerilog();
 try
 {
     Log.Information("CMS builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
+
+    AddAzureKeyVaultIfConfigured(builder.Configuration, "CMS");
 
     var applicationInsightsConnectionString =
         builder.Configuration["ApplicationInsights:ConnectionString"];
@@ -121,6 +125,30 @@ catch (Exception ex)
 finally
 {
     await Log.CloseAndFlushAsync();
+}
+
+static void AddAzureKeyVaultIfConfigured(
+    ConfigurationManager configuration,
+    string applicationName)
+{
+    var keyVaultUri = configuration["KeyVault:VaultUri"];
+
+    if (string.IsNullOrWhiteSpace(keyVaultUri))
+    {
+        Log.Information("{ApplicationName} Azure Key Vault is not configured.", applicationName);
+        return;
+    }
+
+    if (!Uri.TryCreate(keyVaultUri, UriKind.Absolute, out var vaultUri))
+    {
+        throw new InvalidOperationException("KeyVault:VaultUri must be an absolute URI.");
+    }
+
+    configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
+
+    Log.Information(
+        "{ApplicationName} Azure Key Vault configuration provider is enabled.",
+        applicationName);
 }
 
 static string GetSharedLogFilePath()

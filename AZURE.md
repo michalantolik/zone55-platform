@@ -33,19 +33,24 @@ BlogPlatform is a working local .NET portfolio platform and is now partially pre
 - ✅ CMS dependency health check exists for API
 - ✅ Application Insights SDK wiring exists for API
 - ✅ Application Insights SDK wiring exists for CMS
+- ✅ Azure Key Vault configuration provider exists for API
+- ✅ Azure Key Vault configuration provider exists for CMS
+- ✅ Key Vault URI placeholders exist in production config
 
 ### 🟡 Partially Done
 
-- 🟡 Application Insights code integration exists
-- 🟡 Production configuration placeholders exist
-- 🟡 Azure architecture is documented
-- 🟡 Health checks are implemented locally
+- 🟡 Application Insights code integration exists, but no real Azure resource is connected yet
+- 🟡 Production configuration placeholders exist, but real Azure values are not set yet
+- 🟡 Azure architecture is documented, but infrastructure is not created yet
+- 🟡 Health checks are implemented locally, but not validated in Azure yet
+- 🟡 Key Vault code integration exists, but no real Key Vault or Managed Identity is configured yet
 
 ### ⬜ Not Done Yet
 
 - ⬜ Real Azure Application Insights resource
 - ⬜ Real Application Insights connection string
-- ⬜ Azure Key Vault integration
+- ⬜ Real Azure Key Vault resource
+- ⬜ Real Key Vault secrets
 - ⬜ Managed Identity
 - ⬜ Terraform infrastructure
 - ⬜ GitHub Actions build pipeline

@@ -1,3 +1,5 @@
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
 using BlogPlatform.Api;
 using BlogPlatform.Api.Health;
 using Serilog;
@@ -26,6 +28,8 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 Log.Information("API builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
+
+AddAzureKeyVaultIfConfigured(builder.Configuration, "API");
 
 var applicationInsightsConnectionString =
     builder.Configuration["ApplicationInsights:ConnectionString"];
@@ -73,6 +77,30 @@ app.MapControllers();
 Log.Information("API starting.");
 
 app.Run();
+
+static void AddAzureKeyVaultIfConfigured(
+    ConfigurationManager configuration,
+    string applicationName)
+{
+    var keyVaultUri = configuration["KeyVault:VaultUri"];
+
+    if (string.IsNullOrWhiteSpace(keyVaultUri))
+    {
+        Log.Information("{ApplicationName} Azure Key Vault is not configured.", applicationName);
+        return;
+    }
+
+    if (!Uri.TryCreate(keyVaultUri, UriKind.Absolute, out var vaultUri))
+    {
+        throw new InvalidOperationException("KeyVault:VaultUri must be an absolute URI.");
+    }
+
+    configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
+
+    Log.Information(
+        "{ApplicationName} Azure Key Vault configuration provider is enabled.",
+        applicationName);
+}
 
 static string GetSharedLogFilePath()
 {
