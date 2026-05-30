@@ -3,15 +3,31 @@ output "resource_group_name" {
 }
 
 output "api_app_service_url" {
-  value = "https://${azurerm_linux_web_app.api.default_hostname}"
+  value = local.api_url
 }
 
 output "cms_app_service_url" {
-  value = "https://${azurerm_linux_web_app.cms.default_hostname}"
+  value = local.cms_url
+}
+
+output "static_web_app_url" {
+  value = local.app_url
 }
 
 output "static_web_app_name" {
   value = azurerm_static_web_app.app.name
+}
+
+output "sql_server_name" {
+  value = azurerm_mssql_server.main.name
+}
+
+output "sql_database_name" {
+  value = azurerm_mssql_database.main.name
+}
+
+output "key_vault_name" {
+  value = azurerm_key_vault.main.name
 }
 
 output "key_vault_uri" {
