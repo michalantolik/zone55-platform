@@ -320,7 +320,7 @@ public sealed class CleanArchitectureDependencyTests
             .Descendants("ProjectReference")
             .Select(reference => reference.Attribute("Include")?.Value)
             .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(Path.GetFileNameWithoutExtension)
+            .Select(GetProjectNameFromReference)
             .OrderBy(value => value)
             .ToList();
 
@@ -357,5 +357,13 @@ public sealed class CleanArchitectureDependencyTests
 
         return "Architecture rule failed for: " +
                string.Join(", ", result.FailingTypeNames);
+    }
+
+    private static string GetProjectNameFromReference(string projectReference)
+    {
+        var normalizedReference = projectReference
+            .Replace('\\', '/');
+
+        return Path.GetFileNameWithoutExtension(normalizedReference);
     }
 }
