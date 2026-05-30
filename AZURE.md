@@ -10,7 +10,7 @@
 
 ## Current Status
 
-BlogPlatform is a working local .NET portfolio platform and is now partially prepared for Azure deployment.
+BlogPlatform is a working local .NET portfolio platform and is now moving from Azure readiness checks into real infrastructure deployment.
 
 ### ✅ Already Done
 
@@ -37,28 +37,35 @@ BlogPlatform is a working local .NET portfolio platform and is now partially pre
 - ✅ Azure Key Vault configuration provider exists for CMS
 - ✅ Key Vault URI placeholders exist in production config
 - ✅ Initial Terraform baseline exists in `infra/`
+- ✅ GitHub Actions Azure readiness workflow exists
+- ✅ GitHub Actions Terraform validate step passes
+- ✅ GitHub Actions Terraform plan workflow exists
+- ✅ Terraform remote state backend is configured
+- ✅ Terraform plan can run from GitHub Actions
 
 ### 🟡 Partially Done
 
-- 🟡 Terraform structure exists, but it has not been applied to Azure yet
-- 🟡 Application Insights code integration exists, but no real Azure resource is connected yet
-- 🟡 Production configuration placeholders exist, but real Azure values are not set yet
-- 🟡 Azure architecture is documented, but infrastructure is not created yet
+- 🟡 Terraform infrastructure exists, but it has not been applied to Azure yet
+- 🟡 GitHub Actions CI exists, but deployment is not complete yet
+- 🟡 Application Insights code integration exists, but the real Azure resource is not connected until Terraform apply runs
+- 🟡 Azure Key Vault code integration exists, but the real Azure resource is not connected until Terraform apply runs
+- 🟡 Managed Identity is defined in Terraform, but not active until Terraform apply runs
+- 🟡 Azure App Settings are defined in Terraform, but not active until Terraform apply runs
 - 🟡 Health checks are implemented locally, but not validated in Azure yet
-- 🟡 Key Vault code integration exists, but no real Key Vault or Managed Identity is configured yet
 
 ### ⬜ Not Done Yet
 
 - ⬜ Terraform apply against real Azure subscription
-- ⬜ Real Azure Application Insights resource connected to apps
-- ⬜ Real Azure Key Vault resource connected to apps
-- ⬜ Real Key Vault secrets
-- ⬜ Managed Identity permissions
-- ⬜ GitHub Actions build pipeline
-- ⬜ GitHub Actions deployment pipeline
-- ⬜ Real Azure App Settings
-- ⬜ Azure SQL connection string configuration
-- ⬜ Public Azure deployment
+- ⬜ Real Azure resources created
+- ⬜ Real Azure Application Insights connected to apps
+- ⬜ Real Azure Key Vault connected to apps
+- ⬜ Real Key Vault secrets created by Terraform
+- ⬜ Managed Identity permissions active in Azure
+- ⬜ Azure SQL connection string active in Key Vault
+- ⬜ API deployed to Azure App Service
+- ⬜ CMS deployed to Azure App Service
+- ⬜ Blazor App deployed to Azure Static Web Apps
+- ⬜ Public Azure deployment tested
 - ⬜ README Azure portfolio story update
 
 ---
