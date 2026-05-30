@@ -1,0 +1,107 @@
+name: Azure readiness
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: 10.0.x
+  SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
+  CONFIGURATION: Release
+
+jobs:
+  build-test-publish:
+    name: Build, test, and publish .NET projects
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Show .NET info
+        run: dotnet --info
+
+      - name: Restore solution
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test solution
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+
+      - name: Publish API
+        run: >
+          dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --output ./artifacts/api
+
+      - name: Publish CMS
+        run: >
+          dotnet publish src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --output ./artifacts/cms
+
+      - name: Publish Blazor App
+        run: >
+          dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --output ./artifacts/app
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blogplatform-api
+          path: ./artifacts/api
+
+      - name: Upload CMS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blogplatform-cms
+          path: ./artifacts/cms
+
+      - name: Upload Blazor App artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blogplatform-app
+          path: ./artifacts/app
+
+  terraform-validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Terraform format check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init without backend
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        run: terraform validate
