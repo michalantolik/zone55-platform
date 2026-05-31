@@ -10,7 +10,7 @@
 
 ## Current Status
 
-BlogPlatform is a working local .NET portfolio platform and is now moving from Azure readiness checks into real infrastructure deployment.
+BlogPlatform is a working local .NET portfolio platform. Azure infrastructure is now created through Terraform, and the next step is deploying the real application packages to Azure.
 
 ### ✅ Already Done
 
@@ -42,30 +42,35 @@ BlogPlatform is a working local .NET portfolio platform and is now moving from A
 - ✅ GitHub Actions Terraform plan workflow exists
 - ✅ Terraform remote state backend is configured
 - ✅ Terraform plan can run from GitHub Actions
+- ✅ Terraform apply workflow exists
+- ✅ Terraform apply succeeded from GitHub Actions
+- ✅ Real Azure resources were created by Terraform
+- ✅ Real Azure Application Insights resource exists
+- ✅ Real Azure Key Vault resource exists
+- ✅ Real Key Vault secrets are created by Terraform
+- ✅ Managed Identity is created for API and CMS App Services
+- ✅ Azure App Settings are defined by Terraform
+- ✅ Azure SQL connection string is stored in Key Vault
 
 ### 🟡 Partially Done
 
-- 🟡 Terraform infrastructure exists, but it has not been applied to Azure yet
-- 🟡 GitHub Actions CI exists, but deployment is not complete yet
-- 🟡 Application Insights code integration exists, but the real Azure resource is not connected until Terraform apply runs
-- 🟡 Azure Key Vault code integration exists, but the real Azure resource is not connected until Terraform apply runs
-- 🟡 Managed Identity is defined in Terraform, but not active until Terraform apply runs
-- 🟡 Azure App Settings are defined in Terraform, but not active until Terraform apply runs
-- 🟡 Health checks are implemented locally, but not validated in Azure yet
+- 🟡 GitHub Actions CI exists, but application deployment is not complete yet
+- 🟡 Application Insights exists, but telemetry still needs to be validated after deployment
+- 🟡 Key Vault exists, but runtime access still needs to be validated after deployment
+- 🟡 Managed Identity exists, but runtime secret resolution still needs to be validated after deployment
+- 🟡 Health checks are implemented, but still need to be tested against the deployed Azure apps
 
 ### ⬜ Not Done Yet
 
-- ⬜ Terraform apply against real Azure subscription
-- ⬜ Real Azure resources created
-- ⬜ Real Azure Application Insights connected to apps
-- ⬜ Real Azure Key Vault connected to apps
-- ⬜ Real Key Vault secrets created by Terraform
-- ⬜ Managed Identity permissions active in Azure
-- ⬜ Azure SQL connection string active in Key Vault
 - ⬜ API deployed to Azure App Service
 - ⬜ CMS deployed to Azure App Service
 - ⬜ Blazor App deployed to Azure Static Web Apps
 - ⬜ Public Azure deployment tested
+- ⬜ API health endpoint tested in Azure
+- ⬜ CMS health endpoint tested in Azure
+- ⬜ Blazor App tested against deployed API
+- ⬜ Application Insights telemetry validated
+- ⬜ Key Vault secret resolution validated
 - ⬜ README Azure portfolio story update
 
 ---
@@ -116,3 +121,29 @@ flowchart TB
     Actions --> App
     Actions --> Api
     Actions --> Cms
+```
+
+---
+
+## Next Implementation Step
+
+Add a manual GitHub Actions deployment workflow:
+
+```text
+.github/workflows/azure-deploy.yml
+```
+
+This workflow should:
+
+1. Build the solution.
+2. Run tests.
+3. Publish API.
+4. Publish CMS.
+5. Publish Blazor WebAssembly app.
+6. Deploy API to Azure App Service.
+7. Deploy CMS to Azure App Service.
+8. Get the Static Web Apps deployment token from Azure.
+9. Deploy Blazor App to Azure Static Web Apps.
+10. Check API and CMS `/health/live` endpoints.
+
+This is the next reasonable step because Terraform infrastructure is already created and the repository now needs real application deployment.
