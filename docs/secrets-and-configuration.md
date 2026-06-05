@@ -523,6 +523,31 @@ Check:
 
 ---
 
+## Terraform State Recovery
+
+If Azure resources exist but Terraform state does not contain them,
+Terraform will attempt to recreate the resources and deployments may fail.
+
+Symptoms:
+
+- Resource already exists
+- Terraform Apply fails
+- Azure Portal shows the resource
+
+Resolution:
+
+terraform import <resource> <resource-id>
+
+Common imported resources:
+
+- Log Analytics Workspace
+- Application Insights
+- App Service
+- SQL Server
+- Key Vault
+
+---
+
 # Quick Mental Model
 
 Think of the system as:
