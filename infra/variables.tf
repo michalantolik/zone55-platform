@@ -42,3 +42,8 @@ variable "umbraco_admin_password" {
   type      = string
   sensitive = true
 }
+
+variable "github_actions_object_id" {
+  description = "Object ID of the GitHub Actions Azure service principal."
+  type        = string
+}
