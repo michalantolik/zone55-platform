@@ -123,6 +123,13 @@ resource "azurerm_static_web_app" "app" {
   resource_group_name = azurerm_resource_group.main.name
   sku_tier            = "Free"
   sku_size            = "Free"
+
+  lifecycle {
+    ignore_changes = [
+      repository_branch,
+      repository_url
+    ]
+  }
 }
 
 resource "azurerm_linux_web_app" "api" {
