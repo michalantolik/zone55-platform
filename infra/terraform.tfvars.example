@@ -2,5 +2,5 @@ project_name = "blogplatform"
 environment  = "dev"
 location     = "westeurope"
 
-sql_admin_login    = "blogplatformadmin"
+sql_admin_login    = "blogadmin"
 sql_admin_password = "CHANGE_ME_USE_STRONG_PASSWORD"
