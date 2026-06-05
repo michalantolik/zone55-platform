@@ -17,6 +17,10 @@ env:
 
   TF_VAR_sql_admin_login: ${{ secrets.TF_VAR_SQL_ADMIN_LOGIN }}
   TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_SQL_ADMIN_PASSWORD }}
+  
+  TF_VAR_umbraco_admin_name: ${{ secrets.TF_VAR_UMBRACO_ADMIN_NAME }}
+  TF_VAR_umbraco_admin_email: ${{ secrets.TF_VAR_UMBRACO_ADMIN_EMAIL }}
+  TF_VAR_umbraco_admin_password: ${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }}  
 
 jobs:
   terraform-plan:
