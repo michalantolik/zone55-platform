@@ -27,3 +27,18 @@ variable "sql_admin_password" {
   type        = string
   sensitive   = true
 }
+
+variable "umbraco_admin_name" {
+  type      = string
+  sensitive = true
+}
+
+variable "umbraco_admin_email" {
+  type      = string
+  sensitive = true
+}
+
+variable "umbraco_admin_password" {
+  type      = string
+  sensitive = true
+}

@@ -82,6 +82,14 @@ try
 
     WebApplication app = builder.Build();
 
+    app.UseSerilogRequestLogging();
+
+    app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());
+    app.MapHealthChecks("/health/live", HealthCheckResponseWriter.ChecksByTag("live"));
+    app.MapHealthChecks("/health/ready", HealthCheckResponseWriter.ChecksByTag("ready"));
+
+    app.MapControllers();
+
     await app.Services.InitializeCmsStorageAsync();
 
     Log.Information("CMS application built.");
@@ -92,14 +100,7 @@ try
 
     Log.Information("CMS Umbraco boot completed.");
 
-    app.UseSerilogRequestLogging();
     app.UseHttpsRedirection();
-
-    app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());
-    app.MapHealthChecks("/health/live", HealthCheckResponseWriter.ChecksByTag("live"));
-    app.MapHealthChecks("/health/ready", HealthCheckResponseWriter.ChecksByTag("ready"));
-
-    app.MapControllers();
 
     app.UseUmbraco()
         .WithMiddleware(u =>
@@ -116,6 +117,7 @@ try
     Log.Information("CMS starting.");
 
     await app.RunAsync();
+
 }
 catch (Exception ex)
 {
