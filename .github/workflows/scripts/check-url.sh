@@ -4,12 +4,17 @@ set -euo pipefail
 url="$1"
 name="$2"
 
-echo "Checking ${name}: ${url}"
+attempts="${CHECK_URL_ATTEMPTS:-60}"
+delay_seconds="${CHECK_URL_DELAY_SECONDS:-10}"
 
-for i in {1..30}; do
+echo "Checking ${name}: ${url}"
+echo "Attempts: ${attempts}"
+echo "Delay seconds: ${delay_seconds}"
+
+for i in $(seq 1 "$attempts"); do
   status_code=$(curl -L -s -o /tmp/check-url-response.txt -w "%{http_code}" "$url" || true)
 
-  echo "Attempt $i/30 - HTTP $status_code"
+  echo "Attempt $i/${attempts} - HTTP $status_code"
 
   if [ "$status_code" = "200" ]; then
     echo "${name} is healthy."
@@ -17,10 +22,11 @@ for i in {1..30}; do
     exit 0
   fi
 
-  echo "${name} is not ready yet. Waiting 10 seconds..."
-  sleep 10
+  echo "${name} is not ready yet. Waiting ${delay_seconds} seconds..."
+  sleep "$delay_seconds"
 done
 
 echo "${name} did not become healthy in time."
+echo "Last response body:"
 cat /tmp/check-url-response.txt || true
 exit 1
