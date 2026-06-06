@@ -17,15 +17,16 @@ env:
 
   TF_VAR_sql_admin_login: ${{ secrets.TF_VAR_SQL_ADMIN_LOGIN }}
   TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_SQL_ADMIN_PASSWORD }}
-  
+
   TF_VAR_umbraco_admin_name: ${{ secrets.TF_VAR_UMBRACO_ADMIN_NAME }}
   TF_VAR_umbraco_admin_email: ${{ secrets.TF_VAR_UMBRACO_ADMIN_EMAIL }}
-  TF_VAR_umbraco_admin_password: ${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }} 
+  TF_VAR_umbraco_admin_password: ${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }}
 
 jobs:
   terraform-plan:
     name: Terraform plan
     runs-on: ubuntu-latest
+    environment: azure-dev
 
     defaults:
       run:
@@ -34,6 +35,38 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      - name: Validate required Terraform secrets
+        shell: bash
+        run: |
+          missing=0
+
+          check_secret() {
+            local name="$1"
+            local value="$2"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required secret: $name"
+              missing=1
+            fi
+          }
+
+          check_secret "AZURE_CLIENT_ID" "${{ secrets.AZURE_CLIENT_ID }}"
+          check_secret "AZURE_TENANT_ID" "${{ secrets.AZURE_TENANT_ID }}"
+          check_secret "AZURE_SUBSCRIPTION_ID" "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          check_secret "TF_STATE_RESOURCE_GROUP_NAME" "${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}"
+          check_secret "TF_STATE_STORAGE_ACCOUNT_NAME" "${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}"
+          check_secret "TF_STATE_CONTAINER_NAME" "${{ secrets.TF_STATE_CONTAINER_NAME }}"
+          check_secret "TF_STATE_KEY" "${{ secrets.TF_STATE_KEY }}"
+          check_secret "TF_VAR_SQL_ADMIN_LOGIN" "${{ secrets.TF_VAR_SQL_ADMIN_LOGIN }}"
+          check_secret "TF_VAR_SQL_ADMIN_PASSWORD" "${{ secrets.TF_VAR_SQL_ADMIN_PASSWORD }}"
+          check_secret "TF_VAR_UMBRACO_ADMIN_NAME" "${{ secrets.TF_VAR_UMBRACO_ADMIN_NAME }}"
+          check_secret "TF_VAR_UMBRACO_ADMIN_EMAIL" "${{ secrets.TF_VAR_UMBRACO_ADMIN_EMAIL }}"
+          check_secret "TF_VAR_UMBRACO_ADMIN_PASSWORD" "${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }}"
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Azure login
         uses: azure/login@v2
@@ -46,6 +79,7 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
 
       - name: Terraform format check
         run: terraform fmt -check -recursive
@@ -58,9 +92,13 @@ jobs:
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
             -backend-config="key=${{ secrets.TF_STATE_KEY }}"
 
+      - name: Remove obsolete self-managed Key Vault role from state
+        shell: bash
+        run: |
+          terraform state rm azurerm_role_assignment.terraform_key_vault_secrets_officer || true
+
       - name: Terraform validate
         run: terraform validate
 
       - name: Terraform plan
         run: terraform plan -input=false -no-color
- 

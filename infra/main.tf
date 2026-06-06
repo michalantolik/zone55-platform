@@ -86,30 +86,16 @@ resource "azurerm_key_vault" "main" {
   rbac_authorization_enabled = true
 }
 
-resource "azurerm_role_assignment" "terraform_key_vault_secrets_officer" {
-  scope                = azurerm_key_vault.main.id
-  role_definition_name = "Key Vault Secrets Officer"
-  principal_id         = data.azurerm_client_config.current.object_id
-}
-
 resource "azurerm_key_vault_secret" "sql_connection_string" {
   name         = "sql-connection-string"
   value        = local.sql_connection_string
   key_vault_id = azurerm_key_vault.main.id
-
-  depends_on = [
-    azurerm_role_assignment.terraform_key_vault_secrets_officer
-  ]
 }
 
 resource "azurerm_key_vault_secret" "umbraco_hmac_secret_key" {
   name         = "umbraco-hmac-secret-key"
   value        = random_password.umbraco_hmac_secret_key.result
   key_vault_id = azurerm_key_vault.main.id
-
-  depends_on = [
-    azurerm_role_assignment.terraform_key_vault_secrets_officer
-  ]
 }
 
 resource "azurerm_static_web_app" "app" {
