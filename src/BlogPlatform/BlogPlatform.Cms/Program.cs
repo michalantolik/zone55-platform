@@ -124,8 +124,6 @@ try
 
     app.MapControllers();
 
-    await app.Services.InitializeCmsStorageAsync();
-
     Log.Information("CMS application built.");
     Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);
     Log.Information("CMS booting Umbraco.");
@@ -133,6 +131,11 @@ try
     await app.BootUmbracoAsync();
 
     Log.Information("CMS Umbraco boot completed.");
+    Log.Information("CMS initializing BlogPlatform custom storage after Umbraco boot.");
+
+    await app.Services.InitializeCmsStorageAsync();
+
+    Log.Information("CMS BlogPlatform custom storage initialized.");
 
     app.UseHttpsRedirection();
 
@@ -151,7 +154,6 @@ try
     Log.Information("CMS starting.");
 
     await app.RunAsync();
-
 }
 catch (Exception ex)
 {
