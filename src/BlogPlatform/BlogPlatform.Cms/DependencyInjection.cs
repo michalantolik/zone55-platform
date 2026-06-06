@@ -1,6 +1,7 @@
 ﻿using BlogPlatform.Application;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.BlogContent;
+using BlogPlatform.Cms.Health;
 using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
 using BlogPlatform.Infrastructure.Health;
@@ -24,6 +25,9 @@ public static class DependencyInjection
                 tags: ["live"])
             .AddCheck<SqlServerConnectionHealthCheck>(
                 "sql-server",
+                tags: ["ready"])
+            .AddCheck<UmbracoRuntimeHealthCheck>(
+                "umbraco-runtime",
                 tags: ["ready"]);
 
         services.AddScoped<

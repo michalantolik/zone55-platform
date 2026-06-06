@@ -1,7 +1,7 @@
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using BlogPlatform.Cms;
 using BlogPlatform.Cms.Health;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
 using Serilog.Events;
 
@@ -84,9 +84,43 @@ try
 
     app.UseSerilogRequestLogging();
 
-    app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());
-    app.MapHealthChecks("/health/live", HealthCheckResponseWriter.ChecksByTag("live"));
-    app.MapHealthChecks("/health/ready", HealthCheckResponseWriter.ChecksByTag("ready"));
+    app.UseWhen(
+        context => context.Request.Path.StartsWithSegments("/health"),
+        branch =>
+        {
+            branch.Run(async context =>
+            {
+                var healthCheckService =
+                    context.RequestServices.GetRequiredService<HealthCheckService>();
+
+                HealthReport report;
+
+                if (context.Request.Path.StartsWithSegments("/health/live"))
+                {
+                    report = await healthCheckService.CheckHealthAsync(
+                        check => check.Tags.Contains("live"),
+                        context.RequestAborted);
+                }
+                else if (context.Request.Path.StartsWithSegments("/health/ready"))
+                {
+                    report = await healthCheckService.CheckHealthAsync(
+                        check => check.Tags.Contains("ready"),
+                        context.RequestAborted);
+                }
+                else
+                {
+                    report = await healthCheckService.CheckHealthAsync(
+                        cancellationToken: context.RequestAborted);
+                }
+
+                context.Response.StatusCode =
+                    report.Status == HealthStatus.Healthy
+                        ? StatusCodes.Status200OK
+                        : StatusCodes.Status503ServiceUnavailable;
+
+                await HealthCheckResponseWriter.WriteJsonAsync(context, report);
+            });
+        });
 
     app.MapControllers();
 
