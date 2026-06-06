@@ -3,10 +3,13 @@ data "azurerm_client_config" "current" {}
 locals {
   name_prefix = "${var.project_name}-${var.environment}"
 
+  api_app_name = "app-${local.name_prefix}-api"
+  cms_app_name = "app-${local.name_prefix}-cms"
+
   sql_connection_string = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.main.name};Persist Security Info=False;User ID=${var.sql_admin_login};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
-  api_url = "https://${azurerm_linux_web_app.api.default_hostname}"
-  cms_url = "https://${azurerm_linux_web_app.cms.default_hostname}"
+  api_url = "https://${local.api_app_name}.azurewebsites.net"
+  cms_url = "https://${local.cms_app_name}.azurewebsites.net"
   app_url = "https://${azurerm_static_web_app.app.default_host_name}"
 }
 
@@ -133,7 +136,7 @@ resource "azurerm_static_web_app" "app" {
 }
 
 resource "azurerm_linux_web_app" "api" {
-  name                = "app-${local.name_prefix}-api"
+  name                = local.api_app_name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   service_plan_id     = azurerm_service_plan.main.id
@@ -149,7 +152,10 @@ resource "azurerm_linux_web_app" "api" {
       dotnet_version = "10.0"
     }
 
-    always_on = true
+    always_on                         = true
+    app_command_line                  = "dotnet BlogPlatform.Api.dll"
+    health_check_path                 = "/health/live"
+    health_check_eviction_time_in_min = 10
   }
 
   app_settings = {
@@ -172,7 +178,7 @@ resource "azurerm_linux_web_app" "api" {
 }
 
 resource "azurerm_linux_web_app" "cms" {
-  name                = "app-${local.name_prefix}-cms"
+  name                = local.cms_app_name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   service_plan_id     = azurerm_service_plan.main.id
@@ -188,7 +194,10 @@ resource "azurerm_linux_web_app" "cms" {
       dotnet_version = "10.0"
     }
 
-    always_on = true
+    always_on                         = true
+    app_command_line                  = "dotnet BlogPlatform.Cms.dll"
+    health_check_path                 = "/health/live"
+    health_check_eviction_time_in_min = 10
   }
 
   app_settings = {
