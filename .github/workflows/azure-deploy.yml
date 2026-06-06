@@ -59,6 +59,21 @@ jobs:
           echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
           echo "APP_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
 
+      - name: Validate Terraform output values
+        shell: bash
+        run: |
+          test -n "${RESOURCE_GROUP_NAME}"
+          test -n "${API_APP_NAME}"
+          test -n "${CMS_APP_NAME}"
+          test -n "${STATIC_WEB_APP_NAME}"
+          test -n "${API_PUBLIC_URL}"
+          test -n "${CMS_PUBLIC_URL}"
+          test -n "${APP_PUBLIC_URL}"
+
+          echo "API: ${API_PUBLIC_URL}"
+          echo "CMS: ${CMS_PUBLIC_URL}"
+          echo "APP: ${APP_PUBLIC_URL}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
@@ -156,24 +171,24 @@ jobs:
       - name: Check CMS live health
         shell: bash
         run: |
-          ./scripts/check-url.sh "${CMS_PUBLIC_URL}health/live" "CMS live health"
+          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/live" "CMS live health"
 
       - name: Check CMS ready health
         shell: bash
         run: |
-          ./scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
+          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
 
       - name: Check API live health
         shell: bash
         run: |
-          ./scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
 
       - name: Check API ready health
         shell: bash
         run: |
-          ./scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
 
       - name: Check Blazor Static Web App
         shell: bash
         run: |
-          ./scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
+          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
