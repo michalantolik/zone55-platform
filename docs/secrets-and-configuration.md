@@ -5,591 +5,470 @@
 This document explains:
 
 * Where secrets originate
-* Where they are stored
-* How they flow through the system
-* How names map between GitHub, Terraform, Azure, Key Vault, App Services, and runtime applications
+* Where secrets are stored
+* How secrets flow through GitHub Actions, Terraform, Azure, Key Vault, App Services, and runtime applications
 * Which component consumes each configuration value
+* Which values are safe to commit and which values must stay private
 
-This document should be read together with:
+Read this together with:
 
-* README.md
-* AZURE.md
-
----
-
-# High-Level Overview
-
-The system follows this flow:
-
-1. Local development
-2. GitHub repository secrets
-3. GitHub Actions
-4. Azure OIDC authentication
-5. Terraform execution
-6. Azure resources
-7. Key Vault secrets
-8. App Service settings
-9. Runtime applications
-
-Configuration and secrets generally flow downward from top to bottom. Troubleshooting should follow the same direction.
+* `../README.md`
+* `../AZURE.md`
+* `../infra/README.md`
 
 ---
 
-# PlantUML Diagram
+## High-Level Flow
+
+```text
+Developer / Local Machine
+        |
+        v
+GitHub Repository Secrets
+        |
+        v
+GitHub Actions
+        |
+        v
+Azure OIDC Login
+        |
+        v
+Terraform
+        |
+        v
+Azure Resources
+        |
+        v
+Key Vault + App Service Settings
+        |
+        v
+Runtime Applications
+```
+
+---
+
+## PlantUML Diagram
 
 ```plantuml
 @startuml
-title BlogPlatform - Numbered Secrets and Configuration Flow
+title BlogPlatform - Secrets and Configuration Flow
 
-actor "① Developer" as Developer
+actor "Developer" as Developer
 
-node "① Local Developer Machine / Visual Studio" as Local {
-  artifact "①a launchSettings.json" as Launch
-  artifact "①b appsettings.Development.json" as DevSettings
+node "Local Machine" as Local {
+  artifact "appsettings.Development.json" as DevSettings
+  artifact "User Secrets" as UserSecrets
+  artifact "Environment Variables" as LocalEnv
 }
 
-cloud "② GitHub" as GitHub {
-  database "②a GitHub Repository Secrets" as GHSecrets
-  component "③ GitHub Actions Workflows" as Actions
+cloud "GitHub" as GitHub {
+  database "GitHub Repository Secrets" as GHSecrets
+  component "GitHub Actions Workflows" as Actions
 }
 
-component "④ Azure OIDC Login" as AzureLogin
+component "Azure OIDC Login" as AzureLogin
+component "Terraform" as Terraform
 
-component "⑤ Terraform" as TF
+cloud "Azure Subscription" as Azure {
+  database "Terraform Remote State Storage" as RemoteState
 
-cloud "⑥ Azure Subscription" as Azure {
-  database "⑥a Azure SQL" as SQL
-  database "⑥b Azure Key Vault" as KV
-  component "⑥c Application Insights" as AI
+  node "Resource Group" as RG {
+    database "Azure SQL Server" as SqlServer
+    database "Azure SQL Database" as SqlDb
+    database "Azure Key Vault" as KeyVault
+    component "Application Insights" as AppInsights
+    node "API App Service" as ApiApp
+    node "CMS App Service" as CmsApp
+    node "Azure Static Web App" as StaticApp
+  }
 
-  database "⑦a sql-connection-string" as KVSecretSql
-  database "⑦b umbraco-hmac-secret-key" as KVSecretHmac
-
-  node "⑧a API App Service Settings" as ApiApp
-  node "⑧b CMS App Service Settings" as CmsApp
-  node "⑧c Static Web App" as StaticApp
+  database "sql-connection-string" as SqlSecret
+  database "umbraco-hmac-secret-key" as HmacSecret
 }
 
-component "⑨a BlogPlatform.Api" as ApiRuntime
-component "⑨b BlogPlatform.Cms" as CmsRuntime
-component "⑨c BlogPlatform.App" as BlazorRuntime
+component "BlogPlatform.Api" as ApiRuntime
+component "BlogPlatform.Cms" as CmsRuntime
+component "BlogPlatform.App" as AppRuntime
 
-Developer --> Launch
 Developer --> DevSettings
+Developer --> UserSecrets
+Developer --> LocalEnv
 
 GHSecrets --> Actions
-GHSecrets --> AzureLogin
+Actions --> AzureLogin
+Actions --> Terraform
+Terraform --> RemoteState
+Terraform --> RG
 
-AzureLogin --> Azure
+Terraform --> SqlServer
+Terraform --> SqlDb
+Terraform --> KeyVault
+Terraform --> AppInsights
+Terraform --> ApiApp
+Terraform --> CmsApp
+Terraform --> StaticApp
 
-Actions --> TF
+Terraform --> SqlSecret
+Terraform --> HmacSecret
+SqlSecret --> KeyVault
+HmacSecret --> KeyVault
 
-GHSecrets --> TF
+KeyVault --> ApiApp
+KeyVault --> CmsApp
+AppInsights --> ApiApp
+AppInsights --> CmsApp
 
-TF --> Azure
-TF --> SQL
-TF --> KV
-TF --> AI
-
-TF --> ApiApp
-TF --> CmsApp
-TF --> StaticApp
-
-TF --> KVSecretSql
-TF --> KVSecretHmac
-
-KVSecretSql --> KV
-KVSecretHmac --> KV
-
-KV --> ApiApp
-KV --> CmsApp
-
-AI --> ApiApp
-AI --> CmsApp
-
+StaticApp --> AppRuntime
 ApiApp --> ApiRuntime
 CmsApp --> CmsRuntime
-StaticApp --> BlazorRuntime
 
-BlazorRuntime --> ApiRuntime
+AppRuntime --> ApiRuntime
 ApiRuntime --> CmsRuntime
-
-ApiRuntime --> SQL
-CmsRuntime --> SQL
+ApiRuntime --> SqlDb
+CmsRuntime --> SqlDb
 
 @enduml
 ```
 
 ---
 
-# Configuration Layers
+## 1. Local Development Configuration
 
-## ① Local Development
+Local development uses:
 
-### Summary
-
-Development configuration layer used to run the application locally from Visual Studio.
-
-| Classification    | Value                     |
-| ----------------- | ------------------------- |
-| Layer Type        | Development Configuration |
-| Stores Secrets    | Possible                  |
-| Creates Secrets   | No                        |
-| Consumes Secrets  | Yes                       |
-| Runtime Component | No                        |
-
-### Typical Sources
-
-* launchSettings.json
-* appsettings.Development.json
+* `appsettings.json`
+* `appsettings.Development.json`
 * User Secrets
-* Environment Variables
+* Environment variables
 
-### Typical Values
+Local configuration is used by:
 
-| Name                                 | Purpose                        |
-| ------------------------------------ | ------------------------------ |
-| ASPNETCORE_ENVIRONMENT               | Select Development environment |
-| ConnectionStrings__umbracoDbDSN      | Local database                 |
-| Umbraco__CMS__Imaging__HMACSecretKey | Development HMAC key           |
+* `BlogPlatform.Api`
+* `BlogPlatform.Cms`
+* `BlogPlatform.App`
 
----
+Typical local values:
 
-## ② GitHub Repository Secrets
-
-### Summary
-
-Primary source of encrypted deployment secrets used by CI/CD workflows.
-
-| Classification    | Value         |
-| ----------------- | ------------- |
-| Layer Type        | Secret Source |
-| Stores Secrets    | Yes           |
-| Creates Secrets   | No            |
-| Consumes Secrets  | No            |
-| Runtime Component | No            |
-
-### Secrets
-
-| Secret Name                   | Meaning                           |
-| ----------------------------- | --------------------------------- |
-| AZURE_CLIENT_ID               | Azure application identity        |
-| AZURE_TENANT_ID               | Azure tenant identifier           |
-| AZURE_SUBSCRIPTION_ID         | Azure subscription identifier     |
-| TF_STATE_RESOURCE_GROUP_NAME  | Terraform backend resource group  |
-| TF_STATE_STORAGE_ACCOUNT_NAME | Terraform backend storage account |
-| TF_STATE_CONTAINER_NAME       | Terraform backend blob container  |
-| TF_STATE_KEY                  | Terraform state file name         |
-| TF_VAR_SQL_ADMIN_LOGIN        | SQL administrator login           |
-| TF_VAR_SQL_ADMIN_PASSWORD     | SQL administrator password        |
+| Configuration key | Purpose |
+|---|---|
+| `ConnectionStrings:umbracoDbDSN` | Local SQL Server / LocalDB connection string |
+| `Umbraco:CMS:Imaging:HMACSecretKey` | Local Umbraco image HMAC key |
+| `UmbracoDeliveryApi:BaseUrl` | Local CMS URL used by API |
+| `Api:BaseUrl` | Local API URL used by Blazor |
+| `Cors:AllowedOrigins` | Allowed frontend origins for API CORS |
 
 ---
 
-## ③ GitHub Actions
+## 2. GitHub Repository Secrets
 
-### Summary
+GitHub repository secrets are used by GitHub Actions.
 
-CI/CD execution layer responsible for building, validating, and deploying infrastructure and applications.
+### Azure OIDC secrets
 
-| Classification    | Value           |
-| ----------------- | --------------- |
-| Layer Type        | CI/CD Execution |
-| Stores Secrets    | No              |
-| Creates Secrets   | No              |
-| Consumes Secrets  | Yes             |
-| Runtime Component | No              |
+| Secret | Purpose |
+|---|---|
+| `AZURE_CLIENT_ID` | Azure app registration / federated identity client ID |
+| `AZURE_TENANT_ID` | Azure tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
 
-### Consumes
+These are used by:
 
-| Secret     | Purpose              |
-| ---------- | -------------------- |
-| AZURE_*    | Azure authentication |
-| TF_STATE_* | Terraform backend    |
-| TF_VAR_*   | Terraform variables  |
-
-### Produces
-
-| Output               | Purpose                         |
-| -------------------- | ------------------------------- |
-| Workflow Environment | Temporary execution environment |
-| Terraform Execution  | Infrastructure deployment       |
-| Azure Login Session  | Azure access                    |
+* `azure/login`
+* Terraform AzureRM provider through `ARM_*` environment variables
 
 ---
 
-## ④ Azure OIDC Authentication
-
-### Summary
-
-Authentication layer that securely connects GitHub Actions to Azure without storing passwords.
-
-| Classification    | Value          |
-| ----------------- | -------------- |
-| Layer Type        | Authentication |
-| Stores Secrets    | No             |
-| Creates Secrets   | No             |
-| Consumes Secrets  | Yes            |
-| Runtime Component | No             |
-
-### Consumes
-
-| Secret                | Purpose              |
-| --------------------- | -------------------- |
-| AZURE_CLIENT_ID       | Application identity |
-| AZURE_TENANT_ID       | Azure tenant         |
-| AZURE_SUBSCRIPTION_ID | Azure subscription   |
-
-### Produces
-
-| Output             | Purpose                |
-| ------------------ | ---------------------- |
-| Azure Access Token | Temporary Azure access |
-
----
-
-## ⑤ Terraform Execution
-
-### Summary
-
-Infrastructure provisioning layer responsible for creating and configuring Azure resources from code.
-
-| Classification    | Value                       |
-| ----------------- | --------------------------- |
-| Layer Type        | Infrastructure Provisioning |
-| Stores Secrets    | No                          |
-| Creates Secrets   | Indirectly                  |
-| Consumes Secrets  | Yes                         |
-| Runtime Component | No                          |
-
-### Inputs
-
-| Variable           | Purpose                    |
-| ------------------ | -------------------------- |
-| sql_admin_login    | SQL administrator username |
-| sql_admin_password | SQL administrator password |
-| TF_STATE_*         | Terraform backend          |
-
-### Creates
-
-| Resource             | Purpose           |
-| -------------------- | ----------------- |
-| Azure SQL            | Database platform |
-| Azure Key Vault      | Secret storage    |
-| Application Insights | Monitoring        |
-| API App Service      | Backend hosting   |
-| CMS App Service      | CMS hosting       |
-| Static Web App       | Frontend hosting  |
-
-### Creates Secrets
-
-| Secret                  | Purpose                     |
-| ----------------------- | --------------------------- |
-| sql-connection-string   | Runtime database connection |
-| umbraco-hmac-secret-key | Runtime image signing key   |
-
-## ⑥ Azure Resources
-
-### Summary
-
-Infrastructure layer hosting all Azure services required by the application.
-
-| Classification    | Value          |
-| ----------------- | -------------- |
-| Layer Type        | Infrastructure |
-| Stores Secrets    | Indirectly     |
-| Creates Secrets   | No             |
-| Consumes Secrets  | No             |
-| Runtime Component | No             |
-
-### Resources
-
-| Resource             | Purpose                  |
-| -------------------- | ------------------------ |
-| Azure SQL Server     | SQL hosting              |
-| Azure SQL Database   | Application data storage |
-| Azure Key Vault      | Secret storage           |
-| Application Insights | Monitoring and telemetry |
-| API App Service      | Backend hosting          |
-| CMS App Service      | Umbraco hosting          |
-| Static Web App       | Blazor frontend hosting  |
-
----
-
-## ⑦ Key Vault Secrets
-
-### Summary
-
-Centralized secure storage for runtime secrets and sensitive configuration values.
-
-| Classification    | Value          |
-| ----------------- | -------------- |
-| Layer Type        | Secret Storage |
-| Stores Secrets    | Yes            |
-| Creates Secrets   | No             |
-| Consumes Secrets  | No             |
-| Runtime Component | No             |
-
-### Secrets
-
-| Secret Name             | Purpose                    |
-| ----------------------- | -------------------------- |
-| sql-connection-string   | Database connection string |
-| umbraco-hmac-secret-key | Umbraco image signing key  |
-
-### Consumers
-
-| Consumer        | Uses                |
-| --------------- | ------------------- |
-| API App Service | Database connection |
-| CMS App Service | Database connection |
-| CMS App Service | HMAC signing key    |
-
----
-
-## ⑧ App Service Settings
-
-### Summary
-
-Runtime configuration layer that exposes configuration values and Key Vault references to deployed applications.
-
-| Classification    | Value                 |
-| ----------------- | --------------------- |
-| Layer Type        | Runtime Configuration |
-| Stores Secrets    | References only       |
-| Creates Secrets   | No                    |
-| Consumes Secrets  | Yes                   |
-| Runtime Component | No                    |
-
-### API App Service
-
-| Setting                               | Purpose             |
-| ------------------------------------- | ------------------- |
-| ConnectionStrings__umbracoDbDSN       | Database connection |
-| ApplicationInsights__ConnectionString | Telemetry           |
-| KeyVault__VaultUri                    | Key Vault access    |
-| UmbracoDeliveryApi__BaseUrl           | CMS endpoint        |
-
-### CMS App Service
-
-| Setting                               | Purpose             |
-| ------------------------------------- | ------------------- |
-| ConnectionStrings__umbracoDbDSN       | Database connection |
-| ApplicationInsights__ConnectionString | Telemetry           |
-| KeyVault__VaultUri                    | Key Vault access    |
-| Umbraco__CMS__Imaging__HMACSecretKey  | Image signing       |
-
-### Static Web App
-
-| Setting    | Purpose          |
-| ---------- | ---------------- |
-| ApiBaseUrl | Backend endpoint |
-
----
-
-## ⑨ Runtime Applications
-
-### Summary
-
-Running .NET applications that consume configuration values and secrets to perform business operations.
-
-| Classification    | Value           |
-| ----------------- | --------------- |
-| Layer Type        | Secret Consumer |
-| Stores Secrets    | No              |
-| Creates Secrets   | No              |
-| Consumes Secrets  | Yes             |
-| Runtime Component | Yes             |
-
-### BlogPlatform.Api
-
-| Setting                         | Purpose           |
-| ------------------------------- | ----------------- |
-| ConnectionStrings__umbracoDbDSN | SQL access        |
-| KeyVault__VaultUri              | Secret access     |
-| UmbracoDeliveryApi__BaseUrl     | CMS communication |
-
-### BlogPlatform.Cms
-
-| Setting                              | Purpose       |
-| ------------------------------------ | ------------- |
-| ConnectionStrings__umbracoDbDSN      | SQL access    |
-| Umbraco__CMS__Imaging__HMACSecretKey | Image signing |
-| KeyVault__VaultUri                   | Secret access |
-
-### BlogPlatform.App (Blazor)
-
-| Setting    | Purpose           |
-| ---------- | ----------------- |
-| ApiBaseUrl | API communication |
-
----
-
-# Secret Mapping and Flow
-
-## Secret Flow Matrix
-
-| Secret                                | Starts Here    | Travels Through              | Ends Here                |
-| ------------------------------------- | -------------- | ---------------------------- | ------------------------ |
-| AZURE_CLIENT_ID                       | GitHub Secrets | GitHub Actions → Azure Login | Azure                    |
-| AZURE_TENANT_ID                       | GitHub Secrets | GitHub Actions → Azure Login | Azure                    |
-| AZURE_SUBSCRIPTION_ID                 | GitHub Secrets | GitHub Actions → Azure Login | Azure                    |
-| TF_VAR_SQL_ADMIN_LOGIN                | GitHub Secrets | GitHub Actions → Terraform   | Azure SQL                |
-| TF_VAR_SQL_ADMIN_PASSWORD             | GitHub Secrets | GitHub Actions → Terraform   | Azure SQL                |
-| sql-connection-string                 | Terraform      | Key Vault                    | API Runtime, CMS Runtime |
-| umbraco-hmac-secret-key               | Terraform      | Key Vault                    | CMS Runtime              |
-| ApplicationInsights__ConnectionString | Azure          | App Service Settings         | Runtime Applications     |
-
----
-
-## Name Mapping
-
-### SQL Credentials
-
-| GitHub Secret             | Terraform Variable     | Final Usage       |
-| ------------------------- | ---------------------- | ----------------- |
-| TF_VAR_SQL_ADMIN_LOGIN    | var.sql_admin_login    | SQL administrator |
-| TF_VAR_SQL_ADMIN_PASSWORD | var.sql_admin_password | SQL administrator |
-
-### Database Connection
-
-| Source               | Destination                             |
-| -------------------- | --------------------------------------- |
-| Terraform            | Key Vault secret: sql-connection-string |
-| Key Vault            | ConnectionStrings__umbracoDbDSN         |
-| App Service Settings | Runtime applications                    |
-
-### Umbraco HMAC Key
-
-| Source               | Destination                               |
-| -------------------- | ----------------------------------------- |
-| Terraform            | Key Vault secret: umbraco-hmac-secret-key |
-| Key Vault            | Umbraco__CMS__Imaging__HMACSecretKey      |
-| App Service Settings | CMS Runtime                               |
-
-### Azure Authentication
-
-| Secret                | Purpose                    |
-| --------------------- | -------------------------- |
-| AZURE_CLIENT_ID       | Azure application identity |
-| AZURE_TENANT_ID       | Azure tenant               |
-| AZURE_SUBSCRIPTION_ID | Azure subscription         |
-
----
-
-# Troubleshooting Guide
-
-## Deployment Cannot Authenticate to Azure
-
-Check in this order:
-
-1. GitHub Repository Secrets
-2. AZURE_CLIENT_ID
-3. AZURE_TENANT_ID
-4. AZURE_SUBSCRIPTION_ID
-5. Federated Credential in Azure
-
----
-
-## Terraform Cannot Access State
-
-Check:
-
-1. TF_STATE_RESOURCE_GROUP_NAME
-2. TF_STATE_STORAGE_ACCOUNT_NAME
-3. TF_STATE_CONTAINER_NAME
-4. TF_STATE_KEY
-
----
-
-## Application Cannot Connect to SQL
-
-Check:
-
-1. Key Vault contains `sql-connection-string`
-2. App Service has Key Vault reference
-3. Managed Identity permissions
-4. Runtime configuration
-5. SQL firewall rules
-
----
-
-## CMS Image Signing Problems
-
-Check:
-
-1. Key Vault contains `umbraco-hmac-secret-key`
-2. CMS App Service setting exists
-3. Runtime configuration loaded correctly
-
----
-
-## Terraform State Recovery
-
-If Azure resources exist but Terraform state does not contain them,
-Terraform will attempt to recreate the resources and deployments may fail.
-
-Symptoms:
-
-- Resource already exists
-- Terraform Apply fails
-- Azure Portal shows the resource
-
-Resolution:
-
-terraform import <resource> <resource-id>
-
-Common imported resources:
-
-- Log Analytics Workspace
-- Application Insights
-- App Service
-- SQL Server
-- Key Vault
-
----
-
-# Quick Mental Model
-
-Think of the system as:
-
-```text
-GitHub Secrets
-        ↓
-GitHub Actions
-        ↓
-Azure Login (OIDC)
-        ↓
-Terraform
-        ↓
-Azure Resources
-        ↓
-Key Vault
-        ↓
-App Service Settings
-        ↓
-Running .NET Applications
+### Terraform backend secrets
+
+| Secret | Purpose |
+|---|---|
+| `TF_STATE_RESOURCE_GROUP_NAME` | Resource group containing Terraform state storage |
+| `TF_STATE_STORAGE_ACCOUNT_NAME` | Azure Storage account for Terraform state |
+| `TF_STATE_CONTAINER_NAME` | Blob container for Terraform state |
+| `TF_STATE_KEY` | Terraform state blob name |
+
+These are passed into:
+
+```bash
+terraform init \
+  -backend-config="resource_group_name=..." \
+  -backend-config="storage_account_name=..." \
+  -backend-config="container_name=..." \
+  -backend-config="key=..."
 ```
 
-When troubleshooting:
+---
 
-```text
-Top → Bottom
+### Terraform variable secrets
+
+| GitHub secret | Terraform variable |
+|---|---|
+| `TF_VAR_SQL_ADMIN_LOGIN` | `sql_admin_login` |
+| `TF_VAR_SQL_ADMIN_PASSWORD` | `sql_admin_password` |
+| `TF_VAR_UMBRACO_ADMIN_NAME` | `umbraco_admin_name` |
+| `TF_VAR_UMBRACO_ADMIN_EMAIL` | `umbraco_admin_email` |
+| `TF_VAR_UMBRACO_ADMIN_PASSWORD` | `umbraco_admin_password` |
+
+The workflows map them as environment variables:
+
+```yaml
+TF_VAR_sql_admin_login: ${{ secrets.TF_VAR_SQL_ADMIN_LOGIN }}
+TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_SQL_ADMIN_PASSWORD }}
+TF_VAR_umbraco_admin_name: ${{ secrets.TF_VAR_UMBRACO_ADMIN_NAME }}
+TF_VAR_umbraco_admin_email: ${{ secrets.TF_VAR_UMBRACO_ADMIN_EMAIL }}
+TF_VAR_umbraco_admin_password: ${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }}
 ```
-
-Always start at the highest layer where the value originates and follow it downward until it reaches the runtime application.
 
 ---
 
-# Document Maintenance
+## 3. GitHub Actions Workflows
 
-Update this document whenever:
+| Workflow | Secret usage |
+|---|---|
+| `azure-readiness.yml` | No Azure secrets required for backendless Terraform validation |
+| `azure-terraform-plan.yml` | Azure OIDC, Terraform backend, Terraform variables |
+| `azure-terraform-apply.yml` | Azure OIDC, Terraform backend, Terraform variables |
+| `azure-deploy.yml` | Azure OIDC, Terraform backend, runtime deployment outputs |
 
-* A new GitHub Secret is added
-* A new Terraform variable is added
-* A new Key Vault secret is added
-* A new App Service setting is added
-* A new Azure resource is introduced
-* A configuration flow changes
+---
 
-This document should remain the authoritative reference for configuration and secret management within the BlogPlatform solution.
+## 4. Azure OIDC Authentication
 
+The repository uses GitHub OIDC to authenticate to Azure.
+
+This means:
+
+* No Azure client secret is stored in GitHub.
+* GitHub receives a short-lived token.
+* Azure validates the federated credential.
+* GitHub Actions can run Azure CLI and Terraform against the subscription.
+
+Required GitHub Actions permissions:
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
+```
+
+---
+
+## 5. Terraform
+
+Terraform is located in:
+
+```text
+infra/
+```
+
+Terraform consumes:
+
+* Azure OIDC environment variables
+* Terraform backend secrets
+* Terraform variable secrets
+
+Terraform creates:
+
+* Resource Group
+* Log Analytics Workspace
+* Application Insights
+* App Service Plan
+* API App Service
+* CMS App Service
+* Static Web App
+* SQL Server
+* SQL Database
+* Key Vault
+* Key Vault secrets
+* Managed identities
+* Key Vault access policies
+
+---
+
+## 6. Azure Key Vault
+
+Terraform creates these Key Vault secrets:
+
+| Key Vault secret | Purpose |
+|---|---|
+| `sql-connection-string` | SQL connection string used by API and CMS |
+| `umbraco-hmac-secret-key` | Umbraco imaging HMAC key |
+
+The API and CMS App Services receive Key Vault references in App Service settings.
+
+Example pattern:
+
+```text
+@Microsoft.KeyVault(SecretUri=<secret-versionless-uri>)
+```
+
+---
+
+## 7. API App Service Settings
+
+Terraform configures these API settings:
+
+| Setting | Purpose |
+|---|---|
+| `ASPNETCORE_ENVIRONMENT` | Runs API in Production |
+| `ApplicationInsights__ConnectionString` | Enables Application Insights |
+| `KeyVault__VaultUri` | Enables Azure Key Vault configuration provider |
+| `ConnectionStrings__umbracoDbDSN` | SQL connection string from Key Vault |
+| `Cors__AllowedOrigins__0` | Allows Blazor Static Web App origin |
+| `UmbracoDeliveryApi__BaseUrl` | CMS base URL |
+| `UmbracoDeliveryApi__PostsEndpoint` | CMS articles endpoint |
+| `UmbracoDeliveryApi__FreshCacheSeconds` | Fresh cache duration |
+| `UmbracoDeliveryApi__StaleCacheSeconds` | Stale cache duration |
+| `UmbracoDeliveryApi__TimeoutSeconds` | CMS HTTP timeout |
+| `UmbracoDeliveryApi__RetryCount` | CMS retry count |
+| `UmbracoDeliveryApi__RetryDelayMilliseconds` | CMS retry delay |
+
+---
+
+## 8. CMS App Service Settings
+
+Terraform configures these CMS settings:
+
+| Setting | Purpose |
+|---|---|
+| `ASPNETCORE_ENVIRONMENT` | Runs CMS in Production |
+| `ApplicationInsights__ConnectionString` | Enables Application Insights |
+| `KeyVault__VaultUri` | Enables Azure Key Vault configuration provider |
+| `ConnectionStrings__umbracoDbDSN` | SQL connection string from Key Vault |
+| `ConnectionStrings__umbracoDbDSN_ProviderName` | SQL provider |
+| `Umbraco__CMS__Global__UseHttps` | Forces HTTPS behavior |
+| `Umbraco__CMS__Runtime__Mode` | Production runtime mode |
+| `Umbraco__CMS__ModelsBuilder__ModelsMode` | Disables source-code model generation in production |
+| `Umbraco__CMS__Imaging__HMACSecretKey` | HMAC key from Key Vault |
+| `Umbraco__CMS__Unattended__InstallUnattended` | Enables unattended install |
+| `Umbraco__CMS__Unattended__UnattendedUserName` | Initial admin name |
+| `Umbraco__CMS__Unattended__UnattendedUserEmail` | Initial admin email |
+| `Umbraco__CMS__Unattended__UnattendedUserPassword` | Initial admin password |
+| `BlogPreview__AppPreviewUrl` | Blazor article preview URL |
+
+---
+
+## 9. Blazor Static Web App Configuration
+
+The committed file:
+
+```text
+src/BlogPlatform/BlogPlatform.App/wwwroot/appsettings.Production.json
+```
+
+contains a placeholder API URL.
+
+During `azure-deploy.yml`, the workflow overwrites this file with the real API URL from Terraform output before publishing the Blazor app.
+
+The generated setting is:
+
+```json
+{
+  "Api": {
+    "BaseUrl": "https://<api-app-service-url>/"
+  }
+}
+```
+
+---
+
+## 10. Values Safe to Commit
+
+Safe:
+
+* `appsettings.json` with placeholders
+* `appsettings.Development.json` without real production secrets
+* `appsettings.Production.json` with placeholders
+* `terraform.tfvars.example`
+* Terraform source files
+* GitHub workflow files
+
+Not safe:
+
+* `infra/terraform.tfvars`
+* Real SQL passwords
+* Real Umbraco admin passwords
+* Azure publish profiles
+* Terraform state files
+* `.env` files
+* Local user secrets
+* Production connection strings
+
+---
+
+## 11. Git Ignore Protection
+
+The repository ignores:
+
+```gitignore
+infra/terraform.tfvars
+*.tfvars
+!*.tfvars.example
+**/.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*.tfplan
+tfplan
+```
+
+This protects local Terraform secrets and state from accidental commits.
+
+---
+
+## Troubleshooting Checklist
+
+### Terraform cannot initialize backend
+
+Check:
+
+* `TF_STATE_RESOURCE_GROUP_NAME`
+* `TF_STATE_STORAGE_ACCOUNT_NAME`
+* `TF_STATE_CONTAINER_NAME`
+* `TF_STATE_KEY`
+* Azure OIDC permissions
+* Storage account access
+
+---
+
+### Terraform cannot create or update Key Vault secrets
+
+Check:
+
+* The current Azure principal has Key Vault secret permissions.
+* The `azurerm_key_vault_access_policy.terraform_user` resource exists.
+* The Key Vault name is globally unique.
+* The Azure identity has access to the target subscription.
+
+---
+
+### API or CMS cannot read Key Vault values
+
+Check:
+
+* API and CMS managed identities exist.
+* API and CMS Key Vault access policies exist.
+* App Service settings use valid Key Vault references.
+* `KeyVault__VaultUri` points to the correct vault.
+* Key Vault secret names match Terraform.
+
+---
+
+### CMS fails on missing HMAC secret
+
+Check:
+
+* `Umbraco__CMS__Imaging__HMACSecretKey`
+* `umbraco-hmac-secret-key` exists in Key Vault.
+* CMS App Service can read Key Vault secrets.
+* The value is not the placeholder `SET_WITH_AZURE_KEY_VAULT`.
+
+---
+
+### Blazor calls the wrong API URL
+
+Check:
+
+* `azure-deploy.yml` generated `appsettings.Production.json`.
+* Terraform output `api_app_service_url` is correct.
+* Static Web App deployment used the generated publish output.

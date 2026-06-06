@@ -1,68 +1,196 @@
 # BlogPlatform
 
-BlogPlatform is a cloud-ready .NET learning and blogging platform built with:
+BlogPlatform is a cloud-ready .NET learning and blogging platform.
 
-* Blazor WebAssembly
+It contains:
+
+* Blazor WebAssembly frontend
 * ASP.NET Core Web API
 * Umbraco CMS
-* Azure
-* Terraform
-* GitHub Actions
+* Application layer
+* Domain layer
+* Infrastructure layer
+* Contracts project
+* Architecture tests
+* Terraform Azure infrastructure
+* GitHub Actions CI/CD workflows
 
 ---
 
 ## Solution Structure
 
 ```text
-src/
-├── BlogPlatform.App
-├── BlogPlatform.Api
-├── BlogPlatform.Cms
-├── BlogPlatform.Application
-├── BlogPlatform.Infrastructure
-└── BlogPlatform.Shared
-
-infra/
-docs/
-.github/
+.
+├── .github/
+│   └── workflows/
+│       ├── azure-readiness.yml
+│       ├── azure-terraform-plan.yml
+│       ├── azure-terraform-apply.yml
+│       └── azure-deploy.yml
+├── docs/
+│   ├── README.md
+│   └── secrets-and-configuration.md
+├── infra/
+│   ├── backend.tf
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   ├── variables.tf
+│   └── versions.tf
+├── src/
+│   └── BlogPlatform/
+│       ├── BlogPlatform.Api/
+│       ├── BlogPlatform.App/
+│       ├── BlogPlatform.Application/
+│       ├── BlogPlatform.ArchitectureTests/
+│       ├── BlogPlatform.Cms/
+│       ├── BlogPlatform.Contracts/
+│       ├── BlogPlatform.Domain/
+│       ├── BlogPlatform.Infrastructure/
+│       └── BlogPlatform.slnx
+├── tests/
+└── AZURE.md
 ```
+
+---
+
+## Main Projects
+
+| Project | Purpose |
+|---|---|
+| `BlogPlatform.App` | Blazor WebAssembly frontend |
+| `BlogPlatform.Api` | Public API used by the frontend |
+| `BlogPlatform.Cms` | Umbraco CMS and blog content administration |
+| `BlogPlatform.Application` | Application services and use cases |
+| `BlogPlatform.Domain` | Domain entities, value objects, and enums |
+| `BlogPlatform.Infrastructure` | SQL Server persistence, CMS API client, and infrastructure services |
+| `BlogPlatform.Contracts` | Shared DTOs and API contracts |
+| `BlogPlatform.ArchitectureTests` | Clean Architecture dependency tests |
 
 ---
 
 ## Architecture
 
-Blazor App
-→ ASP.NET Core API
-→ Umbraco CMS
-→ Azure SQL
+```text
+Blazor WebAssembly App
+        |
+        v
+ASP.NET Core API
+        |
+        v
+Application Layer
+        |
+        v
+Infrastructure Layer
+        |
+        +--> SQL Server
+        |
+        +--> Umbraco CMS Delivery API
 
-Supporting services:
+Umbraco CMS
+        |
+        +--> Azure SQL
+        |
+        +--> Key Vault
+        |
+        +--> Application Insights
+```
 
-* Azure Key Vault
-* Application Insights
-* Managed Identity
+---
+
+## Runtime Components
+
+| Component | Local role | Azure role |
+|---|---|---|
+| Blazor App | Runs as WebAssembly frontend | Azure Static Web App |
+| API | Runs as ASP.NET Core Web API | Linux App Service |
+| CMS | Runs as Umbraco CMS | Linux App Service |
+| SQL Server | LocalDB / SQL Server | Azure SQL Database |
+| Key Vault | Not required locally | Stores production secrets |
+| Application Insights | Optional locally | Production telemetry |
+
+---
+
+## Local Development
+
+Restore, build, and test:
+
+```bash
+dotnet restore src/BlogPlatform/BlogPlatform.slnx
+dotnet build src/BlogPlatform/BlogPlatform.slnx
+dotnet test src/BlogPlatform/BlogPlatform.slnx
+```
+
+Run API:
+
+```bash
+dotnet run --project src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
+```
+
+Run CMS:
+
+```bash
+dotnet run --project src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
+```
+
+Run Blazor app:
+
+```bash
+dotnet run --project src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
+```
+
+---
+
+## Health Checks
+
+The API exposes:
+
+```text
+/health
+/health/live
+/health/ready
+```
+
+The CMS exposes:
+
+```text
+/health
+/health/live
+/health/ready
+```
 
 ---
 
 ## Infrastructure
 
-Infrastructure is managed using Terraform.
+Terraform files are stored in:
 
-Resources include:
+```text
+infra/
+```
+
+Terraform manages:
 
 * Resource Group
-* App Services
-* Static Web App
-* Azure SQL
-* Key Vault
+* Log Analytics Workspace
 * Application Insights
-* Managed Identities
+* Azure Key Vault
+* Azure SQL Server
+* Azure SQL Database
+* SQL firewall rule for Azure services
+* Azure App Service Plan
+* API Linux App Service
+* CMS Linux App Service
+* Azure Static Web App
+* Managed identities
+* Key Vault secrets
+* Key Vault access policies
 
 See:
 
-* AZURE.md
-* infra/README.md
-* docs/secrets-and-configuration.md
+* `AZURE.md`
+* `infra/README.md`
+* `docs/secrets-and-configuration.md`
 
 ---
 
@@ -70,90 +198,45 @@ See:
 
 GitHub Actions workflows:
 
-### Azure Readiness
+| Workflow | Purpose |
+|---|---|
+| `azure-readiness.yml` | Restore, build, test, publish, and validate Terraform |
+| `azure-terraform-plan.yml` | Run Terraform plan against Azure |
+| `azure-terraform-apply.yml` | Apply Terraform infrastructure changes |
+| `azure-deploy.yml` | Deploy API, CMS, Blazor app, and run smoke checks |
 
-Validates:
+Azure authentication uses GitHub OIDC.
 
-* Restore
-* Build
-* Test
-* Publish
-* Terraform formatting
-* Terraform validation
-
-### Terraform Plan
-
-Creates Terraform execution plan.
-
-### Terraform Apply
-
-Applies infrastructure changes to Azure.
-
-### Azure Deploy
-
-Deploys:
-
-* API
-* CMS
-* Blazor frontend
-
-Runs deployment validation and health checks.
+No Azure client secret is stored in GitHub.
 
 ---
 
 ## Security
 
-Authentication to Azure uses:
+Secrets are handled through:
 
-* GitHub OIDC
-* Azure Federated Credentials
+* GitHub Actions secrets for deployment-time values
+* Terraform variables for infrastructure provisioning
+* Azure Key Vault for runtime application secrets
+* Managed Identity for App Service access to Key Vault
 
-No Azure credentials are stored in GitHub.
+Important:
 
-Secrets are stored in:
-
-* Azure Key Vault
-* GitHub Actions Secrets
-
-Terraform state is stored remotely in Azure Storage.
-
----
-
-## Local Development
-
-```bash
-dotnet restore
-dotnet build
-dotnet test
-```
-
-Run:
-
-```bash
-dotnet run --project src/BlogPlatform/BlogPlatform.Api
-dotnet run --project src/BlogPlatform/BlogPlatform.Cms
-```
-
----
-
-## Azure Deployment
-
-Infrastructure:
-
-```bash
-cd infra
-
-terraform init
-terraform plan
-terraform apply
-```
-
-Automated deployment is performed through GitHub Actions.
+* `infra/terraform.tfvars` must never be committed.
+* `*.tfvars` files are ignored.
+* `*.tfvars.example` files are allowed.
+* Terraform state is stored remotely in Azure Storage.
 
 ---
 
 ## Documentation
 
-* AZURE.md
-* infra/README.md
-* docs/secrets-and-configuration.md
+| File | Purpose |
+|---|---|
+| `AZURE.md` | Azure deployment roadmap and current deployment status |
+| `docs/README.md` | Documentation index |
+| `docs/secrets-and-configuration.md` | Secrets and configuration flow |
+| `infra/README.md` | Terraform infrastructure documentation |
+| `src/README.md` | Source code structure |
+| `src/BlogPlatform/BlogPlatform.Cms/README.md` | CMS-specific documentation |
+| `tests/README.md` | Test documentation |
