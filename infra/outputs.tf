@@ -2,6 +2,14 @@ output "resource_group_name" {
   value = azurerm_resource_group.main.name
 }
 
+output "api_app_service_name" {
+  value = azurerm_linux_web_app.api.name
+}
+
+output "cms_app_service_name" {
+  value = azurerm_linux_web_app.cms.name
+}
+
 output "api_app_service_url" {
   value = local.api_url
 }

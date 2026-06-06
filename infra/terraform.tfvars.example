@@ -4,3 +4,7 @@ location     = "westeurope"
 
 sql_admin_login    = "blogadmin"
 sql_admin_password = "CHANGE_ME_USE_STRONG_PASSWORD"
+
+umbraco_admin_name     = "BlogPlatform Admin"
+umbraco_admin_email    = "admin@example.com"
+umbraco_admin_password = "CHANGE_ME_USE_STRONG_PASSWORD"

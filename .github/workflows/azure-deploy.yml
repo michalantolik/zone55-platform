@@ -9,16 +9,9 @@ permissions:
 
 env:
   DOTNET_VERSION: 10.0.x
+  TERRAFORM_VERSION: 1.13.5
   CONFIGURATION: Release
   SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
-
-  RESOURCE_GROUP_NAME: rg-blogplatform-dev
-  API_APP_NAME: app-blogplatform-dev-api
-  CMS_APP_NAME: app-blogplatform-dev-cms
-  STATIC_WEB_APP_NAME: stapp-blogplatform-dev
-
-  API_PUBLIC_URL: https://app-blogplatform-dev-api.azurewebsites.net/
-  CMS_PUBLIC_URL: https://app-blogplatform-dev-cms.azurewebsites.net/
 
 jobs:
   deploy:
@@ -36,6 +29,29 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Read Terraform outputs
+        working-directory: infra
+        shell: bash
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}" \
+            -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}" \
+            -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
+            -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+
+          echo "RESOURCE_GROUP_NAME=$(terraform output -raw resource_group_name)" >> "$GITHUB_ENV"
+          echo "API_APP_NAME=$(terraform output -raw api_app_service_name)" >> "$GITHUB_ENV"
+          echo "CMS_APP_NAME=$(terraform output -raw cms_app_service_name)" >> "$GITHUB_ENV"
+          echo "STATIC_WEB_APP_NAME=$(terraform output -raw static_web_app_name)" >> "$GITHUB_ENV"
+          echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
+          echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -152,7 +168,6 @@ jobs:
           done
 
           echo "API did not become healthy in time."
-          echo "Last response:"
           cat /tmp/api-health.txt || true
           exit 1
 
@@ -177,6 +192,6 @@ jobs:
           done
 
           echo "CMS did not become healthy in time."
-          echo "Last response:"
           cat /tmp/cms-health.txt || true
           exit 1
+ 
