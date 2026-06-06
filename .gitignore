@@ -448,3 +448,6 @@ override.tf.json
 # Terraform plan files
 *.tfplan
 tfplan
+
+# Terraform exported/local state snapshots
+infra/state.json
