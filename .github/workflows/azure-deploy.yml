@@ -74,20 +74,6 @@ jobs:
           echo "CMS: ${CMS_PUBLIC_URL}"
           echo "APP: ${APP_PUBLIC_URL}"
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore solution
-        run: dotnet restore ${{ env.SOLUTION_PATH }}
-
-      - name: Build solution
-        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
-
-      - name: Test solution
-        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
-
       - name: Configure Blazor production API URL
         shell: bash
         run: |
@@ -111,6 +97,22 @@ jobs:
             }
           }
           EOF
+
+          cat src/BlogPlatform/BlogPlatform.App/wwwroot/appsettings.Production.json
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore solution
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test solution
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
 
       - name: Publish API
         run: >
@@ -192,3 +194,19 @@ jobs:
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
+
+      - name: Write deployment summary
+        shell: bash
+        run: |
+          {
+            echo "## Azure deployment summary"
+            echo ""
+            echo "| Component | URL |"
+            echo "|---|---|"
+            echo "| API | ${API_PUBLIC_URL} |"
+            echo "| CMS | ${CMS_PUBLIC_URL} |"
+            echo "| Blazor App | ${APP_PUBLIC_URL} |"
+            echo ""
+            echo "Smoke checks completed successfully."
+          } >> "$GITHUB_STEP_SUMMARY"
+ 

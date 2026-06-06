@@ -65,22 +65,25 @@ jobs:
           --output ./artifacts/app
 
       - name: Upload API artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: blogplatform-api
           path: ./artifacts/api
+          retention-days: 7
 
       - name: Upload CMS artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: blogplatform-cms
           path: ./artifacts/cms
+          retention-days: 7
 
       - name: Upload Blazor App artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: blogplatform-app
           path: ./artifacts/app
+          retention-days: 7
 
   terraform-validate:
     name: Validate Terraform

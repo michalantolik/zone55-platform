@@ -21,13 +21,21 @@ Infrastructure provisioning through Terraform:
 * Key Vault secrets
 * Key Vault access policies
 * Remote Terraform state backend
+* API App Service health check
+* CMS App Service health check
+* API App Service startup command
+* CMS App Service startup command
 
 Application readiness:
 
 * ASP.NET Core API
 * Umbraco CMS
 * Blazor WebAssembly frontend
-* Health checks
+* Health endpoints
+* API `/health/live`
+* API `/health/ready`
+* CMS `/health/live`
+* CMS `/health/ready`
 * Application Insights configuration support
 * Key Vault configuration provider
 * Production appsettings files
@@ -45,12 +53,14 @@ GitHub Actions:
 * Azure Deployment workflow
 * OIDC authentication to Azure
 * Deployment smoke checks through `check-url.sh`
+* Build artifact upload using Node.js 24 compatible artifact action
 
 ---
 
 ## In Progress
 
 * End-to-end Azure deployment validation
+* Azure Deployment workflow validation
 * Key Vault runtime secret resolution validation
 * Application Insights telemetry validation
 * Public environment smoke testing
@@ -62,11 +72,8 @@ GitHub Actions:
 
 ## Remaining
 
+* Run first full `Azure deploy` workflow
 * Deploy latest application packages to Azure
-* Verify API `/health/live`
-* Verify API `/health/ready`
-* Verify CMS `/health/live`
-* Verify CMS `/health/ready`
 * Verify Blazor frontend loads from Azure Static Web Apps
 * Verify Blazor frontend calls the Azure API URL
 * Verify API connects to CMS Delivery API
@@ -77,6 +84,8 @@ GitHub Actions:
 * Verify Application Insights receives API telemetry
 * Verify Application Insights receives CMS telemetry
 * Document final public URLs
+* Add deployment badges to README
+* Consider deployment slots for safer future releases
 
 ---
 
@@ -250,7 +259,29 @@ CMS receives:
 * `UmbracoDeliveryApi__PostsEndpoint`
 * `BlogPreview__AppPreviewUrl`
 
-The Blazor production API URL is generated during `azure-deploy.yml` before publishing the frontend.
+The Blazor production API URL is generated during `azure-deploy.yml` before restoring, building, testing, and publishing the frontend.
+
+---
+
+## Health Checks
+
+Terraform configures Azure App Service health checks for API and CMS:
+
+```text
+/health/live
+```
+
+The deployment workflow also verifies:
+
+```text
+API: /health/live
+API: /health/ready
+CMS: /health/live
+CMS: /health/ready
+Blazor Static Web App: /
+```
+
+This gives the project both infrastructure-level health monitoring and deployment-level smoke validation.
 
 ---
 
@@ -275,3 +306,4 @@ This project demonstrates:
 * CI/CD pipelines
 * Production health checks
 * Cloud deployment automation
+* Smoke testing after deployment
