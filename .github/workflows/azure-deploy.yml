@@ -13,6 +13,11 @@ env:
   CONFIGURATION: Release
   SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
 
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_USE_OIDC: true
+
 jobs:
   deploy:
     name: Deploy BlogPlatform to Azure
@@ -52,6 +57,7 @@ jobs:
           echo "STATIC_WEB_APP_NAME=$(terraform output -raw static_web_app_name)" >> "$GITHUB_ENV"
           echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
           echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
+          echo "APP_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -112,17 +118,17 @@ jobs:
           --no-build
           --output ./artifacts/app
 
-      - name: Deploy API App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.API_APP_NAME }}
-          package: ./artifacts/api
-
       - name: Deploy CMS App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.CMS_APP_NAME }}
           package: ./artifacts/cms
+
+      - name: Deploy API App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.API_APP_NAME }}
+          package: ./artifacts/api
 
       - name: Get Static Web Apps deployment token
         shell: bash
@@ -147,51 +153,27 @@ jobs:
           output_location: ""
           skip_app_build: true
 
-      - name: Check API live health
-        shell: bash
-        run: |
-          echo "Checking API health: ${API_PUBLIC_URL}health/live"
-
-          for i in {1..30}; do
-            status_code=$(curl -s -o /tmp/api-health.txt -w "%{http_code}" "${API_PUBLIC_URL}health/live" || true)
-
-            echo "Attempt $i/30 - HTTP $status_code"
-
-            if [ "$status_code" = "200" ]; then
-              echo "API is healthy."
-              cat /tmp/api-health.txt
-              exit 0
-            fi
-
-            echo "API is not ready yet. Waiting 10 seconds..."
-            sleep 10
-          done
-
-          echo "API did not become healthy in time."
-          cat /tmp/api-health.txt || true
-          exit 1
-
       - name: Check CMS live health
         shell: bash
         run: |
-          echo "Checking CMS health: ${CMS_PUBLIC_URL}health/live"
+          ./scripts/check-url.sh "${CMS_PUBLIC_URL}health/live" "CMS live health"
 
-          for i in {1..30}; do
-            status_code=$(curl -s -o /tmp/cms-health.txt -w "%{http_code}" "${CMS_PUBLIC_URL}health/live" || true)
+      - name: Check CMS ready health
+        shell: bash
+        run: |
+          ./scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
 
-            echo "Attempt $i/30 - HTTP $status_code"
+      - name: Check API live health
+        shell: bash
+        run: |
+          ./scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
 
-            if [ "$status_code" = "200" ]; then
-              echo "CMS is healthy."
-              cat /tmp/cms-health.txt
-              exit 0
-            fi
+      - name: Check API ready health
+        shell: bash
+        run: |
+          ./scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
 
-            echo "CMS is not ready yet. Waiting 10 seconds..."
-            sleep 10
-          done
-
-          echo "CMS did not become healthy in time."
-          cat /tmp/cms-health.txt || true
-          exit 1
- 
+      - name: Check Blazor Static Web App
+        shell: bash
+        run: |
+          ./scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
