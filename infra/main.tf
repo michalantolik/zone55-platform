@@ -186,11 +186,12 @@ resource "azurerm_linux_web_app" "cms" {
     "ConnectionStrings__umbracoDbDSN"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_connection_string.versionless_id})"
     "ConnectionStrings__umbracoDbDSN_ProviderName" = "Microsoft.Data.SqlClient"
 
-    "Umbraco__CMS__Global__UseHttps"               = "true"
-	"Umbraco__CMS__Global__InstallMissingDatabase" = "true"
-    "Umbraco__CMS__Runtime__Mode"                  = "Production"
-    "Umbraco__CMS__ModelsBuilder__ModelsMode"      = "Nothing"
-    "Umbraco__CMS__Imaging__HMACSecretKey"         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.umbraco_hmac_secret_key.versionless_id})"
+    "Umbraco__CMS__Global__UseHttps"                   = "true"
+	"Umbraco__CMS__Global__InstallMissingDatabase"     = "true"
+    "Umbraco__CMS__Runtime__Mode"                      = "Production"
+	"Umbraco__CMS__WebRouting__UmbracoApplicationUrl"  = "${local.cms_url}/"
+    "Umbraco__CMS__ModelsBuilder__ModelsMode"          = "Nothing"
+    "Umbraco__CMS__Imaging__HMACSecretKey"             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.umbraco_hmac_secret_key.versionless_id})"
 
     "Umbraco__CMS__Unattended__InstallUnattended"      = "true"
 	"Umbraco__CMS__Unattended__UpgradeUnattended"      = "true"	
