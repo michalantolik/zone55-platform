@@ -46,6 +46,16 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          
+      - name: Show current identity
+        run: |
+          az account show
+          az ad signed-in-user show || true
+
+      - name: Show OIDC principal
+        run: |
+          az ad sp show \
+            --id ${{ secrets.AZURE_CLIENT_ID }}          
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
