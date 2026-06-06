@@ -83,21 +83,13 @@ resource "azurerm_key_vault" "main" {
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   sku_name                   = "standard"
   soft_delete_retention_days = 7
+  rbac_authorization_enabled = true
 }
 
-resource "azurerm_key_vault_access_policy" "terraform_user" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
-
-  secret_permissions = [
-    "Get",
-    "List",
-    "Set",
-    "Delete",
-    "Recover",
-    "Purge"
-  ]
+resource "azurerm_role_assignment" "terraform_key_vault_secrets_officer" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azurerm_client_config.current.object_id
 }
 
 resource "azurerm_key_vault_secret" "sql_connection_string" {
@@ -106,7 +98,8 @@ resource "azurerm_key_vault_secret" "sql_connection_string" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [
-    azurerm_key_vault_access_policy.terraform_user
+    azurerm_role_assignment.terraform_key_vault_secrets_officer,
+    azurerm_role_assignment.github_actions_key_vault_secrets_officer
   ]
 }
 
@@ -116,7 +109,8 @@ resource "azurerm_key_vault_secret" "umbraco_hmac_secret_key" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [
-    azurerm_key_vault_access_policy.terraform_user
+    azurerm_role_assignment.terraform_key_vault_secrets_officer,
+    azurerm_role_assignment.github_actions_key_vault_secrets_officer
   ]
 }
 
@@ -230,24 +224,20 @@ resource "azurerm_linux_web_app" "cms" {
   }
 }
 
-resource "azurerm_key_vault_access_policy" "api_app_service" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = azurerm_linux_web_app.api.identity[0].tenant_id
-  object_id    = azurerm_linux_web_app.api.identity[0].principal_id
-
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
+resource "azurerm_role_assignment" "api_key_vault_secrets_user" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_linux_web_app.api.identity[0].principal_id
 }
 
-resource "azurerm_key_vault_access_policy" "cms_app_service" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = azurerm_linux_web_app.cms.identity[0].tenant_id
-  object_id    = azurerm_linux_web_app.cms.identity[0].principal_id
+resource "azurerm_role_assignment" "cms_key_vault_secrets_user" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_linux_web_app.cms.identity[0].principal_id
+}
 
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
+resource "azurerm_role_assignment" "github_actions_key_vault_secrets_officer" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = "dee8b8b6-ce2b-41ea-aca0-47e8ad714dfc"
 }
