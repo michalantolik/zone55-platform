@@ -133,11 +133,15 @@ try
     try
     {
         await app.BootUmbracoAsync();
+
         Log.Information("CMS Umbraco boot completed.");
     }
-    catch (Exception bootException)
+    catch (Exception ex)
     {
-        Log.Fatal(bootException, "CMS Umbraco boot failed during BootUmbracoAsync.");
+        Log.Fatal(ex, "CMS Umbraco boot failed.");
+
+        await DumpUmbracoLogsAsync(app.Environment.ContentRootPath);
+
         throw;
     }
 
@@ -301,4 +305,55 @@ static string GetSharedLogFilePath()
     }
 
     return Path.Combine(AppContext.BaseDirectory, "logs", "platform-log-.txt");
+}
+
+static async Task DumpUmbracoLogsAsync(string contentRootPath)
+{
+    var logDirectories = new[]
+    {
+        Path.Combine(contentRootPath, "umbraco", "Logs"),
+        Path.Combine(contentRootPath, "logs"),
+        "/home/LogFiles"
+    };
+
+    foreach (var directory in logDirectories)
+    {
+        Log.Error("Checking log directory: {Directory}", directory);
+
+        if (!Directory.Exists(directory))
+        {
+            Log.Error("Log directory does not exist: {Directory}", directory);
+            continue;
+        }
+
+        var files = Directory
+            .GetFiles(directory, "*.*", SearchOption.TopDirectoryOnly)
+            .OrderByDescending(File.GetLastWriteTimeUtc)
+            .Take(10)
+            .ToArray();
+
+        foreach (var file in files)
+        {
+            Log.Error("Found log file: {File}", file);
+
+            try
+            {
+                var lines = await File.ReadAllLinesAsync(file);
+                var lastLines = lines.TakeLast(200);
+
+                Log.Error("===== BEGIN LOG FILE {File} =====", file);
+
+                foreach (var line in lastLines)
+                {
+                    Log.Error("{LogLine}", line);
+                }
+
+                Log.Error("===== END LOG FILE {File} =====", file);
+            }
+            catch (Exception readException)
+            {
+                Log.Error(readException, "Could not read log file: {File}", file);
+            }
+        }
+    }
 }

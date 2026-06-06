@@ -262,7 +262,7 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          echo "## Enable App Service filesystem logging"
+          echo "## Enable CMS filesystem logging"
           az webapp log config \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
@@ -272,55 +272,31 @@ jobs:
             --detailed-error-messages true \
             --failed-request-tracing true || true
 
-          az webapp log config \
-            --name "${API_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --application-logging filesystem \
-            --level verbose \
-            --web-server-logging filesystem \
-            --detailed-error-messages true \
-            --failed-request-tracing true || true
-
-          echo "## CMS App Service settings names"
-          az webapp config appsettings list \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "[].name" \
-            --output table || true
-
-          echo "## CMS App Service state"
-          az webapp show \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,state:state,hostNames:enabledHostNames,defaultHostName:defaultHostName,healthCheckPath:siteConfig.healthCheckPath}" \
-            --output json || true
-
-          echo "## CMS /health/ready response"
+          echo "## CMS /health/ready"
           curl -L -s "${CMS_PUBLIC_URL}health/ready" || true
           echo ""
 
-          echo "## CMS /health/live response"
+          echo "## CMS /health/live"
           curl -L -s "${CMS_PUBLIC_URL}health/live" || true
           echo ""
 
-          echo "## Recent CMS platform-log files"
+          echo "## CMS /home/LogFiles"
           az webapp ssh \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
-            --command "ls -la /home/LogFiles && tail -n 300 /home/LogFiles/platform-log-*.txt" || true
+            --command "ls -la /home/LogFiles && tail -n 500 /home/LogFiles/platform-log-*.txt" || true
 
-          echo "## Recent CMS container log"
+          echo "## CMS Umbraco logs"
+          az webapp ssh \
+            --name "${CMS_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP_NAME}" \
+            --command "ls -la /home/site/wwwroot/umbraco/Logs && tail -n 500 /home/site/wwwroot/umbraco/Logs/*" || true
+
+          echo "## CMS log stream"
           az webapp log tail \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
-            --timeout 90 || true
-
-          echo "## API App Service state"
-          az webapp show \
-            --name "${API_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,state:state,hostNames:enabledHostNames,defaultHostName:defaultHostName,healthCheckPath:siteConfig.healthCheckPath}" \
-            --output json || true
+            --timeout 120 || true
 
       - name: Write deployment summary
         shell: bash
