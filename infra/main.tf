@@ -98,8 +98,7 @@ resource "azurerm_key_vault_secret" "sql_connection_string" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [
-    azurerm_role_assignment.terraform_key_vault_secrets_officer,
-    azurerm_role_assignment.github_actions_key_vault_secrets_officer
+    azurerm_role_assignment.terraform_key_vault_secrets_officer
   ]
 }
 
@@ -109,8 +108,7 @@ resource "azurerm_key_vault_secret" "umbraco_hmac_secret_key" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [
-    azurerm_role_assignment.terraform_key_vault_secrets_officer,
-    azurerm_role_assignment.github_actions_key_vault_secrets_officer
+    azurerm_role_assignment.terraform_key_vault_secrets_officer
   ]
 }
 
@@ -234,10 +232,4 @@ resource "azurerm_role_assignment" "cms_key_vault_secrets_user" {
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_linux_web_app.cms.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "github_actions_key_vault_secrets_officer" {
-  scope                = azurerm_key_vault.main.id
-  role_definition_name = "Key Vault Secrets Officer"
-  principal_id         = "dee8b8b6-ce2b-41ea-aca0-47e8ad714dfc"
 }
