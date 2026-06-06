@@ -262,45 +262,65 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          echo "## API App Service settings"
-          az webapp config appsettings list \
+          echo "## Enable App Service filesystem logging"
+          az webapp log config \
+            --name "${CMS_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP_NAME}" \
+            --application-logging filesystem \
+            --level verbose \
+            --web-server-logging filesystem \
+            --detailed-error-messages true \
+            --failed-request-tracing true || true
+
+          az webapp log config \
             --name "${API_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "[].name" \
-            --output table || true
+            --application-logging filesystem \
+            --level verbose \
+            --web-server-logging filesystem \
+            --detailed-error-messages true \
+            --failed-request-tracing true || true
 
-          echo "## CMS App Service settings"
+          echo "## CMS App Service settings names"
           az webapp config appsettings list \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
             --query "[].name" \
             --output table || true
-
-          echo "## API App Service state"
-          az webapp show \
-            --name "${API_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,state:state,hostNames:enabledHostNames,defaultHostName:defaultHostName}" \
-            --output json || true
 
           echo "## CMS App Service state"
           az webapp show \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,state:state,hostNames:enabledHostNames,defaultHostName:defaultHostName}" \
+            --query "{name:name,state:state,hostNames:enabledHostNames,defaultHostName:defaultHostName,healthCheckPath:siteConfig.healthCheckPath}" \
             --output json || true
 
-          echo "## Recent API logs"
-          az webapp log tail \
-            --name "${API_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --timeout 60 || true
+          echo "## CMS /health/ready response"
+          curl -L -s "${CMS_PUBLIC_URL}health/ready" || true
+          echo ""
 
-          echo "## Recent CMS logs"
+          echo "## CMS /health/live response"
+          curl -L -s "${CMS_PUBLIC_URL}health/live" || true
+          echo ""
+
+          echo "## Recent CMS platform-log files"
+          az webapp ssh \
+            --name "${CMS_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP_NAME}" \
+            --command "ls -la /home/LogFiles && tail -n 300 /home/LogFiles/platform-log-*.txt" || true
+
+          echo "## Recent CMS container log"
           az webapp log tail \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
-            --timeout 60 || true
+            --timeout 90 || true
+
+          echo "## API App Service state"
+          az webapp show \
+            --name "${API_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP_NAME}" \
+            --query "{name:name,state:state,hostNames:enabledHostNames,defaultHostName:defaultHostName,healthCheckPath:siteConfig.healthCheckPath}" \
+            --output json || true
 
       - name: Write deployment summary
         shell: bash

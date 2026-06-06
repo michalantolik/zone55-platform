@@ -25,7 +25,8 @@ public static class HealthCheckResponseWriter
                 status = entry.Value.Status.ToString(),
                 description = entry.Value.Description,
                 duration = entry.Value.Duration.TotalMilliseconds,
-                error = entry.Value.Exception?.Message
+                error = entry.Value.Exception?.ToString(),
+                data = entry.Value.Data
             })
         };
 

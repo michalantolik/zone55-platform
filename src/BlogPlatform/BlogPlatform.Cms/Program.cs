@@ -10,28 +10,39 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 var sharedLogFilePath = GetSharedLogFilePath();
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-    .MinimumLevel.Override("Umbraco", LogEventLevel.Information)
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
+    .MinimumLevel.Override("Umbraco", LogEventLevel.Debug)
+    .MinimumLevel.Override("Umbraco.Cms.Infrastructure.Runtime", LogEventLevel.Debug)
+    .MinimumLevel.Override("Umbraco.Cms.Infrastructure.Install", LogEventLevel.Debug)
+    .MinimumLevel.Override("Umbraco.Cms.Core.Runtime", LogEventLevel.Debug)
     .Enrich.WithProperty("App", "CMS")
     .Enrich.FromLogContext()
     .WriteTo.Console(
-        outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] [{App}] {Message:lj}{NewLine}{Exception}")
+        outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] [{App}] {SourceContext}] {Message:lj}{NewLine}{Exception}")
     .WriteTo.File(
         sharedLogFilePath,
         rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14,
         shared: true,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{App}] {Message:lj}{NewLine}{Exception}")
+        flushToDiskInterval: TimeSpan.FromSeconds(1),
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{App}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
 try
 {
-    Log.Information("CMS builder created. Shared log file: {LogFilePath}", sharedLogFilePath);
+    Log.Information("========== CMS STARTUP BEGIN ==========");
+    Log.Information("CMS shared log file: {LogFilePath}", sharedLogFilePath);
+    Log.Information("CMS content root: {ContentRoot}", builder.Environment.ContentRootPath);
+    Log.Information("CMS environment: {Environment}", builder.Environment.EnvironmentName);
+    Log.Information("CMS application name: {ApplicationName}", builder.Environment.ApplicationName);
 
     AddAzureKeyVaultIfConfigured(builder.Configuration, "CMS");
+
+    LogStartupConfiguration(builder.Configuration);
 
     var applicationInsightsConnectionString =
         builder.Configuration["ApplicationInsights:ConnectionString"];
@@ -47,31 +58,21 @@ try
     }
     else
     {
-        Log.Information("CMS Application Insights telemetry is not configured.");
+        Log.Warning("CMS Application Insights telemetry is not configured.");
     }
 
-    var hmacKey = builder.Configuration["Umbraco:CMS:Imaging:HMACSecretKey"];
-
-    if (string.IsNullOrWhiteSpace(hmacKey))
-    {
-        throw new InvalidOperationException("Umbraco CMS Imaging HMACSecretKey is missing.");
-    }
-
-    if (hmacKey.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
-    {
-        throw new InvalidOperationException("Umbraco CMS Imaging HMACSecretKey uses a placeholder value.");
-    }
+    ValidateCriticalCmsConfiguration(builder.Configuration);
 
     if (builder.Environment.IsDevelopment())
     {
         Log.Information("CMS development mode detected. Ensuring database exists.");
-
         await builder.Configuration.EnsureCmsDatabaseCreatedAsync();
-
         Log.Information("CMS database check completed.");
     }
 
     builder.Services.AddBlogPlatformCmsServices(builder.Configuration);
+
+    Log.Information("CMS registering Umbraco builder.");
 
     builder.CreateUmbracoBuilder()
         .AddBackOffice()
@@ -79,6 +80,8 @@ try
         .AddDeliveryApi()
         .AddComposers()
         .Build();
+
+    Log.Information("CMS building web application.");
 
     WebApplication app = builder.Build();
 
@@ -125,12 +128,19 @@ try
     app.MapControllers();
 
     Log.Information("CMS application built.");
-    Log.Information("CMS environment: {EnvironmentName}", app.Environment.EnvironmentName);
     Log.Information("CMS booting Umbraco.");
 
-    await app.BootUmbracoAsync();
+    try
+    {
+        await app.BootUmbracoAsync();
+        Log.Information("CMS Umbraco boot completed.");
+    }
+    catch (Exception bootException)
+    {
+        Log.Fatal(bootException, "CMS Umbraco boot failed during BootUmbracoAsync.");
+        throw;
+    }
 
-    Log.Information("CMS Umbraco boot completed.");
     Log.Information("CMS initializing BlogPlatform custom storage after Umbraco boot.");
 
     await app.Services.InitializeCmsStorageAsync();
@@ -151,7 +161,8 @@ try
             u.UseWebsiteEndpoints();
         });
 
-    Log.Information("CMS starting.");
+    Log.Information("CMS starting web host.");
+    Log.Information("========== CMS STARTUP READY ==========");
 
     await app.RunAsync();
 }
@@ -173,7 +184,7 @@ static void AddAzureKeyVaultIfConfigured(
 
     if (string.IsNullOrWhiteSpace(keyVaultUri))
     {
-        Log.Information("{ApplicationName} Azure Key Vault is not configured.", applicationName);
+        Log.Warning("{ApplicationName} Azure Key Vault is not configured.", applicationName);
         return;
     }
 
@@ -185,12 +196,98 @@ static void AddAzureKeyVaultIfConfigured(
     configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
 
     Log.Information(
-        "{ApplicationName} Azure Key Vault configuration provider is enabled.",
-        applicationName);
+        "{ApplicationName} Azure Key Vault configuration provider is enabled. VaultUri: {VaultUri}",
+        applicationName,
+        keyVaultUri);
+}
+
+static void ValidateCriticalCmsConfiguration(IConfiguration configuration)
+{
+    RequireConfigured(configuration, "ConnectionStrings:umbracoDbDSN");
+    RequireConfigured(configuration, "ConnectionStrings:umbracoDbDSN_ProviderName");
+    RequireConfigured(configuration, "Umbraco:CMS:Imaging:HMACSecretKey");
+
+    if (configuration.GetValue<bool>("Umbraco:CMS:Unattended:InstallUnattended"))
+    {
+        RequireConfigured(configuration, "Umbraco:CMS:Unattended:UnattendedUserName");
+        RequireConfigured(configuration, "Umbraco:CMS:Unattended:UnattendedUserEmail");
+        RequireConfigured(configuration, "Umbraco:CMS:Unattended:UnattendedUserPassword");
+    }
+
+    Log.Information("CMS critical configuration validation completed.");
+}
+
+static void RequireConfigured(IConfiguration configuration, string key)
+{
+    var value = configuration[key];
+
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        throw new InvalidOperationException($"Required CMS configuration key is missing: {key}");
+    }
+
+    if (value.StartsWith("SET_WITH", StringComparison.OrdinalIgnoreCase))
+    {
+        throw new InvalidOperationException($"Required CMS configuration key uses placeholder value: {key}");
+    }
+}
+
+static void LogStartupConfiguration(IConfiguration configuration)
+{
+    Log.Information("CMS startup configuration snapshot:");
+
+    LogConfigurationPresence(configuration, "KeyVault:VaultUri", secret: false);
+    LogConfigurationPresence(configuration, "ApplicationInsights:ConnectionString", secret: true);
+    LogConfigurationPresence(configuration, "ConnectionStrings:umbracoDbDSN", secret: true);
+    LogConfigurationPresence(configuration, "ConnectionStrings:umbracoDbDSN_ProviderName", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Global:UseHttps", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Global:InstallMissingDatabase", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Runtime:Mode", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:ModelsBuilder:ModelsMode", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Unattended:InstallUnattended", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Unattended:UpgradeUnattended", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Unattended:UnattendedUserName", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Unattended:UnattendedUserEmail", secret: false);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Unattended:UnattendedUserPassword", secret: true);
+    LogConfigurationPresence(configuration, "Umbraco:CMS:Imaging:HMACSecretKey", secret: true);
+}
+
+static void LogConfigurationPresence(
+    IConfiguration configuration,
+    string key,
+    bool secret)
+{
+    var value = configuration[key];
+
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        Log.Warning("CONFIG {Key}: MISSING", key);
+        return;
+    }
+
+    if (secret)
+    {
+        Log.Information("CONFIG {Key}: SET length={Length}", key, value.Length);
+        return;
+    }
+
+    Log.Information("CONFIG {Key}: {Value}", key, value);
 }
 
 static string GetSharedLogFilePath()
 {
+    var home = Environment.GetEnvironmentVariable("HOME");
+
+    if (!string.IsNullOrWhiteSpace(home))
+    {
+        var azureLogFiles = Path.Combine(home, "LogFiles");
+
+        if (Directory.Exists(azureLogFiles))
+        {
+            return Path.Combine(azureLogFiles, "platform-log-.txt");
+        }
+    }
+
     var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
     while (directory is not null)
