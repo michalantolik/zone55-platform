@@ -214,8 +214,8 @@ resource "azurerm_linux_web_app" "cms" {
     "UmbracoDeliveryApi__StaleCacheSeconds"      = "3600"
 
     "BlogPreview__AppPreviewUrl" = "${local.app_url}/preview/article"
-	
-	"BlogContentSeedOperations__ApiKey" = var.blog_content_seed_api_key
+
+    "BlogContentSeedOperations__ApiKey" = var.blog_content_seed_api_key
   }
 }
 

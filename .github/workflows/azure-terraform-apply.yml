@@ -25,6 +25,8 @@ env:
   TF_VAR_umbraco_admin_name: ${{ secrets.TF_VAR_UMBRACO_ADMIN_NAME }}
   TF_VAR_umbraco_admin_email: ${{ secrets.TF_VAR_UMBRACO_ADMIN_EMAIL }}
   TF_VAR_umbraco_admin_password: ${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }}
+  
+  TF_VAR_blog_content_seed_api_key: ${{ secrets.BLOG_CONTENT_SEED_API_KEY }}
 
 jobs:
   terraform-apply:
@@ -67,6 +69,7 @@ jobs:
           check_secret "TF_VAR_UMBRACO_ADMIN_NAME" "${{ secrets.TF_VAR_UMBRACO_ADMIN_NAME }}"
           check_secret "TF_VAR_UMBRACO_ADMIN_EMAIL" "${{ secrets.TF_VAR_UMBRACO_ADMIN_EMAIL }}"
           check_secret "TF_VAR_UMBRACO_ADMIN_PASSWORD" "${{ secrets.TF_VAR_UMBRACO_ADMIN_PASSWORD }}"
+          check_secret "BLOG_CONTENT_SEED_API_KEY" "${{ secrets.BLOG_CONTENT_SEED_API_KEY }}"
 
           if [ "$missing" -ne 0 ]; then
             exit 1
