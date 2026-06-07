@@ -19,7 +19,7 @@ Infrastructure provisioning through Terraform:
 * Azure Static Web App
 * System-assigned managed identities for API and CMS
 * Key Vault secrets
-* Key Vault access policies
+* Key Vault RBAC role assignments
 * Remote Terraform state backend
 * API App Service health check
 * CMS App Service health check
@@ -54,6 +54,7 @@ GitHub Actions:
 * OIDC authentication to Azure
 * Deployment smoke checks through `check-url.sh`
 * Build artifact upload using Node.js 24 compatible artifact action
+* First full `Azure deploy` workflow completed successfully
 
 ---
 
@@ -72,7 +73,6 @@ GitHub Actions:
 
 ## Remaining
 
-* Run first full `Azure deploy` workflow
 * Deploy latest application packages to Azure
 * Verify Blazor frontend loads from Azure Static Web Apps
 * Verify Blazor frontend calls the Azure API URL
