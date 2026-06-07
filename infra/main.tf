@@ -137,7 +137,10 @@ resource "azurerm_linux_web_app" "api" {
   }
 
   app_settings = {
-    "ASPNETCORE_ENVIRONMENT"                = "Production"
+    "ASPNETCORE_ENVIRONMENT" = "Production"
+    "ASPNETCORE_URLS"        = "http://+:8080"
+    "WEBSITES_PORT"          = "8080"
+
     "ApplicationInsights__ConnectionString" = azurerm_application_insights.main.connection_string
     "KeyVault__VaultUri"                    = azurerm_key_vault.main.vault_uri
 
@@ -179,22 +182,25 @@ resource "azurerm_linux_web_app" "cms" {
   }
 
   app_settings = {
-    "ASPNETCORE_ENVIRONMENT"                = "Production"
+    "ASPNETCORE_ENVIRONMENT" = "Production"
+    "ASPNETCORE_URLS"        = "http://+:8080"
+    "WEBSITES_PORT"          = "8080"
+
     "ApplicationInsights__ConnectionString" = azurerm_application_insights.main.connection_string
     "KeyVault__VaultUri"                    = azurerm_key_vault.main.vault_uri
 
     "ConnectionStrings__umbracoDbDSN"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_connection_string.versionless_id})"
     "ConnectionStrings__umbracoDbDSN_ProviderName" = "Microsoft.Data.SqlClient"
 
-    "Umbraco__CMS__Global__UseHttps"                   = "true"
-	"Umbraco__CMS__Global__InstallMissingDatabase"     = "true"
-    "Umbraco__CMS__Runtime__Mode"                      = "Production"
-	"Umbraco__CMS__WebRouting__UmbracoApplicationUrl"  = "${local.cms_url}/"
-    "Umbraco__CMS__ModelsBuilder__ModelsMode"          = "Nothing"
-    "Umbraco__CMS__Imaging__HMACSecretKey"             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.umbraco_hmac_secret_key.versionless_id})"
+    "Umbraco__CMS__Global__UseHttps"                  = "true"
+    "Umbraco__CMS__Global__InstallMissingDatabase"    = "true"
+    "Umbraco__CMS__Runtime__Mode"                     = "Production"
+    "Umbraco__CMS__WebRouting__UmbracoApplicationUrl" = "${local.cms_url}/"
+    "Umbraco__CMS__ModelsBuilder__ModelsMode"         = "Nothing"
+    "Umbraco__CMS__Imaging__HMACSecretKey"            = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.umbraco_hmac_secret_key.versionless_id})"
 
     "Umbraco__CMS__Unattended__InstallUnattended"      = "true"
-	"Umbraco__CMS__Unattended__UpgradeUnattended"      = "true"	
+    "Umbraco__CMS__Unattended__UpgradeUnattended"      = "true"
     "Umbraco__CMS__Unattended__UnattendedUserName"     = var.umbraco_admin_name
     "Umbraco__CMS__Unattended__UnattendedUserEmail"    = var.umbraco_admin_email
     "Umbraco__CMS__Unattended__UnattendedUserPassword" = var.umbraco_admin_password
