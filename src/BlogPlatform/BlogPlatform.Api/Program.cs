@@ -1,4 +1,3 @@
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using BlogPlatform.Api;
 using BlogPlatform.Api.Health;
@@ -71,6 +70,23 @@ app.UseAuthorization();
 app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());
 app.MapHealthChecks("/health/live", HealthCheckResponseWriter.ChecksByTag("live"));
 app.MapHealthChecks("/health/ready", HealthCheckResponseWriter.ChecksByTag("ready"));
+
+app.MapGet("/", () => Results.Ok(new
+{
+    Application = "BlogPlatform.Api",
+    Status = "Running",
+    Health = new
+    {
+        Live = "/health/live",
+        Ready = "/health/ready"
+    },
+    Endpoints = new[]
+    {
+        "/api/posts/home",
+        "/api/posts",
+        "/api/roadmap"
+    }
+}));
 
 app.MapControllers();
 

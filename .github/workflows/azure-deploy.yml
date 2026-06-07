@@ -186,6 +186,20 @@ jobs:
           --configuration ${{ env.CONFIGURATION }}
           --no-build
           --output ./artifacts/app
+          
+      - name: Validate Blazor publish artifact
+        shell: bash
+        run: |
+          test -f ./artifacts/app/wwwroot/index.html
+          test -f ./artifacts/app/wwwroot/_framework/blazor.webassembly.js
+          test -f ./artifacts/app/wwwroot/staticwebapp.config.json
+
+          if grep -R "{fingerprint}" ./artifacts/app/wwwroot/index.html; then
+            echo "::error::Blazor index.html still contains unresolved fingerprint placeholder."
+            exit 1
+          fi
+
+          echo "Blazor publish artifact is valid."          
 
       - name: Deploy CMS App Service
         uses: azure/webapps-deploy@v3
@@ -262,6 +276,11 @@ jobs:
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/posts/home" "API home endpoint"
+          
+      - name: Check API root endpoint
+        shell: bash
+        run: |
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}" "API root endpoint"          
 
       - name: Verify Azure runtime app settings
         shell: bash
@@ -299,6 +318,11 @@ jobs:
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
+          
+      - name: Check Blazor framework file
+        shell: bash
+        run: |
+          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}_framework/blazor.webassembly.js" "Blazor WebAssembly boot script"          
 
       - name: Collect App Service diagnostics on failure
         if: failure()
