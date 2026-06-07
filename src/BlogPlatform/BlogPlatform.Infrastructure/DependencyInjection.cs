@@ -49,6 +49,8 @@ public static class DependencyInjection
                 "UmbracoDeliveryApi:RetryDelayMilliseconds must be greater than or equal to zero.")
             .ValidateOnStart();
 
+        services.AddScoped<IBlogContentCacheRefreshService, BlogContentCacheRefreshService>();
+
         services.AddHttpClient<IBlogPostRepository, UmbracoDeliveryApiBlogPostRepository>(
             (serviceProvider, client) =>
             {

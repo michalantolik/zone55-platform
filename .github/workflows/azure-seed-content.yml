@@ -80,12 +80,18 @@ jobs:
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
             -backend-config="key=${{ secrets.TF_STATE_KEY }}"
 
+          echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
           echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
 
       - name: Check CMS ready health
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
+
+      - name: Check API ready health
+        shell: bash
+        run: |
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
 
       - name: Seed Azure database
         shell: bash
@@ -106,13 +112,35 @@ jobs:
 
           echo "$response" > seed-result.json
 
+      - name: Refresh API content cache
+        shell: bash
+        run: |
+          response=$(curl -sS -X POST \
+            "${API_PUBLIC_URL}api/blog-content-cache/refresh" \
+            -H "X-BlogPlatform-Seed-Key: ${{ secrets.BLOG_CONTENT_SEED_API_KEY }}" \
+            -H "Accept: application/json")
+
+          echo "$response"
+
+          success=$(echo "$response" | jq -r '.success')
+
+          if [ "$success" != "true" ]; then
+            echo "::error::API content cache refresh failed."
+            exit 1
+          fi
+
+          echo "$response" > cache-refresh-result.json
+
       - name: Write seed summary
         shell: bash
         run: |
           zones=$(jq -r '.zones' seed-result.json)
           steps=$(jq -r '.zoneSteps' seed-result.json)
           articles=$(jq -r '.articles' seed-result.json)
-          completed=$(jq -r '.completedAtUtc' seed-result.json)
+          seed_completed=$(jq -r '.completedAtUtc' seed-result.json)
+
+          cached_posts=$(jq -r '.posts' cache-refresh-result.json)
+          cache_completed=$(jq -r '.completedAtUtc' cache-refresh-result.json)
 
           {
             echo "## Azure content seed summary"
@@ -122,6 +150,9 @@ jobs:
             echo "| Zones | ${zones} |"
             echo "| Zone steps | ${steps} |"
             echo "| Articles | ${articles} |"
+            echo "| API cached posts | ${cached_posts} |"
             echo ""
-            echo "Seed completed at: ${completed}"
+            echo "Seed completed at: ${seed_completed}"
+            echo ""
+            echo "API cache refreshed at: ${cache_completed}"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -11,8 +11,6 @@ namespace BlogPlatform.Infrastructure.Cms;
 
 public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 {
-    private const string PostsCacheKey = "cms-post-details";
-
     private static readonly SemaphoreSlim PostsLoadLock = new(1, 1);
 
     private readonly HttpClient _httpClient;
@@ -43,14 +41,10 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
     {
         var now = DateTimeOffset.UtcNow;
 
-        if (_cache.TryGetValue(PostsCacheKey, out PostsCacheEntry? cachedEntry) &&
+        if (_cache.TryGetValue(BlogContentCacheKeys.Posts, out PostsCacheEntry? cachedEntry) &&
             cachedEntry is not null &&
             cachedEntry.FreshUntil > now)
         {
-            _logger.LogDebug(
-                "API CMS posts fresh cache hit. Count: {Count}",
-                cachedEntry.Posts.Count);
-
             return cachedEntry.Posts;
         }
 
@@ -60,23 +54,14 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         {
             now = DateTimeOffset.UtcNow;
 
-            if (_cache.TryGetValue(PostsCacheKey, out cachedEntry) &&
+            if (_cache.TryGetValue(BlogContentCacheKeys.Posts, out cachedEntry) &&
                 cachedEntry is not null &&
                 cachedEntry.FreshUntil > now)
             {
-                _logger.LogDebug(
-                    "API CMS posts fresh cache hit after wait. Count: {Count}",
-                    cachedEntry.Posts.Count);
-
                 return cachedEntry.Posts;
             }
 
             var stopwatch = Stopwatch.StartNew();
-
-            _logger.LogInformation(
-                "API CMS posts cache miss or stale cache. Calling CMS. Base address: {BaseAddress}. Endpoint: {Endpoint}",
-                _httpClient.BaseAddress,
-                _options.PostsEndpoint);
 
             try
             {
@@ -85,11 +70,6 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
                     cancellationToken);
 
                 CachePosts(posts);
-
-                _logger.LogInformation(
-                    "API received CMS posts. Count: {Count}. Duration: {ElapsedMs} ms",
-                    posts.Count,
-                    stopwatch.ElapsedMilliseconds);
 
                 return posts;
             }
@@ -106,8 +86,7 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
             {
                 _logger.LogError(
                     ex,
-                    "API could not load CMS posts and no stale cache exists yet. Returning an empty post list. Duration: {ElapsedMs} ms",
-                    stopwatch.ElapsedMilliseconds);
+                    "API could not load CMS posts and no stale cache exists yet.");
 
                 return [];
             }
@@ -128,9 +107,7 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         {
             try
             {
-                return await FetchPostsFromCmsAsync(
-                    stopwatch,
-                    cancellationToken);
+                return await FetchPostsFromCmsAsync(stopwatch, cancellationToken);
             }
             catch (Exception ex) when (
                 attempt < maxAttempts &&
@@ -142,18 +119,16 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 
                 _logger.LogWarning(
                     ex,
-                    "CMS content endpoint failed on attempt {Attempt}/{MaxAttempts}. Retrying in {DelayMs} ms. Duration: {ElapsedMs} ms",
+                    "CMS content endpoint failed on attempt {Attempt}/{MaxAttempts}. Retrying in {DelayMs} ms.",
                     attempt,
                     maxAttempts,
-                    delay.TotalMilliseconds,
-                    stopwatch.ElapsedMilliseconds);
+                    delay.TotalMilliseconds);
 
                 await Task.Delay(delay, cancellationToken);
             }
         }
 
-        throw new InvalidOperationException(
-            "Unexpected CMS retry flow state.");
+        throw new InvalidOperationException("Unexpected CMS retry flow state.");
     }
 
     private async Task<List<Post>> FetchPostsFromCmsAsync(
@@ -167,8 +142,7 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
 
         if (!response.IsSuccessStatusCode)
         {
-            var responseBody = await response.Content.ReadAsStringAsync(
-                cancellationToken);
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
             _logger.LogError(
                 "CMS content endpoint failed. Status: {StatusCode}. Duration: {ElapsedMs} ms. Body: {ResponseBody}",
@@ -182,30 +156,22 @@ public sealed class UmbracoDeliveryApiBlogPostRepository : IBlogPostRepository
         var cmsPosts = await response.Content.ReadFromJsonAsync<List<CmsPostDto>>(
             cancellationToken: cancellationToken);
 
-        var posts = cmsPosts?
+        return cmsPosts?
             .Select(CmsPostMapper.ToDomainPost)
             .ToList() ?? [];
-
-        _logger.LogInformation(
-            "API mapped CMS article DTOs to domain posts. Count: {Count}",
-            posts.Count);
-
-        return posts;
     }
 
     private void CachePosts(List<Post> posts)
     {
-        var freshCacheDuration = TimeSpan.FromSeconds(_options.FreshCacheSeconds);
-        var staleCacheDuration = TimeSpan.FromSeconds(_options.StaleCacheSeconds);
-
         _cache.Set(
-            PostsCacheKey,
+            BlogContentCacheKeys.Posts,
             new PostsCacheEntry(
                 posts,
-                DateTimeOffset.UtcNow.Add(freshCacheDuration)),
+                DateTimeOffset.UtcNow.AddSeconds(_options.FreshCacheSeconds)),
             new MemoryCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = staleCacheDuration,
+                AbsoluteExpirationRelativeToNow =
+                    TimeSpan.FromSeconds(_options.StaleCacheSeconds),
                 Priority = CacheItemPriority.High
             });
     }
