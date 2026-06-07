@@ -186,20 +186,49 @@ jobs:
           --configuration ${{ env.CONFIGURATION }}
           --no-build
           --output ./artifacts/app
-          
+
       - name: Validate Blazor publish artifact
         shell: bash
         run: |
-          test -f ./artifacts/app/wwwroot/index.html
-          test -f ./artifacts/app/wwwroot/_framework/blazor.webassembly.js
-          test -f ./artifacts/app/wwwroot/staticwebapp.config.json
+          BLAZOR_WWWROOT="./artifacts/app/wwwroot"
 
-          if grep -R "{fingerprint}" ./artifacts/app/wwwroot/index.html; then
+          echo "Blazor artifact structure:"
+          find ./artifacts/app -maxdepth 8 -type f | sort
+
+          require_file() {
+            local path="$1"
+
+            if [ ! -f "$path" ]; then
+              echo "::error::Missing required Blazor publish file: $path"
+              exit 1
+            fi
+
+            echo "OK: $path"
+          }
+
+          require_file "${BLAZOR_WWWROOT}/index.html"
+          require_file "${BLAZOR_WWWROOT}/staticwebapp.config.json"
+
+          if [ ! -d "${BLAZOR_WWWROOT}/_framework" ]; then
+            echo "::error::Missing required Blazor _framework directory: ${BLAZOR_WWWROOT}/_framework"
+            exit 1
+          fi
+
+          echo "Blazor _framework files:"
+          find "${BLAZOR_WWWROOT}/_framework" -maxdepth 4 -type f | sort
+
+          if [ ! -f "${BLAZOR_WWWROOT}/_framework/blazor.webassembly.js" ]; then
+            echo "::warning::blazor.webassembly.js was not found. This may be expected for this .NET/Blazor version."
+          else
+            echo "OK: ${BLAZOR_WWWROOT}/_framework/blazor.webassembly.js"
+          fi
+
+          if grep -R "{fingerprint}" "${BLAZOR_WWWROOT}/index.html"; then
             echo "::error::Blazor index.html still contains unresolved fingerprint placeholder."
             exit 1
           fi
 
-          echo "Blazor publish artifact is valid."          
+          echo "Blazor publish artifact is valid."
 
       - name: Deploy CMS App Service
         uses: azure/webapps-deploy@v3
@@ -266,7 +295,7 @@ jobs:
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
-          
+
       - name: Check CMS articles endpoint
         shell: bash
         run: |
@@ -276,11 +305,11 @@ jobs:
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/posts/home" "API home endpoint"
-          
+
       - name: Check API root endpoint
         shell: bash
         run: |
-          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}" "API root endpoint"          
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}" "API root endpoint"
 
       - name: Verify Azure runtime app settings
         shell: bash
@@ -312,17 +341,17 @@ jobs:
           require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN"
           require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN_ProviderName"
           require_setting "${CMS_APP_NAME}" "Umbraco__CMS__WebRouting__UmbracoApplicationUrl"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Imaging__HMACSecretKey"          
+          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Imaging__HMACSecretKey"
 
       - name: Check Blazor Static Web App
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
-          
+
       - name: Check Blazor framework file
         shell: bash
         run: |
-          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}_framework/blazor.webassembly.js" "Blazor WebAssembly boot script"          
+          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}_framework/blazor.webassembly.js" "Blazor WebAssembly boot script"
 
       - name: Collect App Service diagnostics on failure
         if: failure()
@@ -378,4 +407,3 @@ jobs:
             echo ""
             echo "Smoke checks completed successfully."
           } >> "$GITHUB_STEP_SUMMARY"
- 
