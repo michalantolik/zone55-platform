@@ -155,8 +155,8 @@ resource "azurerm_linux_web_app" "api" {
     "UmbracoDeliveryApi__TimeoutSeconds"         = "30"
     "UmbracoDeliveryApi__RetryCount"             = "3"
     "UmbracoDeliveryApi__RetryDelayMilliseconds" = "1500"
-	
-	"BlogContentCacheOperations__ApiKey"         = var.blog_content_seed_api_key
+
+    "BlogContentCacheOperations__ApiKey" = var.blog_content_seed_api_key
   }
 }
 
