@@ -42,3 +42,9 @@ variable "umbraco_admin_password" {
   type      = string
   sensitive = true
 }
+
+variable "blog_content_seed_api_key" {
+  description = "Secret key used by GitHub Actions to trigger protected blog seed import."
+  type        = string
+  sensitive   = true
+}

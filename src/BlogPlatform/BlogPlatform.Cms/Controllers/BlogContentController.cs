@@ -1,5 +1,7 @@
 ﻿using BlogPlatform.Cms.BlogContent;
+using BlogPlatform.Cms.Seeding;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,11 +14,16 @@ public sealed class BlogContentController : ControllerBase
 {
     private readonly IBlogContentAdminService _blogContent;
     private readonly ILogger<BlogContentController> _logger;
+    private readonly BlogContentSeedOperationsOptions _seedOptions;
 
-    public BlogContentController(IBlogContentAdminService blogContent, ILogger<BlogContentController> logger)
+    public BlogContentController(
+        IBlogContentAdminService blogContent,
+        ILogger<BlogContentController> logger,
+        IOptions<BlogContentSeedOperationsOptions> seedOptions)
     {
         _blogContent = blogContent;
         _logger = logger;
+        _seedOptions = seedOptions.Value;
     }
 
     [HttpGet("dotnet-roadmap")]
@@ -77,6 +84,53 @@ public sealed class BlogContentController : ControllerBase
             _logger.LogError(ex, "Seed export failed.");
             throw;
         }
+    }
+
+    [HttpPost("seed-import/admin")]
+    public async Task<ActionResult<CmsSeedImportResponse>> ImportSeedContentFromAdmin(
+    CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Admin seed import requested.");
+
+        var result = await _blogContent.ImportSeedContentAsync(cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPost("seed-import/github")]
+    public async Task<ActionResult<CmsSeedImportResponse>> ImportSeedContentFromGitHub(
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(_seedOptions.ApiKey))
+        {
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new CmsSeedImportResponse(
+                    false,
+                    "Seed API key is not configured.",
+                    0,
+                    0,
+                    0,
+                    DateTimeOffset.UtcNow));
+        }
+
+        if (!Request.Headers.TryGetValue("X-BlogPlatform-Seed-Key", out var providedKey) ||
+            providedKey != _seedOptions.ApiKey)
+        {
+            return Unauthorized(new CmsSeedImportResponse(
+                false,
+                "Invalid seed API key.",
+                0,
+                0,
+                0,
+                DateTimeOffset.UtcNow));
+        }
+
+        _logger.LogInformation("GitHub seed import requested.");
+
+        var result = await _blogContent.ImportSeedContentAsync(cancellationToken);
+
+        return Ok(result);
     }
 
     [HttpGet("document-types")]

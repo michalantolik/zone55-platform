@@ -112,3 +112,11 @@ public sealed record CmsReorderArticlesResponse(
     bool Success,
     string Message,
     IReadOnlyCollection<CmsReorderArticleListItemDto> Articles);
+
+public sealed record CmsSeedImportResponse(
+    bool Success,
+    string Message,
+    int Zones,
+    int ZoneSteps,
+    int Articles,
+    DateTimeOffset CompletedAtUtc);

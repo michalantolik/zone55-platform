@@ -1,0 +1,127 @@
+name: Azure seed content
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: azure-seed-content
+  cancel-in-progress: false
+
+env:
+  TERRAFORM_VERSION: 1.13.5
+
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_USE_OIDC: true
+
+jobs:
+  seed:
+    name: Seed Azure blog content
+    runs-on: ubuntu-latest
+    environment: azure-dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          missing=0
+
+          check_secret() {
+            local name="$1"
+            local value="$2"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required secret: $name"
+              missing=1
+            fi
+          }
+
+          check_secret "AZURE_CLIENT_ID" "${{ secrets.AZURE_CLIENT_ID }}"
+          check_secret "AZURE_TENANT_ID" "${{ secrets.AZURE_TENANT_ID }}"
+          check_secret "AZURE_SUBSCRIPTION_ID" "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          check_secret "TF_STATE_RESOURCE_GROUP_NAME" "${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}"
+          check_secret "TF_STATE_STORAGE_ACCOUNT_NAME" "${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}"
+          check_secret "TF_STATE_CONTAINER_NAME" "${{ secrets.TF_STATE_CONTAINER_NAME }}"
+          check_secret "TF_STATE_KEY" "${{ secrets.TF_STATE_KEY }}"
+          check_secret "BLOG_CONTENT_SEED_API_KEY" "${{ secrets.BLOG_CONTENT_SEED_API_KEY }}"
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Read Terraform outputs
+        working-directory: infra
+        shell: bash
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}" \
+            -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}" \
+            -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
+            -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+
+          echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
+
+      - name: Check CMS ready health
+        shell: bash
+        run: |
+          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
+
+      - name: Seed Azure database
+        shell: bash
+        run: |
+          response=$(curl -sS -X POST \
+            "${CMS_PUBLIC_URL}api/blog-content/seed-import/github" \
+            -H "X-BlogPlatform-Seed-Key: ${{ secrets.BLOG_CONTENT_SEED_API_KEY }}" \
+            -H "Accept: application/json")
+
+          echo "$response"
+
+          success=$(echo "$response" | jq -r '.success')
+
+          if [ "$success" != "true" ]; then
+            echo "::error::Seed import failed."
+            exit 1
+          fi
+
+          echo "$response" > seed-result.json
+
+      - name: Write seed summary
+        shell: bash
+        run: |
+          zones=$(jq -r '.zones' seed-result.json)
+          steps=$(jq -r '.zoneSteps' seed-result.json)
+          articles=$(jq -r '.articles' seed-result.json)
+          completed=$(jq -r '.completedAtUtc' seed-result.json)
+
+          {
+            echo "## Azure content seed summary"
+            echo ""
+            echo "| Item | Count |"
+            echo "|---|---:|"
+            echo "| Zones | ${zones} |"
+            echo "| Zone steps | ${steps} |"
+            echo "| Articles | ${articles} |"
+            echo ""
+            echo "Seed completed at: ${completed}"
+          } >> "$GITHUB_STEP_SUMMARY"

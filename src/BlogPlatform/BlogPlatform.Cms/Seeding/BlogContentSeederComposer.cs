@@ -1,7 +1,5 @@
 ﻿using BlogPlatform.Cms.Seeding.Blocks;
-using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
 
 namespace BlogPlatform.Cms.Seeding;
 
@@ -11,6 +9,9 @@ public sealed class BlogContentSeederComposer : IComposer
     {
         builder.Services.Configure<BlogContentSeederOptions>(
             builder.Config.GetSection("BlogContentSeeder"));
+
+        builder.Services.Configure<BlogContentSeedOperationsOptions>(
+            builder.Config.GetSection("BlogContentSeedOperations"));
 
         builder.Services.AddSingleton<ISeedBlockSerializationStrategy, TextSeedBlockSerializationStrategy>();
         builder.Services.AddSingleton<ISeedBlockSerializationStrategy, HeadingSeedBlockSerializationStrategy>();

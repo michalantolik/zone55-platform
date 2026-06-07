@@ -68,4 +68,7 @@ public interface IBlogContentAdminService
         string zoneKey,
         string stepKey,
         CancellationToken cancellationToken);
+
+    Task<CmsSeedImportResponse> ImportSeedContentAsync(
+        CancellationToken cancellationToken);
 }

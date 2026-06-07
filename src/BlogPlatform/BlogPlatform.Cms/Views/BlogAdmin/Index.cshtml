@@ -943,6 +943,39 @@
             box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
         }
 
+.database-seed-card {
+    margin-top: 18px;
+    border-color: rgba(53, 208, 127, 0.38);
+    background:
+        radial-gradient(circle at bottom right, rgba(53, 208, 127, 0.16), transparent 16rem),
+        rgba(4, 17, 29, 0.9);
+}
+
+.database-seed-button {
+    background: linear-gradient(135deg, #35d07f, #1677ff);
+}
+
+.seed-import-result {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid rgba(53, 208, 127, 0.42);
+    border-radius: 14px;
+    background: rgba(53, 208, 127, 0.12);
+    color: #d9ffe9;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.seed-import-result.error {
+    border-color: rgba(208, 56, 77, 0.55);
+    background: rgba(208, 56, 77, 0.13);
+    color: #ffd8de;
+}
+
+.hidden {
+    display: none;
+}
+
         .database-card {
             position: relative;
             overflow: hidden;
@@ -1151,6 +1184,25 @@
                         <span>Save blog-content.seed.json</span>
                     </button>
                 </div>
+
+                <div class="database-export-card database-seed-card">
+    <div>
+        <div class="database-export-kicker">Import seed file</div>
+        <h3>Seed Azure database</h3>
+        <p>
+            Import zones, zone steps and articles from the deployed
+            <strong>blog-content.seed.json</strong> file. Use this after deployment
+            when the Azure database is empty or needs to be refreshed from seed content.
+        </p>
+
+        <div id="seedImportResult" class="seed-import-result hidden"></div>
+    </div>
+
+    <button id="seedImportButton" class="database-export-button database-seed-button" type="button" onclick="importSeedContent()">
+        <span class="database-export-button-icon">✨</span>
+        <span>Seed database now</span>
+    </button>
+</div>
             </section>
 
             <section id="articlesPanel" class="panel">
@@ -1363,6 +1415,64 @@
 
         function exportSeedContent() {
             window.location.href = "/api/blog-content/seed-export";
+        }
+
+        async function importSeedContent() {
+            const confirmed = window.confirm(
+                "Seed database from blog-content.seed.json?\n\nThis will create or update zones, steps and articles from the deployed seed file."
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            const button = document.getElementById("seedImportButton");
+            const resultBox = document.getElementById("seedImportResult");
+
+            button.disabled = true;
+            button.innerHTML = `
+                <span class="database-export-button-icon">⏳</span>
+                <span>Seeding database...</span>
+            `;
+
+            resultBox.classList.remove("hidden", "error");
+            resultBox.innerHTML = "Preparing seed import...";
+
+            try {
+                const response = await fetch("/api/blog-content/seed-import/admin", {
+                    method: "POST"
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message ?? "Seed import failed.");
+                }
+
+                databaseSummary = {
+                    zones: result.zones,
+                    zoneSteps: result.zoneSteps,
+                    articles: result.articles
+                };
+
+                renderDatabase();
+
+                resultBox.innerHTML = `
+                    ✅ Seed import completed.<br />
+                    ${result.zones} zones, ${result.zoneSteps} steps, ${result.articles} articles are now in database.
+                `;
+            }
+            catch (error) {
+                resultBox.classList.add("error");
+                resultBox.innerHTML = `❌ ${error.message}`;
+            }
+            finally {
+                button.disabled = false;
+                button.innerHTML = `
+                    <span class="database-export-button-icon">✨</span>
+                    <span>Seed database now</span>
+                `;
+            }
         }
 
         function renderZones() {

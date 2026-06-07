@@ -22,6 +22,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
     private readonly IRoadmapQueryService _roadmapQueries;
     private readonly IRoadmapCommandService _roadmapCommands;
     private readonly BlogSeedBlockSerializationService _blockSerialization;
+    private readonly BlogContentSeeder _contentSeeder;
 
     public BlogContentAdminService(
         IContentService contentService,
@@ -30,7 +31,8 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         IMemoryCache cache,
         IRoadmapQueryService roadmapQueries,
         IRoadmapCommandService roadmapCommands,
-        BlogSeedBlockSerializationService blockSerialization)
+        BlogSeedBlockSerializationService blockSerialization,
+        BlogContentSeeder contentSeeder)
     {
         _contentService = contentService;
         _contentTypeService = contentTypeService;
@@ -39,6 +41,7 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         _roadmapQueries = roadmapQueries;
         _roadmapCommands = roadmapCommands;
         _blockSerialization = blockSerialization;
+        _contentSeeder = contentSeeder;
     }
 
     public async Task<IReadOnlyCollection<CmsDotnetZoneListItemDto>> GetDotnetRoadmapAsync(
@@ -530,6 +533,32 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         ClearCachesIfSuccessful(result);
 
         return new CmsDeleteResponse(result.Success, result.Message);
+    }
+
+    public async Task<CmsSeedImportResponse> ImportSeedContentAsync(
+    CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Manual blog seed import started.");
+
+        await _contentSeeder.SeedAsync();
+
+        ClearCaches();
+
+        var summary = await GetDatabaseSummaryAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Manual blog seed import completed. Zones: {Zones}, Steps: {Steps}, Articles: {Articles}.",
+            summary.Zones,
+            summary.ZoneSteps,
+            summary.Articles);
+
+        return new CmsSeedImportResponse(
+            true,
+            "Seed import completed successfully.",
+            summary.Zones,
+            summary.ZoneSteps,
+            summary.Articles,
+            DateTimeOffset.UtcNow);
     }
 
     private static List<string> GetSeedTags(IContent content)
