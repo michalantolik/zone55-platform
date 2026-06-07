@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.Application.Posts;
+using BlogPlatform.Application.Posts.Cache;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure.Cms;
 using BlogPlatform.Infrastructure.Persistence;

@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.Application.Posts;
+using BlogPlatform.Application.Posts.Cache;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 

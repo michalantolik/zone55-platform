@@ -1,4 +1,4 @@
-﻿using BlogPlatform.Infrastructure.Cms;
+﻿using BlogPlatform.Application.Posts.Cache;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
