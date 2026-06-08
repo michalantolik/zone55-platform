@@ -1,0 +1,211 @@
+name: Azure verify
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: azure-verify
+  cancel-in-progress: false
+
+env:
+  TERRAFORM_VERSION: 1.13.5
+
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_USE_OIDC: true
+
+jobs:
+  verify:
+    name: Verify Azure deployment
+    runs-on: ubuntu-latest
+    environment: azure-dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          missing=0
+
+          check_secret() {
+            local name="$1"
+            local value="$2"
+
+            if [ -z "$value" ]; then
+              echo "::error::Missing required secret: $name"
+              missing=1
+            fi
+          }
+
+          check_secret "AZURE_CLIENT_ID" "${{ secrets.AZURE_CLIENT_ID }}"
+          check_secret "AZURE_TENANT_ID" "${{ secrets.AZURE_TENANT_ID }}"
+          check_secret "AZURE_SUBSCRIPTION_ID" "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          check_secret "TF_STATE_RESOURCE_GROUP_NAME" "${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}"
+          check_secret "TF_STATE_STORAGE_ACCOUNT_NAME" "${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}"
+          check_secret "TF_STATE_CONTAINER_NAME" "${{ secrets.TF_STATE_CONTAINER_NAME }}"
+          check_secret "TF_STATE_KEY" "${{ secrets.TF_STATE_KEY }}"
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Read Terraform outputs
+        working-directory: infra
+        shell: bash
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}" \
+            -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}" \
+            -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
+            -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+
+          echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
+          echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
+          echo "APP_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
+
+      - name: Verify health endpoints
+        shell: bash
+        run: |
+          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/live" "CMS live health"
+          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
+
+      - name: Verify CMS content
+        shell: bash
+        run: |
+          curl -L -sS "${CMS_PUBLIC_URL}api/blog-content/database-summary" > cms-database-summary.json
+          curl -L -sS "${CMS_PUBLIC_URL}api/blog-content/articles" > cms-articles.json
+
+          zones=$(jq -r '.zones' cms-database-summary.json)
+          steps=$(jq -r '.zoneSteps' cms-database-summary.json)
+          articles=$(jq -r '.articles' cms-database-summary.json)
+          article_list_count=$(jq -r 'length' cms-articles.json)
+
+          echo "CMS zones: ${zones}"
+          echo "CMS steps: ${steps}"
+          echo "CMS articles: ${articles}"
+          echo "CMS article list count: ${article_list_count}"
+
+          if [ "$zones" -lt 1 ]; then
+            echo "::error::CMS has no roadmap zones."
+            exit 1
+          fi
+
+          if [ "$steps" -lt 1 ]; then
+            echo "::error::CMS has no roadmap steps."
+            exit 1
+          fi
+
+          if [ "$articles" -lt 1 ]; then
+            echo "::error::CMS has no articles."
+            exit 1
+          fi
+
+          if [ "$article_list_count" -lt 1 ]; then
+            echo "::error::CMS articles endpoint returned an empty list."
+            exit 1
+          fi
+
+      - name: Verify API content cache
+        shell: bash
+        run: |
+          curl -L -sS "${API_PUBLIC_URL}api/posts/home" > api-home.json
+
+          api_posts=$(jq -r '.posts | length' api-home.json)
+          first_slug=$(jq -r '.posts[0].slug // empty' api-home.json)
+
+          echo "API cached posts: ${api_posts}"
+          echo "First API post slug: ${first_slug}"
+
+          if [ "$api_posts" -lt 1 ]; then
+            echo "::error::API returned no cached posts. Run Azure seed content first."
+            exit 1
+          fi
+
+          if [ -z "$first_slug" ]; then
+            echo "::error::API returned posts but first post has no slug."
+            exit 1
+          fi
+
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/posts/${first_slug}" "API first article details"
+
+      - name: Compare CMS and API article counts
+        shell: bash
+        run: |
+          cms_articles=$(jq -r 'length' cms-articles.json)
+          api_posts=$(jq -r '.posts | length' api-home.json)
+
+          echo "CMS articles: ${cms_articles}"
+          echo "API posts: ${api_posts}"
+
+          if [ "$api_posts" -ne "$cms_articles" ]; then
+            echo "::error::API cached post count does not match CMS article count."
+            echo "::error::Run Azure seed content again to refresh the API cache."
+            exit 1
+          fi
+
+      - name: Verify Blazor Static Web App
+        shell: bash
+        run: |
+          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
+          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}_framework/blazor.webassembly.js" "Blazor WebAssembly boot script"
+
+      - name: Verify Blazor production configuration
+        shell: bash
+        run: |
+          curl -L -sS "${APP_PUBLIC_URL}appsettings.Production.json" > blazor-production-settings.json
+
+          configured_api_url=$(jq -r '.Api.BaseUrl // empty' blazor-production-settings.json)
+
+          echo "Configured Blazor API URL: ${configured_api_url}"
+          echo "Terraform API URL: ${API_PUBLIC_URL}"
+
+          if [ "$configured_api_url" != "$API_PUBLIC_URL" ]; then
+            echo "::error::Blazor appsettings.Production.json does not point to the deployed API."
+            exit 1
+          fi
+
+      - name: Write verification summary
+        shell: bash
+        run: |
+          cms_articles=$(jq -r 'length' cms-articles.json)
+          api_posts=$(jq -r '.posts | length' api-home.json)
+
+          {
+            echo "## Azure verification summary"
+            echo ""
+            echo "| Component | Result |"
+            echo "|---|---|"
+            echo "| CMS health | OK |"
+            echo "| API health | OK |"
+            echo "| Blazor app | OK |"
+            echo "| CMS articles | ${cms_articles} |"
+            echo "| API cached posts | ${api_posts} |"
+            echo ""
+            echo "| URL | Value |"
+            echo "|---|---|"
+            echo "| API | ${API_PUBLIC_URL} |"
+            echo "| CMS | ${CMS_PUBLIC_URL} |"
+            echo "| Blazor App | ${APP_PUBLIC_URL} |"
+          } >> "$GITHUB_STEP_SUMMARY"
