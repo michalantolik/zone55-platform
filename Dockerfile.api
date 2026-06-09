@@ -1,18 +1,11 @@
 # =============================================================================
 # BlogPlatform.Api — Multi-stage Dockerfile
-# Build context: repo root  (docker build -f Dockerfile.api .)
+# Build context: repo root
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Stage 1 — restore
-#   Restore NuGet packages in isolation so Docker can cache this layer
-#   independently of source code changes.
-# -----------------------------------------------------------------------------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 
-# Copy only the project files first — layer cache is only invalidated
-# when a .csproj / .slnx changes, not when source code changes.
 COPY src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj                         src/BlogPlatform/BlogPlatform.Api/
 COPY src/BlogPlatform/BlogPlatform.Application/BlogPlatform.Application.csproj         src/BlogPlatform/BlogPlatform.Application/
 COPY src/BlogPlatform/BlogPlatform.Domain/BlogPlatform.Domain.csproj                   src/BlogPlatform/BlogPlatform.Domain/
@@ -21,10 +14,6 @@ COPY src/BlogPlatform/BlogPlatform.Contracts/BlogPlatform.Contracts.csproj      
 
 RUN dotnet restore src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
 
-# -----------------------------------------------------------------------------
-# Stage 2 — build & publish
-#   Copy full source after restore, build in Release, publish to /app/publish.
-# -----------------------------------------------------------------------------
 FROM restore AS publish
 WORKDIR /src
 
@@ -35,28 +24,24 @@ RUN dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj \
     --no-restore \
     --output /app/publish
 
-# -----------------------------------------------------------------------------
-# Stage 3 — runtime
-#   Use the smallest possible ASP.NET runtime image (no SDK tooling).
-#   Run as a non-root user for a reduced attack surface.
-# -----------------------------------------------------------------------------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-# Create a non-root user and group
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --system appgroup && useradd --system --gid appgroup appuser
 
-# Copy published output from the publish stage
 COPY --from=publish /app/publish .
 
-# Switch to non-root user
+RUN mkdir -p /app/logs \
+    && chown -R appuser:appgroup /app/logs
+
 USER appuser
 
-# ASP.NET Core listens on 8080 by default in .NET 8 container images
 EXPOSE 8080
 
-# Health check — matches the /health/live endpoint already in the API
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
   CMD curl -f http://localhost:8080/health/live || exit 1
 
 ENTRYPOINT ["dotnet", "BlogPlatform.Api.dll"]

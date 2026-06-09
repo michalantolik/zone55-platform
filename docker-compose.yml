@@ -68,6 +68,10 @@ services:
         TrustServerCertificate=True;
         MultipleActiveResultSets=True;
 
+      ConnectionStrings__umbracoDbDSN_ProviderName: "Microsoft.Data.SqlClient"
+
+      Umbraco__CMS__Imaging__HMACSecretKey: "${UMBRACO_HMAC_SECRET_KEY:-0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF}"        
+
       # Umbraco unattended install (first boot only)
       Umbraco__CMS__Unattended__InstallUnattended: "true"
       Umbraco__CMS__Unattended__UpgradeUnattended: "true"
@@ -90,6 +94,7 @@ services:
     volumes:
       # Persist Umbraco runtime data (media, logs) across container restarts
       - umbraco-data:/app/umbraco
+      - umbraco-media:/app/wwwroot/media
     networks:
       - blogplatform-net
     depends_on:
@@ -199,4 +204,6 @@ volumes:
   sqlserver-data:
     driver: local
   umbraco-data:
+    driver: local
+  umbraco-media:
     driver: local
