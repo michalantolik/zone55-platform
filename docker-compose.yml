@@ -1,0 +1,202 @@
+# =============================================================================
+# BlogPlatform — docker-compose.yml
+# Spins up the complete local stack with a single command:
+#
+#   docker compose up --build
+#
+# Services:
+#   sqlserver  — SQL Server 2022 (Linux container)
+#   cms        — Umbraco CMS  → http://localhost:5001
+#   api        — ASP.NET Core API  → http://localhost:5000
+#   app        — Blazor WebAssembly (Nginx) → http://localhost:8080
+#
+# The startup order is:  sqlserver → cms → api → app
+# (api waits for cms because it calls the Umbraco Delivery API)
+# =============================================================================
+
+name: blogplatform
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # SQL Server 2022
+  # ---------------------------------------------------------------------------
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: blogplatform-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SQL_SA_PASSWORD:-BlogPlatform_Dev#2024}"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - blogplatform-net
+    healthcheck:
+      test: >
+        /opt/mssql-tools18/bin/sqlcmd
+        -S localhost -U sa -P "$$MSSQL_SA_PASSWORD"
+        -Q "SELECT 1" -No
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Umbraco CMS
+  # Starts after SQL Server is healthy.
+  # Umbraco performs unattended install on first boot — allow extra time.
+  # ---------------------------------------------------------------------------
+  cms:
+    build:
+      context: .
+      dockerfile: Dockerfile.cms
+    container_name: blogplatform-cms
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      # SQL Server connection (uses the service name "sqlserver" as host)
+      ConnectionStrings__umbracoDbDSN: >-
+        Server=sqlserver,1433;
+        Database=BlogPlatformCms;
+        User Id=sa;
+        Password=${SQL_SA_PASSWORD:-BlogPlatform_Dev#2024};
+        TrustServerCertificate=True;
+        MultipleActiveResultSets=True;
+
+      # Umbraco unattended install (first boot only)
+      Umbraco__CMS__Unattended__InstallUnattended: "true"
+      Umbraco__CMS__Unattended__UpgradeUnattended: "true"
+      Umbraco__CMS__Unattended__UnattendedUserName: "${UMBRACO_ADMIN_NAME:-Blog Admin}"
+      Umbraco__CMS__Unattended__UnattendedUserEmail: "${UMBRACO_ADMIN_EMAIL:-admin@blogplatform.local}"
+      Umbraco__CMS__Unattended__UnattendedUserPassword: "${UMBRACO_ADMIN_PASSWORD:-BlogPlatform_Admin#2024}"
+
+      Umbraco__CMS__Global__UseHttps: "false"
+      Umbraco__CMS__Global__InstallMissingDatabase: "true"
+      Umbraco__CMS__Runtime__Mode: BackofficeDevelopment
+      Umbraco__CMS__ModelsBuilder__ModelsMode: Nothing
+
+      # Content seed API key (same key used by the API and seed workflow)
+      BlogContentSeedOperations__ApiKey: "${BLOG_CONTENT_SEED_API_KEY:-local-dev-seed-key}"
+
+      # Delivery API base URL (used internally by API to call CMS)
+      UmbracoDeliveryApi__BaseUrl: "http://cms:8080"
+    ports:
+      - "5001:8080"
+    volumes:
+      # Persist Umbraco runtime data (media, logs) across container restarts
+      - umbraco-data:/app/umbraco
+    networks:
+      - blogplatform-net
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # ASP.NET Core API
+  # Starts after CMS is healthy (it calls the Umbraco Delivery API).
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: blogplatform-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      # SQL Server connection
+      ConnectionStrings__umbracoDbDSN: >-
+        Server=sqlserver,1433;
+        Database=BlogPlatformCms;
+        User Id=sa;
+        Password=${SQL_SA_PASSWORD:-BlogPlatform_Dev#2024};
+        TrustServerCertificate=True;
+        MultipleActiveResultSets=True;
+
+      # Umbraco Delivery API — use the internal service name
+      UmbracoDeliveryApi__BaseUrl: "http://cms:8080"
+      UmbracoDeliveryApi__PostsEndpoint: "/umbraco/delivery/api/v2/content"
+      UmbracoDeliveryApi__FreshCacheSeconds: "60"
+      UmbracoDeliveryApi__StaleCacheSeconds: "300"
+      UmbracoDeliveryApi__TimeoutSeconds: "30"
+      UmbracoDeliveryApi__RetryCount: "3"
+      UmbracoDeliveryApi__RetryDelayMilliseconds: "500"
+
+      # Allow Blazor app origin (CORS)
+      Cors__AllowedOrigins__0: "http://localhost:8080"
+
+      # Cache operations API key
+      BlogContentCacheOperations__ApiKey: "${BLOG_CONTENT_SEED_API_KEY:-local-dev-seed-key}"
+    ports:
+      - "5000:8080"
+    networks:
+      - blogplatform-net
+    depends_on:
+      cms:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Blazor WebAssembly — served via Nginx
+  # Static files only; no .NET runtime in this container.
+  # Starts after API is healthy so the SPA has a backend ready on load.
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: blogplatform-app
+    environment:
+      # Note: Blazor WASM env vars are baked at build time via appsettings.
+      # For local dev the API base URL is injected via the volume below.
+      # For a fully dynamic approach, consider a startup script that rewrites
+      # wwwroot/appsettings.Development.json at container start.
+      NGINX_HOST: localhost
+    ports:
+      - "8080:80"
+    networks:
+      - blogplatform-net
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  blogplatform-net:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  sqlserver-data:
+    driver: local
+  umbraco-data:
+    driver: local

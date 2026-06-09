@@ -1,0 +1,67 @@
+# =============================================================================
+# BlogPlatform.Cms — Multi-stage Dockerfile  (Umbraco CMS)
+# Build context: repo root  (docker build -f Dockerfile.cms .)
+#
+# Umbraco notes:
+#   - Requires a writable /app/umbraco directory for media, logs, and runtime
+#     data; this is mounted as a named volume in docker-compose.
+#   - InstallUnattended is driven by environment variables injected at runtime,
+#     not baked into the image.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1 — restore
+# -----------------------------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
+WORKDIR /src
+
+COPY src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj                         src/BlogPlatform/BlogPlatform.Cms/
+COPY src/BlogPlatform/BlogPlatform.Application/BlogPlatform.Application.csproj         src/BlogPlatform/BlogPlatform.Application/
+COPY src/BlogPlatform/BlogPlatform.Domain/BlogPlatform.Domain.csproj                   src/BlogPlatform/BlogPlatform.Domain/
+COPY src/BlogPlatform/BlogPlatform.Infrastructure/BlogPlatform.Infrastructure.csproj   src/BlogPlatform/BlogPlatform.Infrastructure/
+COPY src/BlogPlatform/BlogPlatform.Contracts/BlogPlatform.Contracts.csproj             src/BlogPlatform/BlogPlatform.Contracts/
+
+RUN dotnet restore src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
+
+# -----------------------------------------------------------------------------
+# Stage 2 — build & publish
+# -----------------------------------------------------------------------------
+FROM restore AS publish
+WORKDIR /src
+
+COPY src/BlogPlatform/ src/BlogPlatform/
+
+RUN dotnet publish src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj \
+    --configuration Release \
+    --no-restore \
+    --output /app/publish
+
+# -----------------------------------------------------------------------------
+# Stage 3 — runtime
+# -----------------------------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+
+# Install curl for the health check probe
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd --system appgroup && useradd --system --gid appgroup appuser
+
+COPY --from=publish /app/publish .
+
+# Umbraco needs write access to its runtime folders.
+# These paths are also mounted as a named volume in docker-compose
+# so data survives container restarts.
+RUN mkdir -p /app/umbraco/Data /app/umbraco/Logs /app/umbraco/media \
+    && chown -R appuser:appgroup /app/umbraco
+
+USER appuser
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
+  CMD curl -f http://localhost:8080/health/live || exit 1
+
+ENTRYPOINT ["dotnet", "BlogPlatform.Cms.dll"]

@@ -451,3 +451,6 @@ tfplan
 
 # Terraform exported/local state snapshots
 infra/state.json
+
+# Development-only local secrets/configuration values for Docker Compose
+.env

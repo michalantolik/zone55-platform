@@ -1,0 +1,47 @@
+# =============================================================================
+# .dockerignore — repo root
+#
+# Keeps the Docker build context small. Without this, Docker sends the entire
+# repo to the daemon on every build — including node_modules, .git history,
+# test results, and IDE artefacts that the image does not need.
+# =============================================================================
+
+# Git
+.git
+.gitignore
+
+# IDE and editor artefacts
+.vs
+.vscode
+*.user
+*.suo
+*.DotSettings
+*.DotSettings.user
+
+# Build output (let Docker build inside the container, not from local output)
+**/bin/
+**/obj/
+
+# Test results
+**/TestResults/
+
+# Local secrets and environment files
+.env
+**/appsettings.Local.json
+**/appsettings.Development.json
+**/terraform.tfvars
+
+# Terraform state and provider cache
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/.terraform.lock.hcl
+
+# Docs and non-source files (not needed to build the image)
+docs/
+*.md
+LICENSE
+
+# OS artefacts
+.DS_Store
+Thumbs.db
