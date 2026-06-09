@@ -1,32 +1,123 @@
 # BlogPlatform
 
-BlogPlatform is a cloud-ready .NET learning and blogging platform.
+> Cloud-native blog platform built with .NET and Azure.
+> Focused on REST APIs, Clean Architecture, CI/CD, Terraform IaC, and scalable cloud design.
 
-It contains:
-
-* Blazor WebAssembly frontend
-* ASP.NET Core Web API
-* Umbraco CMS
-* Application layer
-* Domain layer
-* Infrastructure layer
-* Contracts project
-* Architecture tests
-* Terraform Azure infrastructure
-* GitHub Actions CI/CD workflows
+<!-- CI/CD Badges -->
+[![Azure Readiness](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml)
+[![Terraform Plan](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-terraform-plan.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-terraform-plan.yml)
+[![Terraform Apply](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-terraform-apply.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-terraform-apply.yml)
+[![Azure Deploy](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-deploy.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-deploy.yml)
+[![Azure Verify](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-verify.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-verify.yml)
 
 ---
 
-## Solution Structure
+## Architecture
 
-```text
+```mermaid
+graph TD
+    subgraph Client
+        A[Blazor WebAssembly<br/>Azure Static Web App]
+    end
+
+    subgraph Azure App Services
+        B[ASP.NET Core API<br/>Linux App Service]
+        C[Umbraco CMS<br/>Linux App Service]
+    end
+
+    subgraph Data & Secrets
+        D[(Azure SQL Database)]
+        E[Azure Key Vault]
+    end
+
+    subgraph Observability
+        F[Application Insights<br/>Log Analytics Workspace]
+    end
+
+    subgraph CI/CD
+        G[GitHub Actions]
+        H[Terraform IaC]
+    end
+
+    A -->|REST| B
+    B -->|Delivery API| C
+    B --> D
+    C --> D
+    B -->|Managed Identity| E
+    C -->|Managed Identity| E
+    B --> F
+    C --> F
+    G -->|OIDC| H
+    H -->|provisions| B
+    H -->|provisions| C
+    H -->|provisions| D
+    H -->|provisions| E
+```
+
+### Application layer breakdown
+
+```mermaid
+graph LR
+    subgraph src/BlogPlatform
+        API[BlogPlatform.Api] --> APP[BlogPlatform.Application]
+        APP --> DOM[BlogPlatform.Domain]
+        APP --> INF[BlogPlatform.Infrastructure]
+        INF --> DOM
+        API --> CON[BlogPlatform.Contracts]
+        BLA[BlogPlatform.App<br/>Blazor WASM] --> CON
+        CMS[BlogPlatform.Cms<br/>Umbraco] --> DOM
+        ARC[BlogPlatform.ArchitectureTests] -. enforces layer rules .-> DOM
+    end
+```
+
+---
+
+## Tech stack
+
+| Area | Technology |
+|---|---|
+| Backend API | ASP.NET Core (.NET) |
+| Frontend | Blazor WebAssembly |
+| CMS | Umbraco |
+| Database | Azure SQL / SQL Server |
+| IaC | Terraform |
+| CI/CD | GitHub Actions |
+| Secrets | Azure Key Vault + Managed Identity |
+| Auth (CI) | GitHub OIDC — no stored secrets |
+| Observability | Application Insights, Log Analytics |
+| Architecture | Clean Architecture + layer enforcement tests |
+
+---
+
+## CI/CD pipeline
+
+The full deployment chain runs in this order:
+
+| Step | Workflow | Trigger |
+|---|---|---|
+| 1 | `azure-readiness.yml` — build, test, Terraform validate | Push / PR / manual |
+| 2 | `azure-terraform-plan.yml` — plan against Azure remote state | Manual |
+| 3 | `azure-terraform-apply.yml` — provision infrastructure | Manual |
+| 4 | `azure-deploy.yml` — deploy API, CMS, Blazor + smoke checks | Manual |
+| 5 | `azure-seed-content.yml` — seed CMS content, refresh API cache | Manual |
+| 6 | `azure-verify.yml` — end-to-end verification | Manual |
+
+Azure authentication uses **GitHub OIDC federation** — no Azure client secret is stored in GitHub.
+
+---
+
+## Solution structure
+
+```
 .
 ├── .github/
 │   └── workflows/
 │       ├── azure-readiness.yml
 │       ├── azure-terraform-plan.yml
 │       ├── azure-terraform-apply.yml
-│       └── azure-deploy.yml
+│       ├── azure-deploy.yml
+│       ├── azure-seed-content.yml
+│       └── azure-verify.yml
 ├── docs/
 │   ├── README.md
 │   └── secrets-and-configuration.md
@@ -54,178 +145,84 @@ It contains:
 
 ---
 
-## Main Projects
+## Main projects
 
 | Project | Purpose |
 |---|---|
 | `BlogPlatform.App` | Blazor WebAssembly frontend |
-| `BlogPlatform.Api` | Public API used by the frontend |
-| `BlogPlatform.Cms` | Umbraco CMS and blog content administration |
+| `BlogPlatform.Api` | Public REST API consumed by the frontend |
+| `BlogPlatform.Cms` | Umbraco CMS — blog content administration |
 | `BlogPlatform.Application` | Application services and use cases |
 | `BlogPlatform.Domain` | Domain entities, value objects, and enums |
-| `BlogPlatform.Infrastructure` | SQL Server persistence, CMS API client, and infrastructure services |
+| `BlogPlatform.Infrastructure` | SQL Server persistence, CMS API client, infrastructure services |
 | `BlogPlatform.Contracts` | Shared DTOs and API contracts |
-| `BlogPlatform.ArchitectureTests` | Clean Architecture dependency tests |
+| `BlogPlatform.ArchitectureTests` | Clean Architecture dependency rule enforcement |
 
 ---
 
-## Architecture
+## Azure infrastructure
 
-```text
-Blazor WebAssembly App
-        |
-        v
-ASP.NET Core API
-        |
-        v
-Application Layer
-        |
-        v
-Infrastructure Layer
-        |
-        +--> SQL Server
-        |
-        +--> Umbraco CMS Delivery API
+Terraform provisions and manages:
 
-Umbraco CMS
-        |
-        +--> Azure SQL
-        |
-        +--> Key Vault
-        |
-        +--> Application Insights
-```
+- Resource Group
+- Log Analytics Workspace + Application Insights
+- Azure Key Vault (with Managed Identity access policies)
+- Azure SQL Server + SQL Database
+- Azure App Service Plan (Linux)
+- API App Service + CMS App Service
+- Azure Static Web App
+- System-assigned Managed Identities for API and CMS
+- Remote Terraform state backend (Azure Storage)
+
+See [`AZURE.md`](AZURE.md) for the full deployment roadmap and `infra/README.md` for Terraform details.
 
 ---
 
-## Runtime Components
+## Runtime components
 
-| Component | Local role | Azure role |
+| Component | Local | Azure |
 |---|---|---|
-| Blazor App | Runs as WebAssembly frontend | Azure Static Web App |
-| API | Runs as ASP.NET Core Web API | Linux App Service |
-| CMS | Runs as Umbraco CMS | Linux App Service |
-| SQL Server | LocalDB / SQL Server | Azure SQL Database |
-| Key Vault | Not required locally | Stores production secrets |
-| Application Insights | Optional locally | Production telemetry |
+| Blazor App | Blazor WebAssembly (local) | Azure Static Web App |
+| API | ASP.NET Core Web API | Linux App Service |
+| CMS | Umbraco | Linux App Service |
+| Database | LocalDB / SQL Server | Azure SQL Database |
+| Secrets | n/a locally | Azure Key Vault |
+| Telemetry | Optional | Application Insights |
 
 ---
 
-## Local Development
-
-Restore, build, and test:
+## Local development
 
 ```bash
+# Restore, build, and test
 dotnet restore src/BlogPlatform/BlogPlatform.slnx
 dotnet build src/BlogPlatform/BlogPlatform.slnx
 dotnet test src/BlogPlatform/BlogPlatform.slnx
-```
 
-Run API:
-
-```bash
+# Run each component
 dotnet run --project src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
-```
-
-Run CMS:
-
-```bash
 dotnet run --project src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
-```
-
-Run Blazor app:
-
-```bash
 dotnet run --project src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
 ```
 
 ---
 
-## Health Checks
+## Health checks
 
-The API exposes:
-
-```text
-/health
-/health/live
-/health/ready
-```
-
-The CMS exposes:
-
-```text
-/health
-/health/live
-/health/ready
-```
-
----
-
-## Infrastructure
-
-Terraform files are stored in:
-
-```text
-infra/
-```
-
-Terraform manages:
-
-* Resource Group
-* Log Analytics Workspace
-* Application Insights
-* Azure Key Vault
-* Azure SQL Server
-* Azure SQL Database
-* SQL firewall rule for Azure services
-* Azure App Service Plan
-* API Linux App Service
-* CMS Linux App Service
-* Azure Static Web App
-* Managed identities
-* Key Vault secrets
-* Key Vault access policies
-
-See:
-
-* `AZURE.md`
-* `infra/README.md`
-* `docs/secrets-and-configuration.md`
-
----
-
-## CI/CD
-
-GitHub Actions workflows:
-
-| Workflow | Purpose |
+| Service | Endpoints |
 |---|---|
-| `azure-readiness.yml` | Restore, build, test, publish, and validate Terraform |
-| `azure-terraform-plan.yml` | Run Terraform plan against Azure |
-| `azure-terraform-apply.yml` | Apply Terraform infrastructure changes |
-| `azure-deploy.yml` | Deploy API, CMS, Blazor app, and run smoke checks |
-
-Azure authentication uses GitHub OIDC.
-
-No Azure client secret is stored in GitHub.
+| API | `/health` · `/health/live` · `/health/ready` |
+| CMS | `/health` · `/health/live` · `/health/ready` |
 
 ---
 
 ## Security
 
-Secrets are handled through:
-
-* GitHub Actions secrets for deployment-time values
-* Terraform variables for infrastructure provisioning
-* Azure Key Vault for runtime application secrets
-* Managed Identity for App Service access to Key Vault
-
-Important:
-
-* `infra/terraform.tfvars` must never be committed.
-* `*.tfvars` files are ignored.
-* `*.tfvars.example` files are allowed.
-* Terraform state is stored remotely in Azure Storage.
+- **GitHub OIDC** — Azure authentication with no stored client secrets
+- **Azure Key Vault** — runtime secrets (connection strings, keys)
+- **Managed Identity** — App Services access Key Vault without credentials
+- **Terraform variables** — sensitive values never committed (`.tfvars` gitignored)
+- **Remote state** — Terraform state stored in Azure Storage with state locking
 
 ---
 
@@ -233,10 +230,9 @@ Important:
 
 | File | Purpose |
 |---|---|
-| `AZURE.md` | Azure deployment roadmap and current deployment status |
-| `docs/README.md` | Documentation index |
-| `docs/secrets-and-configuration.md` | Secrets and configuration flow |
-| `infra/README.md` | Terraform infrastructure documentation |
-| `src/README.md` | Source code structure |
-| `src/BlogPlatform/BlogPlatform.Cms/README.md` | CMS-specific documentation |
-| `tests/README.md` | Test documentation |
+| [`AZURE.md`](AZURE.md) | Azure deployment roadmap and current status |
+| [`docs/README.md`](docs/README.md) | Documentation index |
+| [`docs/secrets-and-configuration.md`](docs/secrets-and-configuration.md) | Secrets and configuration flow |
+| [`infra/README.md`](infra/README.md) | Terraform infrastructure details |
+| [`src/README.md`](src/README.md) | Source code structure |
+| [`tests/README.md`](tests/README.md) | Test documentation |
