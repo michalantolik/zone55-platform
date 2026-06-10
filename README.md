@@ -9,9 +9,6 @@ A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terr
 [![Azure Deploy](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-deploy.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-deploy.yml)
 [![Azure Verify](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-verify.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-verify.yml)
 
-<!-- License Badge -->
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
 ---
 
 ## What this project proves
@@ -25,11 +22,18 @@ A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terr
 
 ---
 
-## Architecture Overview
+## Architecture overview
 
 The platform consists of a Blazor WebAssembly frontend, ASP.NET Core API, and Umbraco CMS deployed on Azure. Infrastructure is provisioned with Terraform and delivered through GitHub Actions CI/CD using OIDC authentication.
 
 ![Architecture Overview](docs/architecture/overview.svg)
+
+Key architectural decisions:
+- Infrastructure provisioned using Terraform
+- CI/CD implemented with GitHub Actions + OIDC
+- Secrets stored in Azure Key Vault
+- Applications authenticate using Managed Identity
+- Observability provided by Application Insights
 
 See also:
 - [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture.svg)
@@ -40,7 +44,8 @@ See also:
 
 | Area | Details |
 |---|---|
-| Application architecture | Clean Architecture with enforced dependency rules and architecture tests |
+| Application architecture | Clean architecture applied |
+| Architecture governance | NetArchTest architecture rules enforced in CI |
 | Headless CMS | Umbraco 14 with Delivery API, custom block types, and content seeding |
 | Azure infrastructure | Terraform-provisioned App Services, Static Web App, SQL, Key Vault |
 | Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
@@ -210,4 +215,5 @@ The alternative is a service principal with a client secret — another credenti
 
 ## License
 
-[MIT](LICENSE)
+<!-- License Badge -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
