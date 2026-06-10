@@ -1,6 +1,6 @@
 # dotnet-cloud-blog-platform
 
-A cloud-native software blog platform built with Azure Cloud, Terraform IaC, and GitHub Actions CI/CD and Clean Architecture.
+A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terraform Infrastructure as Code and GitHub Actions CI/CD.
 
 <!-- CI/CD Badges -->
 [![Azure Readiness](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml)
@@ -14,27 +14,14 @@ A cloud-native software blog platform built with Azure Cloud, Terraform IaC, and
 
 ---
 
-## Why This Project Exists
+## What this project proves
 
-This project covers the full delivery lifecycle of a cloud application: infrastructure provisioning, CI/CD pipelines, secret management, containerised local development, observability, and automated post-deployment verification.
-
-The focus was on the parts that are often skipped in side projects — getting from source code all the way to a running, secured Azure environment in a repeatable way.
-
----
-
-## What This Project Covers
-
-| Area | Details |
-|---|---|
-| Application architecture | Clean Architecture with enforced dependency rules and architecture tests |
-| Headless CMS | Umbraco 14 with Delivery API, custom block types, and content seeding |
-| Azure infrastructure | Terraform-provisioned App Services, Static Web App, SQL, Key Vault |
-| Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
-| CI/CD authentication | GitHub Actions with OIDC — no long-lived Azure secrets stored in GitHub |
-| Infrastructure as Code | Full Azure environment reproducible from `terraform apply` |
-| Local development | Docker Compose stack: API + CMS + Blazor + SQL Server |
-| Observability | Application Insights + Log Analytics + structured Serilog logging |
-| Deployment verification | Post-deploy health checks and smoke tests in GitHub Actions |
+- Clean Architecture principles
+- Cloud-native application design
+- Infrastructure as Code with Terraform
+- Automated CI/CD with GitHub Actions
+- Azure deployment and operations
+- Production-ready engineering practices
 
 ---
 
@@ -72,6 +59,32 @@ graph TD
 ```
 
 The Blazor frontend calls the ASP.NET Core API, which fetches content from Umbraco's Delivery API and returns structured DTOs. Both the API and CMS resolve production secrets from Azure Key Vault at startup via Managed Identity.
+
+### Key Architecture Decisions
+
+- Blazor WebAssembly for static frontend hosting
+- ASP.NET Core API as application boundary
+- Umbraco CMS as content management system
+- Terraform for reproducible infrastructure
+- GitHub Actions with OIDC authentication
+- Azure Key Vault for secret management
+- Application Insights for observability
+
+---
+
+## What This Project Covers
+
+| Area | Details |
+|---|---|
+| Application architecture | Clean Architecture with enforced dependency rules and architecture tests |
+| Headless CMS | Umbraco 14 with Delivery API, custom block types, and content seeding |
+| Azure infrastructure | Terraform-provisioned App Services, Static Web App, SQL, Key Vault |
+| Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
+| CI/CD authentication | GitHub Actions with OIDC — no long-lived Azure secrets stored in GitHub |
+| Infrastructure as Code | Full Azure environment reproducible from `terraform apply` |
+| Local development | Docker Compose stack: API + CMS + Blazor + SQL Server |
+| Observability | Application Insights + Log Analytics + structured Serilog logging |
+| Deployment verification | Post-deploy health checks and smoke tests in GitHub Actions |
 
 ---
 
