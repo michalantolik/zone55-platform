@@ -132,12 +132,14 @@ services:
 
       # Umbraco Delivery API — use the internal service name
       UmbracoDeliveryApi__BaseUrl: "http://cms:8080"
-      UmbracoDeliveryApi__PostsEndpoint: "/umbraco/delivery/api/v2/content"
+      UmbracoDeliveryApi__PostsEndpoint: "api/blog-content/articles"
       UmbracoDeliveryApi__FreshCacheSeconds: "60"
       UmbracoDeliveryApi__StaleCacheSeconds: "300"
       UmbracoDeliveryApi__TimeoutSeconds: "30"
       UmbracoDeliveryApi__RetryCount: "3"
       UmbracoDeliveryApi__RetryDelayMilliseconds: "500"
+      ClientLogging__Enabled: "true"
+      ClientLogging__MaxMessageLength: "2000"      
 
       # Allow Blazor app origin (CORS)
       Cors__AllowedOrigins__0: "http://localhost:8080"
@@ -168,12 +170,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
+      args:
+        BLAZOR_API_BASE_URL: "http://localhost:5000/"
     container_name: blogplatform-app
     environment:
-      # Note: Blazor WASM env vars are baked at build time via appsettings.
-      # For local dev the API base URL is injected via the volume below.
-      # For a fully dynamic approach, consider a startup script that rewrites
-      # wwwroot/appsettings.Development.json at container start.
       NGINX_HOST: localhost
     ports:
       - "8080:80"
