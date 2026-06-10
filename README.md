@@ -1,7 +1,6 @@
 # BlogPlatform
 
-> Cloud-native blog platform built with .NET and Azure.
-> Focused on REST APIs, Clean Architecture, CI/CD, Terraform IaC, and scalable cloud design.
+> Cloud-native learning platform demonstrating Backend Engineering, Clean Architecture, Azure Cloud, Terraform IaC, and GitHub Actions CI/CD.
 
 <!-- CI/CD Badges -->
 [![Azure Readiness](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml)
@@ -25,26 +24,83 @@
 
 ---
 
+## Skills Demonstrated
 
+| Category | Demonstrated Skills |
+|-----------|-----------|
+| Backend Engineering | ASP.NET Core, REST APIs, Dependency Injection, DTO Contracts |
+| Architecture | Clean Architecture, Layered Design, Strategy Pattern, Architecture Tests |
+| Cloud Engineering | Azure App Service, Azure SQL, Azure Key Vault, Application Insights |
+| Infrastructure as Code | Terraform Modules, State Management, Environment Configuration |
+| DevOps | GitHub Actions, CI/CD Pipelines, Deployment Automation |
+| Security | OIDC Federation, Managed Identity, Secret Management |
+| Observability | Health Checks, Telemetry, Logging, Verification Workflows |
+| Platform Engineering | System Ownership, Deployment Pipelines, Infrastructure Automation |
 
+---
 
+## Executive Summary
 
+Many portfolio projects demonstrate only application development.
 
+This project was intentionally designed to demonstrate complete ownership of a cloud-native system:
 
+- Backend application development
+- Clean Architecture
+- Infrastructure as Code
+- CI/CD automation
+- Secure secret management
+- Observability
+- Deployment verification
+- Operational readiness
 
+The goal was not simply to build a blog platform.
 
+The goal was to demonstrate the engineering practices expected from modern Backend Developers, Cloud Developers, Platform Engineers, and future Solution Architects.
 
+The repository combines application architecture, cloud infrastructure, deployment automation, monitoring, and security into a single production-style solution.
 
+---
 
+## Case Study
 
+### Problem
 
+Modern software systems require much more than application code.
 
+Organizations need:
 
+- Secure cloud infrastructure
+- Automated deployments
+- Monitoring and diagnostics
+- Repeatable environments
+- Reliable operational processes
+- Scalable application architecture
 
+Many portfolio projects demonstrate only a small subset of these requirements.
 
+### Solution
 
+BlogPlatform combines:
 
+- ASP.NET Core REST API
+- Blazor WebAssembly frontend
+- Umbraco CMS
+- Azure cloud services
+- Terraform Infrastructure as Code
+- GitHub Actions CI/CD
+- Azure Key Vault
+- Application Insights
 
+into a single cloud-native platform.
+
+### Outcome
+
+The result is a production-style deployment pipeline where infrastructure, application code, content management, monitoring, and verification are treated as a single engineering problem rather than isolated technical components.
+
+This repository demonstrates practical experience across the full software delivery lifecycle, from source code to a running Azure environment.
+
+---
 
 ## Architecture
 
@@ -106,6 +162,26 @@ graph LR
 
 ---
 
+## Architecture Decisions
+
+The project follows a deliberate set of architectural decisions designed to prioritize maintainability, operational simplicity, and cloud readiness.
+
+| Decision | Reason |
+|-----------|-----------|
+| Clean Architecture | Clear separation of concerns and long-term maintainability |
+| ASP.NET Core API | Modern, cloud-native backend platform |
+| Umbraco CMS | Content management without custom administration tooling |
+| Blazor WebAssembly | Strong .NET integration and shared contracts |
+| Terraform | Repeatable infrastructure provisioning |
+| GitHub Actions | Integrated CI/CD directly alongside source code |
+| Azure Key Vault | Centralized secret management |
+| Managed Identity | Eliminate application credentials where possible |
+| GitHub OIDC | Azure authentication without stored client secrets |
+| Application Insights | Production monitoring and diagnostics |
+| Architecture Tests | Protect layer boundaries and architectural integrity |
+
+---
+
 ## Tech stack
 
 | Area | Technology |
@@ -137,6 +213,37 @@ The full deployment chain runs in this order:
 | 6 | `azure-verify.yml` — end-to-end verification | Manual |
 
 Azure authentication uses **GitHub OIDC federation** — no Azure client secret is stored in GitHub.
+
+---
+
+## Operational Flow
+
+```text
+Developer
+    ↓
+Git Push
+    ↓
+Azure Readiness Workflow
+    ↓
+Build
+    ↓
+Tests
+    ↓
+Terraform Validation
+    ↓
+Terraform Plan
+    ↓
+Terraform Apply
+    ↓
+Azure Deployment
+    ↓
+Content Seeding
+    ↓
+Cache Refresh
+    ↓
+Verification
+    ↓
+Production Ready
 
 ---
 
