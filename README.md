@@ -31,7 +31,8 @@ The platform consists of a Blazor WebAssembly frontend, ASP.NET Core API, and Um
 
 ![Architecture Overview](docs/architecture/overview.svg)
 
-👉 [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture.svg)
+See also:
+- [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture.svg)
 
 ---
 
