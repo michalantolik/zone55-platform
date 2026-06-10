@@ -24,6 +24,18 @@
 
 ---
 
+## Current status highlights
+
+- Azure `dev` environment is operational.
+- Infrastructure is provisioned with Terraform.
+- API and CMS are deployed to Azure App Service.
+- Blazor WebAssembly frontend is deployed to Azure Static Web Apps.
+- Secrets are handled through Azure Key Vault and Managed Identity.
+- GitHub Actions uses Azure OIDC authentication instead of stored Azure client secrets.
+- Deployment verification checks API, CMS, frontend, content, cache, and runtime configuration.
+
+---
+
 ## Skills Demonstrated
 
 | Category | Demonstrated Skills |
@@ -39,11 +51,35 @@
 
 ---
 
+## What this project proves
+
+It is a production-style platform that shows the ability to design, build, deploy, secure, and verify a cloud system end to end.
+
+| Area | What the repository demonstrates |
+|---|---|
+| Backend Developer | API design, clean service boundaries, dependency injection, contracts, health checks |
+| Cloud Developer | Azure App Services, Azure SQL, Static Web Apps, Key Vault, Application Insights |
+| DevOps / Platform Engineer | Terraform, GitHub Actions, OIDC, repeatable deployments, operational verification |
+| Future Solution Architect | Architecture decisions, system decomposition, security model, deployment flow, documentation |
+
+---
+
+## Portfolio value
+
+| Area | Strength | Why it matters |
+|---|---|---|
+| Architecture | Clean Architecture with dedicated Application, Domain, Infrastructure, Contracts, API, CMS, and App projects | Shows maintainable backend design instead of a simple CRUD demo |
+| Cloud readiness | Azure infrastructure is represented in Terraform and documented in `AZURE.md` | Shows understanding of real deployment environments |
+| CI/CD | Multiple GitHub Actions workflows cover readiness, plan, apply, deploy, seed, and verify | Shows platform ownership and release automation |
+| Security | OIDC, Managed Identity, Key Vault, and secret documentation are part of the solution | Shows awareness of production-grade cloud security |
+| Observability | Health checks, Application Insights, and verification workflows are included | Shows operational thinking, not only coding |
+| Documentation | README, Azure roadmap, infrastructure docs, ADRs, and secrets documentation exist | Makes the project easier to review by recruiters and technical interviewers |
+
+---
+
 ## Executive Summary
 
-Many portfolio projects demonstrate only application development.
-
-This project was intentionally designed to demonstrate complete ownership of a cloud-native system:
+This project was  designed to demonstrate complete ownership of a cloud-native system:
 
 - Backend application development
 - Clean Architecture
@@ -54,9 +90,7 @@ This project was intentionally designed to demonstrate complete ownership of a c
 - Deployment verification
 - Operational readiness
 
-The goal was not simply to build a blog platform.
-
-The goal was to demonstrate the engineering practices expected from modern Backend Developers, Cloud Developers, Platform Engineers, and future Solution Architects.
+The goal was to demonstrate the engineering practices of Backend Developers, Cloud Developers, Platform Engineers, and Solution Architects.
 
 The repository combines application architecture, cloud infrastructure, deployment automation, monitoring, and security into a single production-style solution.
 
@@ -76,8 +110,6 @@ Organizations need:
 - Repeatable environments
 - Reliable operational processes
 - Scalable application architecture
-
-Many portfolio projects demonstrate only a small subset of these requirements.
 
 ### Solution
 
@@ -244,6 +276,7 @@ Cache Refresh
 Verification
     ↓
 Production Ready
+```
 
 ---
 
@@ -261,7 +294,13 @@ Production Ready
 │       └── azure-verify.yml
 ├── docs/
 │   ├── README.md
-│   └── secrets-and-configuration.md
+│   ├── DOCKER.md
+│   ├── secrets-and-configuration.md
+│   └── adr/
+│       ├── README.md
+│       ├── 0001-use-clean-architecture.md
+│       ├── 0002-use-terraform-and-github-oidc.md
+│       └── 0003-use-key-vault-managed-identity.md
 ├── infra/
 │   ├── backend.tf
 │   ├── main.tf
@@ -281,6 +320,8 @@ Production Ready
 │       ├── BlogPlatform.Infrastructure/
 │       └── BlogPlatform.slnx
 ├── tests/
+├── docker-compose.yml
+├── .env.example
 └── AZURE.md
 ```
 
@@ -367,13 +408,37 @@ dotnet run --project src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
 
 ---
 
+## Good places to review first
+
+| Reviewer goal | Start here |
+|---|---|
+| Understand the system quickly | `README.md` and the architecture diagrams above |
+| Review Azure deployment | `AZURE.md` and `.github/workflows/` |
+| Review infrastructure | `infra/` and `infra/README.md` |
+| Review security/configuration | `docs/secrets-and-configuration.md` |
+| Review architectural intent | `docs/adr/` |
+| Review backend structure | `src/BlogPlatform/BlogPlatform.Api`, `Application`, `Domain`, `Infrastructure`, `Contracts` |
+
+---
+
 ## Documentation
 
 | File | Purpose |
 |---|---|
 | [`AZURE.md`](AZURE.md) | Azure deployment roadmap and current status |
 | [`docs/README.md`](docs/README.md) | Documentation index |
+| [`docs/DOCKER.md`](docs/DOCKER.md) | Docker and local container workflow |
 | [`docs/secrets-and-configuration.md`](docs/secrets-and-configuration.md) | Secrets and configuration flow |
+| [`docs/adr/README.md`](docs/adr/README.md) | Architecture Decision Records index |
 | [`infra/README.md`](infra/README.md) | Terraform infrastructure details |
 | [`src/README.md`](src/README.md) | Source code structure |
 | [`tests/README.md`](tests/README.md) | Test documentation |
+
+
+---
+
+## Summary for recruiters and technical reviewers
+
+BlogPlatform demonstrates a complete engineering workflow: application architecture, cloud infrastructure, secure configuration, automated deployment, content seeding, health checks, and post-deployment verification.
+
+It is intended to show readiness for roles that combine backend development with cloud, DevOps, platform engineering, and solution architecture responsibilities.
