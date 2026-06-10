@@ -27,48 +27,11 @@ A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terr
 
 ## Architecture Overview
 
-Three runtime services backed by a shared .NET solution.
+The platform consists of a Blazor WebAssembly frontend, ASP.NET Core API, and Umbraco CMS deployed on Azure. Infrastructure is provisioned with Terraform and delivered through GitHub Actions CI/CD using OIDC authentication.
 
-```mermaid
-graph TD
-    User["👤 User / Browser"]
-    App["Blazor WebAssembly\nBlogPlatform.App\n(Azure Static Web App)"]
-    Api["ASP.NET Core API\nBlogPlatform.Api\n(Azure App Service)"]
-    Cms["Umbraco CMS\nBlogPlatform.Cms\n(Azure App Service)"]
-    Db[("Azure SQL Database")]
-    Kv["Azure Key Vault"]
-    Ai["Application Insights"]
-    GH["GitHub Actions\n(CI/CD)"]
-    TF["Terraform\n(Infrastructure)"]
+![Architecture Overview](docs/architecture/overview.svg)
 
-    User -->|"reads blog"| App
-    App -->|"HTTP"| Api
-    Api -->|"Delivery API"| Cms
-    Cms -->|"reads / writes"| Db
-    Api -->|"reads"| Db
-    Api -->|"secrets"| Kv
-    Cms -->|"secrets"| Kv
-    Api -->|"telemetry"| Ai
-    Cms -->|"telemetry"| Ai
-    GH -->|"deploys"| App
-    GH -->|"deploys"| Api
-    GH -->|"deploys"| Cms
-    GH -->|"OIDC auth"| TF
-    TF -->|"provisions"| Kv
-    TF -->|"provisions"| Db
-```
-
-The Blazor frontend calls the ASP.NET Core API, which fetches content from Umbraco's Delivery API and returns structured DTOs. Both the API and CMS resolve production secrets from Azure Key Vault at startup via Managed Identity.
-
-### Key Architecture Decisions
-
-- Blazor WebAssembly for static frontend hosting
-- ASP.NET Core API as application boundary
-- Umbraco CMS as content management system
-- Terraform for reproducible infrastructure
-- GitHub Actions with OIDC authentication
-- Azure Key Vault for secret management
-- Application Insights for observability
+👉 [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture.svg)
 
 ---
 
