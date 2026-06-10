@@ -10,6 +10,7 @@ This folder contains project documentation for BlogPlatform.
 |---|---|
 | `../README.md` | Main project overview |
 | `../AZURE.md` | Azure deployment roadmap and current status |
+| `adr/README.md` | Architecture Decision Records |
 | `secrets-and-configuration.md` | Secrets and configuration flow |
 | `../infra/README.md` | Terraform infrastructure documentation |
 | `../src/README.md` | Source code structure |
@@ -22,9 +23,10 @@ This folder contains project documentation for BlogPlatform.
 
 1. `../README.md`
 2. `../AZURE.md`
-3. `secrets-and-configuration.md`
-4. `../infra/README.md`
-5. `../src/README.md`
+3. `adr/README.md`
+4. `secrets-and-configuration.md`
+5. `../infra/README.md`
+6. `../src/README.md`
 
 ---
 
