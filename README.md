@@ -12,6 +12,19 @@
 
 ---
 
+## Live deployment
+
+| Component | URL |
+|---|---|
+| Blazor App | https://happy-mud-04e739f03.7.azurestaticapps.net/ |
+| API | https://app-blogplatform-dev-api.azurewebsites.net/ |
+| API health | https://app-blogplatform-dev-api.azurewebsites.net/health/ready |
+| CMS | https://app-blogplatform-dev-cms.azurewebsites.net/umbraco |
+
+> Deployed on Azure. Infrastructure provisioned with Terraform, deployed via GitHub Actions with OIDC authentication.
+
+---
+
 ## Architecture
 
 ```mermaid
@@ -174,7 +187,7 @@ Terraform provisions and manages:
 - System-assigned Managed Identities for API and CMS
 - Remote Terraform state backend (Azure Storage)
 
-See [`AZURE.md`](AZURE.md) for the full deployment roadmap and `infra/README.md` for Terraform details.
+See [`AZURE.md`](AZURE.md) for deployment details and `infra/README.md` for Terraform details.
 
 ---
 
