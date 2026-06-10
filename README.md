@@ -1,6 +1,6 @@
-# BlogPlatform
+# dotnet-cloud-blog-platform
 
-> Cloud-native learning platform demonstrating Backend Engineering, Clean Architecture, Azure Cloud, Terraform IaC, and GitHub Actions CI/CD.
+A cloud-native software blog platform built with Azure Cloud, Terraform IaC, and GitHub Actions CI/CD and Clean Architecture.
 
 <!-- CI/CD Badges -->
 [![Azure Readiness](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml)
@@ -9,436 +9,228 @@
 [![Azure Deploy](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-deploy.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-deploy.yml)
 [![Azure Verify](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-verify.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-verify.yml)
 
+<!-- License Badge -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 ---
 
-## Live deployment
+## Why This Project Exists
 
-| Component | URL |
+This project covers the full delivery lifecycle of a cloud application: infrastructure provisioning, CI/CD pipelines, secret management, containerised local development, observability, and automated post-deployment verification.
+
+The focus was on the parts that are often skipped in side projects — getting from source code all the way to a running, secured Azure environment in a repeatable way.
+
+---
+
+## What This Project Covers
+
+| Area | Details |
 |---|---|
-| Blazor App | https://happy-mud-04e739f03.7.azurestaticapps.net/ |
-| API | https://app-blogplatform-dev-api.azurewebsites.net/ |
-| API health | https://app-blogplatform-dev-api.azurewebsites.net/health/ready |
-| CMS | https://app-blogplatform-dev-cms.azurewebsites.net/umbraco |
-
-> Deployed on Azure. Infrastructure provisioned with Terraform, deployed via GitHub Actions with OIDC authentication.
-
----
-
-## Current status highlights
-
-- Azure `dev` environment is operational.
-- Infrastructure is provisioned with Terraform.
-- API and CMS are deployed to Azure App Service.
-- Blazor WebAssembly frontend is deployed to Azure Static Web Apps.
-- Secrets are handled through Azure Key Vault and Managed Identity.
-- GitHub Actions uses Azure OIDC authentication instead of stored Azure client secrets.
-- Deployment verification checks API, CMS, frontend, content, cache, and runtime configuration.
+| Application architecture | Clean Architecture with enforced dependency rules and architecture tests |
+| Headless CMS | Umbraco 14 with Delivery API, custom block types, and content seeding |
+| Azure infrastructure | Terraform-provisioned App Services, Static Web App, SQL, Key Vault |
+| Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
+| CI/CD authentication | GitHub Actions with OIDC — no long-lived Azure secrets stored in GitHub |
+| Infrastructure as Code | Full Azure environment reproducible from `terraform apply` |
+| Local development | Docker Compose stack: API + CMS + Blazor + SQL Server |
+| Observability | Application Insights + Log Analytics + structured Serilog logging |
+| Deployment verification | Post-deploy health checks and smoke tests in GitHub Actions |
 
 ---
 
-## Skills Demonstrated
+## Architecture Overview
 
-| Category | Demonstrated Skills |
-|-----------|-----------|
-| Backend Engineering | ASP.NET Core, REST APIs, Dependency Injection, DTO Contracts |
-| Architecture | Clean Architecture, Layered Design, Strategy Pattern, Architecture Tests |
-| Cloud Engineering | Azure App Service, Azure SQL, Azure Key Vault, Application Insights |
-| Infrastructure as Code | Terraform Modules, State Management, Environment Configuration |
-| DevOps | GitHub Actions, CI/CD Pipelines, Deployment Automation |
-| Security | OIDC Federation, Managed Identity, Secret Management |
-| Observability | Health Checks, Telemetry, Logging, Verification Workflows |
-| Platform Engineering | System Ownership, Deployment Pipelines, Infrastructure Automation |
-
----
-
-## What this project proves
-
-It is a production-style platform that shows the ability to design, build, deploy, secure, and verify a cloud system end to end.
-
-| Area | What the repository demonstrates |
-|---|---|
-| Backend Developer | API design, clean service boundaries, dependency injection, contracts, health checks |
-| Cloud Developer | Azure App Services, Azure SQL, Static Web Apps, Key Vault, Application Insights |
-| DevOps / Platform Engineer | Terraform, GitHub Actions, OIDC, repeatable deployments, operational verification |
-| Future Solution Architect | Architecture decisions, system decomposition, security model, deployment flow, documentation |
-
----
-
-## Portfolio value
-
-| Area | Strength | Why it matters |
-|---|---|---|
-| Architecture | Clean Architecture with dedicated Application, Domain, Infrastructure, Contracts, API, CMS, and App projects | Shows maintainable backend design instead of a simple CRUD demo |
-| Cloud readiness | Azure infrastructure is represented in Terraform and documented in `AZURE.md` | Shows understanding of real deployment environments |
-| CI/CD | Multiple GitHub Actions workflows cover readiness, plan, apply, deploy, seed, and verify | Shows platform ownership and release automation |
-| Security | OIDC, Managed Identity, Key Vault, and secret documentation are part of the solution | Shows awareness of production-grade cloud security |
-| Observability | Health checks, Application Insights, and verification workflows are included | Shows operational thinking, not only coding |
-| Documentation | README, Azure roadmap, infrastructure docs, ADRs, and secrets documentation exist | Makes the project easier to review by recruiters and technical interviewers |
-
----
-
-## Executive Summary
-
-This project was  designed to demonstrate complete ownership of a cloud-native system:
-
-- Backend application development
-- Clean Architecture
-- Infrastructure as Code
-- CI/CD automation
-- Secure secret management
-- Observability
-- Deployment verification
-- Operational readiness
-
-The goal was to demonstrate the engineering practices of Backend Developers, Cloud Developers, Platform Engineers, and Solution Architects.
-
-The repository combines application architecture, cloud infrastructure, deployment automation, monitoring, and security into a single production-style solution.
-
----
-
-## Case Study
-
-### Problem
-
-Modern software systems require much more than application code.
-
-Organizations need:
-
-- Secure cloud infrastructure
-- Automated deployments
-- Monitoring and diagnostics
-- Repeatable environments
-- Reliable operational processes
-- Scalable application architecture
-
-### Solution
-
-BlogPlatform combines:
-
-- ASP.NET Core REST API
-- Blazor WebAssembly frontend
-- Umbraco CMS
-- Azure cloud services
-- Terraform Infrastructure as Code
-- GitHub Actions CI/CD
-- Azure Key Vault
-- Application Insights
-
-into a single cloud-native platform.
-
-### Outcome
-
-The result is a production-style deployment pipeline where infrastructure, application code, content management, monitoring, and verification are treated as a single engineering problem rather than isolated technical components.
-
-This repository demonstrates practical experience across the full software delivery lifecycle, from source code to a running Azure environment.
-
----
-
-## Architecture
+Three runtime services backed by a shared .NET solution.
 
 ```mermaid
 graph TD
-    subgraph Client
-        A[Blazor WebAssembly<br/>Azure Static Web App]
-    end
+    User["👤 User / Browser"]
+    App["Blazor WebAssembly\nBlogPlatform.App\n(Azure Static Web App)"]
+    Api["ASP.NET Core API\nBlogPlatform.Api\n(Azure App Service)"]
+    Cms["Umbraco CMS\nBlogPlatform.Cms\n(Azure App Service)"]
+    Db[("Azure SQL Database")]
+    Kv["Azure Key Vault"]
+    Ai["Application Insights"]
+    GH["GitHub Actions\n(CI/CD)"]
+    TF["Terraform\n(Infrastructure)"]
 
-    subgraph Azure App Services
-        B[ASP.NET Core API<br/>Linux App Service]
-        C[Umbraco CMS<br/>Linux App Service]
-    end
-
-    subgraph Data & Secrets
-        D[(Azure SQL Database)]
-        E[Azure Key Vault]
-    end
-
-    subgraph Observability
-        F[Application Insights<br/>Log Analytics Workspace]
-    end
-
-    subgraph CI/CD
-        G[GitHub Actions]
-        H[Terraform IaC]
-    end
-
-    A -->|REST| B
-    B -->|Delivery API| C
-    B --> D
-    C --> D
-    B -->|Managed Identity| E
-    C -->|Managed Identity| E
-    B --> F
-    C --> F
-    G -->|OIDC| H
-    H -->|provisions| B
-    H -->|provisions| C
-    H -->|provisions| D
-    H -->|provisions| E
+    User -->|"reads blog"| App
+    App -->|"HTTP"| Api
+    Api -->|"Delivery API"| Cms
+    Cms -->|"reads / writes"| Db
+    Api -->|"reads"| Db
+    Api -->|"secrets"| Kv
+    Cms -->|"secrets"| Kv
+    Api -->|"telemetry"| Ai
+    Cms -->|"telemetry"| Ai
+    GH -->|"deploys"| App
+    GH -->|"deploys"| Api
+    GH -->|"deploys"| Cms
+    GH -->|"OIDC auth"| TF
+    TF -->|"provisions"| Kv
+    TF -->|"provisions"| Db
 ```
 
-### Application layer breakdown
+The Blazor frontend calls the ASP.NET Core API, which fetches content from Umbraco's Delivery API and returns structured DTOs. Both the API and CMS resolve production secrets from Azure Key Vault at startup via Managed Identity.
 
-```mermaid
-graph LR
-    subgraph src/BlogPlatform
-        API[BlogPlatform.Api] --> APP[BlogPlatform.Application]
-        APP --> DOM[BlogPlatform.Domain]
-        APP --> INF[BlogPlatform.Infrastructure]
-        INF --> DOM
-        API --> CON[BlogPlatform.Contracts]
-        BLA[BlogPlatform.App<br/>Blazor WASM] --> CON
-        CMS[BlogPlatform.Cms<br/>Umbraco] --> DOM
-        ARC[BlogPlatform.ArchitectureTests] -. enforces layer rules .-> DOM
-    end
-```
+---
+
+## Technology Stack
+
+### Application
+
+| Layer | Technology |
+|---|---|
+| Frontend | Blazor WebAssembly (.NET 10) |
+| API | ASP.NET Core Web API (.NET 10) |
+| CMS | Umbraco 14 (Delivery API) |
+| ORM / DB Access | Entity Framework Core |
+| Database | Azure SQL (MSSQL) |
+| Logging | Serilog → Application Insights + file sink |
+| Observability | Azure Application Insights + Log Analytics Workspace |
+
+### Infrastructure & DevOps
+
+| Concern | Technology |
+|---|---|
+| Cloud | Microsoft Azure |
+| Infrastructure as Code | Terraform |
+| CI/CD | GitHub Actions |
+| Azure authentication (pipeline) | GitHub OIDC |
+| Secret management | Azure Key Vault + Managed Identity |
+| Container runtime (local) | Docker / Docker Compose |
+| Frontend hosting | Azure Static Web App |
+| Backend hosting | Azure App Service (Linux, B1) |
+
+### Architecture & Quality
+
+| Concern | Approach |
+|---|---|
+| Application architecture | Clean Architecture |
+| Dependency enforcement | `BlogPlatform.ArchitectureTests` (NetArchTest) |
+| Deployment verification | Post-deploy smoke test workflow (`azure-verify.yml`) |
 
 ---
 
 ## Architecture Decisions
 
-The project follows a deliberate set of architectural decisions designed to prioritize maintainability, operational simplicity, and cloud readiness.
+Key decisions are recorded as Architecture Decision Records (ADRs).
 
-| Decision | Reason |
-|-----------|-----------|
-| Clean Architecture | Clear separation of concerns and long-term maintainability |
-| ASP.NET Core API | Modern, cloud-native backend platform |
-| Umbraco CMS | Content management without custom administration tooling |
-| Blazor WebAssembly | Strong .NET integration and shared contracts |
-| Terraform | Repeatable infrastructure provisioning |
-| GitHub Actions | Integrated CI/CD directly alongside source code |
-| Azure Key Vault | Centralized secret management |
-| Managed Identity | Eliminate application credentials where possible |
-| GitHub OIDC | Azure authentication without stored client secrets |
-| Application Insights | Production monitoring and diagnostics |
-| Architecture Tests | Protect layer boundaries and architectural integrity |
-
----
-
-## Tech stack
-
-| Area | Technology |
-|---|---|
-| Backend API | ASP.NET Core (.NET) |
-| Frontend | Blazor WebAssembly |
-| CMS | Umbraco |
-| Database | Azure SQL / SQL Server |
-| IaC | Terraform |
-| CI/CD | GitHub Actions |
-| Secrets | Azure Key Vault + Managed Identity |
-| Auth (CI) | GitHub OIDC — no stored secrets |
-| Observability | Application Insights, Log Analytics |
-| Architecture | Clean Architecture + layer enforcement tests |
-
----
-
-## CI/CD pipeline
-
-The full deployment chain runs in this order:
-
-| Step | Workflow | Trigger |
+| ADR | Decision | Summary |
 |---|---|---|
-| 1 | `azure-readiness.yml` — build, test, Terraform validate | Push / PR / manual |
-| 2 | `azure-terraform-plan.yml` — plan against Azure remote state | Manual |
-| 3 | `azure-terraform-apply.yml` — provision infrastructure | Manual |
-| 4 | `azure-deploy.yml` — deploy API, CMS, Blazor + smoke checks | Manual |
-| 5 | `azure-seed-content.yml` — seed CMS content, refresh API cache | Manual |
-| 6 | `azure-verify.yml` — end-to-end verification | Manual |
+| [ADR-0001](docs/adr/0001-use-clean-architecture.md) | Clean Architecture | Separates Domain, Application, Infrastructure, API, CMS, and Frontend into distinct layers with enforced dependency direction |
+| [ADR-0002](docs/adr/0002-use-terraform-and-github-oidc.md) | Terraform + GitHub OIDC | Infrastructure is version-controlled and reproducible; pipelines authenticate via OIDC instead of storing Azure credentials |
+| [ADR-0003](docs/adr/0003-use-key-vault-managed-identity.md) | Key Vault + Managed Identity | Production secrets stored in Azure Key Vault, accessed by App Services via system-assigned Managed Identity |
 
-Azure authentication uses **GitHub OIDC federation** — no Azure client secret is stored in GitHub.
+See [`docs/adr/`](docs/adr/) for the full index.
 
 ---
 
-## Operational Flow
+## Azure Deployment
 
-```text
-Developer
-    ↓
-Git Push
-    ↓
-Azure Readiness Workflow
-    ↓
-Build
-    ↓
-Tests
-    ↓
-Terraform Validation
-    ↓
-Terraform Plan
-    ↓
-Terraform Apply
-    ↓
-Azure Deployment
-    ↓
-Content Seeding
-    ↓
-Cache Refresh
-    ↓
-Verification
-    ↓
-Production Ready
-```
+Full deployment guide — GitHub secrets setup, Terraform backend configuration, workflow execution order, and known issues:
 
----
+**[AZURE.md](AZURE.md)**
 
-## Solution structure
+The deployment chain runs in this order:
 
 ```
-.
-├── .github/
-│   └── workflows/
-│       ├── azure-readiness.yml
-│       ├── azure-terraform-plan.yml
-│       ├── azure-terraform-apply.yml
-│       ├── azure-deploy.yml
-│       ├── azure-seed-content.yml
-│       └── azure-verify.yml
-├── docs/
-│   ├── README.md
-│   ├── DOCKER.md
-│   ├── secrets-and-configuration.md
-│   └── adr/
-│       ├── README.md
-│       ├── 0001-use-clean-architecture.md
-│       ├── 0002-use-terraform-and-github-oidc.md
-│       └── 0003-use-key-vault-managed-identity.md
-├── infra/
-│   ├── backend.tf
-│   ├── main.tf
-│   ├── outputs.tf
-│   ├── terraform.tfvars.example
-│   ├── variables.tf
-│   └── versions.tf
-├── src/
-│   └── BlogPlatform/
-│       ├── BlogPlatform.Api/
-│       ├── BlogPlatform.App/
-│       ├── BlogPlatform.Application/
-│       ├── BlogPlatform.ArchitectureTests/
-│       ├── BlogPlatform.Cms/
-│       ├── BlogPlatform.Contracts/
-│       ├── BlogPlatform.Domain/
-│       ├── BlogPlatform.Infrastructure/
-│       └── BlogPlatform.slnx
-├── tests/
-├── docker-compose.yml
-├── .env.example
-└── AZURE.md
+azure-readiness  →  azure-terraform-plan  →  azure-terraform-apply
+      →  azure-deploy  →  azure-seed-content  →  azure-verify
 ```
 
----
-
-## Main projects
-
-| Project | Purpose |
-|---|---|
-| `BlogPlatform.App` | Blazor WebAssembly frontend |
-| `BlogPlatform.Api` | Public REST API consumed by the frontend |
-| `BlogPlatform.Cms` | Umbraco CMS — blog content administration |
-| `BlogPlatform.Application` | Application services and use cases |
-| `BlogPlatform.Domain` | Domain entities, value objects, and enums |
-| `BlogPlatform.Infrastructure` | SQL Server persistence, CMS API client, infrastructure services |
-| `BlogPlatform.Contracts` | Shared DTOs and API contracts |
-| `BlogPlatform.ArchitectureTests` | Clean Architecture dependency rule enforcement |
-
----
-
-## Azure infrastructure
-
-Terraform provisions and manages:
-
-- Resource Group
-- Log Analytics Workspace + Application Insights
-- Azure Key Vault (with Managed Identity access policies)
-- Azure SQL Server + SQL Database
-- Azure App Service Plan (Linux)
-- API App Service + CMS App Service
-- Azure Static Web App
-- System-assigned Managed Identities for API and CMS
-- Remote Terraform state backend (Azure Storage)
-
-See [`AZURE.md`](AZURE.md) for deployment details and `infra/README.md` for Terraform details.
-
----
-
-## Runtime components
-
-| Component | Local | Azure |
-|---|---|---|
-| Blazor App | Blazor WebAssembly (local) | Azure Static Web App |
-| API | ASP.NET Core Web API | Linux App Service |
-| CMS | Umbraco | Linux App Service |
-| Database | LocalDB / SQL Server | Azure SQL Database |
-| Secrets | n/a locally | Azure Key Vault |
-| Telemetry | Optional | Application Insights |
-
----
-
-## Local development
-
-```bash
-# Restore, build, and test
-dotnet restore src/BlogPlatform/BlogPlatform.slnx
-dotnet build src/BlogPlatform/BlogPlatform.slnx
-dotnet test src/BlogPlatform/BlogPlatform.slnx
-
-# Run each component
-dotnet run --project src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
-dotnet run --project src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
-dotnet run --project src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
-```
-
----
-
-## Health checks
-
-| Service | Endpoints |
-|---|---|
-| API | `/health` · `/health/live` · `/health/ready` |
-| CMS | `/health` · `/health/live` · `/health/ready` |
+All workflows live in [`.github/workflows/`](.github/workflows/) and are triggered via `workflow_dispatch`.
 
 ---
 
 ## Security
 
-- **GitHub OIDC** — Azure authentication with no stored client secrets
-- **Azure Key Vault** — runtime secrets (connection strings, keys)
-- **Managed Identity** — App Services access Key Vault without credentials
-- **Terraform variables** — sensitive values never committed (`.tfvars` gitignored)
-- **Remote state** — Terraform state stored in Azure Storage with state locking
+Secret and configuration management is documented in:
+
+**[docs/secrets-and-configuration.md](docs/secrets-and-configuration.md)**
+
+Key points:
+
+- Production secrets live in **Azure Key Vault** — not in `appsettings`, GitHub secrets, or Docker images
+- App Services access Key Vault via **system-assigned Managed Identity** — no stored credentials
+- GitHub Actions authenticate to Azure via **OIDC federation** — no long-lived `AZURE_CLIENT_SECRET`
+- Local development uses `.env` files (git-ignored) — see `.env.example`
 
 ---
 
-## Good places to review first
+## Local Development
 
-| Reviewer goal | Start here |
+**[docs/DOCKER.md](docs/DOCKER.md)**
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+| Service | URL |
 |---|---|
-| Understand the system quickly | `README.md` and the architecture diagrams above |
-| Review Azure deployment | `AZURE.md` and `.github/workflows/` |
-| Review infrastructure | `infra/` and `infra/README.md` |
-| Review security/configuration | `docs/secrets-and-configuration.md` |
-| Review architectural intent | `docs/adr/` |
-| Review backend structure | `src/BlogPlatform/BlogPlatform.Api`, `Application`, `Domain`, `Infrastructure`, `Contracts` |
+| Blazor frontend | http://localhost:8080 |
+| ASP.NET Core API | http://localhost:5000 |
+| Umbraco backoffice | http://localhost:5001/umbraco |
+
+Allow ~2–3 minutes on first boot for Umbraco's unattended install to complete.
 
 ---
 
-## Documentation
+## Lessons Learned
 
-| File | Purpose |
-|---|---|
-| [`AZURE.md`](AZURE.md) | Azure deployment roadmap and current status |
-| [`docs/README.md`](docs/README.md) | Documentation index |
-| [`docs/DOCKER.md`](docs/DOCKER.md) | Docker and local container workflow |
-| [`docs/secrets-and-configuration.md`](docs/secrets-and-configuration.md) | Secrets and configuration flow |
-| [`docs/adr/README.md`](docs/adr/README.md) | Architecture Decision Records index |
-| [`infra/README.md`](infra/README.md) | Terraform infrastructure details |
-| [`src/README.md`](src/README.md) | Source code structure |
-| [`tests/README.md`](tests/README.md) | Test documentation |
+### Why Clean Architecture?
 
+A blog platform could be a single project. Splitting into layers keeps business logic independent of infrastructure — the CMS can be swapped, the database can be replaced, and the API surface stays unchanged. `BlogPlatform.ArchitectureTests` enforces dependency direction automatically; a PR that violates the rules fails the build. The trade-off is more projects and more ceremony for simple features, which is worth it when the structure itself is part of what's being explored.
+
+### Why Terraform?
+
+Running `terraform apply` against a blank Azure subscription should produce a fully working environment — and it does. Infrastructure changes go through pull request review the same way application code does. Clicking through the Azure portal produces something that works once but can't be reviewed, diffed, or reliably recreated.
+
+### Why OIDC?
+
+GitHub OIDC lets a workflow authenticate to Azure without a password. At runtime the workflow requests a short-lived token; Azure validates it against a configured trust relationship in Entra ID. There is no `AZURE_CLIENT_SECRET` to rotate, expire, or accidentally log. Long-lived credentials in CI/CD pipelines are a common source of exposure — OIDC removes that from the picture for Azure access.
+
+### Why Key Vault?
+
+A secret in `appsettings.Production.json`, a Dockerfile layer, or a GitHub Actions variable can end up in source history, a container registry, or a workflow log. Key Vault keeps production secrets out of all of those paths. The API and CMS never hold credentials — they request secrets at startup via their Azure identity, and Key Vault responds based on access policy.
+
+### Why Managed Identity?
+
+The alternative is a service principal with a client secret — another credential that needs storing, rotating, and protecting. With Managed Identity, Azure manages the identity and its lifecycle. The App Service authenticates by virtue of running in Azure; no password is exchanged or stored anywhere.
 
 ---
 
-## Summary for recruiters and technical reviewers
+## Repository Structure
 
-BlogPlatform demonstrates a complete engineering workflow: application architecture, cloud infrastructure, secure configuration, automated deployment, content seeding, health checks, and post-deployment verification.
+```
+.
+├── .github/workflows/      # CI/CD pipeline definitions
+├── docs/
+│   ├── adr/                # Architecture Decision Records
+│   ├── DOCKER.md           # Local development guide
+│   └── secrets-and-configuration.md
+├── infra/                  # Terraform configuration
+├── src/
+│   └── BlogPlatform/
+│       ├── BlogPlatform.Api/             # ASP.NET Core Web API
+│       ├── BlogPlatform.App/             # Blazor WebAssembly frontend
+│       ├── BlogPlatform.Application/     # Application services and interfaces
+│       ├── BlogPlatform.ArchitectureTests/
+│       ├── BlogPlatform.Cms/             # Umbraco CMS
+│       ├── BlogPlatform.Contracts/       # Shared DTOs
+│       ├── BlogPlatform.Domain/          # Domain model
+│       └── BlogPlatform.Infrastructure/  # SQL + CMS integration
+├── AZURE.md
+├── docker-compose.yml
+├── Dockerfile.api
+├── Dockerfile.app
+├── Dockerfile.cms
+└── .env.example
+```
 
-It is intended to show readiness for roles that combine backend development with cloud, DevOps, platform engineering, and solution architecture responsibilities.
+---
+
+## License
+
+[MIT](LICENSE)
