@@ -187,12 +187,13 @@ The alternative is a service principal with a client secret — another credenti
 
 ```
 .
-├── .github/workflows/      # CI/CD pipeline definitions
+├── .github/workflows/                # CI/CD pipeline definitions
 ├── docs/
-│   ├── adr/                # Architecture Decision Records
-│   ├── DOCKER.md           # Local development guide
+│   ├── adr/                          # Architecture Decision Records
+│   ├── architecture/                 # Detailed architecture documentation
+│   ├── DOCKER.md                     # Local development guide
 │   └── secrets-and-configuration.md
-├── infra/                  # Terraform configuration
+├── infra/                            # Terraform configuration
 ├── src/
 │   └── BlogPlatform/
 │       ├── BlogPlatform.Api/             # ASP.NET Core Web API
