@@ -71,32 +71,14 @@ See [`docs/adr/`](docs/adr/) for the full index.
 
 ---
 
-## Azure deployment
+## Azure deployment pipeline
 
-Full deployment guide — GitHub secrets setup, Terraform backend configuration, workflow execution order, and known issues:
+The azure deployment pipeline runs in this order:
 
-**[AZURE.md](AZURE.md)**
+![Azure Deployment Pipeline](docs/architecture/azure-deployment-pipeline.svg)
 
-The deployment chain runs in this order:
-
-```mermaid
-flowchart LR
-
-    A[Azure Readiness Check]
-    B[Terraform Plan]
-    C[Terraform Apply]
-    D[Application Deploy]
-    E[Content Seed]
-    F[Deployment Verification]
-
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-```
-
-All workflows live in [`.github/workflows/`](.github/workflows/) and are triggered via `workflow_dispatch`.
+See also:
+- [Detailed Azure Deployment Pipeline](docs/architecture/azure-deployment-pipelined-detailed.svg)
 
 ---
 
