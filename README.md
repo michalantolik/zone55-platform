@@ -36,7 +36,7 @@ Key architectural decisions:
 - Observability provided by Application Insights
 
 See also:
-- [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture-detailed-v2.svg)
+- [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture-detailed-v5.svg)
 
 ---
 
@@ -75,10 +75,10 @@ See [`docs/adr/`](docs/adr/) for the full index.
 
 The azure deployment pipeline runs in this order:
 
-![Azure Deployment Pipeline](docs/architecture/azure-deployment-overview-v2.svg)
+![Azure Deployment Pipeline](docs/architecture/azure-deployment-overview-v5.svg)
 
 See also:
-- [Detailed Azure Deployment Pipeline](docs/architecture/azure-deployment-detailed-v2.svg)
+- [Detailed Azure Deployment Pipeline](docs/architecture/azure-deployment-detailed-v5.svg)
 
 ---
 
