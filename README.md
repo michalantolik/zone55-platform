@@ -26,7 +26,7 @@ A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terr
 
 The platform consists of a Blazor WebAssembly frontend, ASP.NET Core API, and Umbraco CMS deployed on Azure. Infrastructure is provisioned with Terraform and delivered through GitHub Actions CI/CD using OIDC authentication.
 
-![Architecture Overview](docs/architecture/architecture-overview-diagram.svg)
+![Architecture Overview](docs/architecture/azure-architecture-overview-v2.svg)
 
 Key architectural decisions:
 - Infrastructure provisioned using Terraform
@@ -36,7 +36,7 @@ Key architectural decisions:
 - Observability provided by Application Insights
 
 See also:
-- [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture-diagram.svg)
+- [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture-detailed-v2.svg)
 
 ---
 
@@ -75,10 +75,10 @@ See [`docs/adr/`](docs/adr/) for the full index.
 
 The azure deployment pipeline runs in this order:
 
-![Azure Deployment Pipeline](docs/architecture/azure-deployment-pipeline.svg)
+![Azure Deployment Pipeline](docs/architecture/azure-deployment-overview-v2.svg)
 
 See also:
-- [Detailed Azure Deployment Pipeline](docs/architecture/azure-deployment-pipelined-detailed.svg)
+- [Detailed Azure Deployment Pipeline](docs/architecture/azure-deployment-detailed-v2.svg)
 
 ---
 
