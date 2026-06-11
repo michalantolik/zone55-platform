@@ -45,7 +45,7 @@ See also:
 | Area | Details |
 |---|---|
 | Application architecture | Clean architecture applied |
-| Architecture governance | NetArchTest architecture rules enforced in CI |
+| Architecture governance | NetArchTest clean architecture rules enforced in CI |
 | Headless CMS | Umbraco 14 with Delivery API, custom block types, and content seeding |
 | Azure infrastructure | Terraform-provisioned App Services, Static Web App, SQL, Key Vault |
 | Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
