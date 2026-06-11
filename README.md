@@ -2,6 +2,12 @@
 
 A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terraform Infrastructure as Code and GitHub Actions CI/CD.
 
+The platform allows authors of software learning content to create and manage educational articles.
+
+The project showcases how a content platform can be deployed, secured, and operated using modern Azure cloud engineering practices.
+
+## 
+
 <!-- CI/CD Badges -->
 [![Azure Readiness](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-readiness.yml)
 [![Terraform Plan](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-terraform-plan.yml/badge.svg)](https://github.com/michalantolik/dotnet-cloud-blog-platform/actions/workflows/azure-terraform-plan.yml)
