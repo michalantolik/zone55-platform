@@ -175,7 +175,7 @@ GitHub OIDC lets a workflow authenticate to Azure without a password. At runtime
 
 ### Why Key Vault?
 
-A secret in `appsettings.Production.json`, a Dockerfile layer, or a GitHub Actions variable can end up in source history, a container registry, or a workflow log. Key Vault keeps production secrets out of all of those paths. The API and CMS never hold credentials — they request secrets at startup via their Azure identity, and Key Vault responds based on access policy.
+A secret in `appsettings.Production.json`, a Dockerfile layer, or a GitHub Actions variable can end up in source history, a container registry, or a workflow log. Key Vault keeps production secrets out of all of those paths. The API and CMS never hold credentials — they request secrets at startup via their Azure Managed Identity, and Key Vault responds based on access policy.
 
 ### Why Managed Identity?
 
