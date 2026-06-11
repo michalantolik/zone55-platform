@@ -40,7 +40,7 @@ See also:
 
 ---
 
-## What This Project Covers
+## What this project covers
 
 | Area | Details |
 |---|---|
@@ -57,7 +57,38 @@ See also:
 
 ---
 
-## Technology Stack
+## Architecture decisions
+
+Key decisions are recorded as Architecture Decision Records (ADRs).
+
+| ADR | Decision | Summary |
+|---|---|---|
+| [ADR-0001](docs/adr/0001-use-clean-architecture.md) | Clean Architecture | Separates Domain, Application, Infrastructure, API, CMS, and Frontend into distinct layers with enforced dependency direction |
+| [ADR-0002](docs/adr/0002-use-terraform-and-github-oidc.md) | Terraform + GitHub OIDC | Infrastructure is version-controlled and reproducible; pipelines authenticate via OIDC instead of storing Azure credentials |
+| [ADR-0003](docs/adr/0003-use-key-vault-managed-identity.md) | Key Vault + Managed Identity | Production secrets stored in Azure Key Vault, accessed by App Services via system-assigned Managed Identity |
+
+See [`docs/adr/`](docs/adr/) for the full index.
+
+---
+
+## Azure deployment
+
+Full deployment guide — GitHub secrets setup, Terraform backend configuration, workflow execution order, and known issues:
+
+**[AZURE.md](AZURE.md)**
+
+The deployment chain runs in this order:
+
+```
+azure-readiness  →  azure-terraform-plan  →  azure-terraform-apply
+      →  azure-deploy  →  azure-seed-content  →  azure-verify
+```
+
+All workflows live in [`.github/workflows/`](.github/workflows/) and are triggered via `workflow_dispatch`.
+
+---
+
+## Technology stack
 
 ### Application
 
@@ -94,37 +125,6 @@ See also:
 
 ---
 
-## Architecture Decisions
-
-Key decisions are recorded as Architecture Decision Records (ADRs).
-
-| ADR | Decision | Summary |
-|---|---|---|
-| [ADR-0001](docs/adr/0001-use-clean-architecture.md) | Clean Architecture | Separates Domain, Application, Infrastructure, API, CMS, and Frontend into distinct layers with enforced dependency direction |
-| [ADR-0002](docs/adr/0002-use-terraform-and-github-oidc.md) | Terraform + GitHub OIDC | Infrastructure is version-controlled and reproducible; pipelines authenticate via OIDC instead of storing Azure credentials |
-| [ADR-0003](docs/adr/0003-use-key-vault-managed-identity.md) | Key Vault + Managed Identity | Production secrets stored in Azure Key Vault, accessed by App Services via system-assigned Managed Identity |
-
-See [`docs/adr/`](docs/adr/) for the full index.
-
----
-
-## Azure Deployment
-
-Full deployment guide — GitHub secrets setup, Terraform backend configuration, workflow execution order, and known issues:
-
-**[AZURE.md](AZURE.md)**
-
-The deployment chain runs in this order:
-
-```
-azure-readiness  →  azure-terraform-plan  →  azure-terraform-apply
-      →  azure-deploy  →  azure-seed-content  →  azure-verify
-```
-
-All workflows live in [`.github/workflows/`](.github/workflows/) and are triggered via `workflow_dispatch`.
-
----
-
 ## Security
 
 Secret and configuration management is documented in:
@@ -140,7 +140,7 @@ Key points:
 
 ---
 
-## Local Development
+## Local development
 
 **[docs/DOCKER.md](docs/DOCKER.md)**
 
@@ -159,7 +159,7 @@ Allow ~2–3 minutes on first boot for Umbraco's unattended install to complete.
 
 ---
 
-## Lessons Learned
+## Lessons learned
 
 ### Why Clean Architecture?
 
@@ -183,7 +183,7 @@ The alternative is a service principal with a client secret — another credenti
 
 ---
 
-## Repository Structure
+## Repository structure
 
 ```
 .
