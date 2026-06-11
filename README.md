@@ -71,9 +71,9 @@ See [`docs/adr/`](docs/adr/) for the full index.
 
 ---
 
-## Azure deployment
+## Azure deployment pipeline
 
-The azure deployment pipeline chain runs in this order:
+The azure deployment pipeline runs in this order:
 
 ![Azure Deployment Pipeline](docs/architecture/azure-deployment-pipeline.svg)
 
