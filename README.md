@@ -50,7 +50,7 @@ See also:
 | Azure infrastructure | Terraform-provisioned App Services, Static Web App, SQL, Key Vault |
 | Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
 | CI/CD authentication | GitHub Actions with OIDC — no long-lived Azure secrets stored in GitHub |
-| Infrastructure as Code | Full Azure environment reproducible from `terraform apply` |
+| Infrastructure as Code | Full Azure environment reproducible from `Azure Terraform apply` GitHub Action |
 | Local development | Docker Compose stack: API + CMS + Blazor + SQL Server |
 | Observability | Application Insights + Log Analytics + structured Serilog logging |
 | Deployment verification | Post-deploy health checks and smoke tests in GitHub Actions |
