@@ -79,9 +79,21 @@ Full deployment guide — GitHub secrets setup, Terraform backend configuration,
 
 The deployment chain runs in this order:
 
-```
-azure-readiness  →  azure-terraform-plan  →  azure-terraform-apply
-      →  azure-deploy  →  azure-seed-content  →  azure-verify
+```mermaid
+flowchart LR
+
+    A[Azure Readiness Check]
+    B[Terraform Plan]
+    C[Terraform Apply]
+    D[Application Deploy]
+    E[Content Seed]
+    F[Deployment Verification]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
 ```
 
 All workflows live in [`.github/workflows/`](.github/workflows/) and are triggered via `workflow_dispatch`.
