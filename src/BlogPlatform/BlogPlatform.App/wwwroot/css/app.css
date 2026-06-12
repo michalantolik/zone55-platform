@@ -1519,3 +1519,61 @@ html.top-nav-is-stuck .top-nav-sticky {
     opacity: 0.9;
     backdrop-filter: blur(10px);
 }
+
+/* Prism syntax highlighting for Code Snippet Block. */
+.code-block .token.comment,
+.code-block .token.prolog,
+.code-block .token.doctype,
+.code-block .token.cdata {
+    color: #7dd3fc;
+    opacity: 0.72;
+    font-style: italic;
+}
+
+.code-block .token.punctuation {
+    color: #cbd5e1;
+}
+
+.code-block .token.property,
+.code-block .token.tag,
+.code-block .token.boolean,
+.code-block .token.number,
+.code-block .token.constant,
+.code-block .token.symbol,
+.code-block .token.deleted {
+    color: #f9a8d4;
+}
+
+.code-block .token.selector,
+.code-block .token.attr-name,
+.code-block .token.string,
+.code-block .token.char,
+.code-block .token.builtin,
+.code-block .token.inserted {
+    color: #86efac;
+}
+
+.code-block .token.operator,
+.code-block .token.entity,
+.code-block .token.url,
+.code-block .language-css .token.string,
+.code-block .style .token.string {
+    color: #fde68a;
+}
+
+.code-block .token.atrule,
+.code-block .token.attr-value,
+.code-block .token.keyword {
+    color: #93c5fd;
+}
+
+.code-block .token.function,
+.code-block .token.class-name {
+    color: #fcd34d;
+}
+
+.code-block .token.regex,
+.code-block .token.important,
+.code-block .token.variable {
+    color: #fdba74;
+}

@@ -391,6 +391,45 @@
                     line-height: 1.4;
                 }
 
+
+            .code-language-field {
+                display: none;
+                margin-bottom: 14px;
+            }
+
+                .code-language-field.active {
+                    display: block;
+                }
+
+            .code-language-row {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .code-language-badge {
+                display: inline-flex;
+                align-items: center;
+                min-height: 43px;
+                padding: 0 12px;
+                border: 1px solid rgba(132, 187, 255, 0.30);
+                border-radius: 999px;
+                background: rgba(22, 119, 255, 0.12);
+                color: #bfe0ff;
+                font-size: 12px;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+
+            .code-language-help {
+                display: block;
+                margin-top: 8px;
+                color: #90a9ca;
+                font-size: 12px;
+                line-height: 1.4;
+            }
+
             .splitter {
                 flex: 0 0 var(--article-editor-splitter-width);
                 width: var(--article-editor-splitter-width);
@@ -695,6 +734,15 @@
                 <small id="blockEditTitleHelp">This title is shown above the block content in the article.</small>
             </div>
 
+            <div id="blockLanguageField" class="code-language-field">
+                <label class="field-label" for="blockEditLanguage">Language</label>
+                <div class="code-language-row">
+                    <select id="blockEditLanguage"></select>
+                    <span id="blockEditLanguageBadge" class="code-language-badge">Manual</span>
+                </div>
+                <small id="blockEditLanguageHelp" class="code-language-help">Choose the language used for syntax coloring. The editor can detect it from the file name or pasted code.</small>
+            </div>
+
             <div id="blockTitleBarField" class="diagram-title-field">
                 <label class="toggle-row" for="blockEditShowTitleBar">
                     <input id="blockEditShowTitleBar" type="checkbox" checked />
@@ -877,6 +925,38 @@
                 }
             ];
 
+            const codeLanguageOptions = [
+                { value: "csharp", label: "C#", extensions: ["cs"] },
+                { value: "javascript", label: "JavaScript", extensions: ["js", "mjs", "cjs"] },
+                { value: "typescript", label: "TypeScript", extensions: ["ts"] },
+                { value: "markup", label: "HTML", extensions: ["html", "htm"] },
+                { value: "css", label: "CSS", extensions: ["css"] },
+                { value: "razor", label: "Razor / CSHTML", extensions: ["cshtml", "razor"] },
+                { value: "sql", label: "SQL", extensions: ["sql"] },
+                { value: "yaml", label: "YAML", extensions: ["yaml", "yml"] },
+                { value: "xml", label: "XML", extensions: ["xml", "config"] },
+                { value: "json", label: "JSON", extensions: ["json"] },
+                { value: "powershell", label: "PowerShell", extensions: ["ps1", "psm1"] },
+                { value: "bash", label: "Bash / Shell", extensions: ["sh", "bash", "zsh"] },
+                { value: "docker", label: "Dockerfile", extensions: ["dockerfile"] },
+                { value: "hcl", label: "Terraform / HCL", extensions: ["tf", "tfvars", "hcl"] },
+                { value: "markdown", label: "Markdown", extensions: ["md", "markdown"] },
+                { value: "text", label: "Plain text", extensions: ["txt", "log"] }
+            ];
+
+            const codeLanguageAliases = new Map([
+                ["cs", "csharp"],
+                ["html", "markup"],
+                ["htm", "markup"],
+                ["cshtml", "razor"],
+                ["yml", "yaml"],
+                ["terraform", "hcl"],
+                ["tf", "hcl"],
+                ["ps1", "powershell"],
+                ["shell", "bash"],
+                ["sh", "bash"]
+            ]);
+
             let dotnetRoadmap = [];
             let dotnetZones = [];
             let dotnetZoneSteps = [];
@@ -898,6 +978,7 @@
 
             document.addEventListener("DOMContentLoaded", async () => {
                 initializeResizablePanes();
+                initializeCodeLanguageEditor();
 
                 await loadDotnetRoadmapOptions();
 
@@ -1428,6 +1509,7 @@
                     const content = { ...block };
                     content.udi = udi;
                     delete content.type;
+                    delete content.languageWasManuallySelected;
 
                     contentData.push(content);
                 }
@@ -1717,8 +1799,194 @@
                 return "Diagram";
             }
 
+            function normalizeCodeLanguage(language) {
+                const value = (language || "text").toString().trim().toLowerCase().replace("language-", "");
+                return codeLanguageAliases.get(value) || value || "text";
+            }
+
+            function getCodeLanguageLabel(language) {
+                const normalized = normalizeCodeLanguage(language);
+                return codeLanguageOptions.find(option => option.value === normalized)?.label || "Plain text";
+            }
+
+            function initializeCodeLanguageEditor() {
+                const select = document.getElementById("blockEditLanguage");
+
+                select.innerHTML = codeLanguageOptions
+                    .map(option => `<option value="${option.value}">${option.label}</option>`)
+                    .join("");
+
+                select.addEventListener("change", () => {
+                    const badge = document.getElementById("blockEditLanguageBadge");
+                    badge.innerText = `${getCodeLanguageLabel(select.value)} selected`;
+                    badge.title = "You can change this anytime.";
+
+                    if (editedBlockIndex !== null) {
+                        bodyBlocks[editedBlockIndex].languageWasManuallySelected = true;
+                    }
+                });
+
+                const titleInput = document.getElementById("blockEditBlockTitle");
+                const codeInput = document.getElementById("blockEditText");
+
+                titleInput.addEventListener("input", () => detectCodeLanguageForEditor("title"));
+                codeInput.addEventListener("paste", () => window.setTimeout(() => detectCodeLanguageForEditor("paste"), 0));
+                codeInput.addEventListener("input", () => detectCodeLanguageForEditor("content"));
+            }
+
+            function detectCodeLanguageForEditor(source) {
+                if (editedBlockIndex === null) {
+                    return;
+                }
+
+                const block = bodyBlocks[editedBlockIndex];
+
+                if (getBlockType(block) !== "code") {
+                    return;
+                }
+
+                const title = document.getElementById("blockEditBlockTitle").value;
+                const code = document.getElementById("blockEditText").value;
+                const detected = detectCodeLanguage(title, code);
+
+                if (!detected || detected.language === "text") {
+                    return;
+                }
+
+                const select = document.getElementById("blockEditLanguage");
+                const current = normalizeCodeLanguage(select.value);
+                const original = normalizeCodeLanguage(block.language);
+                const canAutoApply = !block.languageWasManuallySelected || current === original || source === "paste";
+
+                if (canAutoApply) {
+                    select.value = detected.language;
+                    block.languageWasManuallySelected = false;
+                    updateCodeLanguageBadge(`Detected ${getCodeLanguageLabel(detected.language)} from ${detected.reason}`);
+                }
+            }
+
+            function detectCodeLanguage(title, code) {
+                const fromFileName = detectCodeLanguageFromFileName(title);
+
+                if (fromFileName) {
+                    return {
+                        language: fromFileName,
+                        reason: "file name"
+                    };
+                }
+
+                const fromSource = detectCodeLanguageFromSource(code);
+
+                if (fromSource) {
+                    return {
+                        language: fromSource,
+                        reason: "pasted code"
+                    };
+                }
+
+                return null;
+            }
+
+            function detectCodeLanguageFromFileName(title) {
+                const value = (title || "").trim().toLowerCase();
+
+                if (!value) {
+                    return null;
+                }
+
+                if (value === "dockerfile" || value.endsWith("/dockerfile") || value.endsWith("\\dockerfile")) {
+                    return "docker";
+                }
+
+                const extensionMatch = value.match(/\.([a-z0-9]+)$/i);
+
+                if (!extensionMatch) {
+                    return null;
+                }
+
+                const extension = extensionMatch[1];
+                const alias = codeLanguageAliases.get(extension);
+
+                if (alias) {
+                    return alias;
+                }
+
+                return codeLanguageOptions.find(option => option.extensions.includes(extension))?.value || null;
+            }
+
+            function detectCodeLanguageFromSource(code) {
+                const source = (code || "").trim();
+                const lower = source.toLowerCase();
+
+                if (!source) {
+                    return null;
+                }
+
+                if ((source.startsWith("{") && source.endsWith("}")) || (source.startsWith("[") && source.endsWith("]"))) {
+                    try {
+                        JSON.parse(source);
+                        return "json";
+                    }
+                    catch {
+                        // Continue with other heuristics.
+                    }
+                }
+
+                if (/^(@@page|@@model|@@using|@@inject)\b/im.test(source) || lower.includes("<component") || lower.includes("asp-for=")) {
+                    return "razor";
+                }
+
+                if (/<(html|body|div|section|article|header|main|footer|span|script|style)\b/i.test(source)) {
+                    return "markup";
+                }
+
+                if (/^\s*<\?xml\b/i.test(source) || /<configuration\b/i.test(source)) {
+                    return "xml";
+                }
+
+                if (/\b(using\s+system|namespace\s+[a-z0-9_.]+|public\s+(sealed\s+)?class|record\s+[a-z0-9_]+|async\s+task)\b/i.test(source)) {
+                    return "csharp";
+                }
+
+                if (/\b(function|const|let|export|import)\b/.test(source) && /[{};]/.test(source)) {
+                    return lower.includes(": string") || lower.includes(": number") ? "typescript" : "javascript";
+                }
+
+                if (/\b(select|insert\s+into|update|delete\s+from|create\s+table|alter\s+table)\b[\s\S]*\b(from|where|values|set)\b/i.test(source)) {
+                    return "sql";
+                }
+
+                if (/^(name|on|jobs|steps|services|version|environment|trigger):\s/im.test(source) || /^\s*-\s+[a-z0-9_-]+:/im.test(source)) {
+                    return "yaml";
+                }
+
+                if (/\b(resource|provider|variable|output|module)\s+"/i.test(source)) {
+                    return "hcl";
+                }
+
+                if (/^(from|run|copy|workdir|entrypoint|cmd|expose)\s+/im.test(source)) {
+                    return "docker";
+                }
+
+                if (/\b(Get-|Set-|New-|Remove-|Write-Host|param\s*\()/i.test(source)) {
+                    return "powershell";
+                }
+
+                if (/^(#!\/bin\/(bash|sh)|sudo\s+|npm\s+|dotnet\s+|az\s+|git\s+)/im.test(source)) {
+                    return "bash";
+                }
+
+                return null;
+            }
+
+            function updateCodeLanguageBadge(text) {
+                const badge = document.getElementById("blockEditLanguageBadge");
+                badge.innerText = text;
+                badge.title = "Syntax coloring is based on this language. You can still change it manually.";
+            }
+
             function getDefaultCodeTitle(block) {
-                return block.codeTitle || block.title || block.fileName || block.language || "Code snippet";
+                return block.codeTitle || block.title || block.fileName || getCodeLanguageLabel(block.language) || "Code snippet";
             }
 
             function configureBlockTitleEditor(type, block) {
@@ -1728,6 +1996,7 @@
 
                 document.getElementById("blockTitleField").classList.toggle("active", supportsTitleBar);
                 document.getElementById("blockTitleBarField").classList.toggle("active", supportsTitleBar);
+                document.getElementById("blockLanguageField").classList.toggle("active", isCode);
 
                 if (!supportsTitleBar) {
                     return;
@@ -1748,6 +2017,11 @@
                     showTitleBar.checked = block.showCodeTitleBar !== false;
                     showTitleBarText.innerText = "Show code title bar";
                     showTitleBarHelp.innerText = "Turn this off when the code should start immediately inside the rounded panel.";
+
+                    const language = normalizeCodeLanguage(block.language || detectCodeLanguage(block.codeTitle || block.fileName || block.title, block.code)?.language || "text");
+                    const languageSelect = document.getElementById("blockEditLanguage");
+                    languageSelect.value = codeLanguageOptions.some(option => option.value === language) ? language : "text";
+                    updateCodeLanguageBadge(block.language ? `${getCodeLanguageLabel(language)} selected` : `Detected ${getCodeLanguageLabel(language)}`);
                     return;
                 }
 
@@ -1780,6 +2054,7 @@
 
                 if (type === "code") {
                     document.getElementById("blockEditText").value = block.code || "";
+                    detectCodeLanguageForEditor("open");
                 }
                 else {
                     document.getElementById("blockEditText").value =
@@ -1800,6 +2075,7 @@
                 document.getElementById("blockEditModal").style.display = "none";
                 document.getElementById("blockTitleField").classList.remove("active");
                 document.getElementById("blockTitleBarField").classList.remove("active");
+                document.getElementById("blockLanguageField").classList.remove("active");
             }
 
             function saveBlockEditor() {
@@ -1814,9 +2090,13 @@
                 const type = getBlockType(block);
 
                 if (type === "code") {
+                    const selectedLanguage = normalizeCodeLanguage(document.getElementById("blockEditLanguage").value);
                     block.code = newValue;
+                    block.language = selectedLanguage;
+                    block.fileName = block.fileName || newBlockTitle || getDefaultCodeTitle(block);
                     block.codeTitle = newBlockTitle || getDefaultCodeTitle(block);
                     block.showCodeTitleBar = showTitleBar;
+                    block.languageWasManuallySelected = true;
 
                     delete block.title;
                     delete block.diagramTitle;

@@ -15,6 +15,7 @@ public sealed class CodeBlockRenderStrategy : IArticleBlockRenderStrategy
         {
             var sequence = 0;
             var title = GetCodeTitle(block);
+            var language = NormalizeLanguage(block.Language);
             var showTitleBar = block.ShowCodeTitleBar;
 
             builder.OpenElement(sequence++, "figure");
@@ -43,7 +44,7 @@ public sealed class CodeBlockRenderStrategy : IArticleBlockRenderStrategy
 
             builder.OpenElement(sequence++, "pre");
             builder.OpenElement(sequence++, "code");
-            builder.AddAttribute(sequence++, "class", $"language-{block.Language}");
+            builder.AddAttribute(sequence++, "class", $"language-{language}");
 
             foreach (var line in GetCodeLines(block.Code))
             {
@@ -86,6 +87,30 @@ public sealed class CodeBlockRenderStrategy : IArticleBlockRenderStrategy
                 () => context.CopyToClipboardAsync(block.Code)));
         builder.AddContent(sequence++, "Copy");
         builder.CloseElement();
+    }
+
+
+    private static string NormalizeLanguage(string? language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+        {
+            return "text";
+        }
+
+        return language.Trim().ToLowerInvariant() switch
+        {
+            "cs" => "csharp",
+            "cshtml" => "razor",
+            "html" => "markup",
+            "htm" => "markup",
+            "yml" => "yaml",
+            "terraform" => "hcl",
+            "tf" => "hcl",
+            "ps1" => "powershell",
+            "shell" => "bash",
+            "sh" => "bash",
+            _ => language.Trim().ToLowerInvariant()
+        };
     }
 
     private static string GetCodeTitle(ArticleBlockDto block)

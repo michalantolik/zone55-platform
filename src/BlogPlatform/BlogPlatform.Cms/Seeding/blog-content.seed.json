@@ -218,7 +218,7 @@
         {
           "type": "plantUmlDiagram",
           "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\ninterface IFlyBehavior\n{\n    \u002Bvoid Fly()\n}\n\nclass SimpleFly\n{\n    \u002Bvoid Fly()\n}\n\nclass JetFly\n{\n    \u002Bvoid Fly()\n}\n\nclass NoFly\n{\n    \u002Bvoid Fly()\n}\n\ninterface IQuackBehavior\n{\n    \u002Bvoid Quack()\n}\n\nclass SimpleQuack\n{\n    \u002Bvoid Quack()\n}\n\nclass NoQuack\n{\n    \u002Bvoid Quack()\n}\n\ninterface IDisplayBehavior\n{\n    \u002Bvoid Display()\n}\n\nclass DisplayAsText\n{\n    \u002Bvoid Display()\n}\n\nclass DisplayAsGraphics\n{\n    \u002Bvoid Display()\n}\n\nabstract class Duck\n{\n    -IFlyBehavior _flyBehavior\n    -IQuackBehavior _quackBehavior\n    -IDisplayBehavior _displayBehavior\n\n    \u002Bvoid Fly()\n    \u002Bvoid Quack()\n    \u002Bvoid Display()\n}\n\nIFlyBehavior \u003C|.. SimpleFly : IS-A\nIFlyBehavior \u003C|.. JetFly : IS-A\nIFlyBehavior \u003C|.. NoFly : IS-A\n\nIQuackBehavior \u003C|.. SimpleQuack : IS-A\nIQuackBehavior \u003C|.. NoQuack : IS-A\n\nIDisplayBehavior \u003C|.. DisplayAsText : IS-A\nIDisplayBehavior \u003C|.. DisplayAsGraphics : IS-A\n\nDuck --\u003E IFlyBehavior : HAS-A\nDuck --\u003E IQuackBehavior : HAS-A\nDuck --\u003E IDisplayBehavior : HAS-A\n\n@enduml",
-          "title": "PlantUML diagram",
+          "title": "Strategy pattern -  class diagram",
           "showDiagramTitleBar": true,
           "rows": []
         },
@@ -232,6 +232,8 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
+          "codeTitle": "Strategy pattern - strategy client",
+          "showCodeTitleBar": true,
           "code": "public class Duck\n{\n    private readonly IFlyBehavior _flyBehavior;\n    private readonly IQuackBehavior _quackBehavior;\n    private readonly IDisplayBehavior _displayBehavior;\n\n    public Duck(\n        IFlyBehavior flyBehavior,\n        IQuackBehavior quackBehavior,\n        IDisplayBehavior displayBehavior)\n    {\n        _flyBehavior = flyBehavior;\n        _quackBehavior = quackBehavior;\n        _displayBehavior = displayBehavior;\n    }\n\n    public void Fly()\n    {\n        _flyBehavior.Fly();\n    }\n\n    public void Quack()\n    {\n        _quackBehavior.Quack();\n    }\n\n    public void Display()\n    {\n        _displayBehavior.Display();\n    }\n}",
           "rows": []
         },
@@ -239,6 +241,8 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
+          "codeTitle": "Strategy pattern - strategy interfaces",
+          "showCodeTitleBar": true,
           "code": "public interface IFlyBehavior\n{\n    void Fly();\n}\n\npublic interface IQuackBehavior\n{\n    void Quack();\n}\n\npublic interface IDisplayBehavior\n{\n    void Display();\n}",
           "rows": []
         },
@@ -246,6 +250,8 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
+          "codeTitle": "Strategy pattern - concrete strategies",
+          "showCodeTitleBar": true,
           "code": "public class SimpleFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\u0022Simple flying...\u0022);\n    }\n}\n\npublic class JetFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\u0022Jet flying...\u0022);\n    }\n}\n\npublic class SimpleQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\u0022Quack!\u0022);\n    }\n}\n\npublic class NoQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\u0022...\u0022);\n    }\n}\n\npublic class DisplayAsText : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\u0022Displaying as text.\u0022);\n    }\n}\n\npublic class DisplayAsGraphics : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\u0022Displaying as graphics.\u0022);\n    }\n}",
           "rows": []
         },
@@ -253,6 +259,8 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
+          "codeTitle": "Strategy pattern - example usage",
+          "showCodeTitleBar": true,
           "code": "var duck = new Duck(\n    new JetFlying(),\n    new SimpleQuack(),\n    new DisplayAsGraphics());\n\nduck.Fly();\nduck.Quack();\nduck.Display();",
           "rows": []
         },
@@ -265,7 +273,7 @@
         {
           "type": "plantUmlDiagram",
           "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass Client {\n    -IBehavior _behavior\n    \u002Bvoid Execute()\n}\n\ninterface IBehavior {\n    \u002Bvoid Run()\n}\n\nclass ConcreteBehaviorA {\n    \u002Bvoid Run()\n}\n\nclass ConcreteBehaviorB {\n    \u002Bvoid Run()\n}\n\nClient --\u003E IBehavior : HAS-A\n\nIBehavior \u003C|.. ConcreteBehaviorA : IS-A\nIBehavior \u003C|.. ConcreteBehaviorB : IS-A\n\n@enduml",
-          "title": "PlantUML diagram",
+          "title": "Strategy pattern - generalized class diagram",
           "showDiagramTitleBar": true,
           "rows": []
         }
@@ -355,16 +363,24 @@
       ],
       "bodyBlocks": [
         {
+          "type": "heading",
+          "level": 2,
+          "text": "See example workflow with two jobs is below:",
+          "rows": []
+        },
+        {
           "type": "plantUmlDiagram",
           "diagram": "@startuml\n\npackage \u0022GitHub Actions Workflow\u0022 {\n\n    component \u0022Trigger\\n(on: push)\u0022 as Trigger\n\n    package \u0022JobOne\u0022 {\n        component \u0022Step 1\u0022 as J1S1\n        component \u0022Step 2\u0022 as J1S2\n        component \u0022Step 3\u0022 as J1S3\n    }\n\n    package \u0022JobTwo\u0022 {\n        component \u0022Step 1\u0022 as J2S1\n        component \u0022Step 2\u0022 as J2S2\n        component \u0022Step 3\u0022 as J2S3\n    }\n}\n\nTrigger --\u003E J1S1\nTrigger --\u003E J2S1\n\nJ1S1 --\u003E J1S2\nJ1S2 --\u003E J1S3\n\nJ2S1 --\u003E J2S2\nJ2S2 --\u003E J2S3\n\nnote bottom\nJobs run in parallel by default.\nSteps inside each job run sequentially.\nend note\n\n@enduml",
-          "title": "PlantUML diagram",
-          "showDiagramTitleBar": false,
+          "title": "workflow_with_two_jobs.yaml - DIAGRAM",
+          "showDiagramTitleBar": true,
           "rows": []
         },
         {
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
+          "codeTitle": "workflow_with_two_jobs.yaml - SOURCE CODE",
+          "showCodeTitleBar": true,
           "code": "name: ci\n\non: push\n\njobs:\n  JobOne:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \u0022Step 1\u0022\n      - run: echo \u0022Step 2\u0022\n      - run: echo \u0022Step 3\u0022\n      \n  JobTwo:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \u0022Step 1\u0022\n      - run: echo \u0022Step 2\u0022\n      - run: echo \u0022Step 3\u0022",
           "rows": []
         }
@@ -392,12 +408,14 @@
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Example.cs",
+          "codeTitle": "Simple program",
+          "showCodeTitleBar": true,
           "code": "using System;\n\nnamespace Simple\n{\n    class Program // declare a class\n    {\n        static void Main()\n        {\n            Console.WriteLine(\u0022Hi there!\u0022);\n        }\n    }\n}",
           "rows": []
         },
         {
           "type": "text",
-          "text": "The \u0060SimpleProgram\u0060, line by line is presented here:",
+          "text": "The \u0060Simple.Program\u0060, line by line is presented here:",
           "rows": []
         },
         {
