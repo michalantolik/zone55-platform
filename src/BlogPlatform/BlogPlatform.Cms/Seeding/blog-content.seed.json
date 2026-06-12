@@ -346,7 +346,7 @@
       "slug": "what-are-the-components-of-github-actions-workflow-file",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "A GitHub Actions workflow file consists of **triggers**, **jobs**, and **steps**.\n\n**Triggers** define when the workflow runs.\n\n**Jobs** define the tasks to perform (parallel by default).\n\n**Steps** define the individual actions  to be executed.",
+      "summary": "A GitHub Actions workflow file consists of **triggers**, **jobs**, and **steps**.\n\n**Triggers** define when the workflow runs.\n\n**Jobs** define the tasks to perform (in parallel by default).\n\n**Steps** define the individual commands, actions or scripts to be executed.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "cicd-pipelines",
       "order": 6,
@@ -355,29 +355,17 @@
       ],
       "bodyBlocks": [
         {
-          "type": "heading",
-          "level": 2,
-          "text": "Components:",
-          "rows": []
-        },
-        {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\n\npackage \u0022GitHub Actions Workflow\u0022 {\n\n    component \u0022Trigger\\n(on: push)\u0022 as Trigger\n\n    package \u0022firstJob\u0022 {\n        component \u0022Step 1\u0022\n        component \u0022Step 2\u0022\n        component \u0022Step 3\u0022\n    }\n}\n\nTrigger --\u003E \u0022Step 1\u0022\n\u0022Step 1\u0022 --\u003E \u0022Step 2\u0022\n\u0022Step 2\u0022 --\u003E \u0022Step 3\u0022\n\n@enduml",
+          "diagram": "@startuml\n\npackage \u0022GitHub Actions Workflow\u0022 {\n\n    component \u0022Trigger\\n(on: push)\u0022 as Trigger\n\n    package \u0022JobOne\u0022 {\n        component \u0022Step 1\u0022 as J1S1\n        component \u0022Step 2\u0022 as J1S2\n        component \u0022Step 3\u0022 as J1S3\n    }\n\n    package \u0022JobTwo\u0022 {\n        component \u0022Step 1\u0022 as J2S1\n        component \u0022Step 2\u0022 as J2S2\n        component \u0022Step 3\u0022 as J2S3\n    }\n}\n\nTrigger --\u003E J1S1\nTrigger --\u003E J2S1\n\nJ1S1 --\u003E J1S2\nJ1S2 --\u003E J1S3\n\nJ2S1 --\u003E J2S2\nJ2S2 --\u003E J2S3\n\nnote bottom\nJobs run in parallel by default.\nSteps inside each job run sequentially.\nend note\n\n@enduml",
           "title": "PlantUML diagram",
           "showDiagramTitleBar": false,
-          "rows": []
-        },
-        {
-          "type": "heading",
-          "level": 2,
-          "text": "The shortest (empty) workflow file:",
           "rows": []
         },
         {
           "type": "codeSnippet",
           "language": "csharp",
           "fileName": "Program.cs",
-          "code": "name: ci\n\non: push\n\njobs:\n  firstJob:\n    runs-on: ubuntu-latest\n    steps:\n      - run: true\n      - run: true\n      - run: true",
+          "code": "name: ci\n\non: push\n\njobs:\n  JobOne:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \u0022Step 1\u0022\n      - run: echo \u0022Step 2\u0022\n      - run: echo \u0022Step 3\u0022\n      \n  JobTwo:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \u0022Step 1\u0022\n      - run: echo \u0022Step 2\u0022\n      - run: echo \u0022Step 3\u0022",
           "rows": []
         }
       ]
