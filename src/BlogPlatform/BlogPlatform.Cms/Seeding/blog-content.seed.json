@@ -272,6 +272,20 @@
       ]
     },
     {
+      "name": "What is continuous integration ?",
+      "slug": "what-is-continuous-integration",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Continuous Integration** (CI) is a software development practice where code changes are automatically built, tested, and integrated into the main code base frequently.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 1,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": []
+    },
+    {
       "name": "A Simple C# Program",
       "slug": "a-simple-csharp-program",
       "level": "Draft",
