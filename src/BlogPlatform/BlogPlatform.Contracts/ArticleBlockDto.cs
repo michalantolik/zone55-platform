@@ -21,6 +21,10 @@ public sealed class ArticleBlockDto
 
     public string? FileName { get; init; }
 
+    public string? CodeTitle { get; init; }
+
+    public bool ShowCodeTitleBar { get; init; } = true;
+
     public string? Diagram { get; init; }
 
     public string? DiagramTitle { get; init; }

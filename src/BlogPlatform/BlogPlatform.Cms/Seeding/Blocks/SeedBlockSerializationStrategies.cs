@@ -100,6 +100,10 @@ public sealed class CodeSnippetSeedBlockSerializationStrategy : ISeedBlockSerial
             Type = SeedType,
             Language = SeedBlockJson.GetString(blockElement, "language"),
             FileName = SeedBlockJson.GetString(blockElement, "fileName"),
+            CodeTitle =
+                SeedBlockJson.GetString(blockElement, "codeTitle") ??
+                SeedBlockJson.GetString(blockElement, "title"),
+            ShowCodeTitleBar = SeedBlockJson.GetBool(blockElement, "showCodeTitleBar"),
             Code = SeedBlockJson.GetString(blockElement, "code")
         };
     }
@@ -112,6 +116,8 @@ public sealed class CodeSnippetSeedBlockSerializationStrategy : ISeedBlockSerial
             {
                 ["language"] = block.Language,
                 ["fileName"] = block.FileName,
+                ["codeTitle"] = block.CodeTitle,
+                ["showCodeTitleBar"] = block.ShowCodeTitleBar ?? true,
                 ["code"] = block.Code
             });
     }

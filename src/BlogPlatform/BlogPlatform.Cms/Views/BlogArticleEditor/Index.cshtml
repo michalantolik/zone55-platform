@@ -689,18 +689,18 @@
         <div class="modal">
             <h2 id="blockEditTitle">Edit block</h2>
 
-            <div id="diagramTitleField" class="diagram-title-field">
-                <label class="field-label" for="blockEditDiagramTitle">Diagram title</label>
-                <input id="blockEditDiagramTitle" type="text" maxlength="120" placeholder="Example: Components of the .NET Framework" />
-                <small>This title is shown above the diagram in the article.</small>
+            <div id="blockTitleField" class="diagram-title-field">
+                <label id="blockEditTitleInputLabel" class="field-label" for="blockEditBlockTitle">Block title</label>
+                <input id="blockEditBlockTitle" type="text" maxlength="120" placeholder="Example: Program.cs" />
+                <small id="blockEditTitleHelp">This title is shown above the block content in the article.</small>
             </div>
 
-            <div id="diagramTitleBarField" class="diagram-title-field">
-                <label class="toggle-row" for="blockEditShowDiagramTitleBar">
-                    <input id="blockEditShowDiagramTitleBar" type="checkbox" checked />
+            <div id="blockTitleBarField" class="diagram-title-field">
+                <label class="toggle-row" for="blockEditShowTitleBar">
+                    <input id="blockEditShowTitleBar" type="checkbox" checked />
                     <span>
-                        <strong>Show diagram title bar</strong>
-                        <small>Turn this off when the diagram should start immediately inside the rounded panel.</small>
+                        <strong id="blockEditShowTitleBarText">Show title bar</strong>
+                        <small id="blockEditShowTitleBarHelp">Turn this off when the content should start immediately inside the rounded panel.</small>
                     </span>
                 </label>
             </div>
@@ -803,6 +803,8 @@
                         type: "code",
                         language: "csharp",
                         fileName: "Program.cs",
+                        codeTitle: "Program.cs",
+                        showCodeTitleBar: true,
                         code: "// Add your code snippet here"
                     })
                 },
@@ -1715,6 +1717,49 @@
                 return "Diagram";
             }
 
+            function getDefaultCodeTitle(block) {
+                return block.codeTitle || block.title || block.fileName || block.language || "Code snippet";
+            }
+
+            function configureBlockTitleEditor(type, block) {
+                const isDiagram = type === "mermaid" || type === "plantuml";
+                const isCode = type === "code";
+                const supportsTitleBar = isDiagram || isCode;
+
+                document.getElementById("blockTitleField").classList.toggle("active", supportsTitleBar);
+                document.getElementById("blockTitleBarField").classList.toggle("active", supportsTitleBar);
+
+                if (!supportsTitleBar) {
+                    return;
+                }
+
+                const titleInput = document.getElementById("blockEditBlockTitle");
+                const titleLabel = document.getElementById("blockEditTitleInputLabel");
+                const titleHelp = document.getElementById("blockEditTitleHelp");
+                const showTitleBar = document.getElementById("blockEditShowTitleBar");
+                const showTitleBarText = document.getElementById("blockEditShowTitleBarText");
+                const showTitleBarHelp = document.getElementById("blockEditShowTitleBarHelp");
+
+                if (isCode) {
+                    titleLabel.innerText = "Code title";
+                    titleInput.placeholder = "Example: Program.cs";
+                    titleInput.value = getDefaultCodeTitle(block);
+                    titleHelp.innerText = "This title is shown above the code snippet in the article.";
+                    showTitleBar.checked = block.showCodeTitleBar !== false;
+                    showTitleBarText.innerText = "Show code title bar";
+                    showTitleBarHelp.innerText = "Turn this off when the code should start immediately inside the rounded panel.";
+                    return;
+                }
+
+                titleLabel.innerText = "Diagram title";
+                titleInput.placeholder = "Example: Components of the .NET Framework";
+                titleInput.value = block.title || block.diagramTitle || getDefaultDiagramTitle(type);
+                titleHelp.innerText = "This title is shown above the diagram in the article.";
+                showTitleBar.checked = block.showDiagramTitleBar !== false;
+                showTitleBarText.innerText = "Show diagram title bar";
+                showTitleBarHelp.innerText = "Turn this off when the diagram should start immediately inside the rounded panel.";
+            }
+
             function getBlockLabel(block) {
                 const type = getBlockType(block);
                 const definition = availableBlockTypes.find(item => item.type === type);
@@ -1729,14 +1774,9 @@
                 const isDiagram = type === "mermaid" || type === "plantuml";
 
                 document.getElementById("blockEditTitle").innerText = `Edit ${getBlockLabel(block)}`;
-                document.getElementById("diagramTitleField").classList.toggle("active", isDiagram);
-                document.getElementById("diagramTitleBarField").classList.toggle("active", isDiagram);
-                document.getElementById("blockEditDiagramTitle").value =
-                    block.title || block.diagramTitle || getDefaultDiagramTitle(type);
-                document.getElementById("blockEditShowDiagramTitleBar").checked =
-                    block.showDiagramTitleBar !== false;
+                configureBlockTitleEditor(type, block);
                 document.getElementById("blockEditTextLabel").innerText =
-                    isDiagram ? "Diagram source" : "Content";
+                    isDiagram ? "Diagram source" : type === "code" ? "Code source" : "Content";
 
                 if (type === "code") {
                     document.getElementById("blockEditText").value = block.code || "";
@@ -1758,8 +1798,8 @@
             function closeBlockEditor() {
                 editedBlockIndex = null;
                 document.getElementById("blockEditModal").style.display = "none";
-                document.getElementById("diagramTitleField").classList.remove("active");
-                document.getElementById("diagramTitleBarField").classList.remove("active");
+                document.getElementById("blockTitleField").classList.remove("active");
+                document.getElementById("blockTitleBarField").classList.remove("active");
             }
 
             function saveBlockEditor() {
@@ -1769,16 +1809,25 @@
 
                 const block = bodyBlocks[editedBlockIndex];
                 const newValue = document.getElementById("blockEditText").value;
-                const newDiagramTitle = document.getElementById("blockEditDiagramTitle").value.trim();
-                const showDiagramTitleBar = document.getElementById("blockEditShowDiagramTitleBar").checked;
+                const newBlockTitle = document.getElementById("blockEditBlockTitle").value.trim();
+                const showTitleBar = document.getElementById("blockEditShowTitleBar").checked;
                 const type = getBlockType(block);
 
                 if (type === "code") {
                     block.code = newValue;
+                    block.codeTitle = newBlockTitle || getDefaultCodeTitle(block);
+                    block.showCodeTitleBar = showTitleBar;
+
+                    delete block.title;
+                    delete block.diagramTitle;
+                    delete block.diagram;
+                    delete block.mermaid;
+                    delete block.plantUml;
+                    delete block.plantuml;
                 }
                 else if (type === "mermaid") {
-                    block.title = newDiagramTitle || getDefaultDiagramTitle(type);
-                    block.showDiagramTitleBar = showDiagramTitleBar;
+                    block.title = newBlockTitle || getDefaultDiagramTitle(type);
+                    block.showDiagramTitleBar = showTitleBar;
                     block.diagram = newValue;
                     block.mermaid = newValue;
 
@@ -1810,8 +1859,8 @@
                             removedSkinparams: []
                         };
 
-                    block.title = newDiagramTitle || getDefaultDiagramTitle(type);
-                    block.showDiagramTitleBar = showDiagramTitleBar;
+                    block.title = newBlockTitle || getDefaultDiagramTitle(type);
+                    block.showDiagramTitleBar = showTitleBar;
                     block.plantUml = correction.source;
 
                     delete block.diagram;
@@ -1950,7 +1999,9 @@
                     blocks.push({
                         code: codeLines.join("\n"),
                         language: codeLanguage || "text",
-                        fileName: codeLanguage ? `example.${codeLanguage}` : "example.txt"
+                        fileName: codeLanguage ? `example.${codeLanguage}` : "example.txt",
+                        codeTitle: codeLanguage ? `example.${codeLanguage}` : "example.txt",
+                        showCodeTitleBar: true
                     });
 
                     codeLines = [];

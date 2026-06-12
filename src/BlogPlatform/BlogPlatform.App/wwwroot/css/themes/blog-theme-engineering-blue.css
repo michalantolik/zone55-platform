@@ -497,3 +497,22 @@ html[data-blog-theme="engineering-blue"] {
     margin-bottom: 8px;
     border-radius: 10px;
 }
+
+
+.code-block-title-hidden {
+    position: relative;
+}
+
+.code-block-title-hidden pre {
+    border-top-left-radius: var(--radius-lg, 18px);
+    border-top-right-radius: var(--radius-lg, 18px);
+}
+
+.copy-button-floating {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    opacity: 0.9;
+    backdrop-filter: blur(10px);
+}

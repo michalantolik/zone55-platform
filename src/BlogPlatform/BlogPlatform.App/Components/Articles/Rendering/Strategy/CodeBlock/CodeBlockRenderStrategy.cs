@@ -1,6 +1,7 @@
 ﻿using BlogPlatform.App.Components.Articles.Rendering.Context;
 using BlogPlatform.Contracts.Posts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace BlogPlatform.App.Components.Articles.Rendering.Strategy.CodeBlock;
 
@@ -13,30 +14,32 @@ public sealed class CodeBlockRenderStrategy : IArticleBlockRenderStrategy
         ArticleBlockRenderContext context) => builder =>
         {
             var sequence = 0;
+            var title = GetCodeTitle(block);
+            var showTitleBar = block.ShowCodeTitleBar;
 
             builder.OpenElement(sequence++, "figure");
-            builder.AddAttribute(sequence++, "class", "code-block");
-
-            builder.OpenElement(sequence++, "div");
-            builder.AddAttribute(sequence++, "class", "snippet-toolbar");
-
-            builder.OpenElement(sequence++, "figcaption");
-            builder.AddContent(sequence++, block.FileName ?? block.Language ?? "code");
-            builder.CloseElement();
-
-            builder.OpenElement(sequence++, "button");
-            builder.AddAttribute(sequence++, "type", "button");
-            builder.AddAttribute(sequence++, "class", "copy-button");
             builder.AddAttribute(
                 sequence++,
-                "onclick",
-                EventCallback.Factory.Create(
-                    context.EventReceiver,
-                    () => context.CopyToClipboardAsync(block.Code)));
-            builder.AddContent(sequence++, "Copy");
-            builder.CloseElement();
+                "class",
+                showTitleBar ? "code-block" : "code-block code-block-title-hidden");
 
-            builder.CloseElement();
+            if (showTitleBar)
+            {
+                builder.OpenElement(sequence++, "div");
+                builder.AddAttribute(sequence++, "class", "snippet-toolbar");
+
+                builder.OpenElement(sequence++, "figcaption");
+                builder.AddContent(sequence++, title);
+                builder.CloseElement();
+
+                RenderCopyButton(builder, ref sequence, block, context, "copy-button");
+
+                builder.CloseElement();
+            }
+            else
+            {
+                RenderCopyButton(builder, ref sequence, block, context, "copy-button copy-button-floating");
+            }
 
             builder.OpenElement(sequence++, "pre");
             builder.OpenElement(sequence++, "code");
@@ -64,6 +67,46 @@ public sealed class CodeBlockRenderStrategy : IArticleBlockRenderStrategy
             builder.CloseElement();
             builder.CloseElement();
         };
+
+    private static void RenderCopyButton(
+        RenderTreeBuilder builder,
+        ref int sequence,
+        ArticleBlockDto block,
+        ArticleBlockRenderContext context,
+        string cssClass)
+    {
+        builder.OpenElement(sequence++, "button");
+        builder.AddAttribute(sequence++, "type", "button");
+        builder.AddAttribute(sequence++, "class", cssClass);
+        builder.AddAttribute(
+            sequence++,
+            "onclick",
+            EventCallback.Factory.Create(
+                context.EventReceiver,
+                () => context.CopyToClipboardAsync(block.Code)));
+        builder.AddContent(sequence++, "Copy");
+        builder.CloseElement();
+    }
+
+    private static string GetCodeTitle(ArticleBlockDto block)
+    {
+        if (!string.IsNullOrWhiteSpace(block.CodeTitle))
+        {
+            return block.CodeTitle;
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.FileName))
+        {
+            return block.FileName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(block.Language))
+        {
+            return block.Language;
+        }
+
+        return "Code snippet";
+    }
 
     private static IReadOnlyCollection<CodeLine> GetCodeLines(string? code)
     {

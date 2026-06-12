@@ -52,7 +52,16 @@ internal sealed class CodeArticleBlockDefinition : ArticleBlockDefinitionBase
         {
             Code = ArticleBlockJsonReader.GetString(block, ArticleBlockPropertyNames.Code),
             Language = ArticleBlockJsonReader.GetString(block, ArticleBlockPropertyNames.Language),
-            FileName = ArticleBlockJsonReader.GetString(block, ArticleBlockPropertyNames.FileName)
+            FileName = ArticleBlockJsonReader.GetString(block, ArticleBlockPropertyNames.FileName),
+            CodeTitle = ArticleBlockJsonReader.GetFirstString(
+                block,
+                ArticleBlockPropertyNames.CodeTitle,
+                ArticleBlockPropertyNames.Title,
+                ArticleBlockPropertyNames.FileName,
+                ArticleBlockPropertyNames.Language),
+            ShowCodeTitleBar = ArticleBlockJsonReader.GetBool(
+                block,
+                ArticleBlockPropertyNames.ShowCodeTitleBar) ?? true
         };
     }
 }

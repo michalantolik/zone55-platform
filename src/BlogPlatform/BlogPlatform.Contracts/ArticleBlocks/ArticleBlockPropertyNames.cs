@@ -6,6 +6,7 @@ public static class ArticleBlockPropertyNames
     public const string Summary = "summary";
     public const string Title = "title";
     public const string DiagramTitle = "diagramTitle";
+    public const string CodeTitle = "codeTitle";
     public const string Level = "level";
     public const string Code = "code";
     public const string Diagram = "diagram";
@@ -17,6 +18,7 @@ public static class ArticleBlockPropertyNames
     public const string Language = "language";
     public const string FileName = "fileName";
     public const string ShowDiagramTitleBar = "showDiagramTitleBar";
+    public const string ShowCodeTitleBar = "showCodeTitleBar";
     public const string Rows = "rows";
     public const string HasHeaderRow = "hasHeaderRow";
     public const string HasHeaderColumn = "hasHeaderColumn";

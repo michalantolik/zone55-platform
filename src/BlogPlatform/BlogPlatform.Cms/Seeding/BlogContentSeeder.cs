@@ -171,6 +171,8 @@ public sealed class BlogContentSeeder
             {
                 Property("language", "Language", "Textstring"),
                 Property("fileName", "File name", "Textstring"),
+                Property("codeTitle", "Code title", "Textstring"),
+                Property("showCodeTitleBar", "Show code title bar", "True/false"),
                 Property("code", "Code", "Textarea")
             });
 
@@ -402,7 +404,7 @@ public sealed class BlogContentSeeder
         {
             CreateAllowedBlock(BlogContentAliases.TextBlock, "{umbValue: text}"),
             CreateAllowedBlock(BlogContentAliases.HeadingBlock, "{umbValue: text}"),
-            CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: language} - {umbValue: fileName}"),
+            CreateAllowedBlock(BlogContentAliases.CodeSnippetBlock, "{umbValue: codeTitle}"),
             CreateAllowedBlock(BlogContentAliases.MermaidDiagramBlock, "{umbValue: title}"),
             CreateAllowedBlock(BlogContentAliases.PlantUmlDiagramBlock, "{umbValue: title}"),
             CreateAllowedBlock(BlogContentAliases.CalloutBlock, "{umbValue: kind}"),
