@@ -1,5 +1,7 @@
 ﻿using BlogPlatform.Cms.BlogContent;
+using BlogPlatform.Cms.Security;
 using BlogPlatform.Cms.Seeding;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -10,6 +12,7 @@ namespace BlogPlatform.Cms.Controllers;
 
 [ApiController]
 [Route("api/blog-content")]
+[UmbracoBackOfficeOnly]
 public sealed class BlogContentController : ControllerBase
 {
     private readonly IBlogContentAdminService _blogContent;
@@ -45,50 +48,26 @@ public sealed class BlogContentController : ControllerBase
     {
         _logger.LogInformation("Seed export started.");
 
-        try
-        {
-            var seedContent = await _blogContent.BuildSeedContentAsync(cancellationToken);
+        var seedContent = await _blogContent.BuildSeedContentAsync(cancellationToken);
 
-            var zoneCount = seedContent.RoadmapZones.Count;
-            var stepCount = seedContent.RoadmapZones.Sum(zone => zone.Steps.Count);
-            var articleCount = seedContent.Articles.Count;
-            var blockCount = seedContent.Articles.Sum(article => article.BodyBlocks.Count);
+        var json = JsonSerializer.Serialize(
+            seedContent,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
 
-            _logger.LogInformation(
-                "Seed export content built. Zones: {ZoneCount}, Steps: {StepCount}, Articles: {ArticleCount}, BodyBlocks: {BodyBlockCount}.",
-                zoneCount,
-                stepCount,
-                articleCount,
-                blockCount);
-
-            var json = JsonSerializer.Serialize(
-                seedContent,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-                });
-
-            _logger.LogInformation(
-                "Seed export JSON serialized. Size: {JsonSizeBytes} bytes.",
-                Encoding.UTF8.GetByteCount(json));
-
-            return File(
-                Encoding.UTF8.GetBytes(json),
-                "application/json",
-                "blog-content.seed.json");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Seed export failed.");
-            throw;
-        }
+        return File(
+            Encoding.UTF8.GetBytes(json),
+            "application/json",
+            "blog-content.seed.json");
     }
 
     [HttpPost("seed-import/admin")]
     public async Task<ActionResult<CmsSeedImportResponse>> ImportSeedContentFromAdmin(
-    CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
     {
         _logger.LogInformation("Admin seed import requested.");
 
@@ -97,6 +76,7 @@ public sealed class BlogContentController : ControllerBase
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpPost("seed-import/github")]
     public async Task<ActionResult<CmsSeedImportResponse>> ImportSeedContentFromGitHub(
         CancellationToken cancellationToken)
@@ -145,7 +125,6 @@ public sealed class BlogContentController : ControllerBase
         return Ok(_blogContent.GetArticles());
     }
 
-
     [HttpGet("articles/reorder")]
     public ActionResult<IReadOnlyCollection<CmsReorderArticleListItemDto>> GetArticlesForReorder(
         [FromQuery] string? zone,
@@ -171,10 +150,7 @@ public sealed class BlogContentController : ControllerBase
         [FromQuery] string? step,
         [FromQuery] Guid? excludeArticleKey = null)
     {
-        return Ok(_blogContent.GetNextArticleOrder(
-            zone,
-            step,
-            excludeArticleKey));
+        return Ok(_blogContent.GetNextArticleOrder(zone, step, excludeArticleKey));
     }
 
     [HttpGet("articles/{key:guid}")]
@@ -242,12 +218,9 @@ public sealed class BlogContentController : ControllerBase
             return NotFound(result);
         }
 
-        if (!result.Success)
-        {
-            return BadRequest(result);
-        }
-
-        return Ok(result);
+        return result.Success
+            ? Ok(result)
+            : BadRequest(result);
     }
 
     [HttpPost("dotnet-roadmap/zones")]

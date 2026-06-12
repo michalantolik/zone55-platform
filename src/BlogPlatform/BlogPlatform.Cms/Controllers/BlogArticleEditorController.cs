@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlogPlatform.Cms.Security;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BlogPlatform.Cms.Controllers;
 
+[UmbracoBackOfficeOnly]
 public sealed class BlogArticleEditorController : Controller
 {
     private readonly IConfiguration _configuration;
