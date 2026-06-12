@@ -314,6 +314,27 @@
             margin: 0 0 20px 0;
         }
 
+        .articles-action-bar-split {
+            justify-content: space-between;
+            gap: 18px;
+            padding: 18px;
+            border: 1px solid rgba(132, 187, 255, 0.26);
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(22, 119, 255, 0.12), rgba(4, 17, 29, 0.88));
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+        }
+
+        .articles-action-intro strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .articles-action-intro span {
+            color: #aac2de;
+            line-height: 1.5;
+        }
+
         .new-article-button {
             display: inline-flex;
             align-items: center;
@@ -1076,8 +1097,7 @@
 
             <nav class="top-nav">
                 <button id="zonesTab" class="active" type="button" onclick="showPanel('zones')">Zones &amp; Steps</button>
-                <button id="articlesTab" type="button" onclick="showPanel('articles')">Articles</button>
-                <button id="reorderArticlesTab" type="button" onclick="showPanel('reorderArticles')">Reorder articles</button>
+                <button id="reorderArticlesTab" type="button" onclick="showPanel('reorderArticles')">Articles</button>
                 <button id="documentTypesTab" type="button" onclick="showPanel('documentTypes')">Document Types</button>
                 <button id="databaseTab" type="button" onclick="showPanel('database')">Database</button>
             </nav>
@@ -1088,7 +1108,7 @@
                 <h1>Blog content workspace</h1>
                 <p>
                     Browse Dotnet Zones, Zone Steps and articles in a clean Blog Platform admin view.
-                    Use Open editor from the Articles tab when you want to edit an existing article with live preview.
+                    Create, edit, reorder and remove articles from one focused Articles workspace with live preview.
                 </p>
             </section>
 
@@ -1110,8 +1130,21 @@
 
 
             <section id="reorderArticlesPanel" class="panel">
-                <div class="reorder-workspace">
-                    <div class="reorder-controls">
+                <div id="reorderArticlesListView">
+                    <div class="articles-action-bar articles-action-bar-split">
+                        <div class="articles-action-intro">
+                            <strong>Articles workspace</strong>
+                            <span>Create new articles, edit existing content and reorder the selected step in one place.</span>
+                        </div>
+
+                        <button class="new-article-button" type="button" onclick="openNewArticleEditorFromReorder()">
+                            <span class="new-article-button-mark">+</span>
+                            <span>Create new article</span>
+                        </button>
+                    </div>
+
+                    <div class="reorder-workspace">
+                        <div class="reorder-controls">
                         <div class="reorder-select-group">
                             <label class="field-label" for="reorderZoneSelect">Zone</label>
                             <select id="reorderZoneSelect" class="reorder-select" onchange="onReorderZoneChanged()"></select>
@@ -1128,8 +1161,32 @@
                         </button>
                     </div>
 
-                    <div id="reorderSummary" class="reorder-summary"></div>
-                    <div id="reorderArticlesList" class="reorder-list"></div>
+                        <div id="reorderSummary" class="reorder-summary"></div>
+                        <div id="reorderArticlesList" class="reorder-list"></div>
+                    </div>
+                </div>
+
+                <div id="articlesEditorView" class="hidden">
+                    <div id="editorCommandBar" class="editor-command-bar">
+                        <div id="editorCommandContext" class="editor-command-context">
+                            <strong>Article editor</strong>
+                            Fill the article fields, preview the result, then publish or update when ready.
+                        </div>
+
+                        <button id="editorSaveButton" class="editor-action-button editor-action-button-primary" type="button" onclick="publishOrUpdateInlineArticleEditor()" disabled>
+                            <span class="editor-action-button-icon" aria-hidden="true">✓</span>
+                            <span>Publish</span>
+                        </button>
+
+                        <button class="editor-action-button editor-action-button-close" type="button" onclick="requestCloseInlineArticleEditor()">
+                            <span class="editor-action-button-icon" aria-hidden="true">×</span>
+                            <span>Close</span>
+                        </button>
+                    </div>
+
+                    <div class="editor-frame-shell">
+                        <iframe id="inlineArticleEditorFrame" class="editor-frame" title="Article Editor in Articles tab"></iframe>
+                    </div>
                 </div>
             </section>
 
@@ -1205,41 +1262,6 @@
 </div>
             </section>
 
-            <section id="articlesPanel" class="panel">
-                <div id="articlesListView">
-                    <div id="articlesActionBar" class="articles-action-bar">
-                        <button class="new-article-button" type="button" onclick="openNewArticleEditorInArticlesTab()">
-                            <span class="new-article-button-mark">+</span>
-                            <span>Create new article</span>
-                        </button>
-                    </div>
-
-                    <div id="articlesGrouped"></div>
-                </div>
-
-                <div id="articlesEditorView" class="hidden">
-                    <div id="editorCommandBar" class="editor-command-bar">
-                        <div id="editorCommandContext" class="editor-command-context">
-                            <strong>Article editor</strong>
-                            Fill the article fields, preview the result, then publish or update when ready.
-                        </div>
-
-                        <button id="editorSaveButton" class="editor-action-button editor-action-button-primary" type="button" onclick="publishOrUpdateInlineArticleEditor()" disabled>
-                            <span class="editor-action-button-icon" aria-hidden="true">✓</span>
-                            <span>Publish</span>
-                        </button>
-
-                        <button class="editor-action-button editor-action-button-close" type="button" onclick="requestCloseInlineArticleEditor()">
-                            <span class="editor-action-button-icon" aria-hidden="true">×</span>
-                            <span>Close</span>
-                        </button>
-                    </div>
-
-                    <div class="editor-frame-shell">
-                        <iframe id="inlineArticleEditorFrame" class="editor-frame" title="Article Editor in Articles tab"></iframe>
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 
@@ -1309,7 +1331,7 @@
         let inlineEditorMode = "existing";
         let inlineEditorIsValid = false;
         let inlineEditorTitle = "Article editor";
-        let inlineEditorReturnPanel = "articles";
+        let inlineEditorReturnPanel = "reorderArticles";
         let pendingDelete = null;
         let roadmapModalState = null;
         let toastTimeout = null;
@@ -1350,23 +1372,21 @@
             activePanel = panel;
 
             document.getElementById("zonesTab").classList.toggle("active", panel === "zones");
-            document.getElementById("articlesTab").classList.toggle("active", panel === "articles");
             document.getElementById("reorderArticlesTab").classList.toggle("active", panel === "reorderArticles");
             document.getElementById("documentTypesTab").classList.toggle("active", panel === "documentTypes");
             document.getElementById("databaseTab").classList.toggle("active", panel === "database");
 
             document.getElementById("zonesPanel").classList.toggle("active", panel === "zones");
-            document.getElementById("articlesPanel").classList.toggle("active", panel === "articles");
             document.getElementById("reorderArticlesPanel").classList.toggle("active", panel === "reorderArticles");
             document.getElementById("documentTypesPanel").classList.toggle("active", panel === "documentTypes");
             document.getElementById("databasePanel").classList.toggle("active", panel === "database");
 
-            const articlesEditorIsOpen = panel === "articles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
+            const articlesEditorIsOpen = panel === "reorderArticles" && !document.getElementById("articlesEditorView").classList.contains("hidden");
 
             document.getElementById("toolbarSection").classList.toggle("hidden", articlesEditorIsOpen);
             document.getElementById("heroSection").style.display = articlesEditorIsOpen ? "none" : "block";
             document.getElementById("mainContent").classList.toggle("editor-active", articlesEditorIsOpen);
-            document.getElementById("articlesPanel").classList.toggle("article-editor-panel-active", articlesEditorIsOpen);
+            document.getElementById("reorderArticlesPanel").classList.toggle("article-editor-panel-active", articlesEditorIsOpen);
 
             renderActivePanel();
         }
@@ -1377,10 +1397,6 @@
                 return;
             }
 
-            if (activePanel === "articles" && document.getElementById("articlesEditorView").classList.contains("hidden")) {
-                renderArticles();
-                return;
-            }
 
             if (activePanel === "reorderArticles") {
                 if (reorderArticles.length === 0) {
@@ -2153,7 +2169,7 @@ function initializeReorderSelectors() {
                 showToast(result.message || "Item deleted successfully.", "success");
                 await loadContent();
 
-                if (activePanel === "reorderArticles" && deletedType === "article") {
+                if (deletedType === "article") {
                     reorderArticles = [];
                     await loadReorderArticles();
                 }
@@ -2336,7 +2352,7 @@ function initializeReorderSelectors() {
                 url: `/api/blog-content/dotnet-roadmap/zones/${encodeURIComponent(roadmapModalState.zoneKey)}/steps/${encodeURIComponent(roadmapModalState.stepKey)}`
             };
         }
-        function openArticleEditorInArticlesTab(articleKey, returnPanel = "articles") {
+        function openArticleEditorInArticlesTab(articleKey, returnPanel = "reorderArticles") {
             const article = articles.find(item => item.key === articleKey);
 
             inlineEditorIsDirty = false;
@@ -2347,37 +2363,37 @@ function initializeReorderSelectors() {
             inlineEditorTitle = article ? article.title : "Article editor";
             updateInlineEditorCommandBar();
 
-            document.getElementById("articlesListView").classList.add("hidden");
+            document.getElementById("reorderArticlesListView").classList.add("hidden");
             document.getElementById("articlesEditorView").classList.remove("hidden");
 
             const frame = document.getElementById("inlineArticleEditorFrame");
             frame.src = `/blog-admin/article-editor?articleKey=${encodeURIComponent(articleKey)}&embedded=articles&requestId=${Date.now()}`;
 
-            showPanel("articles");
+            showPanel("reorderArticles");
         }
 
         function openArticleEditorFromReorder(articleKey) {
             openArticleEditorInArticlesTab(articleKey, "reorderArticles");
         }
 
-        function openNewArticleEditorInArticlesTab() {
+        function openNewArticleEditorFromReorder() {
             inlineEditorIsDirty = false;
             inlineEditorArticleKey = null;
             inlineEditorIsValid = false;
             inlineEditorTitle = "Article editor";
             inlineEditorMode = "new";
-            inlineEditorReturnPanel = "articles";
+            inlineEditorReturnPanel = "reorderArticles";
 
             inlineEditorTitle = "Create new article";
             updateInlineEditorCommandBar();
 
-            document.getElementById("articlesListView").classList.add("hidden");
+            document.getElementById("reorderArticlesListView").classList.add("hidden");
             document.getElementById("articlesEditorView").classList.remove("hidden");
 
             const frame = document.getElementById("inlineArticleEditorFrame");
             frame.src = `/blog-admin/article-editor?embedded=articles&mode=new&requestId=${Date.now()}`;
 
-            showPanel("articles");
+            showPanel("reorderArticles");
         }
 
         function updateInlineEditorCommandBar() {
@@ -2435,20 +2451,15 @@ function initializeReorderSelectors() {
             frame.removeAttribute("src");
 
             document.getElementById("articlesEditorView").classList.add("hidden");
-            document.getElementById("articlesListView").classList.remove("hidden");
+            document.getElementById("reorderArticlesListView").classList.remove("hidden");
 
-            const returnPanel = inlineEditorReturnPanel || "articles";
-            inlineEditorReturnPanel = "articles";
+            const returnPanel = inlineEditorReturnPanel || "reorderArticles";
+            inlineEditorReturnPanel = "reorderArticles";
 
             showPanel(returnPanel);
 
-            if (returnPanel === "reorderArticles") {
-                reorderArticles = [];
-                loadReorderArticles();
-                return;
-            }
-
-            renderArticles();
+            reorderArticles = [];
+            loadReorderArticles();
         }
 
         async function onEditorMessage(event) {
