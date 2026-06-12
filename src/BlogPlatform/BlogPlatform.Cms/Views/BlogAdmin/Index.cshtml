@@ -693,6 +693,20 @@
             min-width: 74px;
         }
 
+        .reorder-manage-button.copy {
+            min-width: 76px;
+            border-color: rgba(83, 224, 160, 0.46);
+            background: linear-gradient(180deg, rgba(83, 224, 160, 0.16), rgba(21, 164, 96, 0.08));
+            color: #d9ffec;
+        }
+
+        .reorder-manage-button.copy:hover:not(:disabled) {
+            border-color: rgba(129, 245, 190, 0.82);
+            background: linear-gradient(180deg, rgba(83, 224, 160, 0.24), rgba(21, 164, 96, 0.18));
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(21, 164, 96, 0.20);
+        }
+
         .reorder-manage-button.remove {
             border-color: rgba(255, 116, 139, 0.44);
             background: linear-gradient(180deg, rgba(255, 116, 139, 0.16), rgba(208, 56, 77, 0.08));
@@ -1694,6 +1708,10 @@ function initializeReorderSelectors() {
                             <span class="reorder-manage-icon" aria-hidden="true">✎</span>
                             <span>Edit</span>
                         </button>
+                        <button class="reorder-manage-button copy" type="button" title="Copy article into a new unsaved draft" onclick="openCopyArticleEditorFromReorder('${escapeJs(article.key)}')">
+                            <span class="reorder-manage-icon" aria-hidden="true">⧉</span>
+                            <span>Copy</span>
+                        </button>
                         <button class="reorder-manage-button remove" type="button" title="Remove article" onclick="requestDelete('article', '${escapeJs(article.key)}')">
                             <span class="reorder-manage-icon" aria-hidden="true">🗑</span>
                             <span>Remove</span>
@@ -2376,6 +2394,26 @@ function initializeReorderSelectors() {
             openArticleEditorInArticlesTab(articleKey, "reorderArticles");
         }
 
+        function openCopyArticleEditorFromReorder(articleKey) {
+            const article = articles.find(item => item.key === articleKey);
+
+            inlineEditorIsDirty = false;
+            inlineEditorArticleKey = null;
+            inlineEditorIsValid = false;
+            inlineEditorMode = "copy";
+            inlineEditorReturnPanel = "reorderArticles";
+            inlineEditorTitle = article ? `Copy of ${article.title}` : "Copy article";
+            updateInlineEditorCommandBar();
+
+            document.getElementById("reorderArticlesListView").classList.add("hidden");
+            document.getElementById("articlesEditorView").classList.remove("hidden");
+
+            const frame = document.getElementById("inlineArticleEditorFrame");
+            frame.src = `/blog-admin/article-editor?embedded=articles&mode=copy&copyArticleKey=${encodeURIComponent(articleKey)}&requestId=${Date.now()}`;
+
+            showPanel("reorderArticles");
+        }
+
         function openNewArticleEditorFromReorder() {
             inlineEditorIsDirty = false;
             inlineEditorArticleKey = null;
@@ -2400,6 +2438,7 @@ function initializeReorderSelectors() {
             const saveButton = document.getElementById("editorSaveButton");
             const context = document.getElementById("editorCommandContext");
             const isExistingArticle = Boolean(inlineEditorArticleKey);
+            const isCopyArticle = inlineEditorMode === "copy";
             const actionText = isExistingArticle ? "Update" : "Publish";
 
             saveButton.innerText = actionText;
@@ -2412,7 +2451,9 @@ function initializeReorderSelectors() {
                 <strong>${escapeHtml(inlineEditorTitle || "Article editor")}</strong>
                 ${isExistingArticle
                     ? "Editing an article that already exists in the CMS. Update is available when required fields are filled."
-                    : "Creating a new CMS article. Publish is available when required fields are filled."}
+                    : isCopyArticle
+                        ? "Copying an existing article into a new unsaved draft. Review the title and slug, then publish when ready."
+                        : "Creating a new CMS article. Publish is available when required fields are filled."}
             `;
         }
 

@@ -902,8 +902,12 @@
                 attachFieldListeners();
 
                 const articleKey = getRequestedArticleKey();
+                const copyArticleKey = getRequestedCopyArticleKey();
 
-                if (articleKey) {
+                if (copyArticleKey) {
+                    await loadArticleCopy(copyArticleKey);
+                }
+                else if (articleKey) {
                     await loadExistingArticle(articleKey);
                 }
                 else {
@@ -995,6 +999,12 @@
                 const parameters = new URLSearchParams(window.location.search);
 
                 return parameters.get("articleKey");
+            }
+
+            function getRequestedCopyArticleKey() {
+                const parameters = new URLSearchParams(window.location.search);
+
+                return parameters.get("copyArticleKey");
             }
 
             function onPreviewFrameLoaded() {
@@ -1149,6 +1159,105 @@
 
                 bodyBlocks = readBodyBlocksFromBodyMarkdown();
                 renderBodyBlocks();
+            }
+
+            async function loadArticleCopy(articleKey) {
+                const response =
+                    await fetch(`/api/blog-content/articles/${encodeURIComponent(articleKey)}`);
+
+                if (!response.ok) {
+                    console.error(
+                        "[ARTICLE_EDITOR] failed to load source article for copy:",
+                        articleKey,
+                        response.status);
+
+                    await createNewArticle();
+
+                    showEditorFeedbackModal(
+                        "Article copy could not be prepared",
+                        "The source article could not be loaded. A clean new article was opened instead.",
+                        "danger");
+
+                    return;
+                }
+
+                const article = await response.json();
+
+                populateArticleCopy(article);
+
+                originalState = getCurrentState();
+
+                setDirty(true);
+
+                notifyParent(false);
+                sendPreviewUpdate();
+            }
+
+            function populateArticleCopy(article) {
+                currentArticleKey = null;
+                currentLevel = article.level || "Draft";
+                currentFocus = article.focus || "Preview";
+
+                const sourceTitle = article.title || "Untitled article";
+
+                setValue("title", `Copy of ${sourceTitle}`);
+                setValue("slug", createCopySlug(article.slug || sourceTitle));
+                setValue("summary", article.summary);
+                setValue("dotnetZone", article.dotnetZone || dotnetZones[0]?.key || "");
+                fillStepSelectForZone(value("dotnetZone"));
+                setValue("dotnetZoneStep", article.dotnetZoneStep || getFirstStepKey(value("dotnetZone")));
+                setValue("order", article.order || 1);
+                setValue("tags", article.tags);
+                setValue("bodyMarkdown", cloneBodyBlocksJson(article.bodyBlocks));
+
+                bodyBlocks = readBodyBlocksFromBodyMarkdown();
+                renderBodyBlocks();
+
+                refreshSuggestedArticleOrder();
+            }
+
+            function createCopySlug(source) {
+                const baseSlug = (source || "article")
+                    .toString()
+                    .trim()
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, "") || "article";
+
+                return `copy-of-${baseSlug}`;
+            }
+
+            function cloneBodyBlocksJson(bodyBlocksJson) {
+                if (!isValidBlockListJson(bodyBlocksJson)) {
+                    return bodyBlocksJson || "";
+                }
+
+                const parsed = JSON.parse(bodyBlocksJson);
+                const udiMap = new Map();
+
+                parsed.contentData = (parsed.contentData || []).map(item => {
+                    const oldUdi = item.udi;
+                    const newUdi = createElementUdi();
+
+                    if (oldUdi) {
+                        udiMap.set(oldUdi, newUdi);
+                    }
+
+                    return {
+                        ...item,
+                        udi: newUdi
+                    };
+                });
+
+                const blockList = parsed.layout?.["Umbraco.BlockList"] || [];
+
+                for (const layoutItem of blockList) {
+                    if (layoutItem.contentUdi && udiMap.has(layoutItem.contentUdi)) {
+                        layoutItem.contentUdi = udiMap.get(layoutItem.contentUdi);
+                    }
+                }
+
+                return JSON.stringify(parsed, null, 2);
             }
 
             async function createNewArticle() {
@@ -2062,7 +2171,7 @@
                         title: value("title"),
                         isDirty,
                         isValid: isArticleValid(),
-                        mode: currentArticleKey ? "existing" : "new",
+                        mode: currentArticleKey ? "existing" : (getRequestedCopyArticleKey() ? "copy" : "new"),
                         saved: Boolean(saved)
                     }, "*");
                 }
