@@ -17,6 +17,20 @@ The project showcases how a content platform can be deployed, secured, and opera
 
 ---
 
+## Live Azure environment
+
+The application is deployed to Azure using Terraform and GitHub Actions CI/CD.
+
+| Service | URL |
+|---|---|
+| Blazor frontend | https://happy-mud-04e739f03.7.azurestaticapps.net/ |
+| ASP.NET Core API | https://app-blogplatform-dev-api.azurewebsites.net/ |
+| API health check | https://app-blogplatform-dev-api.azurewebsites.net/health/ready |
+| Umbraco CMS | https://app-blogplatform-dev-cms.azurewebsites.net/umbraco |
+| Umbraco blog admin | https://app-blogplatform-dev-cms.azurewebsites.net/blog-admin |
+
+---
+
 ## What this project proves
 
 - Clean Architecture principles
