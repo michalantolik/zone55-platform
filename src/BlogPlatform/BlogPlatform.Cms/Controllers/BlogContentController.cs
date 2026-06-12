@@ -119,6 +119,7 @@ public sealed class BlogContentController : ControllerBase
         return Ok(_blogContent.GetDocumentTypes());
     }
 
+    [AllowAnonymous]
     [HttpGet("articles")]
     public ActionResult<IReadOnlyCollection<CmsArticleListItemDto>> GetArticles()
     {
