@@ -276,7 +276,7 @@
       "slug": "what-is-continuous-integration",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**Continuous Integration** (CI) is a software development practice where code changes are automatically built, tested, and integrated into the main code base frequently.",
+      "summary": "**Continuous Integration** (CI) is a software development practice (process) where code changes are automatically built, tested, and integrated into the main code base frequently.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "cicd-pipelines",
       "order": 1,
@@ -284,6 +284,103 @@
         "CI/CD"
       ],
       "bodyBlocks": []
+    },
+    {
+      "name": "What is continuous deployment ?",
+      "slug": "what-is-continuous-deployment",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Continuous Deployment** (CD) is a software development practice (process) of automatically deploying code changes to production or staging environments after passing through the CI pipeline.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 2,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is GitHub Actions ?",
+      "slug": "what-is-github-actions",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**GitHub Actions** is a CI/CD automation platform built into GitHub. It allows you to automatically build, test, validate, and deploy your application whenever code is pushed or a pull request is created.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 3,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is GitHub Actions workflow file ?",
+      "slug": "what-is-github-actions-workflow-file",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**GitHub Actions workflow file** is a YAML config file that defines an automated CI/CD pipeline.\n\nIt specifies when the pipeline should run and what steps should be executed.\n\nWorkflow files are stored in \u0060.github/workflows/\u0060 directory, eg. \u0060.github/workflows/ci.yml\u0060",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 4,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "How to create GitHub Actions workflow file ?",
+      "slug": "how-to-create-github-actions-workflow-file",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Open \u0060Actions\u0060 tab in your GitHub repository and click \u0060New workflow\u0060 button.\n\n\u0060Set up a workflow yourself\u0060 or use one of the predefined templates.\n\nAlternatively create \u0060.github/workflows.ci.yaml\u0060 file manually and commit.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 5,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What are the components of GitHub Actions workflow file ?",
+      "slug": "what-are-the-components-of-github-actions-workflow-file",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A GitHub Actions workflow file consists of **triggers**, **jobs**, and **steps**.\n\n**Triggers** define when the workflow runs.\n\n**Jobs** define the tasks to perform (parallel by default).\n\n**Steps** define the individual actions  to be executed.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 6,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Components:",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\npackage \u0022GitHub Actions Workflow\u0022 {\n\n    component \u0022Trigger\\n(on: push)\u0022 as Trigger\n\n    package \u0022firstJob\u0022 {\n        component \u0022Step 1\u0022\n        component \u0022Step 2\u0022\n        component \u0022Step 3\u0022\n    }\n}\n\nTrigger --\u003E \u0022Step 1\u0022\n\u0022Step 1\u0022 --\u003E \u0022Step 2\u0022\n\u0022Step 2\u0022 --\u003E \u0022Step 3\u0022\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "The shortest (empty) workflow file:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "code": "name: ci\n\non: push\n\njobs:\n  firstJob:\n    runs-on: ubuntu-latest\n    steps:\n      - run: true\n      - run: true\n      - run: true",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "A Simple C# Program",
