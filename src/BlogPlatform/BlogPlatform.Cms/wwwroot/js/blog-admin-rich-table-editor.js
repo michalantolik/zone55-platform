@@ -1,4 +1,4 @@
-﻿let selectedTableCell = {
+let selectedTableCell = {
     row: 0,
     column: 0
 };
@@ -915,8 +915,9 @@ function readTableEditorRows() {
         const { modal, card, textarea, label, host } = getBlockEditModalElements();
 
         document.getElementById("blockEditTitle").innerText = `Edit ${getBlockLabel(block)}`;
-        document.getElementById("diagramTitleField").classList.remove("active");
-        document.getElementById("diagramTitleBarField").classList.remove("active");
+        document.getElementById("blockTitleField")?.classList.remove("active");
+        document.getElementById("blockTitleBarField")?.classList.remove("active");
+        document.getElementById("blockLanguageField")?.classList.remove("active");
 
         card?.classList.add("table-block-modal");
         textarea?.classList.add("hidden");
