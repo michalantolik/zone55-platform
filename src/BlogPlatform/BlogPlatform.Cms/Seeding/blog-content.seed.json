@@ -735,6 +735,337 @@
       ]
     },
     {
+      "name": "GitHub Actions pipeline for .NET App",
+      "slug": "github-actions-pipeline-for-dotnet-app",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "This example demonstrates a typical .NET CI pipeline that checks out source code, installs the .NET SDK, restores dependencies, builds the application, runs tests, and executes additional commands for troubleshooting and diagnostics.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 8,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "See the source code below:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "yaml",
+          "fileName": "Program.cs",
+          "codeTitle": "GitHub Actions pipeline for .NET App",
+          "showCodeTitleBar": true,
+          "code": "name: build-test-deploy\n\non: push\n\njobs:\n\n  build:\n    runs-on: ubuntu-latest\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup dotnet\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: 10.0.x\n\n      - name: Install dependencies\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --no-restore\n      \n      - name: Test\n        run: dotnet test --no-build\n\n      - name: TEST COMMANDS\n        run: |\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022pwd\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          pwd\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022ls\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          ls\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --version\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --version\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-sdks\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-sdks\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-runtimes\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-runtimes",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Deploy .NET App to Azure App Service using GitHub Actions",
+      "slug": "deploy-dotnet-app-to-azure-app-service-using-github-actions",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "This article demonstrates how to extend a typical .NET CI pipeline into a complete CI/CD pipeline by automatically deploying the application to Azure App Service after a successful build and test run.\n\nYou will learn how to publish a .NET application, configure Azure deployment credentials, store secrets in GitHub, and deploy the application using the official Azure GitHub Actions deployment action.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "cicd-pipelines",
+      "order": 9,
+      "tags": [
+        "CI/CD"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 1 - Why deploy to Azure App Service?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure App Service is one of the easiest ways to host ASP.NET Core applications.\n\nBenefits include:\n\n- Fully managed hosting\n- No server administration\n- Built-in HTTPS\n- Easy scaling\n- Integration with GitHub Actions\n- Excellent choice for portfolio and production applications\n\nFor many .NET applications, Azure App Service provides the fastest path from source code to a publicly available website.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 2 - Create an Azure App Service",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Before creating the pipeline, create an Azure App Service in Azure Portal.\n\nTypical configuration:",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "**Setting**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**Value**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Publish",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060Code\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Runtime Stack",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060.NET\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Operating System",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060Linux\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Region",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Your preferred region",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Pricing Tier",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060B1\u0060 or \u0060Free\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "After creation, download the App Service publish profile.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 3 - Configure GitHub Secret",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Open:",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "GitHub Repository\n\n\u2192 Settings \u2192 Secrets and variables \u2192 Actions\n",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Create a new repository secret:",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "AZURE_WEBAPP_PUBLISH_PROFILE",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Paste the contents of the Azure publish profile into the secret.\n\nThis allows GitHub Actions to authenticate securely with Azure.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 4 - Publish the application",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Before deployment, the application must be published.\n\nTypical publish command:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "bash",
+          "fileName": "Program.cs",
+          "codeTitle": "Publish .NET App using .NET CLI",
+          "showCodeTitleBar": true,
+          "code": "dotnet publish src/BuildWise.Web/BuildWise.Web.csproj \\\n    --configuration Release \\\n    --output publish",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The publish folder contains all files required to run the application.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 5 - Create deployment workflow",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Create:",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "\u0060.github/workflows/deploy.yml\u0060",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Example workflow:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "yaml",
+          "fileName": "Program.cs",
+          "codeTitle": "GitHub Actions pipeline for .NET App",
+          "showCodeTitleBar": true,
+          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n  DOTNET_VERSION: \u002710.0.x\u0027\n  AZURE_WEBAPP_NAME: buildwise-web\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 6 - Understand the pipeline flow",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "The workflow performs the following operations:\n\n1. Checkout source code\n2. Install .NET SDK\n3. Restore NuGet packages\n4. Build application\n5. Run tests\n6. Publish application\n7. Deploy to Azure App Service\n\nThis creates a complete CI/CD pipeline.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Step 7 - Deployment result",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "After pushing code to the main branch:",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "\u0060git add .\u0060\n\n\u0060git commit -m \u0022Update application\u0022\u0060\n\n\u0060git push\u0060",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "GitHub Actions automatically:\n\n- Builds the application\n- Executes tests\n- Publishes the application\n- Deploys the latest version to Azure\n\nThe new version becomes available without manual deployment steps.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A complete GitHub Actions CI/CD pipeline for a .NET application typically follows this flow:",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nstart\n\n:Push Code;\n:Checkout Repository;\n:Setup .NET SDK;\n:Restore Dependencies;\n:Build;\n:Test;\n:Publish;\n:Deploy to Azure App Service;\n:Live Application;\n\nstop\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This approach provides a simple, reliable, and production-ready deployment process for ASP.NET Core applications hosted in Azure.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "A Simple C# Program",
       "slug": "a-simple-csharp-program",
       "level": "Draft",
