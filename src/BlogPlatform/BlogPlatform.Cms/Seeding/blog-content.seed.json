@@ -919,7 +919,17 @@
         },
         {
           "type": "text",
-          "text": "After creation, download the App Service publish profile.",
+          "text": "After creation, enable **SCM Basic Authentication**.",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "GitHub Repository\n\n\u2192 Settings \u2192 Configuration \u2192 SCM Basic Auth Publishing Credentials\n",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Then download the App Service publish profile.",
           "rows": []
         },
         {
@@ -1005,7 +1015,7 @@
           "fileName": "Program.cs",
           "codeTitle": "GitHub Actions pipeline for .NET App",
           "showCodeTitleBar": true,
-          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n  DOTNET_VERSION: \u002710.0.x\u0027\n  AZURE_WEBAPP_NAME: buildwise-web\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}",
+          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n\n  DOTNET_VERSION: \u002710.0.x\u0027\n  AZURE_WEBAPP_NAME: build-wise\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}\n\n      - name: TEST COMMANDS\n        run: |\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022pwd\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          pwd\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022ls\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          ls\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --version\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --version\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-sdks\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-sdks\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-runtimes\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-runtimes\n",
           "rows": []
         },
         {
