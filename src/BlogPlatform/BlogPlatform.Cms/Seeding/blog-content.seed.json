@@ -1210,6 +1210,252 @@
       ]
     },
     {
+      "name": "What is Infrastructure as Code ?",
+      "slug": "what-is-infrastructure-as-code",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Infrastructure as Code (IaC)** is the practice of provisioning and managing infrastructure through software (code) to achieve **consistent** and **predictable** environments.\n\nInstead of manually creating resources through a portal, infrastructure is defined as code and deployed automatically.\n\n\nPopular Infrastructure as Code tools include:\n\n- **Terraform**\n- **Azure Bicep**\n- ARM Templates",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "summary",
+          "summary": "Infrastructure as Code helps organizations:\n\n- Create **consistent environments**\n- Create **predictable deployments**\n- Reduce manual errors\n- Automate infrastructure provisioning\n\nCommon resources managed with IaC include:\n\n- Virtual Machines\n- Networks\n- Databases\n- Storage Accounts\n- Kubernetes Clusters",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Infrastructure as Code is a fundamental practice in modern cloud and DevOps environments.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Core Concepts of Infrastructure as Code",
+      "slug": "core-concepts-of-infrastructure-as-code",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Infrastructure as Code** is based on several important concepts:\n\n- Infrastructure is defined as **code**\n- Infrastructure is stored in **source control**\n- Infrastructure can be **declarative** vs imperative\n- Infrastructure should be **idempotent** and **consistent**\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is Terraform?",
+      "slug": "what-is-terraform",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Terraform** is an **Infrastructure as Code (IaC)** tool created by **HashiCorp**.\n\n\n\nKey Characteristics of Terraform\n\n- **Platform agnostic** (Azure, AWS, GCP)\n- Uses a **declarative** syntax\n- Uses **HCL (HashiCorp Configuration Language)** or JSON\n- Distributed as a **single binary**\n- Does not require a **central server** or **agent**\n- Runs directly from the terminal",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 3,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Terraform Versions",
+      "slug": "terraform-versions",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform is available in three editions:\n\n* **Terraform Community Edition** \u2013 free and open Infrastructure as Code tool\n* **HCP Terraform** \u2013 cloud-hosted Terraform service managed by HashiCorp (SaaS)\n* **Terraform Enterprise** \u2013 self-hosted enterprise version of HCP Terraform\n\nAll editions use the same core Terraform concepts and workflows.\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 4,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Terraform Core Components",
+      "slug": "terraform-core-components",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform consists of four core components:\n\n- **Terraform Binary** \u2013 the executable that contains the core Terraform functionality.\n- **Configuration Files** \u2013 infrastructure definitions written in **HCL** and stored in \u0060.tf\u0060 files.\n- **Provider Plugins** \u2013 components that allow Terraform to communicate with platform APIs such as **Azure**, **AWS**.\n- **State Data** \u2013 information about the current infrastructure used by Terraform to compare the **desired configuration** with the **existing environment** and determine required changes.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 5,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Terraform Workflow",
+      "slug": "terraform-workflow",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform uses three main phases:\n\n- **Write** \u2013 define infrastructure as code\n- **Plan** \u2013 compare configuration with state and generate an **execution plan**\n- **Apply** \u2013 apply changes and update **state data**",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 6,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Installing Terraform",
+      "slug": "installing-terraform",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform installation is simple:\n\n- Download the **Terraform binary** for your operating system\n- Add it to your **PATH environment variable**\n- Start using Terraform\n\nTerraform can be installed on:\n\n- Windows\n- Linux\n- macOS\n\nInstallation methods include:\n\n- **Binary download**\n- **Package managers**\n- **Docker**\n\nAfter installation, Terraform can be accessed from the **command line**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 7,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Terraform CLI Basics",
+      "slug": "terraform-cli-basics",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform is primarily used through the **Command Line Interface (CLI)**.\n\nTerraform commands follow this format --\u003E \u0060terraform \u003Ccommand\u003E [options]\u0060\n\nUseful commands include:\n\n- \u0060terraform version\u0060\n- \u0060terraform -h\u0060\n- \u0060terraform plan -h\u0060\n\nThe help system provides information about available commands and options.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 8,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Main Terraform Commands",
+      "slug": "main-terraform-commands",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform provides several core commands used to manage infrastructure:\n\n- \u0060init\u0060 \u2192 prepare the working directory for Terraform\n- \u0060validate\u0060 \u2192 validate the configuration files\n- \u0060plan\u0060 \u2192 generate an **execution plan** showing proposed changes\n- \u0060apply\u0060 \u2192 create or update **infrastructure**\n- \u0060destroy\u0060 \u2192 remove previously created **infrastructure**",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 9,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Terraform Configuration Files",
+      "slug": "terraform-configuration-files",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Terraform configurations** are created from all **\u0060.tf\u0060** and **\u0060.tf.json\u0060** files located in the **current working directory**.\n\nTerraform combines these files into a single **configuration** when commands such as **\u0060terraform init\u0060** or **\u0060terraform plan\u0060** are executed.\n\n**\u0060.tf\u0060 files** use **HashiCorp Configuration Language (HCL)**, while **\u0060.tf.json\u0060 files** use **JSON**.\n\n**HCL** is the preferred format because it is more **human-readable**, supports **comments**, and allows the use of **functions** and **complex expressions**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 10,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "VS Code Extensions for Terraform",
+      "slug": "vscode-extensions-for-terraform",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Visual Studio Code** provides several extensions that improve the Terraform development experience.\n\nRecommended extensions include:\n\n- **HashiCorp Terraform** \u2192 syntax highlighting, IntelliSense, formatting\n- **TFLint** \u2192 linting and validation\n- **Error Lens** \u2192 inline error display\n- **GitHub Actions** \u2192 CI/CD workflow support\n- **YAML (Red Hat)** \u2192 YAML editing support\n- **GitLens** \u2192 Git integration and history\n- **Terraform Docs** \u2192 module documentation generation\n- **Trivy / tfsec** \u2192 infrastructure security scanning",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 11,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Terraform Objects and Blocks",
+      "slug": "terraform-objects-and-blocks",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Terraform configurations are built from **blocks** written in **HashiCorp Configuration Language (HCL)**.\n\nA block contains:\n\n- A **block type**\n- One or more **labels**\n- **Arguments** (key-value pairs)\n- Optional **nested blocks**\n\nEach **resource type \u002B name label** combination must be **unique** within a Terraform configuration.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "infrastructure-as-code",
+      "order": 12,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "Example of Terraform block:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "hcl",
+          "fileName": "Program.cs",
+          "codeTitle": "Terraform block",
+          "showCodeTitleBar": true,
+          "code": "resource \u0022aws_instance\u0022 \u0022web_server\u0022 {\n  name = \u0022web-server\u0022\n\n  ebs_volume {\n    size = 40\n  }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Terraform objects can be referenced using:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "hcl",
+          "fileName": "Program.cs",
+          "codeTitle": "Terraform block",
+          "showCodeTitleBar": false,
+          "code": "\u003Cresource_type\u003E.\u003Cname_label\u003E.\u003Cattribute\u003E",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Example:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "hcl",
+          "fileName": "Program.cs",
+          "codeTitle": "Terraform block",
+          "showCodeTitleBar": false,
+          "code": "aws_instance.web_server.name",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "A Simple C# Program",
       "slug": "a-simple-csharp-program",
       "level": "Draft",
