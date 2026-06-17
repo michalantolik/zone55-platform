@@ -280,6 +280,86 @@
       ]
     },
     {
+      "name": "What is Cloud Computing ?",
+      "slug": "what-is-cloud-computing",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Cloud Computing** is delivery of computing services over the internet.\n\n**Microsoft** is a cloud provider.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is Microsoft Azure ?",
+      "slug": "what-is-microsoft-azure",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Microsoft Azure** is a cloud computing platform with a set of services.\n\n**Azure services** include categories like\n\n- Compute\n- Database\n- Storage\n- Networking\n- AI \u0026 ML\n- IoT\n\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is Shared Responsibility Model?",
+      "slug": "what-is-shared-responsibility-model",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Shared Responsibility Model** defines which responsibilities belong to the cloud provider and which belong to the customer when using cloud services.\n\n**In general**:\n\n* **Microsoft** is responsible for security **of the cloud**.\n* **Customer** is responsible for security **in the cloud**.\n\n**Microsoft** is always responsible for:\n\n* Datacenters\n* Physical servers\n* Physical networking\n\n**Customer** is always responsible for:\n\n* Data stored in the cloud\n* Devices that connect to the cloud\n* Identities, accounts, and access management\n\nSome responsibilities depend on the selected cloud service model (**IaaS**, **PaaS**, **SaaS**).\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 3,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What are Cloud Service Models?",
+      "slug": "what-are-cloud-service-models",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Cloud Service Models** define which parts of a solution are managed by the **cloud provider** and which parts are managed by the **customer**.\n\nThe three main cloud service models are:\n\n* **IaaS** (*Infrastructure as a Service*)\n* **PaaS** (*Platform as a Service*)\n* **SaaS** (*Software as a Service*)\n\nAs you move from **IaaS** to **SaaS**, the **cloud provider** manages more components and the **customer** manages fewer.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 4,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What are Cloud Deployment Models?",
+      "slug": "what-are-the-cloud-deployment-models",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Cloud Deployment Models** describe **where cloud resources are deployed** and **who manages the environment**.\n\nThe four common deployment models are:\n\n- **Private Cloud** \u2192 cloud dedicated to one organization\n- **Public Cloud** \u2192 cloud shared by many customers\n- **Hybrid Cloud**\u2192 combination of private and public cloud\n- **Multi-Cloud**\u2192 multiple cloud providers\n\nEach model provides different levels of **control**, **management**, and **flexibility**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 5,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
       "name": "What is continuous integration ?",
       "slug": "what-is-continuous-integration",
       "level": "Draft",
@@ -935,7 +1015,7 @@
         {
           "type": "heading",
           "level": 2,
-          "text": "Step 3 - Configure GitHub Secret",
+          "text": "Step 3 - Configure GitHub Environment",
           "rows": []
         },
         {
@@ -945,12 +1025,12 @@
         },
         {
           "type": "summary",
-          "summary": "GitHub Repository\n\n\u2192 Settings \u2192 Secrets and variables \u2192 Actions\n",
+          "summary": "GitHub Repository\n\n\u2192 Settings \u2192 Environments \u2192 New environment \u2192 Production\n",
           "rows": []
         },
         {
           "type": "text",
-          "text": "Create a new repository secret:",
+          "text": "Add environment secret:",
           "rows": []
         },
         {
@@ -1014,8 +1094,8 @@
           "language": "yaml",
           "fileName": "Program.cs",
           "codeTitle": "GitHub Actions pipeline for .NET App",
-          "showCodeTitleBar": true,
-          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n\n  DOTNET_VERSION: \u002710.0.x\u0027\n  AZURE_WEBAPP_NAME: build-wise\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}\n\n      - name: TEST COMMANDS\n        run: |\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022pwd\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          pwd\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022ls\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          ls\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --version\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --version\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-sdks\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-sdks\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-runtimes\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-runtimes\n",
+          "showCodeTitleBar": false,
+          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n\n  DOTNET_VERSION: \u002710.0.x\u0027\n  AZURE_WEBAPP_NAME: build-wise\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    environment: Production\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}\n\n      - name: TEST COMMANDS\n        run: |\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022pwd\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          pwd\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022ls\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          ls\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --version\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --version\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-sdks\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-sdks\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-runtimes\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-runtimes\n",
           "rows": []
         },
         {
@@ -1254,6 +1334,22 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "What are Cloud Deployment Models?",
+      "slug": "what-are-cloud-deployment-models",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Cloud Deployment Models** describe where cloud resources are deployed.\n\nThe most common deployment models are:\n\n- **Private Cloud**\n- **Public Cloud**\n- **Hybrid Cloud**\n- **Multi-Cloud**\n\nEach model offers different levels of **control**, **flexibility**, and **management responsibility**.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "csharp-dotnet",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
     },
     {
       "name": "What is ASP.NET Core?",
