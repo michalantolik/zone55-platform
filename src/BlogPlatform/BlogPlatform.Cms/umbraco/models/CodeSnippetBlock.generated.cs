@@ -58,6 +58,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string Code => this.Value<string>(_publishedValueFallback, "code");
 
 		///<summary>
+		/// Code title
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.4.2+b87d519")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("codeTitle")]
+		public virtual string CodeTitle => this.Value<string>(_publishedValueFallback, "codeTitle");
+
+		///<summary>
 		/// File name
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.4.2+b87d519")]
@@ -72,5 +80,12 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("language")]
 		public virtual string Language => this.Value<string>(_publishedValueFallback, "language");
+
+		///<summary>
+		/// Show code title bar
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.4.2+b87d519")]
+		[ImplementPropertyType("showCodeTitleBar")]
+		public virtual bool ShowCodeTitleBar => this.Value<bool>(_publishedValueFallback, "showCodeTitleBar");
 	}
 }

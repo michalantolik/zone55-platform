@@ -7,162 +7,162 @@
       "steps": [
         {
           "key": "csharp-dotnet",
-          "name": "C# & .NET",
+          "name": "C# \u0026 .NET",
           "order": 1,
-          "icon": "💻"
+          "icon": "\uD83D\uDCBB"
         },
         {
           "key": "basic-syntax",
           "name": "Basic Syntax",
           "order": 2,
-          "icon": "📝"
+          "icon": "\uD83D\uDCDD"
         },
         {
           "key": "types-operators",
-          "name": "Types & Operators",
+          "name": "Types \u0026 Operators",
           "order": 3,
-          "icon": "🔢"
+          "icon": "\uD83D\uDD22"
         },
         {
           "key": "functions-classes",
-          "name": "Functions & Classes",
+          "name": "Functions \u0026 Classes",
           "order": 4,
-          "icon": "🏗️"
+          "icon": "\uD83C\uDFD7\uFE0F"
         },
         {
           "key": "console-apps",
           "name": "Console Apps",
           "order": 5,
-          "icon": "🖥️"
+          "icon": "\uD83D\uDDA5\uFE0F"
         }
       ]
     },
     {
       "key": "web-app-development",
-      "name": "Web & App Development",
+      "name": "Web \u0026 App Development",
       "order": 2,
       "steps": [
         {
           "key": "aspnet-core-ecosystem",
           "name": "ASP.NET Core Ecosystem",
           "order": 1,
-          "icon": "🌐"
+          "icon": "\uD83C\uDF10"
         },
         {
           "key": "aspnet-core-mvc",
           "name": "ASP.NET Core MVC",
           "order": 2,
-          "icon": "🧭"
+          "icon": "\uD83E\uDDED"
         },
         {
           "key": "aspnet-core-web-api",
           "name": "ASP.NET Core Web API",
           "order": 3,
-          "icon": "🔌"
+          "icon": "\uD83D\uDD0C"
         },
         {
           "key": "linq-collections",
-          "name": "LINQ & Collections",
+          "name": "LINQ \u0026 Collections",
           "order": 4,
-          "icon": "🔎"
+          "icon": "\uD83D\uDD0E"
         },
         {
           "key": "dependency-injection",
           "name": "Dependency Injection",
           "order": 5,
-          "icon": "🔗"
+          "icon": "\uD83D\uDD17"
         },
         {
           "key": "desktop-apps",
           "name": "Desktop Apps",
           "order": 6,
-          "icon": "🪟"
+          "icon": "\uD83E\uDE9F"
         }
       ]
     },
     {
       "key": "architecture-data",
-      "name": "Architecture & Data",
+      "name": "Architecture \u0026 Data",
       "order": 3,
       "steps": [
         {
           "key": "sql-fundamentals",
           "name": "SQL Fundamentals",
           "order": 1,
-          "icon": "🗄️"
+          "icon": "\uD83D\uDDC4\uFE0F"
         },
         {
           "key": "entity-framework-core",
           "name": "Entity Framework Core",
           "order": 2,
-          "icon": "🧱"
+          "icon": "\uD83E\uDDF1"
         },
         {
           "key": "async-programming",
           "name": "Async Programming",
           "order": 3,
-          "icon": "⚡"
+          "icon": "\u26A1"
         },
         {
           "key": "testing",
           "name": "Testing",
           "order": 4,
-          "icon": "🧪"
+          "icon": "\uD83E\uDDEA"
         },
         {
           "key": "clean-architecture",
           "name": "Clean Architecture",
           "order": 5,
-          "icon": "🏛️"
+          "icon": "\uD83C\uDFDB\uFE0F"
         },
         {
           "key": "design-patterns",
           "name": "Design Patterns",
           "order": 6,
-          "icon": "🧩"
+          "icon": "\uD83E\uDDE9"
         }
       ]
     },
     {
       "key": "cloud-advanced",
-      "name": "Cloud & Advanced",
+      "name": "Cloud \u0026 Advanced",
       "order": 4,
       "steps": [
         {
           "key": "microservices",
           "name": "Microservices",
           "order": 1,
-          "icon": "🛰️"
+          "icon": "\uD83D\uDEF0\uFE0F"
         },
         {
           "key": "azure-integration",
           "name": "Azure Integration",
           "order": 2,
-          "icon": "☁️"
+          "icon": "\u2601\uFE0F"
         },
         {
           "key": "cicd-pipelines",
           "name": "CI/CD Pipelines",
           "order": 3,
-          "icon": "🚀"
+          "icon": "\uD83D\uDE80"
         },
         {
           "key": "performance-tuning",
           "name": "Performance Tuning",
           "order": 4,
-          "icon": "⚙️"
+          "icon": "\u2699\uFE0F"
         },
         {
           "key": "advanced-csharp",
           "name": "Advanced C#",
           "order": 5,
-          "icon": "🧠"
+          "icon": "\uD83E\uDDE0"
         },
         {
           "key": "infrastructure-as-code",
           "name": "Infrastructure as Code",
           "order": 6,
-          "icon": "🏗️"
+          "icon": "\uD83C\uDFD7\uFE0F"
         }
       ]
     }
@@ -173,7 +173,7 @@
       "slug": "strategy-pattern",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "Strategy pattern defines a family of algorithms and makes them interchangeable. This is achieved through the \"composition over inheritance\". Strategies can vary independently from the clients that use it. Clients do NOT need to change. This is the example of the \"Open-Closed Principle (OCP)\". Strategies may be injected into object.",
+      "summary": "Strategy pattern defines a family of algorithms and makes them interchangeable. This is achieved through the \u0022composition over inheritance\u0022. Strategies can vary independently from the clients that use it. Clients do NOT need to change. This is the example of the \u0022Open-Closed Principle (OCP)\u0022. Strategies may be injected into object.",
       "dotnetZone": "architecture-data",
       "dotnetZoneStep": "design-patterns",
       "order": 1,
@@ -191,7 +191,7 @@
         },
         {
           "type": "text",
-          "text": "In OOP objects may expose various \"behaviors\". These behaviors may be implemented in a different way. That is using a different \"strategy\".\n\nStrategy pattern is about defining an interface for a particular \"object behavior\" and a family of its concrete implementations. That is the \"concrete strategies\".\n\nAn object may expose this \"behavior\" through the defined \"strategy interface\" and each \"concrete strategy\" may be injected into the object as needed.",
+          "text": "In OOP objects may expose various \u0022behaviors\u0022. These behaviors may be implemented in a different way. That is using a different \u0022strategy\u0022.\n\nStrategy pattern is about defining an interface for a particular \u0022object behavior\u0022 and a family of its concrete implementations. That is the \u0022concrete strategies\u0022.\n\nAn object may expose this \u0022behavior\u0022 through the defined \u0022strategy interface\u0022 and each \u0022concrete strategy\u0022 may be injected into the object as needed.",
           "rows": []
         },
         {
@@ -223,7 +223,7 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\ninterface IFlyBehavior\n{\n    +void Fly()\n}\n\nclass SimpleFly\n{\n    +void Fly()\n}\n\nclass JetFly\n{\n    +void Fly()\n}\n\nclass NoFly\n{\n    +void Fly()\n}\n\ninterface IQuackBehavior\n{\n    +void Quack()\n}\n\nclass SimpleQuack\n{\n    +void Quack()\n}\n\nclass NoQuack\n{\n    +void Quack()\n}\n\ninterface IDisplayBehavior\n{\n    +void Display()\n}\n\nclass DisplayAsText\n{\n    +void Display()\n}\n\nclass DisplayAsGraphics\n{\n    +void Display()\n}\n\nabstract class Duck\n{\n    -IFlyBehavior _flyBehavior\n    -IQuackBehavior _quackBehavior\n    -IDisplayBehavior _displayBehavior\n\n    +void Fly()\n    +void Quack()\n    +void Display()\n}\n\nIFlyBehavior <|.. SimpleFly : IS-A\nIFlyBehavior <|.. JetFly : IS-A\nIFlyBehavior <|.. NoFly : IS-A\n\nIQuackBehavior <|.. SimpleQuack : IS-A\nIQuackBehavior <|.. NoQuack : IS-A\n\nIDisplayBehavior <|.. DisplayAsText : IS-A\nIDisplayBehavior <|.. DisplayAsGraphics : IS-A\n\nDuck --> IFlyBehavior : HAS-A\nDuck --> IQuackBehavior : HAS-A\nDuck --> IDisplayBehavior : HAS-A\n\n@enduml",
+          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\ninterface IFlyBehavior\n{\n    \u002Bvoid Fly()\n}\n\nclass SimpleFly\n{\n    \u002Bvoid Fly()\n}\n\nclass JetFly\n{\n    \u002Bvoid Fly()\n}\n\nclass NoFly\n{\n    \u002Bvoid Fly()\n}\n\ninterface IQuackBehavior\n{\n    \u002Bvoid Quack()\n}\n\nclass SimpleQuack\n{\n    \u002Bvoid Quack()\n}\n\nclass NoQuack\n{\n    \u002Bvoid Quack()\n}\n\ninterface IDisplayBehavior\n{\n    \u002Bvoid Display()\n}\n\nclass DisplayAsText\n{\n    \u002Bvoid Display()\n}\n\nclass DisplayAsGraphics\n{\n    \u002Bvoid Display()\n}\n\nabstract class Duck\n{\n    -IFlyBehavior _flyBehavior\n    -IQuackBehavior _quackBehavior\n    -IDisplayBehavior _displayBehavior\n\n    \u002Bvoid Fly()\n    \u002Bvoid Quack()\n    \u002Bvoid Display()\n}\n\nIFlyBehavior \u003C|.. SimpleFly : IS-A\nIFlyBehavior \u003C|.. JetFly : IS-A\nIFlyBehavior \u003C|.. NoFly : IS-A\n\nIQuackBehavior \u003C|.. SimpleQuack : IS-A\nIQuackBehavior \u003C|.. NoQuack : IS-A\n\nIDisplayBehavior \u003C|.. DisplayAsText : IS-A\nIDisplayBehavior \u003C|.. DisplayAsGraphics : IS-A\n\nDuck --\u003E IFlyBehavior : HAS-A\nDuck --\u003E IQuackBehavior : HAS-A\nDuck --\u003E IDisplayBehavior : HAS-A\n\n@enduml",
           "title": "Strategy pattern -  class diagram",
           "showDiagramTitleBar": true,
           "rows": []
@@ -258,7 +258,7 @@
           "fileName": "Program.cs",
           "codeTitle": "Strategy pattern - concrete strategies",
           "showCodeTitleBar": true,
-          "code": "public class SimpleFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\"Simple flying...\");\n    }\n}\n\npublic class JetFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\"Jet flying...\");\n    }\n}\n\npublic class SimpleQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\"Quack!\");\n    }\n}\n\npublic class NoQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\"...\");\n    }\n}\n\npublic class DisplayAsText : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\"Displaying as text.\");\n    }\n}\n\npublic class DisplayAsGraphics : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\"Displaying as graphics.\");\n    }\n}",
+          "code": "public class SimpleFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\u0022Simple flying...\u0022);\n    }\n}\n\npublic class JetFlying : IFlyBehavior\n{\n    public void Fly()\n    {\n        Console.WriteLine(\u0022Jet flying...\u0022);\n    }\n}\n\npublic class SimpleQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\u0022Quack!\u0022);\n    }\n}\n\npublic class NoQuack : IQuackBehavior\n{\n    public void Quack()\n    {\n        Console.WriteLine(\u0022...\u0022);\n    }\n}\n\npublic class DisplayAsText : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\u0022Displaying as text.\u0022);\n    }\n}\n\npublic class DisplayAsGraphics : IDisplayBehavior\n{\n    public void Display()\n    {\n        Console.WriteLine(\u0022Displaying as graphics.\u0022);\n    }\n}",
           "rows": []
         },
         {
@@ -278,7 +278,7 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass Client {\n    -IBehavior _behavior\n    +void Execute()\n}\n\ninterface IBehavior {\n    +void Run()\n}\n\nclass ConcreteBehaviorA {\n    +void Run()\n}\n\nclass ConcreteBehaviorB {\n    +void Run()\n}\n\nClient --> IBehavior : HAS-A\n\nIBehavior <|.. ConcreteBehaviorA : IS-A\nIBehavior <|.. ConcreteBehaviorB : IS-A\n\n@enduml",
+          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass Client {\n    -IBehavior _behavior\n    \u002Bvoid Execute()\n}\n\ninterface IBehavior {\n    \u002Bvoid Run()\n}\n\nclass ConcreteBehaviorA {\n    \u002Bvoid Run()\n}\n\nclass ConcreteBehaviorB {\n    \u002Bvoid Run()\n}\n\nClient --\u003E IBehavior : HAS-A\n\nIBehavior \u003C|.. ConcreteBehaviorA : IS-A\nIBehavior \u003C|.. ConcreteBehaviorB : IS-A\n\n@enduml",
           "title": "Strategy pattern - generalized class diagram",
           "showDiagramTitleBar": true,
           "rows": []
@@ -306,7 +306,7 @@
       "slug": "what-is-microsoft-azure",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**Microsoft Azure** is a cloud computing platform with a set of services.\n\n**Azure services** include categories like\n\n- Compute\n- Database\n- Storage\n- Networking\n- AI & ML\n- IoT\n\n",
+      "summary": "**Microsoft Azure** is a cloud computing platform with a set of services.\n\n**Azure services** include categories like\n\n- Compute\n- Database\n- Storage\n- Networking\n- AI \u0026 ML\n- IoT\n\n",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
       "order": 2,
@@ -354,10 +354,58 @@
       "slug": "what-are-the-cloud-deployment-models",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**Cloud Deployment Models** describe **where cloud resources are deployed** and **who manages the environment**.\n\nThe four common deployment models are:\n\n- **Private Cloud** → cloud dedicated to one organization\n- **Public Cloud** → cloud shared by many customers\n- **Hybrid Cloud**→ combination of private and public cloud\n- **Multi-Cloud**→ multiple cloud providers\n\nEach model provides different levels of **control**, **management**, and **flexibility**.",
+      "summary": "**Cloud Deployment Models** describe **where cloud resources are deployed** and **who manages the environment**.\n\nThe four common deployment models are:\n\n- **Private Cloud** \u2192 cloud dedicated to one organization\n- **Public Cloud** \u2192 cloud shared by many customers\n- **Hybrid Cloud**\u2192 combination of private and public cloud\n- **Multi-Cloud**\u2192 multiple cloud providers\n\nEach model provides different levels of **control**, **management**, and **flexibility**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
       "order": 5,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is Azure Arc ?",
+      "slug": "what-is-azure-arc",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Arc** is a service that allows you to manage **resources running outside Azure** as if they were running **inside Azure**.\n\nAzure Arc extends **Azure management capabilities** to **on-premises servers**, **on-premises VM environments** and **services in other cloud platforms (AWS)**.\n\nAzure Arc is especially useful in:\n\n- **Hybrid Cloud** environments\n- **Multi-Cloud** environments\n\nIt allows organizations to use **Azure management tools** without moving **all workloads into Azure**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 6,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What is Azure VMware Solution (AVS) ?",
+      "slug": "what-is-azure-vmware-solution",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure VMware Solution (AVS)** is a service that allows you to run your existing **VMware environment inside Azure** without rebuilding your applications.\n\nAVS provides **VMware infrastructure** managed by Microsoft in Azure.\n\nOrganizations can migrate existing VMware workloads to Azure while continuing to use familiar VMware tools and skills.\n\nAzure VMware Solution is useful for:\n\n* **Datacenter migration**\n* **Hybrid Cloud** environments\n* **Business continuity and disaster recovery**\n\nIt allows organizations to move VMware workloads to Azure with **minimal changes to existing applications**.\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 7,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What are CapEx and OpEx ?",
+      "slug": "what-are-capex-and-opex",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**CapEx (Capital Expenditure)** is the **upfront investment** required to purchase and own **IT infrastructure**.\n\nOrganizations using a **CapEx model** must purchase infrastructure before it can be used.\n\nCapEx usually requires a **large initial investment** and **long-term planning**.\n\n---\n\n**OpEx (Operational Expenditure)** is the **ongoing cost** of using **IT services**.\n\nOrganizations using an **OpEx model** pay for resources as they consume them.\n\nOpEx usually requires **smaller upfront costs** and provides **greater flexibility**.\n\n---\n\nCloud computing typically shifts spending from **CapEx** to **OpEx**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 8,
       "tags": [
         ".NET",
         "Architecture",
@@ -412,7 +460,7 @@
       "slug": "what-is-github-actions-workflow-file",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**GitHub Actions workflow file** is a YAML config file that defines an automated CI/CD pipeline.\n\nIt specifies when the pipeline should run and what steps should be executed.\n\nWorkflow files are stored in `.github/workflows/` directory, eg. `.github/workflows/ci.yml`",
+      "summary": "**GitHub Actions workflow file** is a YAML config file that defines an automated CI/CD pipeline.\n\nIt specifies when the pipeline should run and what steps should be executed.\n\nWorkflow files are stored in \u0060.github/workflows/\u0060 directory, eg. \u0060.github/workflows/ci.yml\u0060",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "cicd-pipelines",
       "order": 4,
@@ -426,7 +474,7 @@
       "slug": "how-to-create-github-actions-workflow-file",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "Open `Actions` tab in your GitHub repository and click `New workflow` button.\n\n`Set up a workflow yourself` or use one of the predefined templates.\n\nAlternatively create `.github/workflows.ci.yaml` file manually and commit.",
+      "summary": "Open \u0060Actions\u0060 tab in your GitHub repository and click \u0060New workflow\u0060 button.\n\n\u0060Set up a workflow yourself\u0060 or use one of the predefined templates.\n\nAlternatively create \u0060.github/workflows.ci.yaml\u0060 file manually and commit.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "cicd-pipelines",
       "order": 5,
@@ -456,7 +504,7 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\n\npackage \"GitHub Actions Workflow\" {\n\n    component \"Trigger\\n(on: push)\" as Trigger\n\n    package \"JobOne\" {\n        component \"Step 1\" as J1S1\n        component \"Step 2\" as J1S2\n        component \"Step 3\" as J1S3\n    }\n\n    package \"JobTwo\" {\n        component \"Step 1\" as J2S1\n        component \"Step 2\" as J2S2\n        component \"Step 3\" as J2S3\n    }\n}\n\nTrigger --> J1S1\nTrigger --> J2S1\n\nJ1S1 --> J1S2\nJ1S2 --> J1S3\n\nJ2S1 --> J2S2\nJ2S2 --> J2S3\n\nnote bottom\nJobs run in parallel by default.\nSteps inside each job run sequentially.\nend note\n\n@enduml",
+          "diagram": "@startuml\n\npackage \u0022GitHub Actions Workflow\u0022 {\n\n    component \u0022Trigger\\n(on: push)\u0022 as Trigger\n\n    package \u0022JobOne\u0022 {\n        component \u0022Step 1\u0022 as J1S1\n        component \u0022Step 2\u0022 as J1S2\n        component \u0022Step 3\u0022 as J1S3\n    }\n\n    package \u0022JobTwo\u0022 {\n        component \u0022Step 1\u0022 as J2S1\n        component \u0022Step 2\u0022 as J2S2\n        component \u0022Step 3\u0022 as J2S3\n    }\n}\n\nTrigger --\u003E J1S1\nTrigger --\u003E J2S1\n\nJ1S1 --\u003E J1S2\nJ1S2 --\u003E J1S3\n\nJ2S1 --\u003E J2S2\nJ2S2 --\u003E J2S3\n\nnote bottom\nJobs run in parallel by default.\nSteps inside each job run sequentially.\nend note\n\n@enduml",
           "title": "workflow_with_two_jobs.yaml - DIAGRAM",
           "showDiagramTitleBar": true,
           "rows": []
@@ -467,7 +515,7 @@
           "fileName": "Program.cs",
           "codeTitle": "workflow_with_two_jobs.yaml - SOURCE CODE",
           "showCodeTitleBar": true,
-          "code": "name: ci\n\non: push\n\njobs:\n  JobOne:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Step 1\"\n      - run: echo \"Step 2\"\n      - run: echo \"Step 3\"\n      \n  JobTwo:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Step 1\"\n      - run: echo \"Step 2\"\n      - run: echo \"Step 3\"",
+          "code": "name: ci\n\non: push\n\njobs:\n  JobOne:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \u0022Step 1\u0022\n      - run: echo \u0022Step 2\u0022\n      - run: echo \u0022Step 3\u0022\n      \n  JobTwo:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \u0022Step 1\u0022\n      - run: echo \u0022Step 2\u0022\n      - run: echo \u0022Step 3\u0022",
           "rows": []
         }
       ]
@@ -543,7 +591,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/checkout@v4`",
+                "text": "\u0060actions/checkout@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -551,7 +599,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/checkout@v4`",
+                "text": "\u0060actions/checkout@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -559,7 +607,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/checkout@v4`",
+                "text": "\u0060actions/checkout@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -577,7 +625,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/setup-dotnet@v4`",
+                "text": "\u0060actions/setup-dotnet@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -585,7 +633,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/setup-node@v4`",
+                "text": "\u0060actions/setup-node@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -593,7 +641,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/setup-python@v5`",
+                "text": "\u0060actions/setup-python@v5\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -611,7 +659,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`dotnet restore`",
+                "text": "\u0060dotnet restore\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -619,7 +667,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`npm ci`",
+                "text": "\u0060npm ci\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -627,7 +675,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`pip install -r requirements.txt`",
+                "text": "\u0060pip install -r requirements.txt\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -645,7 +693,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`dotnet build --no-restore`",
+                "text": "\u0060dotnet build --no-restore\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -653,7 +701,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`npm run build`",
+                "text": "\u0060npm run build\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -661,7 +709,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`python -m compileall` *(optional)*",
+                "text": "\u0060python -m compileall\u0060 *(optional)*",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -679,7 +727,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`dotnet test --no-build`",
+                "text": "\u0060dotnet test --no-build\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -687,7 +735,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`npm test`",
+                "text": "\u0060npm test\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -695,7 +743,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`pytest`",
+                "text": "\u0060pytest\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -713,7 +761,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`dotnet publish -c Release`",
+                "text": "\u0060dotnet publish -c Release\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -721,7 +769,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`npm run build`",
+                "text": "\u0060npm run build\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -747,7 +795,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/upload-artifact@v4`",
+                "text": "\u0060actions/upload-artifact@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -755,7 +803,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/upload-artifact@v4`",
+                "text": "\u0060actions/upload-artifact@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -763,7 +811,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`actions/upload-artifact@v4`",
+                "text": "\u0060actions/upload-artifact@v4\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -844,7 +892,7 @@
           "fileName": "Program.cs",
           "codeTitle": "GitHub Actions pipeline for .NET App",
           "showCodeTitleBar": true,
-          "code": "name: build-test-deploy\n\non: push\n\njobs:\n\n  build:\n    runs-on: ubuntu-latest\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup dotnet\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: 10.0.x\n\n      - name: Install dependencies\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --no-restore\n      \n      - name: Test\n        run: dotnet test --no-build\n\n      - name: TEST COMMANDS\n        run: |\n          printf \"\\n========================================\\n\"\n          printf \"pwd\\n\"\n          printf \"========================================\\n\\n\"\n\n          pwd\n\n          printf \"\\n========================================\\n\"\n          printf \"ls\\n\"\n          printf \"========================================\\n\\n\"\n\n          ls\n\n          printf \"\\n========================================\\n\"\n          printf \"dotnet --version\\n\"\n          printf \"========================================\\n\\n\"\n\n          dotnet --version\n\n          printf \"\\n========================================\\n\"\n          printf \"dotnet --list-sdks\\n\"\n          printf \"========================================\\n\\n\"\n\n          dotnet --list-sdks\n\n          printf \"\\n========================================\\n\"\n          printf \"dotnet --list-runtimes\\n\"\n          printf \"========================================\\n\\n\"\n\n          dotnet --list-runtimes",
+          "code": "name: build-test-deploy\n\non: push\n\njobs:\n\n  build:\n    runs-on: ubuntu-latest\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup dotnet\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: 10.0.x\n\n      - name: Install dependencies\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --no-restore\n      \n      - name: Test\n        run: dotnet test --no-build\n\n      - name: TEST COMMANDS\n        run: |\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022pwd\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          pwd\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022ls\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          ls\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --version\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --version\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-sdks\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-sdks\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-runtimes\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-runtimes",
           "rows": []
         }
       ]
@@ -921,7 +969,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`Code`",
+                "text": "\u0060Code\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -939,7 +987,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`.NET`",
+                "text": "\u0060.NET\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -957,7 +1005,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`Linux`",
+                "text": "\u0060Linux\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -993,7 +1041,7 @@
                 "verticalAlignment": ""
               },
               {
-                "text": "`B1` or `Free`",
+                "text": "\u0060B1\u0060 or \u0060Free\u0060",
                 "emoji": "",
                 "imageUrl": "",
                 "imageAlt": "",
@@ -1010,7 +1058,7 @@
         },
         {
           "type": "summary",
-          "summary": "GitHub Repository\n\n→ Settings → Configuration → SCM Basic Auth Publishing Credentials\n",
+          "summary": "GitHub Repository\n\n\u2192 Settings \u2192 Configuration \u2192 SCM Basic Auth Publishing Credentials\n",
           "rows": []
         },
         {
@@ -1031,7 +1079,7 @@
         },
         {
           "type": "summary",
-          "summary": "GitHub Repository\n\n→ Settings → Environments → New environment → Production\n",
+          "summary": "GitHub Repository\n\n\u2192 Settings \u2192 Environments \u2192 New environment \u2192 Production\n",
           "rows": []
         },
         {
@@ -1087,7 +1135,7 @@
         },
         {
           "type": "summary",
-          "summary": "`.github/workflows/deploy.yml`",
+          "summary": "\u0060.github/workflows/deploy.yml\u0060",
           "rows": []
         },
         {
@@ -1101,7 +1149,7 @@
           "fileName": "Program.cs",
           "codeTitle": "GitHub Actions pipeline for .NET App",
           "showCodeTitleBar": false,
-          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n\n  DOTNET_VERSION: '10.0.x'\n  AZURE_WEBAPP_NAME: build-wise\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    environment: Production\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}\n\n      - name: TEST COMMANDS\n        run: |\n          printf \"\\n========================================\\n\"\n          printf \"pwd\\n\"\n          printf \"========================================\\n\\n\"\n\n          pwd\n\n          printf \"\\n========================================\\n\"\n          printf \"ls\\n\"\n          printf \"========================================\\n\\n\"\n\n          ls\n\n          printf \"\\n========================================\\n\"\n          printf \"dotnet --version\\n\"\n          printf \"========================================\\n\\n\"\n\n          dotnet --version\n\n          printf \"\\n========================================\\n\"\n          printf \"dotnet --list-sdks\\n\"\n          printf \"========================================\\n\\n\"\n\n          dotnet --list-sdks\n\n          printf \"\\n========================================\\n\"\n          printf \"dotnet --list-runtimes\\n\"\n          printf \"========================================\\n\\n\"\n\n          dotnet --list-runtimes\n",
+          "code": "name: build-test-deploy\n\non:\n  push:\n    branches:\n      - main\n\nenv:\n\n  DOTNET_VERSION: \u002710.0.x\u0027\n  AZURE_WEBAPP_NAME: build-wise\n  PROJECT_PATH: src/BuildWise.Web/BuildWise.Web.csproj\n  PUBLISH_DIR: publish\n\njobs:\n\n  build-test-deploy:\n\n    environment: Production\n    runs-on: ubuntu-latest\n\n    steps:\n\n      - name: Checkout repository\n        uses: actions/checkout@v6\n\n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: ${{ env.DOTNET_VERSION }}\n\n      - name: Restore\n        run: dotnet restore\n\n      - name: Build\n        run: dotnet build --configuration Release --no-restore\n\n      - name: Test\n        run: dotnet test --configuration Release --no-build\n\n      - name: Publish\n        run: |\n          dotnet publish \\\n            ${{ env.PROJECT_PATH }} \\\n            --configuration Release \\\n            --no-build \\\n            --output ${{ env.PUBLISH_DIR }}\n\n      - name: Deploy to Azure App Service\n        uses: azure/webapps-deploy@v3\n        with:\n          app-name: ${{ env.AZURE_WEBAPP_NAME }}\n          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}\n          package: ${{ env.PUBLISH_DIR }}\n\n      - name: TEST COMMANDS\n        run: |\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022pwd\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          pwd\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022ls\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          ls\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --version\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --version\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-sdks\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-sdks\n\n          printf \u0022\\n========================================\\n\u0022\n          printf \u0022dotnet --list-runtimes\\n\u0022\n          printf \u0022========================================\\n\\n\u0022\n\n          dotnet --list-runtimes\n",
           "rows": []
         },
         {
@@ -1128,7 +1176,7 @@
         },
         {
           "type": "summary",
-          "summary": "`git add .`\n\n`git commit -m \"Update application\"`\n\n`git push`",
+          "summary": "\u0060git add .\u0060\n\n\u0060git commit -m \u0022Update application\u0022\u0060\n\n\u0060git push\u0060",
           "rows": []
         },
         {
@@ -1166,7 +1214,7 @@
       "slug": "a-simple-csharp-program",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "We’ll start by demonstrating a simple program and explaining its components one by one. This will introduce a range of topics, from the structure of a C# program to the method of producing program output to the screen.",
+      "summary": "We\u2019ll start by demonstrating a simple program and explaining its components one by one. This will introduce a range of topics, from the structure of a C# program to the method of producing program output to the screen.",
       "dotnetZone": "foundation",
       "dotnetZoneStep": "basic-syntax",
       "order": 1,
@@ -1176,7 +1224,7 @@
       "bodyBlocks": [
         {
           "type": "text",
-          "text": "- When the code is compiled and executed, it displays the string “Hi there!” in a window on the screen.\n\n- Line 5 contains two contiguous slash characters. These characters—and everything following them on the line—are ignored by the compiler. This is called a *single-line comment*.",
+          "text": "- When the code is compiled and executed, it displays the string \u201CHi there!\u201D in a window on the screen.\n\n- Line 5 contains two contiguous slash characters. These characters\u2014and everything following them on the line\u2014are ignored by the compiler. This is called a *single-line comment*.",
           "rows": []
         },
         {
@@ -1185,12 +1233,12 @@
           "fileName": "Example.cs",
           "codeTitle": "Simple program",
           "showCodeTitleBar": true,
-          "code": "using System;\n\nnamespace Simple\n{\n    class Program // declare a class\n    {\n        static void Main()\n        {\n            Console.WriteLine(\"Hi there!\");\n        }\n    }\n}",
+          "code": "using System;\n\nnamespace Simple\n{\n    class Program // declare a class\n    {\n        static void Main()\n        {\n            Console.WriteLine(\u0022Hi there!\u0022);\n        }\n    }\n}",
           "rows": []
         },
         {
           "type": "text",
-          "text": "The `Simple.Program`, line by line is presented here:",
+          "text": "The \u0060Simple.Program\u0060, line by line is presented here:",
           "rows": []
         },
         {
@@ -1324,7 +1372,7 @@
       "dotnetZoneStep": "csharp-dotnet",
       "order": 1,
       "tags": [
-        "C# & .NET"
+        "C# \u0026 .NET"
       ],
       "bodyBlocks": [
         {
@@ -1334,7 +1382,7 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\nskinparam linetype ortho\n\nrectangle \"Programming\\nTools\" as Tools\nrectangle \"Compiled\\nCode\" as Code\nrectangle \"Base Class\\nLibrary (BCL)\" as BCL\nrectangle \"Common Language Runtime (CLR)\" as CLR\n\nTools -down-> Code : Produces\nCode -right-> BCL : Uses\nCode -down-> CLR : Executed By\nBCL -down-> CLR : Executed By\n\n@enduml",
+          "diagram": "@startuml\nskinparam linetype ortho\n\nrectangle \u0022Programming\\nTools\u0022 as Tools\nrectangle \u0022Compiled\\nCode\u0022 as Code\nrectangle \u0022Base Class\\nLibrary (BCL)\u0022 as BCL\nrectangle \u0022Common Language Runtime (CLR)\u0022 as CLR\n\nTools -down-\u003E Code : Produces\nCode -right-\u003E BCL : Uses\nCode -down-\u003E CLR : Executed By\nBCL -down-\u003E CLR : Executed By\n\n@enduml",
           "title": "Components of the .NET Framework",
           "showDiagramTitleBar": true,
           "rows": []
@@ -1362,7 +1410,7 @@
       "slug": "what-is-asp-dotnet-core",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**Website** is a static content. It is made up of individual HTML and CSS files that rarely change.\n\n**Web application** is a \"rich dynamic website\" with  the data which usually comes from a database.\n\n**Web application framework** is a framework that gives us the structure and building blocks to create web applications. Web applications created with a web application framework are usually more maintainable and extendable than the application created without it.\n\n**ASP.NET Core** is a web application framework created by Microsoft.",
+      "summary": "**Website** is a static content. It is made up of individual HTML and CSS files that rarely change.\n\n**Web application** is a \u0022rich dynamic website\u0022 with  the data which usually comes from a database.\n\n**Web application framework** is a framework that gives us the structure and building blocks to create web applications. Web applications created with a web application framework are usually more maintainable and extendable than the application created without it.\n\n**ASP.NET Core** is a web application framework created by Microsoft.",
       "dotnetZone": "web-app-development",
       "dotnetZoneStep": "aspnet-core-ecosystem",
       "order": 1,
@@ -1401,21 +1449,21 @@
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\n' title Frontend and Backend\n\nleft to right direction\n\n\n\nskinparam database {\n    BorderColor transparent\n    FontColor white\n    FontStyle bold\n}\n\n\n' Elements\ncloud \"<b>Browser</b>\" as Browser #3B82F6\n\nrectangle \"<b>Frontend</b>\" as Frontend #FF0F7B\n\nrectangle \"<b>Backend</b>\\n<b>API</b>\" as Backend #FF8A00\n\ndatabase \"<b>Database</b>\" as Db #14B8A6\n\n' Connections\nBrowser <--> Frontend : HTML / CSS / JS\n\nFrontend <--> Backend : API Calls\n\nBackend <--> Db : ORM / SQL Queries\n\n@enduml",
+          "diagram": "@startuml\n\u0027 title Frontend and Backend\n\nleft to right direction\n\n\n\nskinparam database {\n    BorderColor transparent\n    FontColor white\n    FontStyle bold\n}\n\n\n\u0027 Elements\ncloud \u0022\u003Cb\u003EBrowser\u003C/b\u003E\u0022 as Browser #3B82F6\n\nrectangle \u0022\u003Cb\u003EFrontend\u003C/b\u003E\u0022 as Frontend #FF0F7B\n\nrectangle \u0022\u003Cb\u003EBackend\u003C/b\u003E\\n\u003Cb\u003EAPI\u003C/b\u003E\u0022 as Backend #FF8A00\n\ndatabase \u0022\u003Cb\u003EDatabase\u003C/b\u003E\u0022 as Db #14B8A6\n\n\u0027 Connections\nBrowser \u003C--\u003E Frontend : HTML / CSS / JS\n\nFrontend \u003C--\u003E Backend : API Calls\n\nBackend \u003C--\u003E Db : ORM / SQL Queries\n\n@enduml",
           "title": "Frontend and Backend",
           "showDiagramTitleBar": true,
           "rows": []
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\n' title The Centralized Backend\n\nleft to right direction\n\n\n\n\nrectangle \"<b>Frontend</b>\" as Frontend1 #FF0F7B\nrectangle \"<b>Frontend</b>\" as Frontend2 #FF0F7B\nrectangle \"<b>Backend</b>\" as Backend1 #FF8A00\n\nrectangle \"<b>Backend</b>\" as CentralBackend #FF8A00\n\nFrontend1 <--> CentralBackend : Data\nFrontend2 <--> CentralBackend : Data\nBackend1 <--> CentralBackend : Data\n\n@enduml",
+          "diagram": "@startuml\n\u0027 title The Centralized Backend\n\nleft to right direction\n\n\n\n\nrectangle \u0022\u003Cb\u003EFrontend\u003C/b\u003E\u0022 as Frontend1 #FF0F7B\nrectangle \u0022\u003Cb\u003EFrontend\u003C/b\u003E\u0022 as Frontend2 #FF0F7B\nrectangle \u0022\u003Cb\u003EBackend\u003C/b\u003E\u0022 as Backend1 #FF8A00\n\nrectangle \u0022\u003Cb\u003EBackend\u003C/b\u003E\u0022 as CentralBackend #FF8A00\n\nFrontend1 \u003C--\u003E CentralBackend : Data\nFrontend2 \u003C--\u003E CentralBackend : Data\nBackend1 \u003C--\u003E CentralBackend : Data\n\n@enduml",
           "title": "Reusable Backend",
           "showDiagramTitleBar": true,
           "rows": []
         },
         {
           "type": "plantUmlDiagram",
-          "diagram": "@startuml\n\nskinparam roundcorner 20\n\n' title What to Build with ASP.NET Core?\n\nrectangle \"ASP.NET Core\" as Core #FF0A78 {\n\n    rectangle \"<color:#7B1DFF><b>Frontend</b></color>\\n\\n<color:#000000><b>MVC</b></color>\\n\\n<color:#000000><b>Razor Pages</b></color>\\n\\n<color:#000000><b>Blazor</b></color>\" as Frontend #FFCC42\n\n    rectangle \"<color:#7B1DFF><b>Backend</b></color>\\n\\n<color:#000000><b>Full Web API</b></color>\\n\\n<color:#000000><b>Minimal Web API</b></color>\\n\\n<color:#000000><b>gRPC</b></color>\" as Backend #FFCC42\n\n    rectangle \"<color:#7B1DFF><b>Supporting</b></color>\\n\\n<color:#000000><b>SignalR</b></color>\" as Supporting #FFCC42\n}\n\nFrontend -[hidden]right- Backend\nBackend -[hidden]right- Supporting\n\n@enduml",
+          "diagram": "@startuml\n\nskinparam roundcorner 20\n\n\u0027 title What to Build with ASP.NET Core?\n\nrectangle \u0022ASP.NET Core\u0022 as Core #FF0A78 {\n\n    rectangle \u0022\u003Ccolor:#7B1DFF\u003E\u003Cb\u003EFrontend\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EMVC\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003ERazor Pages\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EBlazor\u003C/b\u003E\u003C/color\u003E\u0022 as Frontend #FFCC42\n\n    rectangle \u0022\u003Ccolor:#7B1DFF\u003E\u003Cb\u003EBackend\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EFull Web API\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EMinimal Web API\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003EgRPC\u003C/b\u003E\u003C/color\u003E\u0022 as Backend #FFCC42\n\n    rectangle \u0022\u003Ccolor:#7B1DFF\u003E\u003Cb\u003ESupporting\u003C/b\u003E\u003C/color\u003E\\n\\n\u003Ccolor:#000000\u003E\u003Cb\u003ESignalR\u003C/b\u003E\u003C/color\u003E\u0022 as Supporting #FFCC42\n}\n\nFrontend -[hidden]right- Backend\nBackend -[hidden]right- Supporting\n\n@enduml",
           "title": "ASP.NET Core Application Types",
           "showDiagramTitleBar": true,
           "rows": []
