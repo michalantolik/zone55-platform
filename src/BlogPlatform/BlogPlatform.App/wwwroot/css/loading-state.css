@@ -1,4 +1,4 @@
-﻿.loading-content-frame {
+.loading-content-frame {
     display: grid;
     grid-template-columns: 1fr;
     min-height: 210px;
@@ -11,7 +11,7 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) 220px;
     align-items: center;
-    gap: 28px;
+    gap: 50px;
     width: 100%;
     min-height: 150px;
     padding: 28px;
@@ -71,6 +71,7 @@
 .blog-loading-copy {
     position: relative;
     z-index: 1;
+    margin-left: 6px;
 }
 
     .blog-loading-copy h2 {
@@ -174,6 +175,10 @@
         grid-template-columns: 1fr;
         justify-items: start;
         padding: 24px;
+    }
+
+    .blog-loading-copy {
+        margin-left: 0;
     }
 
     .blog-loading-orb {
