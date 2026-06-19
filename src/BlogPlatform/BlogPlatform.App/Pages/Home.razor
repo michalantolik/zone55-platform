@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @page "/articles"
 
 @using BlogPlatform.App.Components.Articles
@@ -236,8 +236,8 @@ else
 
     private string PageTitleText =>
         _selectedArticle is null
-            ? ".NET Backend & Cloud Engineering Notes"
-            : $"{_selectedArticle.Title} | .NET Backend & Cloud Engineering Notes";
+            ? "Engineering Roadmaps"
+            : $"{_selectedArticle.Title} | Engineering Roadmaps";
 
     private LearningPathLevel? SelectedLevel =>
         _learningPathLevels.FirstOrDefault(level =>
