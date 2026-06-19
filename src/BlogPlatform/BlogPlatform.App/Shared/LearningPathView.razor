@@ -1,11 +1,11 @@
-﻿<section class="learning-path-shell">
+<section class="learning-path-shell">
     <div class="learning-path-header">
         <div>
             <div class="section-kicker">ENGINEERING ROADMAPS</div>
         </div>
 
-        <a class="learning-path-latest-link" href="/?view=DotnetStandard">
-            Back to latest articles →
+        <a class="learning-path-latest-link" href="/foundation/csharp-dotnet">
+            Start learning →
         </a>
     </div>
 
@@ -48,6 +48,6 @@
         LearningPathLevel level,
         LearningPathStep step)
     {
-        return $"/?zone={Uri.EscapeDataString(level.Key)}&step={Uri.EscapeDataString(step.Key)}";
+        return $"/{Uri.EscapeDataString(level.Key)}/{Uri.EscapeDataString(step.Key)}";
     }
 }

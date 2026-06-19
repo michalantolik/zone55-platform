@@ -1,4 +1,4 @@
-﻿@inject NavigationManager Navigation
+@inject NavigationManager Navigation
 
 <nav class="dotnet-zone-top-nav" aria-label=".NET roadmap zones">
     @foreach (var level in Levels.OrderBy(level => level.Number))
@@ -18,14 +18,13 @@
 </nav>
 
 @code {
-    private const string DotnetStandardView = "DotnetStandard";
-
     [Parameter]
     public IReadOnlyCollection<LearningPathLevel> Levels { get; set; } = [];
 
     private bool IsActive(LearningPathLevel level)
     {
-        var selectedZone = GetQueryValue("zone")
+        var selectedZone = GetZoneFromPath()
+            ?? GetQueryValue("zone")
             ?? Levels.OrderBy(item => item.Number).FirstOrDefault()?.Key;
 
         return string.Equals(level.Key, selectedZone, StringComparison.OrdinalIgnoreCase);
@@ -46,10 +45,10 @@
 
         if (firstStep is null)
         {
-            return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(level.Key)}";
+            return $"/{Uri.EscapeDataString(level.Key)}";
         }
 
-        return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(level.Key)}&step={Uri.EscapeDataString(firstStep.Key)}";
+        return $"/{Uri.EscapeDataString(level.Key)}/{Uri.EscapeDataString(firstStep.Key)}";
     }
 
     private static string GetShortTitle(string title) =>
@@ -58,6 +57,18 @@
             "Web & App Development" => "Web & App Development",
             _ => title
         };
+
+    private string? GetZoneFromPath()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var pathSegments = uri.AbsolutePath
+            .Trim('/')
+            .Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        return pathSegments.Length >= 2
+            ? Uri.UnescapeDataString(pathSegments[0])
+            : null;
+    }
 
     private string? GetQueryValue(string name)
     {

@@ -1,5 +1,7 @@
 @page "/"
 @page "/articles"
+@page "/{RouteZone}/{RouteStep}"
+@page "/{RouteZone}/{RouteStep}/articles/{RouteArticleSlug}"
 
 @using BlogPlatform.App.Components.Articles
 
@@ -196,6 +198,15 @@ else
     private const string DotnetStandardView = "DotnetStandard";
     private const string DotnetRoadmapView = "DotnetRoadmap";
 
+    [Parameter]
+    public string? RouteZone { get; set; }
+
+    [Parameter]
+    public string? RouteStep { get; set; }
+
+    [Parameter]
+    public string? RouteArticleSlug { get; set; }
+
     [SupplyParameterFromQuery(Name = "view")]
     public string? View { get; set; }
 
@@ -218,7 +229,12 @@ else
     private int _currentArticlePage = 1;
 
     private bool IsLearningPathView =>
+        !HasSelectedStepRoute ||
         string.Equals(CurrentView, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase);
+
+    private bool HasSelectedStepRoute =>
+        !string.IsNullOrWhiteSpace(EffectiveZone) &&
+        !string.IsNullOrWhiteSpace(EffectiveStep);
 
     private bool IsArticleReaderMode =>
         _selectedArticle is not null;
@@ -230,9 +246,31 @@ else
         _isArticleAreaLoading ? "is-loading" : "is-loaded";
 
     private string CurrentView =>
-        NormalizeBlogDisplayMode(View)
-        ?? NormalizeBlogDisplayMode(Configuration["Features:EnableBlogDisplayMode"])
-        ?? DotnetStandardView;
+        HasPathRoute
+            ? DotnetStandardView
+            : NormalizeBlogDisplayMode(View)
+                ?? NormalizeBlogDisplayMode(Configuration["Features:EnableBlogDisplayMode"])
+                ?? DotnetRoadmapView;
+
+    private bool HasPathRoute =>
+        !string.IsNullOrWhiteSpace(RouteZone) ||
+        !string.IsNullOrWhiteSpace(RouteStep) ||
+        !string.IsNullOrWhiteSpace(RouteArticleSlug);
+
+    private string? EffectiveZone =>
+        !string.IsNullOrWhiteSpace(RouteZone)
+            ? RouteZone
+            : Zone;
+
+    private string? EffectiveStep =>
+        !string.IsNullOrWhiteSpace(RouteStep)
+            ? RouteStep
+            : Step;
+
+    private string? EffectiveArticleSlug =>
+        !string.IsNullOrWhiteSpace(RouteArticleSlug)
+            ? RouteArticleSlug
+            : ArticleSlug;
 
     private string PageTitleText =>
         _selectedArticle is null
@@ -253,11 +291,11 @@ else
     {
         get
         {
-            if (!string.IsNullOrWhiteSpace(Zone) &&
+            if (!string.IsNullOrWhiteSpace(EffectiveZone) &&
                 _learningPathLevels.Any(level =>
-                    string.Equals(level.Key, Zone, StringComparison.OrdinalIgnoreCase)))
+                    string.Equals(level.Key, EffectiveZone, StringComparison.OrdinalIgnoreCase)))
             {
-                return Zone!;
+                return EffectiveZone!;
             }
 
             return _learningPathLevels
@@ -294,11 +332,11 @@ else
             var selectedLevel = _learningPathLevels.FirstOrDefault(level =>
                 string.Equals(level.Key, SelectedZoneKey, StringComparison.OrdinalIgnoreCase));
 
-            if (!string.IsNullOrWhiteSpace(Step) &&
+            if (!string.IsNullOrWhiteSpace(EffectiveStep) &&
                 selectedLevel?.Steps.Any(step =>
-                    string.Equals(step.Key, Step, StringComparison.OrdinalIgnoreCase)) == true)
+                    string.Equals(step.Key, EffectiveStep, StringComparison.OrdinalIgnoreCase)) == true)
             {
-                return Step!;
+                return EffectiveStep!;
             }
 
             return selectedLevel?.Steps
@@ -324,7 +362,7 @@ else
                     ?.Index + 1 ?? 1;
 
     private string SelectedStepUrl =>
-        $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}";
+        GetStepPath(SelectedZoneKey, SelectedStepKey);
 
     protected override async Task OnParametersSetAsync()
     {
@@ -392,17 +430,17 @@ else
 
     private async Task LoadSelectedArticleIfNeededAsync()
     {
-        if (IsLearningPathView || string.IsNullOrWhiteSpace(ArticleSlug))
+        if (IsLearningPathView || string.IsNullOrWhiteSpace(EffectiveArticleSlug))
         {
             return;
         }
 
         var articleBelongsToSelectedStep = _posts.Any(post =>
-            string.Equals(post.Slug, ArticleSlug, StringComparison.OrdinalIgnoreCase));
+            string.Equals(post.Slug, EffectiveArticleSlug, StringComparison.OrdinalIgnoreCase));
 
         if (articleBelongsToSelectedStep)
         {
-            _selectedArticle = await BlogApi.GetPostBySlugAsync(ArticleSlug);
+            _selectedArticle = await BlogApi.GetPostBySlugAsync(EffectiveArticleSlug);
         }
     }
 
@@ -426,7 +464,12 @@ else
 
     private string GetInlineArticleUrl(string slug)
     {
-        return $"/?zone={Uri.EscapeDataString(SelectedZoneKey)}&step={Uri.EscapeDataString(SelectedStepKey)}&article={Uri.EscapeDataString(slug)}";
+        return $"{GetStepPath(SelectedZoneKey, SelectedStepKey)}/articles/{Uri.EscapeDataString(slug)}";
+    }
+
+    private static string GetStepPath(string zoneKey, string stepKey)
+    {
+        return $"/{Uri.EscapeDataString(zoneKey)}/{Uri.EscapeDataString(stepKey)}";
     }
 
     private static string? NormalizeBlogDisplayMode(string? value)

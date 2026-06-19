@@ -1,4 +1,4 @@
-﻿<div class="sidebar-inner dotnet-step-sidebar-inner">
+<div class="sidebar-inner dotnet-step-sidebar-inner">
     <div class="dotnet-step-sidebar-panel">
         <div class="dotnet-step-sidebar-heading @SelectedLevelAccentClass">
             <span>@SelectedLevelTitle</span>
@@ -26,8 +26,6 @@
 </div>
 
 @code {
-    private const string DotnetStandardView = "DotnetStandard";
-
     [Parameter]
     public LearningPathLevel? SelectedLevel { get; set; }
 
@@ -52,6 +50,6 @@
     {
         var zoneKey = SelectedLevel?.Key ?? string.Empty;
 
-        return $"/?view={DotnetStandardView}&zone={Uri.EscapeDataString(zoneKey)}&step={Uri.EscapeDataString(step.Key)}";
+        return $"/{Uri.EscapeDataString(zoneKey)}/{Uri.EscapeDataString(step.Key)}";
     }
 }
