@@ -11,7 +11,7 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) 220px;
     align-items: center;
-    gap: 50px;
+    gap: 30px;
     width: 100%;
     min-height: 150px;
     padding: 28px;
@@ -34,6 +34,7 @@
 
 .blog-loading-orb {
     position: relative;
+    transform: translateX(20px);
     width: 76px;
     height: 76px;
     display: grid;
@@ -70,6 +71,7 @@
 
 .blog-loading-copy {
     position: relative;
+    transform: translateX(50px);
     z-index: 1;
     margin-left: 6px;
 }
@@ -179,11 +181,13 @@
 
     .blog-loading-copy {
         margin-left: 0;
+        transform: none;
     }
 
     .blog-loading-orb {
         width: 64px;
         height: 64px;
+        transform: none;
     }
 }
 
