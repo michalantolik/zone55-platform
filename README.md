@@ -1,4 +1,4 @@
-# Zone55 Platform
+# Zone55
 
 Personal blog platform demonstrating Clean Architecture, Azure Cloud, Terraform Infrastructure as Code and GitHub Actions CI/CD.
 
