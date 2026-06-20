@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document explains the cost-related design choices for the Azure deployment of `dotnet-cloud-blog-platform`.
+This document explains the cost-related design choices for the Azure deployment of `zone-55`.
 
 The goal of this project is not to build the cheapest possible deployment, but to demonstrate a realistic, cost-aware cloud architecture that balances:
 
