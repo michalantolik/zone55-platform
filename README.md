@@ -1,6 +1,5 @@
-# dotnet-cloud-blog-platform
-
-A cloud-native blog platform demonstrating Clean Architecture, Azure Cloud, Terraform Infrastructure as Code and GitHub Actions CI/CD.
+# Zone 55
+Zone 55 is a personal blog platform demonstrating Clean Architecture, Azure Cloud, Terraform Infrastructure as Code and GitHub Actions CI/CD.
 
 The platform allows authors of software learning content to create and manage educational articles.
 
