@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document explains the cost-related design choices for the Azure deployment of `zone-55`.
+This document explains the cost-related design choices for the Azure deployment of `zone55-platform`.
 
 The goal of this project is not to build the cheapest possible deployment, but to demonstrate a realistic, cost-aware cloud architecture that balances:
 

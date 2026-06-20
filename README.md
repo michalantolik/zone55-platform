@@ -8,11 +8,11 @@ The project showcases how a content platform can be deployed, secured, and opera
 ## 
 
 <!-- CI/CD Badges -->
-[![Azure Readiness](https://github.com/michalantolik/zone-55/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/zone-55/actions/workflows/azure-readiness.yml)
-[![Terraform Plan](https://github.com/michalantolik/zone-55/actions/workflows/azure-terraform-plan.yml/badge.svg)](https://github.com/michalantolik/zone-55/actions/workflows/azure-terraform-plan.yml)
-[![Terraform Apply](https://github.com/michalantolik/zone-55/actions/workflows/azure-terraform-apply.yml/badge.svg)](https://github.com/michalantolik/zone-55/actions/workflows/azure-terraform-apply.yml)
-[![Azure Deploy](https://github.com/michalantolik/zone-55/actions/workflows/azure-deploy.yml/badge.svg)](https://github.com/michalantolik/zone-55/actions/workflows/azure-deploy.yml)
-[![Azure Verify](https://github.com/michalantolik/zone-55/actions/workflows/azure-verify.yml/badge.svg)](https://github.com/michalantolik/zone-55/actions/workflows/azure-verify.yml)
+[![Azure Readiness](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-readiness.yml/badge.svg)](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-readiness.yml)
+[![Terraform Plan](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-terraform-plan.yml/badge.svg)](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-terraform-plan.yml)
+[![Terraform Apply](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-terraform-apply.yml/badge.svg)](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-terraform-apply.yml)
+[![Azure Deploy](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-deploy.yml/badge.svg)](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-deploy.yml)
+[![Azure Verify](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-verify.yml/badge.svg)](https://github.com/michalantolik/zone55-platform/actions/workflows/azure-verify.yml)
 
 ---
 
