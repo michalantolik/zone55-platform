@@ -1,11 +1,11 @@
 <section class="learning-path-shell">
     <div class="learning-path-header">
         <div>
-            <div class="section-kicker">ENGINEERING ROADMAPS</div>
+            <div class="section-kicker">THE ZONES</div>
         </div>
 
         <a class="learning-path-latest-link" href="/foundation/csharp-dotnet">
-            Start learning →
+            Enter Zone →
         </a>
     </div>
 
@@ -13,7 +13,7 @@
         @foreach (var level in Levels)
         {
             <div class="learning-path-zone-header @level.AccentClass">
-                <span>Zone @level.Number</span>
+                <span>Zone @level.Number.ToString("00")</span>
                 <h3>@level.Title</h3>
             </div>
         }
