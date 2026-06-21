@@ -1,5 +1,10 @@
 ############################################################################################
-# Validates that the solution is ready for Azure deployment                                #
+# A CI readiness pipeline that validates:                                                  #
+#                                                                                          #
+# (1) .NET applications                                                                    #
+# (2) Terraform infrastructure                                                             #
+#                                                                                          #
+# before Azure deployment.                                                                 #
 ############################################################################################
 
 name: Azure readiness
@@ -171,3 +176,53 @@ jobs:
       # Step 2.5 - Validate Terraform configuration syntax and structure
       - name: Terraform validate
         run: terraform validate
+
+############################################################################################
+# SUMMARY                                                                                  #
+############################################################################################
+#
+# This workflow has 2 independent jobs:
+#
+# Job 1 - Build, Test, Publish
+#
+#   1. Checkout code
+#   2. Install .NET SDK
+#   3. Restore NuGet packages
+#   4. Build solution
+#   5. Run automated tests
+#   6. Publish CMS
+#   7. Publish API
+#   8. Publish Blazor App
+#   9. Upload deployment artifacts
+#
+# Job 2 - Terraform Validation
+#
+#   1. Checkout code
+#   2. Install Terraform
+#   3. Verify formatting
+#   4. Initialize providers
+#   5. Validate configuration
+#
+# What this workflow proves:
+#
+#   ✓ .NET solution builds successfully
+#   ✓ Automated tests pass
+#   ✓ Deployment packages can be generated
+#   ✓ Terraform configuration is valid
+#   ✓ Repository is ready for Azure deployment
+#
+# What this workflow does NOT do:
+#
+#   ✗ Deploy resources to Azure
+#   ✗ Execute terraform apply
+#   ✗ Deploy App Service
+#   ✗ Deploy Static Web App
+#   ✗ Deploy SQL Database changes
+#   ✗ Configure Key Vault
+#
+# Purpose:
+#
+#   A CI readiness pipeline that validates .NET applications and
+#   Terraform infrastructure before Azure deployment.
+#
+############################################################################################
