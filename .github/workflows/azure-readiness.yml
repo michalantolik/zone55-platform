@@ -1,55 +1,94 @@
+############################################################################################
+# Validates that the solution is ready for Azure deployment                                #
+############################################################################################
+
 name: Azure readiness
 
+############################################################################################
+# Events that trigger this workflow                                                        #
+############################################################################################
+
 on:
+
+  # Run automatically when code is pushed to main
   push:
     branches:
       - main
+
+  # Run automatically when a Pull Request targets main
   pull_request:
     branches:
       - main
+
+  # Allow manual execution from GitHub Actions UI
   workflow_dispatch:
 
+############################################################################################
+# Restrict permissions required by this workflow (following least-privilege principles).   #
+############################################################################################
 permissions:
   contents: read
 
+############################################################################################
+# Shared environment variables available to all jobs                                       #
+############################################################################################
+
 env:
+
+  # .NET SDK version used by build and test steps
   DOTNET_VERSION: 10.0.x
+
+  # Path to the solution file
   SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
+
+  # Build configuration used during compilation and publishing
   CONFIGURATION: Release
 
+############################################################################################
+# Jobs                                                                                     #
+############################################################################################
+
 jobs:
+
+  #----------------------------------------------------------------------------------------
+  # Job 1 - Build, test, and publish all .NET projects                                    -
+  #----------------------------------------------------------------------------------------
+
   build-test-publish:
     name: Build, test, and publish .NET projects
+
+    # GitHub-hosted Linux runner
     runs-on: ubuntu-latest
 
     steps:
+
+      # Step 1.1 - Download repository source code
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      # Step 1.2 - Install required .NET SDK version
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # Step 1.3 - Display SDK and runtime information for troubleshooting
       - name: Show .NET info
         run: dotnet --info
 
+      # Step 1.4 - Restore NuGet dependencies
       - name: Restore solution
         run: dotnet restore ${{ env.SOLUTION_PATH }}
 
+      # Step 1.5 - Build projects in Release configuration
       - name: Build solution
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
+      # Step 1.6 - Run tests
       - name: Test solution
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
 
-      - name: Publish API
-        run: >
-          dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
-          --configuration ${{ env.CONFIGURATION }}
-          --no-build
-          --output ./artifacts/api
-
+      # Step 1.7 - Publish CMS deployment package
       - name: Publish CMS
         run: >
           dotnet publish src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
@@ -57,6 +96,15 @@ jobs:
           --no-build
           --output ./artifacts/cms
 
+      # Step 1.8 - Publish API deployment package
+      - name: Publish API
+        run: >
+          dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
+          --configuration ${{ env.CONFIGURATION }}
+          --no-build
+          --output ./artifacts/api
+
+      # Step 1.9 - Publish Blazor application deployment package
       - name: Publish Blazor App
         run: >
           dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
@@ -64,13 +112,7 @@ jobs:
           --no-build
           --output ./artifacts/app
 
-      - name: Upload API artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: blogplatform-api
-          path: ./artifacts/api
-          retention-days: 7
-
+      # Step 1.10 - Store CMS package as a workflow artifact
       - name: Upload CMS artifact
         uses: actions/upload-artifact@v6
         with:
@@ -78,6 +120,15 @@ jobs:
           path: ./artifacts/cms
           retention-days: 7
 
+      # Step 1.11 - Store API package as a workflow artifact          
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: blogplatform-api
+          path: ./artifacts/api
+          retention-days: 7
+
+      # Step 1.12 - Publish Blazor application deployment package
       - name: Upload Blazor App artifact
         uses: actions/upload-artifact@v6
         with:
@@ -85,26 +136,38 @@ jobs:
           path: ./artifacts/app
           retention-days: 7
 
+  #----------------------------------------------------------------------------------------
+  # Job 2 - Validate Terraform configuration without deploying resources                  -
+  #----------------------------------------------------------------------------------------
   terraform-validate:
     name: Validate Terraform
+
+    # GitHub-hosted Linux runner
     runs-on: ubuntu-latest
 
+    # Execute all Terraform commands from the infra directory
     defaults:
       run:
         working-directory: infra
 
     steps:
+
+      # Step 2.1 - Download repository source code
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      # Step 2.2 - Install Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
 
+      # Step 2.3 - Verify Terraform formatting standards
       - name: Terraform format check
         run: terraform fmt -check -recursive
 
+      # Step 2.4 - Initialize providers without connecting to remote backend
       - name: Terraform init without backend
         run: terraform init -backend=false
 
+      # Step 2.5 - Validate Terraform configuration syntax and structure
       - name: Terraform validate
         run: terraform validate
