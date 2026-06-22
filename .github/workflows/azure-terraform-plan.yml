@@ -1,11 +1,30 @@
+############################################################################################
+# Generates Terraform execution plan for Azure infrastructure                              #
+# Does NOT deploy resources - only validates and previews planned changes                  #
+############################################################################################
+
 name: Azure Terraform plan
 
+############################################################################################
+# Events that trigger this workflow                                                        #
+############################################################################################
+
 on:
+
+  # Manual execution from GitHub Actions UI
   workflow_dispatch:
+
+############################################################################################
+# Restrict permissions required by this workflow (least privilege principle)               #
+############################################################################################
 
 permissions:
   contents: read
   id-token: write
+
+############################################################################################
+# Shared environment variables available to all jobs                                       #
+############################################################################################
 
 env:
   TERRAFORM_VERSION: 1.13.5
