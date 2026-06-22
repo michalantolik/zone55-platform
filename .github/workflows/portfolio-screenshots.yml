@@ -1,0 +1,55 @@
+############################################################################################
+# Generates representative portfolio screenshots from the deployed application.             #
+############################################################################################
+
+name: Portfolio screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: Application URL used for screenshot generation
+        required: true
+        default: https://zone55.dev
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: 10.0.x
+  SCREENSHOT_PROJECT: tests/BlogPlatform.PortfolioScreenshots/BlogPlatform.PortfolioScreenshots.csproj
+  CONFIGURATION: Release
+
+jobs:
+  capture-screenshots:
+    name: Capture portfolio screenshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore screenshot project
+        run: dotnet restore ${{ env.SCREENSHOT_PROJECT }}
+
+      - name: Build screenshot project
+        run: dotnet build ${{ env.SCREENSHOT_PROJECT }} --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Install Playwright browsers
+        run: pwsh tests/BlogPlatform.PortfolioScreenshots/bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Capture screenshots
+        env:
+          APP_URL: ${{ github.event.inputs.app_url }}
+        run: dotnet test ${{ env.SCREENSHOT_PROJECT }} --configuration ${{ env.CONFIGURATION }} --no-build --logger trx
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-screenshots
+          path: tests/BlogPlatform.PortfolioScreenshots/bin/${{ env.CONFIGURATION }}/net10.0/portfolio-screenshots
