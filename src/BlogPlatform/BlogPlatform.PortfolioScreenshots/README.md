@@ -35,3 +35,22 @@ Alternative useful viewport presets:
 ```
 
 The test output prints the URL, viewport size, device scale factor, and output folder used for the generated screenshots.
+
+## Scrollbar / edge crop
+
+Screenshots crop a small balanced stripe from both horizontal edges by default:
+
+```text
+17 px from the left
+17 px from the right
+```
+
+This removes the browser scrollbar area from the right edge and removes the same width from the left edge, so the page content stays visually centered.
+
+You can adjust or disable this crop:
+
+```powershell
+$env:SCREENSHOT_EDGE_CROP_WIDTH = "17" # default
+$env:SCREENSHOT_EDGE_CROP_WIDTH = "20" # stronger crop
+$env:SCREENSHOT_EDGE_CROP_WIDTH = "0"  # no crop
+```
