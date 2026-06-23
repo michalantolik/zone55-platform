@@ -55,12 +55,12 @@ public sealed class PortfolioScreenshotTests
             ViewportSize = new ViewportSize
             {
                 Width = viewport.Width,
-                Height = viewportHeight
+                Height = viewport.Height
             },
             ScreenSize = new ScreenSize
             {
                 Width = viewport.Width,
-                Height = viewportHeight
+                Height = viewport.Height
             },
             DeviceScaleFactor = viewport.DeviceScaleFactor,
             IsMobile = false
