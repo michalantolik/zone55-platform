@@ -1,4 +1,5 @@
-﻿using Microsoft.Playwright;
+﻿using System.Globalization;
+using Microsoft.Playwright;
 using NUnit.Framework;
 
 namespace BlogPlatform.PortfolioScreenshots;
@@ -7,6 +8,9 @@ namespace BlogPlatform.PortfolioScreenshots;
 public sealed class PortfolioScreenshotTests
 {
     private const string DefaultAppUrl = "https://zone55.dev";
+    private const int DefaultViewportWidth = 1920;
+    private const int DefaultViewportHeight = 1080;
+    private const float DefaultDeviceScaleFactor = 1;
 
     private static readonly string OutputDirectory =
         Path.Combine(TestContext.CurrentContext.WorkDirectory, "portfolio-screenshots");
@@ -17,6 +21,12 @@ public sealed class PortfolioScreenshotTests
         Directory.CreateDirectory(OutputDirectory);
 
         var appUrl = GetAppUrl();
+        var viewport = GetViewportSettings();
+
+        TestContext.Out.WriteLine($"Portfolio screenshots URL: {appUrl}");
+        TestContext.Out.WriteLine(
+            $"Portfolio screenshots viewport: {viewport.Width}x{viewport.Height}, device scale factor: {viewport.DeviceScaleFactor}");
+        TestContext.Out.WriteLine($"Portfolio screenshots output: {OutputDirectory}");
 
         using var playwright = await Playwright.CreateAsync();
 
@@ -25,7 +35,7 @@ public sealed class PortfolioScreenshotTests
             Headless = true
         });
 
-        var page = await CreatePageAsync(browser, 1440, 1200);
+        var page = await CreatePageAsync(browser, viewport);
 
         await CaptureHomeMapAsync(1, page, appUrl);
         await CaptureZoneStepPageAsync(page, appUrl, 2, "architecture-data", "design-patterns");
@@ -34,16 +44,22 @@ public sealed class PortfolioScreenshotTests
         await CaptureArticlePageAsync(page, appUrl, 5, "architecture-data", "design-patterns", "main-terraform-commands");
     }
 
-    private static async Task<IPage> CreatePageAsync(IBrowser browser, int width, int height)
+    private static async Task<IPage> CreatePageAsync(IBrowser browser, ScreenshotViewport viewport)
     {
         var context = await browser.NewContextAsync(new BrowserNewContextOptions
         {
             ViewportSize = new ViewportSize
             {
-                Width = width,
-                Height = height
+                Width = viewport.Width,
+                Height = viewport.Height
             },
-            DeviceScaleFactor = 1
+            ScreenSize = new ScreenSize
+            {
+                Width = viewport.Width,
+                Height = viewport.Height
+            },
+            DeviceScaleFactor = viewport.DeviceScaleFactor,
+            IsMobile = false
         });
 
         return await context.NewPageAsync();
@@ -51,43 +67,41 @@ public sealed class PortfolioScreenshotTests
 
     private static async Task CaptureHomeMapAsync(int number, IPage page, string appUrl)
     {
-        await page.GotoAsync(appUrl, new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle
-        });
+        await NavigateAsync(page, appUrl);
 
-        await page.ScreenshotAsync(new PageScreenshotOptions
-        {
-            Path = Path.Combine(OutputDirectory, $"{number.ToString("00")}-home-map-desktop.png"),
-            FullPage = true
-        });
+        await CaptureVisibleViewportAsync(page, $"{number.ToString("00")}-home-map-desktop.png");
     }
 
     private static async Task CaptureZoneStepPageAsync(IPage page, string appUrl, int number, string zone, string step)
     {
-        await page.GotoAsync($"{appUrl}/{zone}/{step}", new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle
-        });
+        await NavigateAsync(page, $"{appUrl}/{zone}/{step}");
 
-        await page.ScreenshotAsync(new PageScreenshotOptions
-        {
-            Path = Path.Combine(OutputDirectory, $"{number.ToString("00")}-{zone}-{step}-desktop.png"),
-            FullPage = true
-        });
+        await CaptureVisibleViewportAsync(page, $"{number.ToString("00")}-{zone}-{step}-desktop.png");
     }
-    
+
     private static async Task CaptureArticlePageAsync(IPage page, string appUrl, int number, string zone, string step, string article)
     {
-        await page.GotoAsync($"{appUrl}/{zone}/{step}/articles/{article}", new PageGotoOptions
+        await NavigateAsync(page, $"{appUrl}/{zone}/{step}/articles/{article}");
+
+        await CaptureVisibleViewportAsync(page, $"{number.ToString("00")}-{zone}-{step}-{article}-desktop.png");
+    }
+
+    private static async Task NavigateAsync(IPage page, string url)
+    {
+        await page.GotoAsync(url, new PageGotoOptions
         {
             WaitUntil = WaitUntilState.NetworkIdle
         });
 
+        await page.EvaluateAsync("window.scrollTo(0, 0)");
+    }
+
+    private static async Task CaptureVisibleViewportAsync(IPage page, string fileName)
+    {
         await page.ScreenshotAsync(new PageScreenshotOptions
         {
-            Path = Path.Combine(OutputDirectory, $"{number.ToString("00")}-{zone}-{step}-{article}-desktop.png"),
-            FullPage = true
+            Path = Path.Combine(OutputDirectory, fileName),
+            FullPage = false
         });
     }
 
@@ -102,4 +116,38 @@ public sealed class PortfolioScreenshotTests
 
         return appUrl.TrimEnd('/');
     }
+
+    private static ScreenshotViewport GetViewportSettings()
+    {
+        return new ScreenshotViewport(
+            Width: GetPositiveIntEnvironmentVariable("SCREENSHOT_VIEWPORT_WIDTH", DefaultViewportWidth),
+            Height: GetPositiveIntEnvironmentVariable("SCREENSHOT_VIEWPORT_HEIGHT", DefaultViewportHeight),
+            DeviceScaleFactor: GetPositiveFloatEnvironmentVariable("SCREENSHOT_DEVICE_SCALE_FACTOR", DefaultDeviceScaleFactor));
+    }
+
+    private static int GetPositiveIntEnvironmentVariable(string name, int fallbackValue)
+    {
+        var rawValue = Environment.GetEnvironmentVariable(name);
+
+        if (int.TryParse(rawValue, out var parsedValue) && parsedValue > 0)
+        {
+            return parsedValue;
+        }
+
+        return fallbackValue;
+    }
+
+    private static float GetPositiveFloatEnvironmentVariable(string name, float fallbackValue)
+    {
+        var rawValue = Environment.GetEnvironmentVariable(name);
+
+        if (float.TryParse(rawValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedValue) && parsedValue > 0)
+        {
+            return parsedValue;
+        }
+
+        return fallbackValue;
+    }
+
+    private sealed record ScreenshotViewport(int Width, int Height, float DeviceScaleFactor);
 }
