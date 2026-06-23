@@ -16,6 +16,107 @@ public sealed class PortfolioScreenshotTests
     private static readonly string OutputDirectory =
         Path.Combine(TestContext.CurrentContext.WorkDirectory, "portfolio-screenshots");
 
+    private static readonly IReadOnlyDictionary<string, string[]> StepsByZone =
+        new Dictionary<string, string[]>
+        {
+            ["foundation"] =
+            [
+                "csharp-dotnet",
+                "basic-syntax",
+                "types-operators",
+                "functions-classes",
+                "console-apps"
+            ],
+            ["web-app-development"] =
+            [
+                "aspnet-core-ecosystem",
+                "aspnet-core-mvc",
+                "aspnet-core-web-api",
+                "linq-collections",
+                "dependency-injection",
+                "desktop-apps"
+            ],
+            ["architecture-data"] =
+            [
+                "sql-fundamentals",
+                "entity-framework-core",
+                "async-programming",
+                "testing",
+                "clean-architecture",
+                "design-patterns"
+            ],
+            ["cloud-advanced"] =
+            [
+                "microservices",
+                "azure-integration",
+                "cicd-pipelines",
+                "performance-tuning",
+                "advanced-csharp",
+                "infrastructure-as-code"
+            ]
+        };
+
+    private static readonly IReadOnlyDictionary<(string Zone, string Step), string[]> ArticlesByZoneStep =
+        new Dictionary<(string Zone, string Step), string[]>
+        {
+            [("architecture-data", "design-patterns")] =
+            [
+                "strategy-pattern"
+            ],
+            [("cloud-advanced", "azure-integration")] =
+            [
+                "what-is-cloud-computing",
+                "what-is-microsoft-azure",
+                "what-is-shared-responsibility-model",
+                "what-are-cloud-service-models",
+                "what-are-the-cloud-deployment-models",
+                "what-is-azure-arc",
+                "what-is-azure-vmware-solution",
+                "what-are-capex-and-opex"
+            ],
+            [("cloud-advanced", "cicd-pipelines")] =
+            [
+                "what-is-continuous-integration",
+                "what-is-continuous-deployment",
+                "what-is-github-actions",
+                "what-is-github-actions-workflow-file",
+                "how-to-create-github-actions-workflow-file",
+                "what-are-the-components-of-github-actions-workflow-file",
+                "typical-github-actions-pipeline-flow",
+                "github-actions-pipeline-for-dotnet-app",
+                "deploy-dotnet-app-to-azure-app-service-using-github-actions"
+            ],
+            [("cloud-advanced", "infrastructure-as-code")] =
+            [
+                "what-is-infrastructure-as-code",
+                "core-concepts-of-infrastructure-as-code",
+                "what-is-terraform",
+                "terraform-versions",
+                "terraform-core-components",
+                "terraform-workflow",
+                "installing-terraform",
+                "terraform-cli-basics",
+                "main-terraform-commands",
+                "terraform-configuration-files",
+                "vscode-extensions-for-terraform",
+                "terraform-objects-and-blocks"
+            ],
+            [("foundation", "basic-syntax")] =
+            [
+                "a-simple-csharp-program"
+            ],
+            [("foundation", "csharp-dotnet")] =
+            [
+                "components-of-the-dotnet-framework",
+                "what-are-cloud-deployment-models"
+            ],
+            [("web-app-development", "aspnet-core-ecosystem")] =
+            [
+                "what-is-asp-dotnet-core",
+                "what-you-can-build-with-asp-dotnet-core"
+            ]
+        };
+
     [Test]
     public async Task CapturePortfolioScreenshots()
     {
@@ -23,12 +124,11 @@ public sealed class PortfolioScreenshotTests
 
         var appUrl = GetAppUrl();
         var viewport = GetViewportSettings();
+        var edgeCropWidth = GetEdgeCropWidth();
 
         TestContext.Out.WriteLine($"Portfolio screenshots URL: {appUrl}");
         TestContext.Out.WriteLine(
             $"Portfolio screenshots viewport: {viewport.Width}x{viewport.Height}, device scale factor: {viewport.DeviceScaleFactor}");
-        var edgeCropWidth = GetEdgeCropWidth();
-
         TestContext.Out.WriteLine($"Portfolio screenshots output: {OutputDirectory}");
         TestContext.Out.WriteLine($"Portfolio screenshots edge crop: {edgeCropWidth}px on left and right");
 
@@ -41,11 +141,50 @@ public sealed class PortfolioScreenshotTests
 
         var page = await CreatePageAsync(browser, viewport);
 
-        await CaptureHomeMapAsync(1, page, appUrl, edgeCropWidth);
-        await CaptureZoneStepPageAsync(page, appUrl, edgeCropWidth, 2, "architecture-data", "design-patterns");
-        await CaptureArticlePageAsync(page, appUrl, edgeCropWidth, 3, "architecture-data", "design-patterns", "strategy-pattern");
-        await CaptureZoneStepPageAsync(page, appUrl, edgeCropWidth, 4, "cloud-advanced", "infrastructure-as-code");
-        await CaptureArticlePageAsync(page, appUrl, edgeCropWidth, 5, "architecture-data", "design-patterns", "main-terraform-commands");
+        var screenshotNumber = 1;
+
+        await CaptureHomeMapAsync(screenshotNumber++, page, appUrl, edgeCropWidth);
+
+        foreach (var zone in GetZones())
+        {
+            foreach (var step in GetSteps(zone))
+            {
+                await CaptureZoneStepPageAsync(page, appUrl, edgeCropWidth, screenshotNumber++, zone, step);
+
+                foreach (var article in GetArticles(zone, step))
+                {
+                    await CaptureArticlePageAsync(page, appUrl, edgeCropWidth, screenshotNumber++, zone, step, article);
+                }
+            }
+        }
+    }
+
+    private static string[] GetZones()
+    {
+        return StepsByZone.Keys.ToArray();
+    }
+
+    private static string[] GetSteps()
+    {
+        return StepsByZone
+            .Values
+            .SelectMany(steps => steps)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    private static string[] GetSteps(string zone)
+    {
+        return StepsByZone.TryGetValue(zone, out var steps)
+            ? steps
+            : [];
+    }
+
+    private static string[] GetArticles(string zone, string step)
+    {
+        return ArticlesByZoneStep.TryGetValue((zone, step), out var articles)
+            ? articles
+            : [];
     }
 
     private static async Task<IPage> CreatePageAsync(IBrowser browser, ScreenshotViewport viewport)
@@ -73,21 +212,34 @@ public sealed class PortfolioScreenshotTests
     {
         await NavigateAsync(page, appUrl);
 
-        await CaptureVisibleViewportAsync(page, $"{number.ToString("00")}-home-map-desktop.png", edgeCropWidth);
+        await CaptureVisibleViewportAsync(page, $"{number:00}-home-map-desktop.png", edgeCropWidth);
     }
 
-    private static async Task CaptureZoneStepPageAsync(IPage page, string appUrl, int edgeCropWidth, int number, string zone, string step)
+    private static async Task CaptureZoneStepPageAsync(
+        IPage page,
+        string appUrl,
+        int edgeCropWidth,
+        int number,
+        string zone,
+        string step)
     {
         await NavigateAsync(page, $"{appUrl}/{zone}/{step}");
 
-        await CaptureVisibleViewportAsync(page, $"{number.ToString("00")}-{zone}-{step}-desktop.png", edgeCropWidth);
+        await CaptureVisibleViewportAsync(page, $"{number:00}-{zone}-{step}-desktop.png", edgeCropWidth);
     }
 
-    private static async Task CaptureArticlePageAsync(IPage page, string appUrl, int edgeCropWidth, int number, string zone, string step, string article)
+    private static async Task CaptureArticlePageAsync(
+        IPage page,
+        string appUrl,
+        int edgeCropWidth,
+        int number,
+        string zone,
+        string step,
+        string article)
     {
         await NavigateAsync(page, $"{appUrl}/{zone}/{step}/articles/{article}");
 
-        await CaptureVisibleViewportAsync(page, $"{number.ToString("00")}-{zone}-{step}-{article}-desktop.png", edgeCropWidth);
+        await CaptureVisibleViewportAsync(page, $"{number:00}-{zone}-{step}-{article}-desktop.png", edgeCropWidth);
     }
 
     private static async Task NavigateAsync(IPage page, string url)
@@ -103,7 +255,7 @@ public sealed class PortfolioScreenshotTests
     private static async Task CaptureVisibleViewportAsync(IPage page, string fileName, int edgeCropWidth)
     {
         var viewport = page.ViewportSize
-            ?? throw new InvalidOperationException("Viewport size is not available. Configure the browser context viewport before taking screenshots.");
+            ?? throw new InvalidOperationException("Viewport size is not available.");
 
         var clip = CreateBalancedEdgeCrop(viewport.Width, viewport.Height, edgeCropWidth);
 
@@ -122,7 +274,7 @@ public sealed class PortfolioScreenshotTests
             return null;
         }
 
-        var croppedWidth = viewportWidth - (edgeCropWidth * 2);
+        var croppedWidth = viewportWidth - edgeCropWidth * 2;
 
         if (croppedWidth <= 0)
         {
@@ -143,12 +295,9 @@ public sealed class PortfolioScreenshotTests
     {
         var appUrl = Environment.GetEnvironmentVariable("APP_URL");
 
-        if (string.IsNullOrWhiteSpace(appUrl))
-        {
-            return DefaultAppUrl;
-        }
-
-        return appUrl.TrimEnd('/');
+        return string.IsNullOrWhiteSpace(appUrl)
+            ? DefaultAppUrl
+            : appUrl.TrimEnd('/');
     }
 
     private static ScreenshotViewport GetViewportSettings()
@@ -168,36 +317,28 @@ public sealed class PortfolioScreenshotTests
     {
         var rawValue = Environment.GetEnvironmentVariable(name);
 
-        if (int.TryParse(rawValue, out var parsedValue) && parsedValue > 0)
-        {
-            return parsedValue;
-        }
-
-        return fallbackValue;
+        return int.TryParse(rawValue, out var parsedValue) && parsedValue > 0
+            ? parsedValue
+            : fallbackValue;
     }
 
     private static int GetNonNegativeIntEnvironmentVariable(string name, int fallbackValue)
     {
         var rawValue = Environment.GetEnvironmentVariable(name);
 
-        if (int.TryParse(rawValue, out var parsedValue) && parsedValue >= 0)
-        {
-            return parsedValue;
-        }
-
-        return fallbackValue;
+        return int.TryParse(rawValue, out var parsedValue) && parsedValue >= 0
+            ? parsedValue
+            : fallbackValue;
     }
 
     private static float GetPositiveFloatEnvironmentVariable(string name, float fallbackValue)
     {
         var rawValue = Environment.GetEnvironmentVariable(name);
 
-        if (float.TryParse(rawValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedValue) && parsedValue > 0)
-        {
-            return parsedValue;
-        }
-
-        return fallbackValue;
+        return float.TryParse(rawValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedValue)
+               && parsedValue > 0
+            ? parsedValue
+            : fallbackValue;
     }
 
     private sealed record ScreenshotViewport(int Width, int Height, float DeviceScaleFactor);
