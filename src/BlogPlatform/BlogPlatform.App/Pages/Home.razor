@@ -1,4 +1,4 @@
-@page "/"
+﻿@page "/"
 @page "/articles"
 @page "/{RouteZone}/{RouteStep}"
 @page "/{RouteZone}/{RouteStep}/articles/{RouteArticleSlug}"
@@ -42,7 +42,8 @@
     else
     {
         <section class="content-frame content-frame-learning-path container-xl">
-            <LearningPathView Levels="@_learningPathLevels" />
+            <LearningPathView Levels="@_learningPathLevels"
+                              DisplayStepArticleCounts="@DisplayStepArticleCounts" />
         </section>
     }
 }
@@ -241,6 +242,9 @@ else
 
     private bool DisplayStepIcons =>
         Configuration.GetValue<bool?>("Features:DisplayStepIcons") ?? false;
+
+    private bool DisplayStepArticleCounts =>
+        Configuration.GetValue<bool?>("Features:DisplayStepArticleCounts") ?? false;
 
     private string ArticleContentShellCssClass =>
         _isArticleAreaLoading ? "is-loading" : "is-loaded";

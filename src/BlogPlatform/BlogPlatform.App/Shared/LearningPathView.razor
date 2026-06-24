@@ -1,4 +1,4 @@
-<section class="learning-path-shell">
+﻿<section class="learning-path-shell">
     <div class="learning-path-journey">
         @foreach (var level in Levels)
         {
@@ -13,16 +13,19 @@
             <div class="learning-path-zone-steps">
                 @foreach (var step in level.Steps)
                 {
-                    <a class="learning-path-zone-step" href="@GetStepUrl(level, step)">
+                    <a class="@GetStepCssClass()" href="@GetStepUrl(level, step)">
                         <span>@step.StepOrder</span>
 
                         <strong>@step.Title</strong>
 
-                        <small>
-                            @(step.Posts.Count == 0
-                                ? "No articles yet"
-                                : $"{step.Posts.Count} article(s)")
-                        </small>
+                        @if (DisplayStepArticleCounts)
+                        {
+                            <small>
+                                @(step.Posts.Count == 0
+                                    ? "No articles yet"
+                                    : $"{step.Posts.Count} article(s)")
+                            </small>
+                        }
                     </a>
                 }
             </div>
@@ -33,6 +36,16 @@
 @code {
     [Parameter]
     public IReadOnlyCollection<LearningPathLevel> Levels { get; set; } = [];
+
+    [Parameter]
+    public bool DisplayStepArticleCounts { get; set; } = true;
+
+    private string GetStepCssClass()
+    {
+        return DisplayStepArticleCounts
+            ? "learning-path-zone-step"
+            : "learning-path-zone-step learning-path-zone-step-compact";
+    }
 
     private static string GetStepUrl(
         LearningPathLevel level,
