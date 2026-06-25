@@ -18,9 +18,8 @@
 }
 
 .loading-content-frame.content-frame-learning-path .blog-loading-panel {
-    --roadmap-width-alignment-offset: 11px;
-    width: calc(100% + (var(--roadmap-width-alignment-offset) * 2));
-    margin-inline: calc(var(--roadmap-width-alignment-offset) * -1);
+    width: 100%;
+    margin-inline: 0;
     min-height: 150px;
 }
 
