@@ -1,4 +1,4 @@
-﻿.content-view-button strong {
+.content-view-button strong {
     font-size: 1.02rem;
     line-height: 1.2;
 }
@@ -180,6 +180,313 @@
     background: linear-gradient(135deg, #334155, #0f172a);
 }
 
+
+.learning-path-page-story {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.learning-path-info-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 254px;
+    padding: 24px;
+    border-radius: 24px;
+    color: var(--text-dark);
+    background: linear-gradient(145deg, rgba(21, 36, 58, .96), rgba(8, 20, 36, .92));
+    border: 1px solid var(--post-card-border);
+    box-shadow: var(--shadow-card);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.learning-path-info-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 14% 8%, rgba(85, 199, 255, .16), transparent 28%),
+        radial-gradient(circle at 92% 20%, rgba(99, 102, 241, .14), transparent 26%);
+    opacity: .78;
+}
+
+.learning-path-info-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.learning-path-info-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--post-card-hover-border);
+    box-shadow: var(--post-card-hover-shadow);
+}
+
+.learning-path-info-kicker {
+    color: #6ee7c8;
+    text-transform: uppercase;
+    letter-spacing: .16em;
+    font-size: .78rem;
+    font-weight: 900;
+}
+
+.learning-path-quote-mark {
+    height: 34px;
+    margin: 22px 0 4px;
+    color: rgba(172, 197, 226, .34);
+    font-size: 4.5rem;
+    line-height: .6;
+    font-weight: 900;
+}
+
+.learning-path-why-card p {
+    margin: 0;
+    color: var(--text-dark-soft);
+    line-height: 1.7;
+}
+
+.learning-path-why-card strong {
+    display: block;
+    margin-top: 16px;
+    color: var(--post-title-text);
+    line-height: 1.55;
+}
+
+.learning-path-card-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 40px;
+    margin-top: 22px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    color: var(--post-title-text);
+    background: rgba(85, 182, 255, .08);
+    border: 1px solid rgba(117, 154, 197, .20);
+    font-weight: 800;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.learning-path-card-action:hover {
+    transform: translateY(-1px);
+    border-color: rgba(110, 231, 200, .42);
+    background: rgba(110, 231, 200, .12);
+}
+
+.learning-path-card-action-primary {
+    color: #ecfff8;
+    background: linear-gradient(135deg, rgba(16, 185, 129, .82), rgba(15, 159, 141, .78));
+    border-color: rgba(167, 243, 208, .42);
+}
+
+.learning-path-card-action-secondary {
+    min-width: 112px;
+    color: var(--text-dark-soft);
+    background: rgba(255, 255, 255, .04);
+}
+
+.learning-path-passport-main {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.learning-path-avatar {
+    position: relative;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    color: #ffffff;
+    background: linear-gradient(135deg, #2b1f75, #7966e8 58%, #253b72);
+    border: 1px solid rgba(167, 181, 255, .65);
+    box-shadow: 0 18px 34px rgba(49, 46, 129, .32);
+    font-size: 1.85rem;
+    font-weight: 900;
+}
+
+.learning-path-avatar i {
+    position: absolute;
+    right: 4px;
+    bottom: 8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #61d394;
+    border: 3px solid #122033;
+}
+
+.learning-path-passport-copy h3 {
+    margin: 0;
+    color: var(--post-title-text);
+    font-size: 1.45rem;
+    line-height: 1.1;
+}
+
+.learning-path-passport-copy p {
+    margin: 4px 0 0;
+    color: var(--text-dark-soft);
+}
+
+.learning-path-skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.learning-path-skill-tags span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--text-dark-soft);
+    background: rgba(255, 255, 255, .055);
+    border: 1px solid rgba(117, 154, 197, .14);
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.learning-path-passport-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 18px;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid rgba(117, 154, 197, .12);
+    background: rgba(255, 255, 255, .035);
+}
+
+.learning-path-passport-stats span {
+    display: grid;
+    gap: 2px;
+    min-height: 58px;
+    padding: 10px 12px;
+    background: rgba(85, 182, 255, .035);
+}
+
+.learning-path-passport-stats small {
+    color: var(--post-footer-text);
+    font-size: .72rem;
+}
+
+.learning-path-passport-stats strong {
+    color: var(--post-title-text);
+    font-size: .9rem;
+}
+
+.learning-path-passport-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.learning-path-passport-actions .learning-path-card-action {
+    margin-top: 0;
+}
+
+.learning-path-public-links {
+    display: grid;
+    margin-top: 18px;
+}
+
+.learning-path-public-links a {
+    position: relative;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 18px;
+    column-gap: 12px;
+    align-items: center;
+    min-height: 58px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(117, 154, 197, .13);
+    transition: transform .18s ease, color .18s ease;
+}
+
+.learning-path-public-links a:hover {
+    transform: translateX(3px);
+}
+
+.learning-path-public-links a:last-child {
+    border-bottom: 0;
+}
+
+.learning-path-public-links span {
+    grid-row: span 2;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    color: #e6f6ff;
+    background: rgba(85, 182, 255, .10);
+    border: 1px solid rgba(85, 182, 255, .18);
+    font-weight: 900;
+}
+
+.learning-path-public-links strong {
+    color: var(--post-title-text);
+    font-size: .9rem;
+}
+
+.learning-path-public-links small {
+    color: var(--text-dark-soft);
+    font-size: .78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.learning-path-public-links em {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    color: var(--text-dark-soft);
+    font-style: normal;
+    font-size: 1.65rem;
+}
+
+.learning-path-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 18px;
+    align-items: center;
+    margin-top: 14px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    color: var(--post-footer-text);
+    background: linear-gradient(135deg, rgba(21, 36, 58, .72), rgba(8, 20, 36, .62));
+    border: 1px solid rgba(117, 154, 197, .12);
+    font-size: .84rem;
+}
+
+.learning-path-footer-heart {
+    text-align: center;
+}
+
+.learning-path-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 18px;
+}
+
+.learning-path-footer a {
+    color: var(--text-dark-soft);
+    font-weight: 700;
+    transition: color .18s ease;
+}
+
+.learning-path-footer a:hover {
+    color: var(--post-title-text);
+}
+
 @media (max-width: 1120px) {
     .learning-path-journey {
         width: 100%;
@@ -274,4 +581,41 @@
         .learning-path-zone-steps:nth-child(8) {
             grid-row: 8;
         }
+}
+
+@media (max-width: 1120px) {
+    .learning-path-page-story {
+        grid-template-columns: 1fr;
+    }
+
+    .learning-path-passport-stats,
+    .learning-path-footer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .learning-path-footer-heart {
+        text-align: left;
+    }
+
+    .learning-path-footer nav {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 760px) {
+    .learning-path-info-card {
+        padding: 20px;
+    }
+
+    .learning-path-passport-main,
+    .learning-path-passport-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .learning-path-passport-stats,
+    .learning-path-footer {
+        grid-template-columns: 1fr;
+    }
 }
