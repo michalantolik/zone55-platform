@@ -80,7 +80,7 @@
     align-items: stretch;
     width: calc(100% + (var(--roadmap-width-alignment-offset) * 2));
     margin-inline: calc(var(--roadmap-width-alignment-offset) * -1);
-    padding: 36px;
+    padding: 20px;
     border-radius: 30px;
     background: var(--post-card-bg);
     border: 1px solid var(--post-card-border);

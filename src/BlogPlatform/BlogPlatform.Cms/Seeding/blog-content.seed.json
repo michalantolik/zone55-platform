@@ -39,7 +39,7 @@
     },
     {
       "key": "web-app-development",
-      "name": "Web \u0026 App Development",
+      "name": "Web \u0026 Applications",
       "order": 2,
       "steps": [
         {
@@ -1241,7 +1241,7 @@
       "slug": "core-concepts-of-infrastructure-as-code",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**Infrastructure as Code** is based on several important concepts:\n\n- Infrastructure is defined as **code**\n- Infrastructure is stored in **source control**\n- Infrastructure can be **declarative** vs imperative\n- Infrastructure should be **idempotent** and **consistent**\n",
+      "summary": "**Infrastructure as Code** is based on several important concepts:\n\n- Infrastructure is defined as **code**\n- Infrastructure is stored in **source control**\n- Infrastructure can be **declarative** or imperative\n- Infrastructure should be **idempotent** and **consistent**\n",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 2,
@@ -1289,7 +1289,7 @@
       "slug": "terraform-core-components",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "Terraform consists of four core components:\n\n- **Terraform Binary** \u2013 the executable that contains the core Terraform functionality.\n- **Configuration Files** \u2013 infrastructure definitions written in **HCL** and stored in \u0060.tf\u0060 files.\n- **Provider Plugins** \u2013 components that allow Terraform to communicate with platform APIs such as **Azure**, **AWS**.\n- **State Data** \u2013 information about the current infrastructure used by Terraform to compare the **desired configuration** with the **existing environment** and determine required changes.",
+      "summary": "Terraform consists of four core components:\n\n- **Terraform Binary** \u2013 the executable that contains the core Terraform functionality.\n- **Configuration Files** \u2013 infrastructure definitions written in **HCL** and stored in \u0060.tf\u0060 files.\n- **Provider Plugins** \u2013 components that allow Terraform to communicate with platform APIs such as **Azure**, **AWS**, **GCP**.\n- **State Data** \u2013 information about the current infrastructure used by Terraform to compare the **desired configuration** with the **existing environment** and determine required changes.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 5,
