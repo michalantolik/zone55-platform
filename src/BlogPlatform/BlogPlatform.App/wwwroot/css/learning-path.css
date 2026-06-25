@@ -359,31 +359,36 @@
 
 .learning-path-passport-stats {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
+    grid-template-columns: max-content max-content max-content max-content;
+    justify-content: start;
+    column-gap: 32px;
+    row-gap: 0;
     margin-top: 14px;
     overflow: hidden;
     border-radius: 14px;
     border: 1px solid rgba(117, 154, 197, .12);
     background: rgba(255, 255, 255, .035);
+    padding: 0px 16px;
 }
 
 .learning-path-passport-stats span {
     display: grid;
     gap: 2px;
-    min-height: 46px;
-    padding: 8px 10px;
+    min-height: 42px;
+    padding: 7px 6px;
     background: rgba(85, 182, 255, .035);
 }
 
 .learning-path-passport-stats small {
     color: var(--post-footer-text);
-    font-size: .66rem;
+    font-size: .62rem;
 }
 
 .learning-path-passport-stats strong {
     color: var(--post-title-text);
-    font-size: .8rem;
+    font-size: .68rem;
+    line-height: 1.15;
+    white-space: nowrap;
 }
 
 .learning-path-passport-actions {
@@ -438,7 +443,9 @@
 
 .learning-path-public-links strong {
     color: rgba(235, 244, 255, .88);
-    font-size: .8rem;
+    font-size: .68rem;
+    line-height: 1.15;
+    white-space: nowrap;
     font-weight: 700;
 }
 
