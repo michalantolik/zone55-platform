@@ -11,15 +11,19 @@
 
 .content-frame-learning-path {
     display: block;
-    border-top: 1px solid var(--content-frame-border);
-    border-radius: 30px;
+    padding-top: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .learning-path-shell {
     width: 100%;
     padding: 36px 40px 42px;
     color: var(--text-dark);
-    background: var(--posts-area-bg);
+    background: transparent;
 }
 
 .learning-path-header {
