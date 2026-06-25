@@ -632,3 +632,193 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Compact desktop landing layout.
+   Targeted at common maximized browser viewports such as 1440x900,
+   1536x864 and 1920x1080 so the full landing page is usually visible
+   without scrolling while the roadmap remains the visual focus. */
+@media (min-width: 1180px) and (max-height: 920px) {
+    .learning-path-shell {
+        padding-bottom: 22px;
+    }
+
+    .learning-path-journey {
+        gap: 12px 18px;
+        padding: 16px;
+        border-radius: 26px;
+    }
+
+    .learning-path-zone-header {
+        min-height: 74px;
+        padding: 14px 22px;
+        border-radius: 21px;
+    }
+
+    .learning-path-zone-header span {
+        font-size: .66rem;
+        letter-spacing: .11em;
+    }
+
+    .learning-path-zone-header h4 {
+        margin-top: 8px;
+        font-size: 1.34rem;
+        line-height: 1.08;
+    }
+
+    .learning-path-zone-steps {
+        gap: 9px;
+    }
+
+    .learning-path-zone-step {
+        grid-template-columns: 38px minmax(0, 1fr);
+        column-gap: 10px;
+        min-height: 50px;
+        padding: 8px 12px;
+        border-radius: 14px;
+    }
+
+    .learning-path-zone-step span {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+    }
+
+    .learning-path-zone-step strong {
+        font-size: .88rem;
+        line-height: 1.15;
+    }
+
+    .learning-path-zone-step-compact {
+        min-height: 46px;
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+
+    .learning-path-page-story {
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .learning-path-info-card {
+        min-height: 188px;
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .learning-path-info-kicker {
+        font-size: .64rem;
+        letter-spacing: .15em;
+    }
+
+    .learning-path-quote-mark {
+        height: 20px;
+        margin: 10px 0 0;
+        font-size: 3rem;
+    }
+
+    .learning-path-why-card p {
+        font-size: .78rem;
+        line-height: 1.48;
+    }
+
+    .learning-path-why-card strong {
+        margin-top: 9px;
+        font-size: .82rem;
+        line-height: 1.36;
+    }
+
+    .learning-path-card-action {
+        min-height: 30px;
+        margin-top: 12px;
+        padding: 6px 11px;
+        font-size: .72rem;
+    }
+
+    .learning-path-passport-main {
+        gap: 12px;
+        margin-top: 13px;
+    }
+
+    .learning-path-avatar {
+        width: 58px;
+        height: 58px;
+        font-size: 1.38rem;
+    }
+
+    .learning-path-passport-copy h3 {
+        font-size: 1.08rem;
+    }
+
+    .learning-path-passport-copy p {
+        font-size: .78rem;
+    }
+
+    .learning-path-skill-tags {
+        gap: 5px;
+        margin-top: 8px;
+    }
+
+    .learning-path-skill-tags span {
+        min-height: 20px;
+        padding: 4px 8px;
+        font-size: .64rem;
+    }
+
+    .learning-path-passport-stats {
+        column-gap: 26px;
+        margin-top: 11px;
+        padding: 0 14px;
+    }
+
+    .learning-path-passport-stats span {
+        min-height: 34px;
+        padding: 5px 5px;
+    }
+
+    .learning-path-passport-stats small {
+        font-size: .56rem;
+    }
+
+    .learning-path-passport-stats strong {
+        font-size: .62rem;
+    }
+
+    .learning-path-passport-actions {
+        gap: 7px;
+        margin-top: 10px;
+    }
+
+    .learning-path-public-links {
+        margin-top: 10px;
+    }
+
+    .learning-path-public-links a {
+        grid-template-columns: 26px minmax(0, 1fr) 14px;
+        column-gap: 8px;
+        min-height: 40px;
+        padding: 5px 0;
+    }
+
+    .learning-path-public-links span {
+        width: 26px;
+        height: 26px;
+        border-radius: 9px;
+        font-size: .7rem;
+    }
+
+    .learning-path-public-links strong {
+        font-size: .63rem;
+    }
+
+    .learning-path-public-links small {
+        font-size: .64rem;
+    }
+
+    .learning-path-footer {
+        margin-top: 10px;
+        padding: 9px 16px;
+        border-radius: 14px;
+        font-size: .66rem;
+        color: rgba(163, 184, 216, .58);
+    }
+}
