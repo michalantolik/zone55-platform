@@ -22,7 +22,7 @@ permissions:
 
 env:
   DOTNET_VERSION: 10.0.x
-  SCREENSHOT_PROJECT: tests/BlogPlatform.PortfolioScreenshots/BlogPlatform.PortfolioScreenshots.csproj
+  SCREENSHOT_PROJECT: src/BlogPlatform/BlogPlatform.PortfolioScreenshots/BlogPlatform.PortfolioScreenshots.csproj
   CONFIGURATION: Release
 
 jobs:
@@ -52,7 +52,7 @@ jobs:
         run: dotnet build ${{ env.SCREENSHOT_PROJECT }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
       - name: Install Playwright browsers
-        run: pwsh tests/BlogPlatform.PortfolioScreenshots/bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install --with-deps chromium
+        run: pwsh src/BlogPlatform/BlogPlatform.PortfolioScreenshots/bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install --with-deps chromium
 
       - name: Capture screenshots
         env:
@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: portfolio-screenshots
-          path: tests/BlogPlatform.PortfolioScreenshots/bin/${{ env.CONFIGURATION }}/net10.0/portfolio-screenshots
+          path: src/BlogPlatform/BlogPlatform.PortfolioScreenshots/bin/${{ env.CONFIGURATION }}/net10.0/portfolio-screenshots
