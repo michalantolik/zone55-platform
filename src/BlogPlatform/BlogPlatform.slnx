@@ -7,4 +7,5 @@
   <Project Path="BlogPlatform.Contracts/BlogPlatform.Contracts.csproj" Id="a32e80fa-21bc-4dd9-91b7-98211ce4d140" />
   <Project Path="BlogPlatform.Domain/BlogPlatform.Domain.csproj" />
   <Project Path="BlogPlatform.Infrastructure/BlogPlatform.Infrastructure.csproj" />
+  <Project Path="BlogPlatform.PortfolioScreenshots/BlogPlatform.PortfolioScreenshots.csproj" />
 </Solution>

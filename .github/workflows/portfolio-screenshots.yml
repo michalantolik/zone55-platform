@@ -9,8 +9,13 @@ on:
     inputs:
       app_url:
         description: Application URL used for screenshot generation
-        required: true
+        required: false
         default: https://zone55.dev
+  workflow_run:
+    workflows:
+      - Azure seed content
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -23,11 +28,17 @@ env:
 jobs:
   capture-screenshots:
     name: Capture portfolio screenshots
+    if: >
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -45,7 +56,7 @@ jobs:
 
       - name: Capture screenshots
         env:
-          APP_URL: ${{ github.event.inputs.app_url }}
+          APP_URL: ${{ github.event.inputs.app_url || 'https://zone55.dev' }}
         run: dotnet test ${{ env.SCREENSHOT_PROJECT }} --configuration ${{ env.CONFIGURATION }} --no-build --logger trx
 
       - name: Upload screenshots

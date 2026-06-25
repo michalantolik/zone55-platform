@@ -2,6 +2,11 @@ name: Azure seed content
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Azure deploy
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -22,12 +27,18 @@ env:
 jobs:
   seed:
     name: Seed Azure blog content
+    if: >
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     environment: azure-dev
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Validate required secrets
         shell: bash
