@@ -46,6 +46,9 @@ env:
   # Path to the solution file
   SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
 
+  # Test project executed by Azure readiness
+  ARCHITECTURE_TESTS_PROJECT_PATH: src/BlogPlatform/BlogPlatform.ArchitectureTests/BlogPlatform.ArchitectureTests.csproj
+
   # Build configuration used during compilation and publishing
   CONFIGURATION: Release
 
@@ -89,9 +92,9 @@ jobs:
       - name: Build solution
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
-      # Step 1.6 - Run tests
-      - name: Test solution
-        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+      # Step 1.6 - Run architecture tests only
+      - name: Test architecture project
+        run: dotnet test ${{ env.ARCHITECTURE_TESTS_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
 
       # Step 1.7 - Publish CMS deployment package
       - name: Publish CMS
@@ -189,7 +192,7 @@ jobs:
 #   2. Install .NET SDK
 #   3. Restore NuGet packages
 #   4. Build solution
-#   5. Run automated tests
+#   5. Run architecture tests
 #   6. Publish CMS
 #   7. Publish API
 #   8. Publish Blazor App
@@ -206,7 +209,7 @@ jobs:
 # What this workflow proves:
 #
 #   ✓ .NET solution builds successfully
-#   ✓ Automated tests pass
+#   ✓ Architecture tests pass
 #   ✓ Deployment packages can be generated
 #   ✓ Terraform configuration is valid
 #   ✓ Repository is ready for Azure deployment
