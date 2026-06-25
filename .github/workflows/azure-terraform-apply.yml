@@ -32,7 +32,6 @@ jobs:
   terraform-apply:
     name: Terraform apply
     runs-on: ubuntu-latest
-    environment: azure-dev
 
     defaults:
       run:

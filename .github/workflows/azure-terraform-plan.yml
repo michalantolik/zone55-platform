@@ -47,7 +47,6 @@ jobs:
   terraform-plan:
     name: Terraform plan
     runs-on: ubuntu-latest
-    environment: azure-dev
 
     defaults:
       run:

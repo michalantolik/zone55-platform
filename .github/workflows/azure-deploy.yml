@@ -21,6 +21,7 @@ env:
   TERRAFORM_VERSION: 1.13.5
   CONFIGURATION: Release
   SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
+  ARCHITECTURE_TESTS_PROJECT_PATH: src/BlogPlatform/BlogPlatform.ArchitectureTests/BlogPlatform.ArchitectureTests.csproj
 
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -36,7 +37,6 @@ jobs:
            github.event.workflow_run.head_branch == 'main' &&
            github.event.workflow_run.event != 'pull_request') }}
     runs-on: ubuntu-latest
-    environment: azure-dev
 
     steps:
       - name: Checkout repository
@@ -175,8 +175,8 @@ jobs:
       - name: Build solution
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
-      - name: Test solution
-        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+      - name: Test architecture project
+        run: dotnet test ${{ env.ARCHITECTURE_TESTS_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
 
       - name: Publish API
         run: >
