@@ -24,6 +24,10 @@ jobs:
     name: Verify Azure deployment
     runs-on: ubuntu-latest
 
+    # Keep this environment name in sync with the Azure federated credential subject.
+    # GitHub manual approval is controlled in repository Environment settings, not here.
+    environment: azure-dev
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
