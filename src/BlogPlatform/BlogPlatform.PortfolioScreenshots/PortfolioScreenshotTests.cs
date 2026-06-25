@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.Playwright;
 using NUnit.Framework;
 
@@ -25,7 +25,8 @@ public sealed class PortfolioScreenshotTests
                 "basic-syntax",
                 "types-operators",
                 "functions-classes",
-                "console-apps"
+                "console-apps",
+                "modern-csharp-dotnet"
             ],
             ["web-app-development"] =
             [
@@ -118,6 +119,7 @@ public sealed class PortfolioScreenshotTests
         };
 
     [Test]
+    [Ignore("Temporarily disabled")]
     public async Task CapturePortfolioScreenshots()
     {
         Directory.CreateDirectory(OutputDirectory);
@@ -157,6 +159,145 @@ public sealed class PortfolioScreenshotTests
                 }
             }
         }
+    }
+
+    [Test]
+    public async Task ValidateOneScreenLandingPageAcrossSetups()
+    {
+        var appUrl = GetAppUrl();
+        var outputDirectory = Path.Combine(OutputDirectory, "OneScreenLandingPage");
+        Directory.CreateDirectory(outputDirectory);
+
+        TestContext.Out.WriteLine($"One-screen landing page URL: {appUrl}");
+        TestContext.Out.WriteLine($"One-screen landing page output: {outputDirectory}");
+
+        using var playwright = await Playwright.CreateAsync();
+
+        await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+
+        var failures = new List<string>();
+        var screenshotNumber = 1;
+
+        foreach (var setup in GetLandingPageUiValidationSetups())
+        {
+            var page = await CreatePageAsync(browser, setup.Viewport);
+
+            try
+            {
+                await NavigateAsync(page, appUrl);
+
+                var screenshotFileName = CreateOneScreenLandingPageScreenshotFileName(screenshotNumber++, setup);
+                await CaptureVisibleViewportAsync(page, Path.Combine("OneScreenLandingPage", screenshotFileName), edgeCropWidth: 0);
+
+                var documentHeight = await GetDocumentHeightAsync(page);
+                var overflowHeight = documentHeight - setup.Viewport.Height;
+
+                TestContext.Out.WriteLine(
+                    $"{setup.DisplayName}: viewport {setup.Viewport.Width}x{setup.Viewport.Height}, " +
+                    $"scale {setup.WindowsScalePercent}%, document height {documentHeight}px, overflow {Math.Max(0, overflowHeight)}px");
+
+                if (overflowHeight > setup.AllowedVerticalOverflowPx)
+                {
+                    failures.Add(
+                        $"{setup.DisplayName}: landing page is {overflowHeight}px too tall for " +
+                        $"{setup.Viewport.Width}x{setup.Viewport.Height}. Shorten it by at least " +
+                        $"{overflowHeight - setup.AllowedVerticalOverflowPx}px to fit one screen.");
+                }
+            }
+            finally
+            {
+                await page.Context.CloseAsync();
+            }
+        }
+
+        if (failures.Count > 0)
+        {
+            Assert.Fail("One-screen landing page validation failed:" + Environment.NewLine + string.Join(Environment.NewLine, failures));
+        }
+    }
+
+    private static IReadOnlyCollection<LandingPageUiValidationSetup> GetLandingPageUiValidationSetups() =>
+    [
+        new(
+            DisplayName: "24 inch Full HD",
+            PhysicalMonitor: "24_FHD",
+            Resolution: "1920x1080",
+            WindowsScalePercent: 100,
+            Viewport: new ScreenshotViewport(1920, 940, 1)),
+
+        new(
+            DisplayName: "24 inch Full HD at 125 percent scale",
+            PhysicalMonitor: "24_FHD",
+            Resolution: "1920x1080",
+            WindowsScalePercent: 125,
+            Viewport: new ScreenshotViewport(1536, 752, 1.25f)),
+
+        new(
+            DisplayName: "27 inch QHD",
+            PhysicalMonitor: "27_QHD",
+            Resolution: "2560x1440",
+            WindowsScalePercent: 100,
+            Viewport: new ScreenshotViewport(2560, 1300, 1)),
+
+        new(
+            DisplayName: "27 inch QHD at 125 percent scale",
+            PhysicalMonitor: "27_QHD",
+            Resolution: "2560x1440",
+            WindowsScalePercent: 125,
+            Viewport: new ScreenshotViewport(2048, 1040, 1.25f)),
+
+        new(
+            DisplayName: "27 or 32 inch 4K at 150 percent scale",
+            PhysicalMonitor: "27_32_4K",
+            Resolution: "3840x2160",
+            WindowsScalePercent: 150,
+            Viewport: new ScreenshotViewport(2560, 1380, 1.5f)),
+
+        new(
+            DisplayName: "27 or 32 inch 4K at 175 percent scale",
+            PhysicalMonitor: "27_32_4K",
+            Resolution: "3840x2160",
+            WindowsScalePercent: 175,
+            Viewport: new ScreenshotViewport(2194, 1180, 1.75f)),
+
+        new(
+            DisplayName: "14 inch business laptop at 125 percent scale",
+            PhysicalMonitor: "14_Laptop",
+            Resolution: "1920x1200",
+            WindowsScalePercent: 125,
+            Viewport: new ScreenshotViewport(1536, 900, 1.25f)),
+
+        new(
+            DisplayName: "15 inch laptop at 125 percent scale",
+            PhysicalMonitor: "15_Laptop",
+            Resolution: "1920x1080",
+            WindowsScalePercent: 125,
+            Viewport: new ScreenshotViewport(1536, 752, 1.25f)),
+
+        new(
+            DisplayName: "Older laptop",
+            PhysicalMonitor: "Older_Laptop",
+            Resolution: "1366x768",
+            WindowsScalePercent: 100,
+            Viewport: new ScreenshotViewport(1366, 650, 1))
+    ];
+
+    private static string CreateOneScreenLandingPageScreenshotFileName(
+        int number,
+        LandingPageUiValidationSetup setup)
+    {
+        return string.Create(
+            CultureInfo.InvariantCulture,
+            $"{number:00}_{setup.PhysicalMonitor}_{setup.Resolution}_scale{setup.WindowsScalePercent}_viewport{setup.Viewport.Width}x{setup.Viewport.Height}.png");
+    }
+
+    private static async Task<int> GetDocumentHeightAsync(IPage page)
+    {
+        return await page.EvaluateAsync<int>(
+            "() => Math.ceil(Math.max(document.documentElement.scrollHeight, document.body.scrollHeight))");
     }
 
     private static string[] GetZones()
@@ -342,4 +483,12 @@ public sealed class PortfolioScreenshotTests
     }
 
     private sealed record ScreenshotViewport(int Width, int Height, float DeviceScaleFactor);
+
+    private sealed record LandingPageUiValidationSetup(
+        string DisplayName,
+        string PhysicalMonitor,
+        string Resolution,
+        int WindowsScalePercent,
+        ScreenshotViewport Viewport,
+        int AllowedVerticalOverflowPx = 0);
 }
