@@ -21,7 +21,7 @@
 
 .learning-path-shell {
     width: 100%;
-    padding: 36px 40px 42px;
+    padding: 36px 0 42px;
     color: var(--text-dark);
     background: transparent;
 }
@@ -224,11 +224,6 @@
 }
 
 @media (max-width: 760px) {
-    .learning-path-shell {
-        padding-left: 24px;
-        padding-right: 24px;
-    }
-
     .learning-path-header {
         flex-direction: column;
         align-items: flex-start;
