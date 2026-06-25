@@ -73,10 +73,13 @@
 }
 
 .learning-path-journey {
+    --roadmap-width-alignment-offset: 11px;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px 22px;
     align-items: stretch;
+    width: calc(100% + (var(--roadmap-width-alignment-offset) * 2));
+    margin-inline: calc(var(--roadmap-width-alignment-offset) * -1);
     padding: 36px;
     border-radius: 30px;
     background: var(--post-card-bg);
@@ -179,6 +182,8 @@
 
 @media (max-width: 1120px) {
     .learning-path-journey {
+        width: 100%;
+        margin-inline: 0;
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
