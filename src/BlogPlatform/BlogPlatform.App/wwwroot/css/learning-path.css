@@ -11,6 +11,8 @@
 
 .content-frame-learning-path {
     display: block;
+    border-top: 1px solid var(--content-frame-border);
+    border-radius: 30px;
 }
 
 .learning-path-shell {
