@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Microsoft.Playwright;
 using NUnit.Framework;
 
@@ -188,6 +188,7 @@ public sealed class PortfolioScreenshotTests
             try
             {
                 await NavigateAsync(page, appUrl);
+                await WaitForLearningPathLandingPageReadyAsync(page);
 
                 var screenshotFileName = CreateOneScreenLandingPageScreenshotFileName(screenshotNumber++, setup);
                 await CaptureVisibleViewportAsync(page, Path.Combine("OneScreenLandingPage", screenshotFileName), edgeCropWidth: 0);
@@ -294,6 +295,46 @@ public sealed class PortfolioScreenshotTests
             $"{number:00}_{setup.PhysicalMonitor}_{setup.Resolution}_scale{setup.WindowsScalePercent}_viewport{setup.Viewport.Width}x{setup.Viewport.Height}.png");
     }
 
+
+    private static async Task WaitForLearningPathLandingPageReadyAsync(IPage page)
+    {
+        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+        await page.WaitForTimeoutAsync(5000);
+    }
+
+    private static async Task WaitForStableDocumentHeightAsync(IPage page)
+    {
+        await page.WaitForFunctionAsync(
+            @"() => new Promise(resolve => {
+                let previousHeight = 0;
+                let stableFrameCount = 0;
+
+                const measure = () => {
+                    const currentHeight = Math.ceil(Math.max(
+                        document.documentElement.scrollHeight,
+                        document.body.scrollHeight));
+
+                    if (currentHeight === previousHeight) {
+                        stableFrameCount += 1;
+                    } else {
+                        stableFrameCount = 0;
+                        previousHeight = currentHeight;
+                    }
+
+                    if (stableFrameCount >= 6) {
+                        resolve(true);
+                        return;
+                    }
+
+                    requestAnimationFrame(measure);
+                };
+
+                requestAnimationFrame(measure);
+            })",
+            null,
+            new PageWaitForFunctionOptions { Timeout = 30_000 });
+    }
+
     private static async Task<int> GetDocumentHeightAsync(IPage page)
     {
         return await page.EvaluateAsync<int>(
@@ -352,6 +393,7 @@ public sealed class PortfolioScreenshotTests
     private static async Task CaptureHomeMapAsync(int number, IPage page, string appUrl, int edgeCropWidth)
     {
         await NavigateAsync(page, appUrl);
+        await WaitForLearningPathLandingPageReadyAsync(page);
 
         await CaptureVisibleViewportAsync(page, $"{number:00}-home-map-desktop.png", edgeCropWidth);
     }
