@@ -6,6 +6,24 @@
     background: radial-gradient(circle at 12% 30%, rgba(86, 212, 255, .12), transparent 32%), radial-gradient(circle at 88% 20%, rgba(78, 161, 255, .1), transparent 30%), var(--content-frame-bg);
 }
 
+.loading-content-frame.content-frame-learning-path {
+    display: block;
+    min-height: 0;
+    padding: 36px 0 42px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.loading-content-frame.content-frame-learning-path .blog-loading-panel {
+    --roadmap-width-alignment-offset: 11px;
+    width: calc(100% + (var(--roadmap-width-alignment-offset) * 2));
+    margin-inline: calc(var(--roadmap-width-alignment-offset) * -1);
+    min-height: 150px;
+}
+
 .blog-loading-panel {
     position: relative;
     display: grid;
@@ -155,6 +173,14 @@
 
     100% {
         background-position: -120% 0;
+    }
+}
+
+
+@media (max-width: 1120px) {
+    .loading-content-frame.content-frame-learning-path .blog-loading-panel {
+        width: 100%;
+        margin-inline: 0;
     }
 }
 
