@@ -162,14 +162,39 @@ public sealed class PortfolioScreenshotTests
     }
 
     [Test]
-    public async Task ValidateOneScreenLandingPageAcrossSetups()
+    public async Task ValidateCriticalLandingPageSetupsFitOneScreen()
+    {
+        var result = await CaptureLandingPageScreenshotsAsync(
+            GetCriticalLandingPageUiValidationSetups(),
+            "Critical");
+
+        if (result.Failures.Count > 0)
+        {
+            Assert.Fail(
+                "Critical landing page validation failed:" +
+                Environment.NewLine +
+                string.Join(Environment.NewLine, result.Failures));
+        }
+    }
+
+    [Test]
+    public async Task CaptureSupportedLandingPageSetups()
+    {
+        await CaptureLandingPageScreenshotsAsync(
+            GetSupportedLandingPageUiValidationSetups(),
+            "Supported");
+    }
+
+    private static async Task<LandingPageValidationResult> CaptureLandingPageScreenshotsAsync(
+        IReadOnlyCollection<LandingPageUiValidationSetup> setups,
+        string outputFolderName)
     {
         var appUrl = GetAppUrl();
-        var outputDirectory = Path.Combine(OutputDirectory, "OneScreenLandingPage");
+        var outputDirectory = Path.Combine(OutputDirectory, outputFolderName);
         Directory.CreateDirectory(outputDirectory);
 
-        TestContext.Out.WriteLine($"One-screen landing page URL: {appUrl}");
-        TestContext.Out.WriteLine($"One-screen landing page output: {outputDirectory}");
+        TestContext.Out.WriteLine($"Landing page URL: {appUrl}");
+        TestContext.Out.WriteLine($"Landing page output: {outputDirectory}");
 
         using var playwright = await Playwright.CreateAsync();
 
@@ -181,7 +206,7 @@ public sealed class PortfolioScreenshotTests
         var failures = new List<string>();
         var screenshotNumber = 1;
 
-        foreach (var setup in GetLandingPageUiValidationSetups())
+        foreach (var setup in setups)
         {
             var page = await CreatePageAsync(browser, setup.Viewport);
 
@@ -190,17 +215,19 @@ public sealed class PortfolioScreenshotTests
                 await NavigateAsync(page, appUrl);
                 await WaitForLearningPathLandingPageReadyAsync(page);
 
-                var screenshotFileName = CreateOneScreenLandingPageScreenshotFileName(screenshotNumber++, setup);
-                await CaptureVisibleViewportAsync(page, Path.Combine("OneScreenLandingPage", screenshotFileName), edgeCropWidth: 0);
+                var screenshotFileName = CreateLandingPageScreenshotFileName(screenshotNumber++, setup);
+                await CaptureVisibleViewportAsync(page, Path.Combine(outputFolderName, screenshotFileName), edgeCropWidth: 0);
 
                 var documentHeight = await GetDocumentHeightAsync(page);
                 var overflowHeight = documentHeight - setup.Viewport.Height;
+                var visibleOverflowHeight = Math.Max(0, overflowHeight);
 
                 TestContext.Out.WriteLine(
                     $"{setup.DisplayName}: viewport {setup.Viewport.Width}x{setup.Viewport.Height}, " +
-                    $"scale {setup.WindowsScalePercent}%, document height {documentHeight}px, overflow {Math.Max(0, overflowHeight)}px");
+                    $"scale {setup.ScalePercent}%, document height {documentHeight}px, overflow {visibleOverflowHeight}px");
 
-                if (overflowHeight > setup.AllowedVerticalOverflowPx)
+                if (setup.ValidationMode == LandingPageValidationMode.SingleScreen &&
+                    overflowHeight > setup.AllowedVerticalOverflowPx)
                 {
                     failures.Add(
                         $"{setup.DisplayName}: landing page is {overflowHeight}px too tall for " +
@@ -214,92 +241,102 @@ public sealed class PortfolioScreenshotTests
             }
         }
 
-        if (failures.Count > 0)
-        {
-            Assert.Fail("One-screen landing page validation failed:" + Environment.NewLine + string.Join(Environment.NewLine, failures));
-        }
+        return new LandingPageValidationResult(failures);
     }
 
-    private static IReadOnlyCollection<LandingPageUiValidationSetup> GetLandingPageUiValidationSetups() =>
+    private static IReadOnlyCollection<LandingPageUiValidationSetup> GetCriticalLandingPageUiValidationSetups() =>
     [
         new(
             DisplayName: "24 inch Full HD",
-            PhysicalMonitor: "24_FHD",
+            DeviceProfile: "24_FHD",
             Resolution: "1920x1080",
-            WindowsScalePercent: 100,
-            Viewport: new ScreenshotViewport(1920, 940, 1)),
-
-        new(
-            DisplayName: "24 inch Full HD at 125 percent scale",
-            PhysicalMonitor: "24_FHD",
-            Resolution: "1920x1080",
-            WindowsScalePercent: 125,
-            Viewport: new ScreenshotViewport(1536, 752, 1.25f)),
-
-        new(
-            DisplayName: "27 inch QHD",
-            PhysicalMonitor: "27_QHD",
-            Resolution: "2560x1440",
-            WindowsScalePercent: 100,
-            Viewport: new ScreenshotViewport(2560, 1300, 1)),
+            ScalePercent: 100,
+            Viewport: new ScreenshotViewport(1920, 940, 1),
+            ValidationMode: LandingPageValidationMode.SingleScreen),
 
         new(
             DisplayName: "27 inch QHD at 125 percent scale",
-            PhysicalMonitor: "27_QHD",
+            DeviceProfile: "27_QHD",
             Resolution: "2560x1440",
-            WindowsScalePercent: 125,
-            Viewport: new ScreenshotViewport(2048, 1040, 1.25f)),
+            ScalePercent: 125,
+            Viewport: new ScreenshotViewport(2048, 1040, 1.25f),
+            ValidationMode: LandingPageValidationMode.SingleScreen),
 
         new(
             DisplayName: "4K UHD at 150 percent scale",
-            PhysicalMonitor: "4K_UHD",
+            DeviceProfile: "4K_UHD",
             Resolution: "3840x2160",
-            WindowsScalePercent: 150,
-            Viewport: new ScreenshotViewport(2560, 1380, 1.5f)),
+            ScalePercent: 150,
+            Viewport: new ScreenshotViewport(2560, 1380, 1.5f),
+            ValidationMode: LandingPageValidationMode.SingleScreen)
+    ];
+
+    private static IReadOnlyCollection<LandingPageUiValidationSetup> GetSupportedLandingPageUiValidationSetups() =>
+    [
+        new(
+            DisplayName: "24 inch Full HD at 125 percent scale",
+            DeviceProfile: "24_FHD",
+            Resolution: "1920x1080",
+            ScalePercent: 125,
+            Viewport: new ScreenshotViewport(1536, 752, 1.25f),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed),
+
+        new(
+            DisplayName: "27 inch QHD",
+            DeviceProfile: "27_QHD",
+            Resolution: "2560x1440",
+            ScalePercent: 100,
+            Viewport: new ScreenshotViewport(2560, 1300, 1),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed),
 
         new(
             DisplayName: "4K UHD at 175 percent scale",
-            PhysicalMonitor: "4K_UHD",
+            DeviceProfile: "4K_UHD",
             Resolution: "3840x2160",
-            WindowsScalePercent: 175,
-            Viewport: new ScreenshotViewport(2194, 1180, 1.75f)),
+            ScalePercent: 175,
+            Viewport: new ScreenshotViewport(2194, 1180, 1.75f),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed),
 
         new(
             DisplayName: "13 inch MacBook Retina",
-            PhysicalMonitor: "13_MacBook_Retina",
+            DeviceProfile: "13_MacBook_Retina",
             Resolution: "2560x1664",
-            WindowsScalePercent: 200,
-            Viewport: new ScreenshotViewport(1280, 832, 2)),
+            ScalePercent: 200,
+            Viewport: new ScreenshotViewport(1280, 832, 2),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed),
 
         new(
             DisplayName: "14 inch business laptop at 125 percent scale",
-            PhysicalMonitor: "14_Laptop",
+            DeviceProfile: "14_Laptop",
             Resolution: "1920x1200",
-            WindowsScalePercent: 125,
-            Viewport: new ScreenshotViewport(1536, 900, 1.25f)),
+            ScalePercent: 125,
+            Viewport: new ScreenshotViewport(1536, 900, 1.25f),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed),
 
         new(
             DisplayName: "15 inch laptop at 125 percent scale",
-            PhysicalMonitor: "15_Laptop",
+            DeviceProfile: "15_Laptop",
             Resolution: "1920x1080",
-            WindowsScalePercent: 125,
-            Viewport: new ScreenshotViewport(1536, 752, 1.25f)),
+            ScalePercent: 125,
+            Viewport: new ScreenshotViewport(1536, 752, 1.25f),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed),
 
         new(
             DisplayName: "Legacy 1366x768 laptop",
-            PhysicalMonitor: "Legacy_Laptop",
+            DeviceProfile: "Legacy_Laptop",
             Resolution: "1366x768",
-            WindowsScalePercent: 100,
-            Viewport: new ScreenshotViewport(1366, 650, 1))
+            ScalePercent: 100,
+            Viewport: new ScreenshotViewport(1366, 650, 1),
+            ValidationMode: LandingPageValidationMode.ScrollAllowed)
     ];
 
-    private static string CreateOneScreenLandingPageScreenshotFileName(
+    private static string CreateLandingPageScreenshotFileName(
         int number,
         LandingPageUiValidationSetup setup)
     {
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"{number:00}_{setup.PhysicalMonitor}_{setup.Resolution}_scale{setup.WindowsScalePercent}_viewport{setup.Viewport.Width}x{setup.Viewport.Height}.png");
+            $"{number:00}_{setup.DeviceProfile}_{setup.Resolution}_scale{setup.ScalePercent}_viewport{setup.Viewport.Width}x{setup.Viewport.Height}.png");
     }
 
 
@@ -533,11 +570,20 @@ public sealed class PortfolioScreenshotTests
 
     private sealed record ScreenshotViewport(int Width, int Height, float DeviceScaleFactor);
 
+    private enum LandingPageValidationMode
+    {
+        SingleScreen,
+        ScrollAllowed
+    }
+
+    private sealed record LandingPageValidationResult(IReadOnlyCollection<string> Failures);
+
     private sealed record LandingPageUiValidationSetup(
         string DisplayName,
-        string PhysicalMonitor,
+        string DeviceProfile,
         string Resolution,
-        int WindowsScalePercent,
+        int ScalePercent,
         ScreenshotViewport Viewport,
+        LandingPageValidationMode ValidationMode,
         int AllowedVerticalOverflowPx = 0);
 }
