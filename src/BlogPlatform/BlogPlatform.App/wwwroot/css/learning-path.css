@@ -27,7 +27,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--zone-gap);
     margin-top: 0;
-    padding: clamp(20px, 1.75vw, 28px);
+    padding: clamp(18px, 1.45vw, 24px);
     border-radius: 30px;
     background:
         radial-gradient(circle at 12% 6%, rgba(57, 211, 194, .22), transparent 28%),
@@ -46,8 +46,8 @@
     --zone-soft: rgba(var(--zone-rgb), .14);
     position: relative;
     min-width: 0;
-    min-height: clamp(510px, 46.2vh, 560px);
-    padding: clamp(24px, 1.65vw, 32px) clamp(24px, 1.9vw, 34px);
+    min-height: clamp(486px, 43.6vh, 536px);
+    padding: clamp(22px, 1.45vw, 28px) clamp(22px, 1.65vw, 30px);
     border-radius: 28px;
     background:
         radial-gradient(circle at 19% 13%, rgba(var(--zone-rgb), .34), transparent 28%),
@@ -70,13 +70,13 @@
 .learning-path-zone-card::after {
     content: "";
     position: absolute;
-    top: 128px;
-    right: -22px;
-    width: 46px;
-    height: 70px;
-    border-top: 4px solid rgba(var(--zone-rgb), .80);
-    border-right: 4px solid rgba(var(--zone-rgb), .80);
-    border-bottom: 4px solid rgba(var(--zone-rgb), .80);
+    top: 118px;
+    right: -20px;
+    width: 42px;
+    height: 62px;
+    border-top: 3px solid rgba(var(--zone-rgb), .74);
+    border-right: 3px solid rgba(var(--zone-rgb), .74);
+    border-bottom: 3px solid rgba(var(--zone-rgb), .74);
     border-radius: 0 22px 22px 0;
     filter: drop-shadow(0 0 12px rgba(var(--zone-rgb), .50));
     opacity: .9;
@@ -123,50 +123,51 @@
     z-index: 1;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: clamp(16px, 1.25vw, 22px);
+    gap: clamp(14px, 1.05vw, 18px);
     align-items: center;
-    margin-bottom: clamp(26px, 2.3vw, 38px);
+    margin-bottom: clamp(22px, 1.9vw, 32px);
 }
 
 .learning-path-zone-icon {
     display: grid;
     place-items: center;
-    width: clamp(70px, 5vw, 82px);
-    height: clamp(70px, 5vw, 82px);
-    border-radius: 28px;
+    width: clamp(58px, 4.1vw, 68px);
+    height: clamp(58px, 4.1vw, 68px);
+    border-radius: 22px;
     color: #fff;
     background: radial-gradient(circle at 34% 26%, rgba(255,255,255,.28), transparent 34%), linear-gradient(145deg, var(--zone-main), var(--zone-main-2));
     border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 20px 36px rgba(var(--zone-rgb), .18), inset 0 1px 0 rgba(255, 255, 255, .18);
-    font-size: clamp(2rem, 2.3vw, 2.35rem);
-    font-weight: 900;
+    box-shadow: 0 16px 30px rgba(var(--zone-rgb), .14), inset 0 1px 0 rgba(255, 255, 255, .16);
+    font-size: clamp(1.55rem, 1.75vw, 1.9rem);
+    font-weight: 760;
 }
 
 .learning-path-zone-card-header span {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: var(--zone-main);
     text-transform: uppercase;
     letter-spacing: .22em;
-    font-size: clamp(.75rem, .75vw, .86rem);
-    font-weight: 900;
+    font-size: clamp(.66rem, .66vw, .76rem);
+    font-weight: 760;
 }
 
 .learning-path-zone-card-header h2 {
     margin: 0;
     color: #fff;
-    font-size: clamp(1.55rem, 1.72vw, 2rem);
-    line-height: 1.06;
-    letter-spacing: -.045em;
+    font-size: clamp(1.38rem, 1.48vw, 1.72rem);
+    line-height: 1.08;
+    letter-spacing: -.035em;
+    font-weight: 650;
     text-wrap: balance;
 }
 
 .learning-path-zone-card-header h2::after {
     content: "";
     display: block;
-    width: 46px;
-    height: 3px;
-    margin-top: 17px;
+    width: 40px;
+    height: 2px;
+    margin-top: 14px;
     border-radius: 999px;
     background: var(--zone-main);
     box-shadow: 0 0 18px rgba(var(--zone-rgb), .5);
@@ -176,17 +177,17 @@
     position: relative;
     z-index: 1;
     display: grid;
-    gap: clamp(10px, 1.05vh, 14px);
+    gap: clamp(9px, .92vh, 12px);
 }
 
 .learning-path-zone-step {
     display: grid;
-    grid-template-columns: 38px minmax(0, 1fr);
-    column-gap: 18px;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 15px;
     row-gap: 2px;
     align-items: center;
-    min-height: clamp(44px, 4.45vh, 54px);
-    padding: 8px 12px;
+    min-height: clamp(40px, 4vh, 48px);
+    padding: 7px 10px;
     border-radius: 15px;
     color: #f6f9ff;
     background: linear-gradient(90deg, rgba(16, 30, 50, .84), rgba(18, 32, 50, .70));
@@ -206,14 +207,14 @@
 .learning-path-zone-step span {
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 11px;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
     color: #f8fdff;
     background: linear-gradient(145deg, rgba(var(--zone-rgb), .75), rgba(var(--zone-rgb), .32));
     border: 1px solid rgba(var(--zone-rgb), .36);
-    font-size: .94rem;
-    font-weight: 900;
+    font-size: .84rem;
+    font-weight: 760;
     box-shadow: 0 8px 18px rgba(var(--zone-rgb), .13), inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 
@@ -221,11 +222,11 @@
     min-width: 0;
     overflow: hidden;
     color: rgba(255,255,255,.96);
-    font-size: clamp(.92rem, .9vw, 1rem);
-    line-height: 1.15;
+    font-size: clamp(.84rem, .82vw, .94rem);
+    line-height: 1.14;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: 670;
+    font-weight: 620;
 }
 
 .learning-path-zone-step small {
@@ -235,7 +236,7 @@
 }
 
 .learning-path-zone-step-compact {
-    min-height: clamp(44px, 4.45vh, 54px);
+    min-height: clamp(40px, 4vh, 48px);
 }
 
 .learning-path-zone-arrow {

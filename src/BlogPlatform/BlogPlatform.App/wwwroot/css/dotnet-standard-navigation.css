@@ -1,4 +1,4 @@
-﻿.dotnet-platform-top-nav {
+.dotnet-platform-top-nav {
     display: grid;
     grid-template-columns: minmax(390px, 420px) minmax(0, 1fr);
     align-items: center;
@@ -14,8 +14,8 @@
         }
 
 .dotnet-zone-top-nav {
-    --zone-tab-width: 148px;
-    --zone-gap: 50px;
+    --zone-tab-width: 142px;
+    --zone-gap: 48px;
     --journey-dot-size: 10px;
     --journey-line: rgba(125, 211, 252, .38);
     --journey-glow: rgba(56, 189, 248, .28);
@@ -83,8 +83,8 @@
     align-content: center;
     justify-items: start;
     width: 100%;
-    min-height: 78px;
-    padding: 14px 18px 15px;
+    min-height: 72px;
+    padding: 13px 17px 14px;
     border-radius: 14px;
     color: #ffffff;
     border: 1px solid rgba(125, 211, 252, .26);
@@ -95,9 +95,9 @@
     .dotnet-zone-tab strong {
         position: relative;
         color: inherit;
-        font-size: 1.1rem;
+        font-size: 1.02rem;
         line-height: 1.08;
-        font-weight: 900;
+        font-weight: 780;
         letter-spacing: -.02em;
     }
 
@@ -171,7 +171,7 @@
     margin-bottom: 6px;
     color: rgba(255, 255, 255, .94);
     font-size: .86rem;
-    font-weight: 950;
+    font-weight: 780;
     line-height: 1;
     letter-spacing: .04em;
 }
@@ -273,7 +273,7 @@
         text-transform: uppercase;
         letter-spacing: .16em;
         font-size: .78rem;
-        font-weight: 950;
+        font-weight: 780;
         line-height: 1;
     }
 
@@ -350,7 +350,7 @@
     background: rgba(255, 255, 255, .94);
     border: 1px solid rgba(255, 255, 255, .52);
     font-size: .86rem;
-    font-weight: 950;
+    font-weight: 780;
     box-shadow: 0 5px 14px rgba(0, 0, 0, .18);
 }
 
