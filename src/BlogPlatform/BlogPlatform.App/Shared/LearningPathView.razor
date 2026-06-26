@@ -1,34 +1,40 @@
 <section class="learning-path-shell">
-    <div class="learning-path-journey">
-        @foreach (var level in Levels)
+    <div class="learning-path-journey" aria-label="Zone55 learning roadmap">
+        @foreach (var item in OrderedLevels.Select((level, index) => new { Level = level, Index = index }))
         {
-            <div class="learning-path-zone-header @level.AccentClass">
-                <span>Zone @level.Number.ToString("00")</span>
-                <h4>@level.Title</h4>
-            </div>
-        }
+            <article class="learning-path-zone-card @GetZoneVisualClass(item.Level)">
+                <header class="learning-path-zone-card-header">
+                    <div class="learning-path-zone-icon" aria-hidden="true">@GetZoneIcon(item.Level)</div>
+                    <div>
+                        <span>Zone @item.Level.Number.ToString("00")</span>
+                        <h2>@item.Level.Title</h2>
+                    </div>
+                </header>
 
-        @foreach (var level in Levels)
-        {
-            <div class="learning-path-zone-steps">
-                @foreach (var step in level.Steps)
+                <div class="learning-path-zone-steps" aria-label="@item.Level.Title steps">
+                    @foreach (var step in item.Level.Steps.OrderBy(step => step.StepOrder))
+                    {
+                        <a class="@GetStepCssClass(item.Level)" href="@GetStepUrl(item.Level, step)">
+                            <span>@step.StepOrder</span>
+                            <strong>@step.Title</strong>
+
+                            @if (DisplayStepArticleCounts)
+                            {
+                                <small>
+                                    @(step.Posts.Count == 0
+                                        ? "No articles yet"
+                                        : $"{step.Posts.Count} article(s)")
+                                </small>
+                            }
+                        </a>
+                    }
+                </div>
+
+                @if (item.Index < OrderedLevels.Count - 1)
                 {
-                    <a class="@GetStepCssClass()" href="@GetStepUrl(level, step)">
-                        <span>@step.StepOrder</span>
-
-                        <strong>@step.Title</strong>
-
-                        @if (DisplayStepArticleCounts)
-                        {
-                            <small>
-                                @(step.Posts.Count == 0
-                                    ? "No articles yet"
-                                    : $"{step.Posts.Count} article(s)")
-                            </small>
-                        }
-                    </a>
+                    <div class="learning-path-zone-arrow" aria-hidden="true">›</div>
                 }
-            </div>
+            </article>
         }
     </div>
 
@@ -53,7 +59,7 @@
         </article>
 
         <article class="learning-path-info-card learning-path-passport-card">
-            <div class="learning-path-info-kicker">Engineering Passport</div>
+            <div class="learning-path-info-kicker learning-path-info-kicker-blue">Engineering Passport</div>
 
             <div class="learning-path-passport-main">
                 <div class="learning-path-avatar" aria-hidden="true">
@@ -100,11 +106,11 @@
         </article>
 
         <article class="learning-path-info-card learning-path-public-card">
-            <div class="learning-path-info-kicker">Zone55 in public</div>
+            <div class="learning-path-info-kicker learning-path-info-kicker-purple">Zone55 in public</div>
 
             <div class="learning-path-public-links">
                 <a href="https://github.com/michalantolik/zone55" target="_blank" rel="noreferrer">
-                    <span aria-hidden="true">●</span>
+                    <span aria-hidden="true">◖</span>
                     <strong>GitHub Repository</strong>
                     <small>github.com/michalantolik/zone55</small>
                     <em aria-hidden="true">›</em>
@@ -153,12 +159,37 @@
     [Parameter]
     public bool DisplayStepArticleCounts { get; set; } = true;
 
-    private string GetStepCssClass()
+    private IReadOnlyList<LearningPathLevel> OrderedLevels =>
+        Levels.OrderBy(level => level.Number).ToList();
+
+    private string GetStepCssClass(LearningPathLevel level)
     {
+        var classes = $"learning-path-zone-step {GetZoneVisualClass(level)}";
+
         return DisplayStepArticleCounts
-            ? "learning-path-zone-step"
-            : "learning-path-zone-step learning-path-zone-step-compact";
+            ? classes
+            : $"{classes} learning-path-zone-step-compact";
     }
+
+    private static string GetZoneVisualClass(LearningPathLevel level) =>
+        level.Number switch
+        {
+            1 => "learning-path-zone-foundation",
+            2 => "learning-path-zone-web",
+            3 => "learning-path-zone-architecture",
+            4 => "learning-path-zone-cloud",
+            _ => level.AccentClass
+        };
+
+    private static string GetZoneIcon(LearningPathLevel level) =>
+        level.Number switch
+        {
+            1 => "▰",
+            2 => "◎",
+            3 => "◫",
+            4 => "☁",
+            _ => "◆"
+        };
 
     private static string GetStepUrl(
         LearningPathLevel level,

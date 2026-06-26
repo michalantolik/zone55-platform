@@ -526,3 +526,81 @@
         transform: translateY(-4px) scale(1.025);
     }
 }
+
+/* Landing-page journey header refinement */
+.dotnet-platform-top-nav {
+    min-height: 118px;
+    padding: 24px 30px;
+    margin-bottom: 40px;
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(10, 23, 43, .86), rgba(14, 28, 52, .82));
+    border-color: rgba(117, 154, 197, .22);
+    box-shadow: 0 24px 72px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+.dotnet-platform-top-nav .brand-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 17px;
+    font-size: 1.34rem;
+    box-shadow: 0 16px 30px rgba(85, 182, 255, .16);
+}
+
+.dotnet-platform-top-nav .brand strong {
+    font-size: 1.16rem;
+}
+
+.dotnet-platform-top-nav .brand small {
+    font-size: .86rem;
+}
+
+.dotnet-zone-top-nav {
+    --zone-tab-width: clamp(150px, 10.4vw, 178px);
+    --zone-gap: clamp(42px, 4vw, 72px);
+    --journey-dot-size: 16px;
+}
+
+.dotnet-zone-tab {
+    min-height: 76px;
+    border-radius: 14px;
+}
+
+.dotnet-zone-tab strong {
+    font-size: clamp(1.02rem, .95vw, 1.18rem);
+}
+
+.dotnet-zone-tab.learning-path-accent-foundation {
+    background: linear-gradient(135deg, #4fceaa, #168977);
+}
+
+.dotnet-zone-tab.learning-path-accent-web {
+    background: linear-gradient(135deg, #69beff, #2468b8);
+}
+
+.dotnet-zone-tab.learning-path-accent-architecture {
+    background: linear-gradient(135deg, #8168ff, #4b2ac8);
+}
+
+.dotnet-zone-tab.learning-path-accent-cloud {
+    background: linear-gradient(135deg, #2b3446, #1b2230);
+    border-color: rgba(223, 163, 24, .22);
+}
+
+@media (max-height: 980px) and (min-width: 1500px) {
+    .dotnet-platform-top-nav {
+        min-height: 96px;
+        margin-bottom: 14px;
+        padding: 14px 26px;
+    }
+
+    .dotnet-platform-top-nav .brand-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .dotnet-zone-tab {
+        min-height: 64px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+}
