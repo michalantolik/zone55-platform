@@ -125,7 +125,7 @@
     margin-bottom: clamp(10px, .85vw, 16px);
 }
 
-.learning-path-zone-card-header > div {
+.learning-path-zone-card-header > div:not(.learning-path-zone-icon) {
     min-width: 0;
     min-height: clamp(96px, 6.7vw, 110px);
 }
@@ -138,6 +138,9 @@
     width: clamp(42px, 2.7vw, 50px);
     height: clamp(42px, 2.7vw, 50px);
     min-width: clamp(42px, 2.7vw, 50px);
+    min-height: clamp(42px, 2.7vw, 50px);
+    max-width: clamp(42px, 2.7vw, 50px);
+    max-height: clamp(42px, 2.7vw, 50px);
     aspect-ratio: 1 / 1;
     border-radius: 15px;
     color: #fff;
