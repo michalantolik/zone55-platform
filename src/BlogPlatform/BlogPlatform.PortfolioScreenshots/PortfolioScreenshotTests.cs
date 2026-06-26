@@ -251,18 +251,25 @@ public sealed class PortfolioScreenshotTests
             Viewport: new ScreenshotViewport(2048, 1040, 1.25f)),
 
         new(
-            DisplayName: "27 or 32 inch 4K at 150 percent scale",
-            PhysicalMonitor: "27_32_4K",
+            DisplayName: "4K UHD at 150 percent scale",
+            PhysicalMonitor: "4K_UHD",
             Resolution: "3840x2160",
             WindowsScalePercent: 150,
             Viewport: new ScreenshotViewport(2560, 1380, 1.5f)),
 
         new(
-            DisplayName: "27 or 32 inch 4K at 175 percent scale",
-            PhysicalMonitor: "27_32_4K",
+            DisplayName: "4K UHD at 175 percent scale",
+            PhysicalMonitor: "4K_UHD",
             Resolution: "3840x2160",
             WindowsScalePercent: 175,
             Viewport: new ScreenshotViewport(2194, 1180, 1.75f)),
+
+        new(
+            DisplayName: "13 inch MacBook Retina",
+            PhysicalMonitor: "13_MacBook_Retina",
+            Resolution: "2560x1664",
+            WindowsScalePercent: 200,
+            Viewport: new ScreenshotViewport(1280, 832, 2)),
 
         new(
             DisplayName: "14 inch business laptop at 125 percent scale",
@@ -279,8 +286,8 @@ public sealed class PortfolioScreenshotTests
             Viewport: new ScreenshotViewport(1536, 752, 1.25f)),
 
         new(
-            DisplayName: "Older laptop",
-            PhysicalMonitor: "Older_Laptop",
+            DisplayName: "Legacy 1366x768 laptop",
+            PhysicalMonitor: "Legacy_Laptop",
             Resolution: "1366x768",
             WindowsScalePercent: 100,
             Viewport: new ScreenshotViewport(1366, 650, 1))
