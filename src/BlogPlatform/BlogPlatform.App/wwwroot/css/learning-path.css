@@ -42,7 +42,6 @@
     --zone-soft: rgba(var(--zone-rgb), .14);
     position: relative;
     min-width: 0;
-    min-height: clamp(398px, 38.5vh, 452px);
     padding: clamp(18px, 1.12vw, 22px) clamp(20px, 1.35vw, 26px);
     border-radius: 26px;
     background:
@@ -602,9 +601,6 @@
         width: min(1800px, calc(100% - 80px));
     }
 
-    .learning-path-zone-card {
-        min-height: 470px;
-    }
 }
 
 @media (min-width: 2200px) {
@@ -613,9 +609,6 @@
         width: min(1920px, calc(100% - 112px));
     }
 
-    .learning-path-zone-card {
-        min-height: 500px;
-    }
 }
 
 @media (max-height: 980px) and (min-width: 1500px) {
@@ -641,7 +634,6 @@
     }
 
     .learning-path-zone-card {
-        min-height: 408px;
         padding: 18px 22px;
         border-radius: 24px;
     }
