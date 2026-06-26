@@ -232,22 +232,25 @@
     --connector-from-rgb: var(--zone-rgb);
     --connector-to-rgb: var(--zone-rgb);
     --connector-arrow-rgb: var(--connector-to-rgb);
+    --connector-height: clamp(104px, 8.8vw, 138px);
+    --connector-top: clamp(70px, 5.35vw, 90px);
     position: absolute;
     z-index: 4;
-    top: clamp(70px, 5.35vw, 90px);
+    top: 0;
     left: calc(100% - 1px);
     width: calc(var(--zone-gap) + 2px);
-    height: clamp(104px, 8.8vw, 138px);
+    height: 100%;
     pointer-events: none;
     overflow: visible;
 }
 
 .learning-path-zone-connector-svg {
     position: absolute;
-    inset: 0;
+    top: var(--connector-top);
+    left: 0;
     display: block;
     width: 100%;
-    height: 100%;
+    height: var(--connector-height);
     overflow: visible;
 }
 
