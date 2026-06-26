@@ -133,14 +133,18 @@
 .learning-path-zone-icon {
     display: grid;
     place-items: center;
-    width: clamp(46px, 3.15vw, 56px);
-    height: clamp(46px, 3.15vw, 56px);
-    border-radius: 18px;
+    inline-size: clamp(42px, 2.7vw, 50px);
+    block-size: clamp(42px, 2.7vw, 50px);
+    width: clamp(42px, 2.7vw, 50px);
+    height: clamp(42px, 2.7vw, 50px);
+    min-width: clamp(42px, 2.7vw, 50px);
+    aspect-ratio: 1 / 1;
+    border-radius: 15px;
     color: #fff;
     background: radial-gradient(circle at 34% 26%, rgba(255,255,255,.28), transparent 34%), linear-gradient(145deg, var(--zone-main), var(--zone-main-2));
     border: 1px solid rgba(255,255,255,.18);
     box-shadow: 0 16px 30px rgba(var(--zone-rgb), .14), inset 0 1px 0 rgba(255, 255, 255, .16);
-    font-size: clamp(1.22rem, 1.35vw, 1.52rem);
+    font-size: clamp(1.05rem, 1.1vw, 1.28rem);
     font-weight: 680;
 }
 
@@ -649,9 +653,13 @@
     }
 
     .learning-path-zone-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 17px;
+        inline-size: 46px;
+        block-size: 46px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        aspect-ratio: 1 / 1;
+        border-radius: 14px;
     }
 
     .learning-path-zone-steps {
