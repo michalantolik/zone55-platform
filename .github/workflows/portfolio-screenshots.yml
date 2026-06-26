@@ -57,7 +57,30 @@ jobs:
       - name: Capture screenshots
         env:
           APP_URL: ${{ github.event.inputs.app_url || 'https://zone55.dev' }}
-        run: dotnet test ${{ env.SCREENSHOT_PROJECT }} --configuration ${{ env.CONFIGURATION }} --no-build --logger trx
+        shell: bash
+        run: |
+          set +e
+
+          dotnet test \
+            "${SCREENSHOT_PROJECT}" \
+            --configuration "${CONFIGURATION}" \
+            --no-build \
+            --logger trx
+
+          test_exit_code=$?
+
+          if [ "$test_exit_code" -ne 0 ]; then
+            echo "::warning::Portfolio screenshot tests failed with exit code ${test_exit_code}, but this workflow treats screenshots as a non-blocking portfolio artifact step."
+            {
+              echo "## Portfolio screenshots"
+              echo ""
+              echo "Screenshot capture tests failed, but the workflow step was kept successful on purpose."
+              echo ""
+              echo "Exit code: ${test_exit_code}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          exit 0
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
