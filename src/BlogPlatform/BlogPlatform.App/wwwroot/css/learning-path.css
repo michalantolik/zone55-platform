@@ -66,7 +66,7 @@
 .learning-path-zone-card::after {
     content: "";
     position: absolute;
-    top: 112px;
+    top: 96px;
     right: -18px;
     width: 38px;
     height: 56px;
@@ -121,13 +121,13 @@
     grid-template-columns: auto minmax(0, 1fr);
     gap: clamp(12px, .82vw, 16px);
     align-items: start;
-    min-height: clamp(104px, 7.2vw, 118px);
-    margin-bottom: clamp(10px, .85vw, 16px);
+    min-height: clamp(82px, 5.7vw, 96px);
+    margin-bottom: clamp(4px, .45vw, 8px);
 }
 
 .learning-path-zone-card-header > div:not(.learning-path-zone-icon) {
     min-width: 0;
-    min-height: clamp(96px, 6.7vw, 110px);
+    min-height: clamp(78px, 5.25vw, 90px);
 }
 
 .learning-path-zone-icon {
@@ -177,7 +177,7 @@
     display: block;
     width: 34px;
     height: 2px;
-    margin-top: 11px;
+    margin-top: 8px;
     border-radius: 999px;
     background: var(--zone-main);
     box-shadow: 0 0 18px rgba(var(--zone-rgb), .5);
@@ -647,12 +647,12 @@
     }
 
     .learning-path-zone-card-header {
-        min-height: 100px;
-        margin-bottom: 8px;
+        min-height: 80px;
+        margin-bottom: 4px;
     }
 
     .learning-path-zone-card-header > div {
-        min-height: 94px;
+        min-height: 76px;
     }
 
     .learning-path-zone-icon {
