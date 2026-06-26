@@ -32,7 +32,12 @@
 
                 @if (item.Index < OrderedLevels.Count - 1)
                 {
-                    <div class="learning-path-zone-arrow" aria-hidden="true">›</div>
+                    var nextLevel = OrderedLevels[item.Index + 1];
+
+                    <div class="learning-path-zone-connector @GetZoneConnectorClass(item.Level, nextLevel)" aria-hidden="true">
+                        <span class="learning-path-zone-connector-line"></span>
+                        <span class="learning-path-zone-arrow">›</span>
+                    </div>
                 }
             </article>
         }
@@ -180,6 +185,11 @@
             4 => "learning-path-zone-cloud",
             _ => level.AccentClass
         };
+
+    private static string GetZoneConnectorClass(
+        LearningPathLevel currentLevel,
+        LearningPathLevel nextLevel) =>
+        $"learning-path-zone-connector-{currentLevel.Number}-to-{nextLevel.Number}";
 
     private static string GetZoneIcon(LearningPathLevel level) =>
         level.Number switch
