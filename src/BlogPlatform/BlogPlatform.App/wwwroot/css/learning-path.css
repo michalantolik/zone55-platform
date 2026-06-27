@@ -232,13 +232,13 @@
     --connector-from-rgb: var(--zone-rgb);
     --connector-to-rgb: var(--zone-rgb);
     --connector-arrow-rgb: var(--connector-to-rgb);
-    --connector-height: clamp(104px, 8.8vw, 138px);
-    --connector-top: clamp(70px, 5.35vw, 90px);
+    --connector-height: clamp(104px, 7.9vw, 128px);
+    --connector-top: clamp(58px, 4.9vw, 74px);
     position: absolute;
     z-index: 4;
     top: 0;
-    left: calc(100% - 1px);
-    width: calc(var(--zone-gap) + 2px);
+    left: calc(100% - .5px);
+    width: var(--zone-gap);
     height: 100%;
     pointer-events: none;
     overflow: visible;
@@ -247,19 +247,19 @@
 .learning-path-zone-connector::before {
     content: "";
     position: absolute;
-    top: calc(var(--connector-top) + clamp(52px, 4.4vw, 69px));
-    left: 44%;
-    width: clamp(26px, 1.85vw, 34px);
-    height: clamp(52px, 4.3vw, 70px);
+    top: calc(var(--connector-top) + clamp(56px, 4.3vw, 66px));
+    left: 50%;
+    width: clamp(46px, 3.6vw, 64px);
+    height: clamp(14px, 1.1vw, 20px);
     border-radius: 999px;
     background:
         radial-gradient(ellipse at center,
-            rgba(236, 250, 255, .30) 0%,
-            rgba(var(--connector-to-rgb), .26) 34%,
-            rgba(var(--connector-to-rgb), .10) 58%,
-            transparent 76%);
-    filter: blur(8px);
-    transform: translate(-50%, -50%) rotate(-10deg);
+            rgba(236, 250, 255, .24) 0%,
+            rgba(var(--connector-to-rgb), .24) 34%,
+            rgba(var(--connector-to-rgb), .10) 60%,
+            transparent 80%);
+    filter: blur(5px);
+    transform: translate(-50%, -50%);
 }
 
 .learning-path-zone-connector-svg {
@@ -272,6 +272,7 @@
     overflow: visible;
 }
 
+.learning-path-zone-connector-cut,
 .learning-path-zone-connector-aura,
 .learning-path-zone-connector-glow,
 .learning-path-zone-connector-path,
@@ -283,50 +284,57 @@
     vector-effect: non-scaling-stroke;
 }
 
+.learning-path-zone-connector-cut {
+    stroke: rgba(5, 12, 24, .72);
+    stroke-width: 2.8;
+    opacity: .58;
+    filter: blur(.12px);
+}
+
 .learning-path-zone-connector-aura {
     stroke: rgb(var(--connector-to-rgb));
-    stroke-width: 26;
-    opacity: .08;
+    stroke-width: 4.4;
+    opacity: .06;
     filter:
-        drop-shadow(0 0 18px rgba(var(--connector-from-rgb), .34))
-        drop-shadow(0 0 30px rgba(var(--connector-to-rgb), .30));
+        drop-shadow(0 0 7px rgba(var(--connector-from-rgb), .16))
+        drop-shadow(0 0 12px rgba(var(--connector-to-rgb), .16));
 }
 
 .learning-path-zone-connector-glow {
     stroke: rgb(var(--connector-to-rgb));
-    stroke-width: 15;
-    opacity: .18;
+    stroke-width: 2.35;
+    opacity: .16;
     filter:
-        drop-shadow(0 0 10px rgba(var(--connector-from-rgb), .40))
-        drop-shadow(0 0 18px rgba(var(--connector-to-rgb), .44));
+        drop-shadow(0 0 5px rgba(var(--connector-from-rgb), .24))
+        drop-shadow(0 0 9px rgba(var(--connector-to-rgb), .24));
 }
 
 .learning-path-zone-connector-path {
-    stroke-width: 5.5;
-    opacity: .94;
+    stroke-width: 1.18;
+    opacity: .88;
     filter:
-        drop-shadow(0 0 6px rgba(var(--connector-from-rgb), .56))
-        drop-shadow(0 0 12px rgba(var(--connector-to-rgb), .52));
+        drop-shadow(0 0 2px rgba(var(--connector-from-rgb), .30))
+        drop-shadow(0 0 6px rgba(var(--connector-to-rgb), .28));
 }
 
 .learning-path-zone-connector-core {
-    stroke: rgba(231, 250, 255, .58);
-    stroke-width: 1.4;
-    stroke-dasharray: 34 66;
-    stroke-dashoffset: -12;
-    opacity: .54;
-    filter: drop-shadow(0 0 7px rgba(231, 250, 255, .34));
+    stroke: rgba(231, 250, 255, .44);
+    stroke-width: .42;
+    stroke-dasharray: 16 84;
+    stroke-dashoffset: -39;
+    opacity: .34;
+    filter: drop-shadow(0 0 4px rgba(231, 250, 255, .26));
 }
 
 .learning-path-zone-connector-bright {
-    stroke: rgba(238, 252, 255, .94);
-    stroke-width: 3.1;
-    stroke-dasharray: 19 81;
-    stroke-dashoffset: -48;
-    opacity: .86;
+    stroke: rgba(238, 252, 255, .68);
+    stroke-width: .46;
+    stroke-dasharray: 10 90;
+    stroke-dashoffset: -45;
+    opacity: .34;
     filter:
-        drop-shadow(0 0 8px rgba(var(--connector-to-rgb), .94))
-        drop-shadow(0 0 15px rgba(238, 252, 255, .48));
+        drop-shadow(0 0 4px rgba(var(--connector-to-rgb), .42))
+        drop-shadow(0 0 7px rgba(238, 252, 255, .22));
 }
 
 .learning-path-zone-arrow {
