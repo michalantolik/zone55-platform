@@ -220,7 +220,7 @@
 
 .learning-path-zone-step small {
     color: rgba(201, 216, 239, .70);
-    font-size: .72rem;
+    font-size: .68rem;
     font-weight: 700;
 }
 
@@ -383,15 +383,15 @@
 .learning-path-page-story {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.05fr);
-    gap: clamp(18px, 1.45vw, 24px);
-    margin-top: clamp(18px, 1.55vw, 26px);
+    gap: clamp(16px, 1.25vw, 22px);
+    margin-top: clamp(14px, 1.2vw, 20px);
 }
 
 .learning-path-info-card {
     position: relative;
     overflow: hidden;
-    min-height: clamp(230px, 22.6vh, 282px);
-    padding: clamp(22px, 1.65vw, 30px);
+    min-height: clamp(208px, 20vh, 250px);
+    padding: clamp(19px, 1.35vw, 24px);
     border-radius: 24px;
     color: #edf5ff;
     background: linear-gradient(145deg, rgba(21, 36, 58, .86), rgba(8, 20, 36, .90));
@@ -426,8 +426,8 @@
 .learning-path-info-kicker {
     color: #6ee7c8;
     text-transform: uppercase;
-    letter-spacing: .18em;
-    font-size: .75rem;
+    letter-spacing: .16em;
+    font-size: .72rem;
     font-weight: 900;
 }
 
@@ -435,10 +435,10 @@
 .learning-path-info-kicker-purple { color: #b181ff; }
 
 .learning-path-quote-mark {
-    height: 30px;
-    margin: 18px 0 4px;
+    height: 24px;
+    margin: 12px 0 2px;
     color: rgba(172, 197, 226, .26);
-    font-size: 4rem;
+    font-size: 3.55rem;
     line-height: .55;
     font-weight: 900;
 }
@@ -446,16 +446,16 @@
 .learning-path-why-card p {
     margin: 0;
     color: rgba(190, 207, 232, .86);
-    font-size: clamp(.86rem, .86vw, .96rem);
-    line-height: 1.55;
+    font-size: clamp(.82rem, .78vw, .91rem);
+    line-height: 1.48;
 }
 
 .learning-path-why-card strong {
     display: block;
-    margin-top: 16px;
+    margin-top: 12px;
     color: #fff;
-    font-size: clamp(.98rem, .98vw, 1.12rem);
-    line-height: 1.44;
+    font-size: clamp(.92rem, .9vw, 1.04rem);
+    line-height: 1.36;
     font-weight: 790;
 }
 
@@ -464,15 +464,15 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 40px;
-    margin-top: 20px;
-    padding: 9px 16px;
+    min-height: 36px;
+    margin-top: 16px;
+    padding: 7px 14px;
     border-radius: 12px;
     color: #5effc8;
     background: rgba(51, 226, 188, .06);
     border: 1px solid rgba(51, 226, 188, .38);
-    font-size: .86rem;
-    font-weight: 800;
+    font-size: .81rem;
+    font-weight: 780;
     transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
 
@@ -498,9 +498,9 @@
 
 .learning-path-passport-main {
     display: flex;
-    gap: 22px;
+    gap: 18px;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .learning-path-avatar {
@@ -508,23 +508,23 @@
     flex: 0 0 auto;
     display: grid;
     place-items: center;
-    width: 78px;
-    height: 78px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     color: #ffffff;
     background: radial-gradient(circle at 35% 26%, rgba(255,255,255,.22), transparent 30%), linear-gradient(135deg, #2b1f75, #7966e8 58%, #253b72);
     border: 1px solid rgba(167, 181, 255, .65);
     box-shadow: 0 18px 34px rgba(49, 46, 129, .24);
-    font-size: 1.8rem;
+    font-size: 1.55rem;
     font-weight: 850;
 }
 
 .learning-path-avatar i {
     position: absolute;
-    right: 4px;
-    bottom: 9px;
-    width: 14px;
-    height: 14px;
+    right: 3px;
+    bottom: 7px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: #61d394;
     border: 2px solid #122033;
@@ -533,40 +533,40 @@
 .learning-path-passport-copy h3 {
     margin: 0;
     color: #fff;
-    font-size: clamp(1.28rem, 1.18vw, 1.55rem);
+    font-size: clamp(1.18rem, 1.05vw, 1.38rem);
     line-height: 1.08;
 }
 
 .learning-path-passport-copy p {
     margin: 4px 0 0;
     color: rgba(190, 207, 232, .86);
-    font-size: .92rem;
+    font-size: .84rem;
 }
 
 .learning-path-skill-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 6px;
+    margin-top: 9px;
 }
 
 .learning-path-skill-tags span {
     display: inline-flex;
     align-items: center;
-    min-height: 26px;
-    padding: 5px 12px;
+    min-height: 23px;
+    padding: 4px 10px;
     border-radius: 999px;
     color: rgba(229, 239, 253, .88);
     background: rgba(255, 255, 255, .055);
     border: 1px solid rgba(117, 154, 197, .14);
-    font-size: .75rem;
-    font-weight: 760;
+    font-size: .70rem;
+    font-weight: 740;
 }
 
 .learning-path-passport-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(max-content, 1fr));
-    margin-top: 16px;
+    margin-top: 12px;
     overflow: hidden;
     border-radius: 14px;
     border: 1px solid rgba(117, 154, 197, .13);
@@ -576,8 +576,8 @@
 .learning-path-passport-stats span {
     display: grid;
     gap: 3px;
-    min-height: 54px;
-    padding: 11px 16px;
+    min-height: 44px;
+    padding: 8px 13px;
     background: rgba(85, 182, 255, .028);
 }
 
@@ -588,16 +588,16 @@
 
 .learning-path-passport-stats strong {
     color: #fff;
-    font-size: .82rem;
-    line-height: 1.15;
+    font-size: .76rem;
+    line-height: 1.12;
     white-space: nowrap;
 }
 
 .learning-path-passport-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
+    gap: 10px;
+    margin-top: 12px;
 }
 
 .learning-path-passport-actions .learning-path-card-action {
@@ -606,17 +606,17 @@
 
 .learning-path-public-links {
     display: grid;
-    margin-top: 18px;
+    margin-top: 13px;
 }
 
 .learning-path-public-links a {
     position: relative;
     display: grid;
-    grid-template-columns: 38px minmax(0, 1fr) 18px;
-    column-gap: 14px;
+    grid-template-columns: 32px minmax(0, 1fr) 16px;
+    column-gap: 12px;
     align-items: center;
-    min-height: 56px;
-    padding: 8px 0;
+    min-height: 46px;
+    padding: 5px 0;
     border-bottom: 1px solid rgba(117, 154, 197, .13);
     transition: transform .18s ease, color .18s ease;
 }
@@ -633,27 +633,27 @@
     grid-row: span 2;
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
     color: rgba(230, 246, 255, .90);
     background: rgba(85, 182, 255, .08);
     border: 1px solid rgba(85, 182, 255, .14);
-    font-size: .84rem;
-    font-weight: 850;
+    font-size: .74rem;
+    font-weight: 820;
 }
 
 .learning-path-public-links strong {
     color: rgba(235, 244, 255, .92);
-    font-size: .78rem;
-    line-height: 1.15;
+    font-size: .76rem;
+    line-height: 1.12;
     white-space: nowrap;
     font-weight: 780;
 }
 
 .learning-path-public-links small {
     color: rgba(171, 192, 220, .78);
-    font-size: .78rem;
+    font-size: .72rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -664,7 +664,7 @@
     grid-row: 1 / span 2;
     color: rgba(190, 207, 232, .68);
     font-style: normal;
-    font-size: 1.65rem;
+    font-size: 1.42rem;
 }
 
 .learning-path-footer {
@@ -672,13 +672,13 @@
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     gap: 16px;
     align-items: center;
-    margin-top: clamp(14px, 1.1vw, 20px);
-    padding: 16px 26px;
-    border-radius: 18px;
+    margin-top: clamp(12px, .9vw, 16px);
+    padding: 10px 22px;
+    border-radius: 15px;
     color: rgba(190, 207, 232, .72);
     background: linear-gradient(135deg, rgba(21, 36, 58, .50), rgba(8, 20, 36, .44));
     border: 1px solid rgba(117, 154, 197, .11);
-    font-size: .86rem;
+    font-size: .78rem;
 }
 
 .learning-path-footer-heart {
@@ -689,12 +689,12 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 22px;
+    gap: 18px;
 }
 
 .learning-path-footer a {
     color: rgba(190, 207, 232, .80);
-    font-weight: 650;
+    font-weight: 560;
     transition: color .18s ease;
 }
 
@@ -780,8 +780,8 @@
     }
 
     .learning-path-info-card {
-        min-height: 218px;
-        padding: 18px 20px;
+        min-height: 202px;
+        padding: 16px 18px;
     }
 
     .learning-path-passport-main {
@@ -790,9 +790,9 @@
     }
 
     .learning-path-avatar {
-        width: 68px;
-        height: 68px;
-        font-size: 1.55rem;
+        width: 58px;
+        height: 58px;
+        font-size: 1.38rem;
     }
 
     .learning-path-skill-tags {
@@ -842,9 +842,9 @@
     }
 
     .learning-path-footer {
-        margin-top: 12px;
-        padding: 12px 22px;
-        font-size: .78rem;
+        margin-top: 10px;
+        padding: 8px 20px;
+        font-size: .74rem;
     }
 }
 
