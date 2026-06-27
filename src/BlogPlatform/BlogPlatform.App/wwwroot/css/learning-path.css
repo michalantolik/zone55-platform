@@ -237,7 +237,7 @@
     position: absolute;
     z-index: 4;
     top: 0;
-    left: calc(100% - .5px);
+    left: calc(100% + 1.0px);
     width: var(--zone-gap);
     height: 100%;
     pointer-events: none;
