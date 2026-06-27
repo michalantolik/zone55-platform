@@ -1642,22 +1642,6 @@
       ]
     },
     {
-      "name": "What are Cloud Deployment Models?",
-      "slug": "what-are-cloud-deployment-models",
-      "level": "Draft",
-      "focus": "Preview",
-      "summary": "**Cloud Deployment Models** describe where cloud resources are deployed.\n\nThe most common deployment models are:\n\n- **Private Cloud**\n- **Public Cloud**\n- **Hybrid Cloud**\n- **Multi-Cloud**\n\nEach model offers different levels of **control**, **flexibility**, and **management responsibility**.",
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "csharp-dotnet",
-      "order": 2,
-      "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
-      ],
-      "bodyBlocks": []
-    },
-    {
       "name": "What are Records in C#?",
       "slug": "what-are-records-in-csharp",
       "level": "Draft",
