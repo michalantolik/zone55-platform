@@ -91,11 +91,11 @@
     --zone-main: #55b6ff;
     --zone-main-2: #165cae;
     background:
-        radial-gradient(circle at 18% 12%, rgba(var(--zone-rgb), .24), transparent 34%),
-        radial-gradient(circle at 95% 0%, rgba(var(--zone-rgb), .13), transparent 35%),
-        linear-gradient(160deg, rgba(var(--zone-rgb), .17), rgba(11, 23, 42, .86) 48%, rgba(12, 20, 32, .95));
-    border: 1px solid rgba(var(--zone-rgb), .40);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .08);
+        radial-gradient(circle at 19% 13%, rgba(var(--zone-rgb), .34), transparent 28%),
+        radial-gradient(circle at 96% 0%, rgba(var(--zone-rgb), .18), transparent 32%),
+        linear-gradient(160deg, rgba(var(--zone-rgb), .19), rgba(11, 23, 42, .83) 45%, rgba(12, 20, 32, .93));
+    border: 1px solid rgba(var(--zone-rgb), .47);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .08);
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease;
 }
 
@@ -660,8 +660,12 @@
     min-height: 78px;
     padding: 16px 22px 17px;
     border-radius: 16px;
-    border: 1px solid rgba(var(--zone-rgb), .42);
-    box-shadow: 0 20px 38px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .08);
+    background:
+        radial-gradient(circle at 19% 13%, rgba(var(--zone-rgb), .34), transparent 28%),
+        radial-gradient(circle at 96% 0%, rgba(var(--zone-rgb), .18), transparent 32%),
+        linear-gradient(160deg, rgba(var(--zone-rgb), .19), rgba(11, 23, 42, .83) 45%, rgba(12, 20, 32, .93));
+    border: 1px solid rgba(var(--zone-rgb), .47);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .08);
 }
 
 .dotnet-zone-tab strong {
@@ -673,9 +677,9 @@
 }
 
 .dotnet-zone-tab::before {
-    inset: 1px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, .075), transparent 42%, rgba(255, 255, 255, .022));
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .075), transparent 34%, rgba(255, 255, 255, .025));
 }
 
 .dotnet-zone-tab.learning-path-accent-foundation {
@@ -706,20 +710,27 @@
     --zone-active-glow: rgba(223, 163, 24, .26);
 }
 
+.dotnet-zone-tab:hover {
+    border-color: rgba(var(--zone-rgb), .68);
+    box-shadow: 0 30px 62px rgba(0, 0, 0, .32), 0 0 34px rgba(var(--zone-rgb), .14), inset 0 1px 0 rgba(255, 255, 255, .12);
+    filter: brightness(1.05) saturate(1.06);
+}
+
 .dotnet-zone-tab.active {
     transform: none;
-    border-color: rgba(var(--zone-rgb), .64);
-    box-shadow: 0 22px 46px rgba(0, 0, 0, .34), 0 0 0 1px rgba(255,255,255,.06), 0 0 26px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .12);
-    filter: brightness(1.05) saturate(1.04);
+    border-color: rgba(var(--zone-rgb), .74);
+    box-shadow: 0 30px 66px rgba(0, 0, 0, .36), 0 0 0 1px rgba(var(--zone-rgb), .10), 0 0 34px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .14);
+    filter: brightness(1.07) saturate(1.08);
 }
 
 .dotnet-zone-tab.active::after {
-    left: 18px;
-    right: 18px;
-    top: 9px;
+    left: 22px;
+    right: auto;
+    top: 10px;
+    width: 42px;
     height: 3px;
-    background: rgba(255, 255, 255, .88);
-    box-shadow: 0 0 18px rgba(255, 255, 255, .58);
+    background: var(--zone-main);
+    box-shadow: 0 0 18px rgba(var(--zone-rgb), .70);
 }
 
 .dotnet-zone-tab.active:hover {
@@ -870,8 +881,9 @@
 
 .top-nav.dotnet-platform-top-nav .dotnet-zone-tab.active::after {
     left: 16px;
-    right: 16px;
+    right: auto;
     top: 8px;
+    width: 38px;
     height: 3px;
 }
 
