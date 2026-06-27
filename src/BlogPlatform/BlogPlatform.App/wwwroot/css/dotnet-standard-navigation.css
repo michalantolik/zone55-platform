@@ -751,7 +751,7 @@
 /* Stable landing-page journey header layout */
 .top-nav.dotnet-platform-top-nav {
     display: grid;
-    grid-template-columns: minmax(180px, 210px) minmax(0, 1fr);
+    grid-template-columns: minmax(250px, 330px) minmax(0, 1fr);
     align-items: center;
     gap: clamp(20px, 2vw, 32px);
     min-height: 112px;
@@ -764,7 +764,7 @@
     position: relative;
     z-index: 5;
     min-width: 0;
-    max-width: 210px;
+    max-width: 330px;
     gap: 16px;
     overflow: hidden;
 }
@@ -787,8 +787,8 @@
     font-size: 1.14rem;
     line-height: 1.05;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .top-nav.dotnet-platform-top-nav .brand small {
@@ -797,9 +797,9 @@
     margin-top: 5px;
     font-size: .82rem;
     line-height: 1.18;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav {
@@ -842,7 +842,7 @@
 .top-nav.dotnet-platform-top-nav .dotnet-zone-tab strong {
     font-size: clamp(.98rem, .88vw, 1.12rem);
     line-height: 1.06;
-    font-weight: 850;
+    font-weight: 600;
     letter-spacing: -.035em;
 }
 
@@ -897,7 +897,7 @@
 
 @media (max-width: 1320px) {
     .top-nav.dotnet-platform-top-nav {
-        grid-template-columns: minmax(170px, 190px) minmax(0, 1fr);
+        grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
         gap: 18px;
         padding-inline: 24px;
     }
