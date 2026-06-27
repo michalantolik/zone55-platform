@@ -529,78 +529,221 @@
 
 /* Landing-page journey header refinement */
 .dotnet-platform-top-nav {
-    min-height: 118px;
-    padding: 24px 30px;
+    grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(36px, 4.2vw, 86px);
+    min-height: 128px;
+    padding: 24px 34px;
     margin-bottom: 40px;
-    border-radius: 28px;
-    background: linear-gradient(145deg, rgba(10, 23, 43, .86), rgba(14, 28, 52, .82));
-    border-color: rgba(117, 154, 197, .22);
-    box-shadow: 0 24px 72px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255,255,255,.045);
+    border-radius: 30px;
+    background:
+        radial-gradient(circle at 12% 0%, rgba(74, 166, 255, .13), transparent 32%),
+        radial-gradient(circle at 85% 0%, rgba(124, 92, 255, .10), transparent 30%),
+        linear-gradient(145deg, rgba(6, 18, 37, .94), rgba(10, 24, 47, .88) 52%, rgba(6, 16, 31, .94));
+    border: 1px solid rgba(117, 154, 197, .28);
+    box-shadow: 0 28px 78px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter: blur(18px);
+}
+
+.dotnet-platform-top-nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 22px;
 }
 
 .dotnet-platform-top-nav .brand-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 17px;
-    font-size: 1.34rem;
-    box-shadow: 0 16px 30px rgba(85, 182, 255, .16);
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    font-size: 1.42rem;
+    background: linear-gradient(135deg, #93c5fd, #4f9fff 58%, #6aa7ff);
+    box-shadow: 0 18px 36px rgba(85, 182, 255, .20), inset 0 1px 0 rgba(255,255,255,.38);
 }
 
 .dotnet-platform-top-nav .brand strong {
-    font-size: 1.16rem;
+    font-size: 1.28rem;
+    line-height: 1.05;
+    letter-spacing: -.025em;
 }
 
 .dotnet-platform-top-nav .brand small {
-    font-size: .86rem;
+    margin-top: 6px;
+    font-size: .93rem;
+    line-height: 1.2;
+    color: rgba(205, 218, 239, .82);
 }
 
 .dotnet-zone-top-nav {
-    --zone-tab-width: clamp(150px, 10.4vw, 178px);
-    --zone-gap: clamp(42px, 4vw, 72px);
-    --journey-dot-size: 16px;
+    --zone-tab-width: clamp(164px, 11vw, 190px);
+    --zone-gap: clamp(54px, 5vw, 92px);
+    --journey-dot-size: 22px;
+    --journey-line: rgba(117, 190, 255, .55);
+    --journey-glow: rgba(74, 166, 255, .34);
+    align-items: center;
+    justify-content: end;
 }
 
+.dotnet-zone-top-nav::before {
+    left: calc(var(--zone-tab-width) + 8px);
+    right: calc(var(--zone-tab-width) + 8px);
+    height: 3px;
+    background: linear-gradient(90deg,
+        rgba(51, 226, 188, .70) 0%,
+        rgba(85, 182, 255, .82) 38%,
+        rgba(139, 92, 246, .82) 70%,
+        rgba(218, 168, 52, .58) 100%);
+    box-shadow: 0 0 22px rgba(85, 182, 255, .32), 0 0 36px rgba(139, 92, 246, .18);
+    z-index: 0;
+}
+
+.dotnet-zone-tab-shell {
+    z-index: 2;
+}
+
+.dotnet-zone-connector {
+    --connector-rgb: 85, 182, 255;
+    left: calc(100% + (var(--zone-gap) / 2) - (var(--journey-dot-size) / 2));
+    width: var(--journey-dot-size);
+    height: var(--journey-dot-size);
+    background: radial-gradient(circle, rgba(255,255,255,.95) 0 22%, rgba(var(--connector-rgb), .98) 24% 48%, rgba(var(--connector-rgb), .22) 50% 100%);
+    border: 3px solid rgba(8, 22, 42, .98);
+    box-shadow: 0 0 0 6px rgba(var(--connector-rgb), .10), 0 0 24px rgba(var(--connector-rgb), .56);
+}
+
+.dotnet-zone-connector::before {
+    content: "";
+    position: absolute;
+    left: calc(50% + 20px);
+    top: 50%;
+    width: 28px;
+    height: 3px;
+    border-radius: 999px;
+    transform: translateY(-50%);
+    background: linear-gradient(90deg, rgba(var(--connector-rgb), .86), transparent);
+    box-shadow: 0 0 16px rgba(var(--connector-rgb), .32);
+}
+
+.dotnet-zone-connector::after {
+    content: "";
+    position: absolute;
+    left: calc(50% + 45px);
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    transform: translateY(-50%) rotate(45deg);
+    background: rgba(var(--connector-rgb), .90);
+    box-shadow: 0 0 16px rgba(var(--connector-rgb), .45);
+    clip-path: polygon(100% 50%, 0 0, 32% 50%, 0 100%);
+}
+
+.dotnet-zone-connector-1 { --connector-rgb: 77, 218, 194; }
+.dotnet-zone-connector-2 { --connector-rgb: 94, 174, 255; }
+.dotnet-zone-connector-3 { --connector-rgb: 145, 104, 255; }
+
 .dotnet-zone-tab {
-    min-height: 76px;
-    border-radius: 14px;
+    min-height: 78px;
+    padding: 16px 22px 17px;
+    border-radius: 16px;
+    border: 1px solid rgba(180, 219, 255, .34);
+    box-shadow: 0 20px 38px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(255, 255, 255, .14);
 }
 
 .dotnet-zone-tab strong {
-    font-size: clamp(1.02rem, .95vw, 1.18rem);
+    font-size: clamp(1.08rem, 1.03vw, 1.28rem);
+    line-height: 1.04;
+    font-weight: 850;
+    letter-spacing: -.035em;
+    text-shadow: 0 1px 14px rgba(0, 0, 0, .24);
+}
+
+.dotnet-zone-tab::before {
+    inset: 1px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .18), transparent 54%);
 }
 
 .dotnet-zone-tab.learning-path-accent-foundation {
-    background: linear-gradient(135deg, #4fceaa, #168977);
+    --zone-active-glow: rgba(51, 226, 188, .46);
+    background: linear-gradient(135deg, #69dbbd, #1b9a82 64%, #11695f);
 }
 
 .dotnet-zone-tab.learning-path-accent-web {
-    background: linear-gradient(135deg, #69beff, #2468b8);
+    --zone-active-glow: rgba(85, 182, 255, .48);
+    background: linear-gradient(135deg, #78c5ff, #2d7dd2 58%, #1d579b);
 }
 
 .dotnet-zone-tab.learning-path-accent-architecture {
-    background: linear-gradient(135deg, #8168ff, #4b2ac8);
+    --zone-active-glow: rgba(139, 92, 246, .55);
+    background: linear-gradient(135deg, #8b7aff, #6446df 58%, #4523bb);
 }
 
 .dotnet-zone-tab.learning-path-accent-cloud {
-    background: linear-gradient(135deg, #2b3446, #1b2230);
-    border-color: rgba(223, 163, 24, .22);
+    --zone-active-glow: rgba(218, 168, 52, .36);
+    background: linear-gradient(135deg, rgba(63, 58, 48, .98), rgba(31, 35, 45, .98) 48%, rgba(17, 24, 39, .98));
+    border-color: rgba(218, 168, 52, .34);
+}
+
+.dotnet-zone-tab.active {
+    transform: none;
+    border-color: rgba(255, 255, 255, .60);
+    box-shadow: 0 22px 46px rgba(0, 0, 0, .34), 0 0 0 1px rgba(255,255,255,.08), 0 0 30px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .22);
+    filter: brightness(1.06) saturate(1.06);
+}
+
+.dotnet-zone-tab.active::after {
+    left: 18px;
+    right: 18px;
+    top: 9px;
+    height: 3px;
+    background: rgba(255, 255, 255, .88);
+    box-shadow: 0 0 18px rgba(255, 255, 255, .58);
+}
+
+.dotnet-zone-tab.active:hover {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 1280px) {
+    .dotnet-platform-top-nav {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .dotnet-zone-top-nav {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 980px) {
+    .dotnet-zone-top-nav::before,
+    .dotnet-zone-connector,
+    .dotnet-zone-connector::before,
+    .dotnet-zone-connector::after {
+        display: none;
+    }
 }
 
 @media (max-height: 980px) and (min-width: 1500px) {
     .dotnet-platform-top-nav {
-        min-height: 96px;
-        margin-bottom: 14px;
-        padding: 14px 26px;
+        min-height: 112px;
+        margin-bottom: 20px;
+        padding: 18px 34px;
     }
 
     .dotnet-platform-top-nav .brand-icon {
-        width: 50px;
-        height: 50px;
+        width: 56px;
+        height: 56px;
+    }
+
+    .dotnet-zone-top-nav {
+        --zone-tab-width: clamp(156px, 10.2vw, 178px);
+        --zone-gap: clamp(44px, 4.3vw, 74px);
+        --journey-dot-size: 20px;
     }
 
     .dotnet-zone-tab {
-        min-height: 64px;
-        padding-top: 12px;
-        padding-bottom: 12px;
+        min-height: 68px;
+        padding: 13px 20px 14px;
     }
 }
