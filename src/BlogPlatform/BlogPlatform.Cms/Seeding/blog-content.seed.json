@@ -45,7 +45,7 @@
     },
     {
       "key": "web-app-development",
-      "name": "Web \u0026 Applications",
+      "name": "Web \u0026 Apps",
       "order": 2,
       "steps": [
         {
@@ -1656,6 +1656,81 @@
         "Azure"
       ],
       "bodyBlocks": []
+    },
+    {
+      "name": "What are Records in C#?",
+      "slug": "what-are-records-in-csharp",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Records** are a reference type introduced in **C# 9** that simplify the creation of immutable data models.\n\nUnlike regular classes, records provide **value-based equality** by default. Two record instances are considered equal when all of their properties have the same values.\n\nRecords are commonly used for:\n\n- DTOs (Data Transfer Objects)\n- Request and response models\n- Configuration objects\n- Domain value objects\n\nRecords also support the \u0060with\u0060 expression, making it easy to create modified copies while preserving immutability.\n\nWhen objects primarily represent **data rather than behavior**, records are often a better choice than classes.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "modern-csharp-dotnet",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Records in C#",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Example.cs",
+          "codeTitle": "Records in C#",
+          "showCodeTitleBar": true,
+          "code": "public record Person(\n    string FirstName,\n    string LastName);\n\nvar person1 = new Person(\u0022John\u0022, \u0022Smith\u0022);\nvar person2 = new Person(\u0022John\u0022, \u0022Smith\u0022);\n\n// Value equality\nConsole.WriteLine(person1 == person2); // True\n\n// Create a modified copy\nvar person3 = person1 with\n{\n    LastName = \u0022Doe\u0022\n};\n\nConsole.WriteLine(person3);\n// Person { FirstName = John, LastName = Doe }",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What is the Difference Between a Record and a Class?",
+      "slug": "difference-between-record-and-class",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Both **records** and **classes** are **reference types**, but they are designed for different purposes.\n\nA **class** is typically used to model objects with **behavior**, **identity**, and **mutable state**.\n\nA **record** is designed to model **data**. It provides **value-based equality**, concise syntax, and is commonly used with immutable objects.\n\nUse a **class** when an object\u0027s identity matters (for example, services, entities, or domain models with behavior).\n\nUse a **record** when an object\u0027s values matter more than its identity (for example, DTOs, request/response models, configuration objects, and value objects).\n\n---\n\n**Key Takeaway**\n- **Class** \u2192 best for objects with behavior and identity.\n- **Record** \u2192 best for immutable data and value objects.\n- Records compare **values**, while classes compare **references** by default.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "modern-csharp-dotnet",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Difference Between a Record and a Class",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Example.cs",
+          "codeTitle": "Difference Between a Record and a Class",
+          "showCodeTitleBar": true,
+          "code": "public class UserClass\n{\n    public string Name { get; set; } = string.Empty;\n}\n\npublic record UserRecord(string Name);\n\nvar class1 = new UserClass { Name = \u0022John\u0022 };\nvar class2 = new UserClass { Name = \u0022John\u0022 };\n\nConsole.WriteLine(class1 == class2);\n// False (reference equality)\n\nvar record1 = new UserRecord(\u0022John\u0022);\nvar record2 = new UserRecord(\u0022John\u0022);\n\nConsole.WriteLine(record1 == record2);\n// True (value equality)",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "- **Class** \u2192 best for objects with behavior and identity.\n- **Record** \u2192 best for immutable data and value objects.\n- Records compare **values**, while classes compare **references** by default.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "What is ASP.NET Core?",
