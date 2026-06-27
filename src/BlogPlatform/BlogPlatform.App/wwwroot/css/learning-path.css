@@ -143,7 +143,7 @@
 .learning-path-zone-card-header h2 {
     margin: 0;
     color: #fff;
-    font-size: clamp(1.16rem, 1.22vw, 1.42rem);
+    font-size: clamp(1.05rem, 1.08vw, 1.28rem);
     line-height: 1.1;
     letter-spacing: -.035em;
     font-weight: 600;
