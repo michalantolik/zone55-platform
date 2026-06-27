@@ -87,8 +87,15 @@
     padding: 13px 17px 14px;
     border-radius: 14px;
     color: #ffffff;
-    border: 1px solid rgba(125, 211, 252, .26);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .10);
+    --zone-rgb: 74, 166, 255;
+    --zone-main: #55b6ff;
+    --zone-main-2: #165cae;
+    background:
+        radial-gradient(circle at 18% 12%, rgba(var(--zone-rgb), .24), transparent 34%),
+        radial-gradient(circle at 95% 0%, rgba(var(--zone-rgb), .13), transparent 35%),
+        linear-gradient(160deg, rgba(var(--zone-rgb), .17), rgba(11, 23, 42, .86) 48%, rgba(12, 20, 32, .95));
+    border: 1px solid rgba(var(--zone-rgb), .40);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .08);
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease;
 }
 
@@ -106,28 +113,36 @@
         position: absolute;
         inset: 1px;
         border-radius: 11px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, .10), transparent 58%);
+        background: linear-gradient(180deg, rgba(255, 255, 255, .075), transparent 42%, rgba(255, 255, 255, .022));
         pointer-events: none;
     }
 
     .dotnet-zone-tab.learning-path-accent-foundation {
-        --zone-active-glow: rgba(16, 185, 129, .44);
-        background: linear-gradient(135deg, #10b981, #0f8f7f);
+        --zone-rgb: 46, 211, 178;
+        --zone-main: #33e2bc;
+        --zone-main-2: #058777;
+        --zone-active-glow: rgba(46, 211, 178, .30);
     }
 
     .dotnet-zone-tab.learning-path-accent-web {
-        --zone-active-glow: rgba(14, 165, 233, .44);
-        background: linear-gradient(135deg, #0ea5e9, #087fa9);
+        --zone-rgb: 74, 166, 255;
+        --zone-main: #55b6ff;
+        --zone-main-2: #165cae;
+        --zone-active-glow: rgba(74, 166, 255, .30);
     }
 
     .dotnet-zone-tab.learning-path-accent-architecture {
-        --zone-active-glow: rgba(99, 102, 241, .52);
-        background: linear-gradient(135deg, #6366f1, #4338ca);
+        --zone-rgb: 134, 86, 255;
+        --zone-main: #9565ff;
+        --zone-main-2: #4720b4;
+        --zone-active-glow: rgba(134, 86, 255, .34);
     }
 
     .dotnet-zone-tab.learning-path-accent-cloud {
-        --zone-active-glow: rgba(125, 211, 252, .32);
-        background: linear-gradient(135deg, #263449, #111827);
+        --zone-rgb: 223, 163, 24;
+        --zone-main: #e9ac25;
+        --zone-main-2: #6f4b07;
+        --zone-active-glow: rgba(223, 163, 24, .26);
     }
 
     .dotnet-zone-tab:hover {
@@ -645,8 +660,8 @@
     min-height: 78px;
     padding: 16px 22px 17px;
     border-radius: 16px;
-    border: 1px solid rgba(180, 219, 255, .34);
-    box-shadow: 0 20px 38px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(255, 255, 255, .14);
+    border: 1px solid rgba(var(--zone-rgb), .42);
+    box-shadow: 0 20px 38px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .08);
 }
 
 .dotnet-zone-tab strong {
@@ -660,35 +675,42 @@
 .dotnet-zone-tab::before {
     inset: 1px;
     border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, .18), transparent 54%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .075), transparent 42%, rgba(255, 255, 255, .022));
 }
 
 .dotnet-zone-tab.learning-path-accent-foundation {
-    --zone-active-glow: rgba(51, 226, 188, .46);
-    background: linear-gradient(135deg, #69dbbd, #1b9a82 64%, #11695f);
+    --zone-rgb: 46, 211, 178;
+    --zone-main: #33e2bc;
+    --zone-main-2: #058777;
+    --zone-active-glow: rgba(46, 211, 178, .30);
 }
 
 .dotnet-zone-tab.learning-path-accent-web {
-    --zone-active-glow: rgba(85, 182, 255, .48);
-    background: linear-gradient(135deg, #78c5ff, #2d7dd2 58%, #1d579b);
+    --zone-rgb: 74, 166, 255;
+    --zone-main: #55b6ff;
+    --zone-main-2: #165cae;
+    --zone-active-glow: rgba(74, 166, 255, .30);
 }
 
 .dotnet-zone-tab.learning-path-accent-architecture {
-    --zone-active-glow: rgba(139, 92, 246, .55);
-    background: linear-gradient(135deg, #8b7aff, #6446df 58%, #4523bb);
+    --zone-rgb: 134, 86, 255;
+    --zone-main: #9565ff;
+    --zone-main-2: #4720b4;
+    --zone-active-glow: rgba(134, 86, 255, .34);
 }
 
 .dotnet-zone-tab.learning-path-accent-cloud {
-    --zone-active-glow: rgba(218, 168, 52, .36);
-    background: linear-gradient(135deg, rgba(63, 58, 48, .98), rgba(31, 35, 45, .98) 48%, rgba(17, 24, 39, .98));
-    border-color: rgba(218, 168, 52, .34);
+    --zone-rgb: 223, 163, 24;
+    --zone-main: #e9ac25;
+    --zone-main-2: #6f4b07;
+    --zone-active-glow: rgba(223, 163, 24, .26);
 }
 
 .dotnet-zone-tab.active {
     transform: none;
-    border-color: rgba(255, 255, 255, .60);
-    box-shadow: 0 22px 46px rgba(0, 0, 0, .34), 0 0 0 1px rgba(255,255,255,.08), 0 0 30px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .22);
-    filter: brightness(1.06) saturate(1.06);
+    border-color: rgba(var(--zone-rgb), .64);
+    box-shadow: 0 22px 46px rgba(0, 0, 0, .34), 0 0 0 1px rgba(255,255,255,.06), 0 0 26px var(--zone-active-glow), inset 0 1px 0 rgba(255, 255, 255, .12);
+    filter: brightness(1.05) saturate(1.04);
 }
 
 .dotnet-zone-tab.active::after {
