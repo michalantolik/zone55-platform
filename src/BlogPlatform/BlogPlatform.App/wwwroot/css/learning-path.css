@@ -499,7 +499,7 @@
 .learning-path-passport-main {
     display: flex;
     gap: 10px;
-    align-items: center;
+    align-items: flex-start;
     margin-top: 16px;
     min-height: 74px;
 }
@@ -516,7 +516,7 @@
     background: radial-gradient(circle at 35% 28%, rgba(41, 58, 90, .9), rgba(10, 17, 31, .96) 70%);
     border: 1px solid rgba(255, 255, 255, .08);
     box-shadow: 0 14px 28px rgba(3, 8, 18, .26), 0 0 18px rgba(90, 150, 255, .10);
-    transform: translateY(-4px);
+    transform: translateY(-11px);
 }
 
 .learning-path-avatar img {
@@ -789,7 +789,7 @@
     .learning-path-avatar {
         width: 58px;
         height: 58px;
-        transform: translateY(-3px);
+        transform: translateY(-9px);
     }
 
     .learning-path-skill-tags {
