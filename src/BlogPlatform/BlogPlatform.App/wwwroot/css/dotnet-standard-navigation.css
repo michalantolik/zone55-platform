@@ -747,3 +747,207 @@
         padding: 13px 20px 14px;
     }
 }
+
+/* Stable landing-page journey header layout */
+.top-nav.dotnet-platform-top-nav {
+    display: grid;
+    grid-template-columns: minmax(180px, 210px) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(20px, 2vw, 32px);
+    min-height: 112px;
+    padding: 20px 28px;
+    margin-bottom: 32px;
+    overflow: hidden;
+}
+
+.top-nav.dotnet-platform-top-nav .brand {
+    position: relative;
+    z-index: 5;
+    min-width: 0;
+    max-width: 210px;
+    gap: 16px;
+    overflow: hidden;
+}
+
+.top-nav.dotnet-platform-top-nav .brand-icon {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 1.26rem;
+}
+
+.top-nav.dotnet-platform-top-nav .brand span:not(.brand-icon) {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.top-nav.dotnet-platform-top-nav .brand strong {
+    display: block;
+    font-size: 1.14rem;
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-nav.dotnet-platform-top-nav .brand small {
+    display: block;
+    max-width: 100%;
+    margin-top: 5px;
+    font-size: .82rem;
+    line-height: 1.18;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav {
+    --zone-tab-width: clamp(142px, 9.8vw, 166px);
+    --zone-gap: clamp(42px, 3.6vw, 62px);
+    --journey-dot-size: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, var(--zone-tab-width));
+    justify-content: end;
+    align-items: center;
+    column-gap: var(--zone-gap);
+    min-width: 0;
+    width: 100%;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav::before {
+    left: calc(var(--zone-tab-width) + 4px);
+    right: calc(var(--zone-tab-width) + 4px);
+    top: 50%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        rgba(80, 220, 195, .72),
+        rgba(100, 180, 255, .82) 42%,
+        rgba(145, 104, 255, .82) 72%,
+        rgba(214, 165, 54, .55));
+    box-shadow: 0 0 16px rgba(100, 180, 255, .32), 0 0 26px rgba(145, 104, 255, .14);
+    z-index: 0;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-tab-shell {
+    z-index: 2;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-tab {
+    min-height: 66px;
+    padding: 13px 18px 14px;
+    border-radius: 15px;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-tab strong {
+    font-size: clamp(.98rem, .88vw, 1.12rem);
+    line-height: 1.06;
+    font-weight: 850;
+    letter-spacing: -.035em;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-tab.active::after {
+    left: 16px;
+    right: 16px;
+    top: 8px;
+    height: 3px;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-connector {
+    left: calc(100% + (var(--zone-gap) / 2) - (var(--journey-dot-size) / 2));
+    width: var(--journey-dot-size);
+    height: var(--journey-dot-size);
+    background: rgba(9, 20, 38, .92);
+    border: 1px solid rgba(var(--connector-rgb), .72);
+    box-shadow:
+        0 0 0 4px rgba(var(--connector-rgb), .10),
+        0 0 18px rgba(var(--connector-rgb), .45),
+        inset 0 0 0 4px rgba(var(--connector-rgb), .28);
+    z-index: 3;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-connector::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    width: auto;
+    height: auto;
+    border-radius: 999px;
+    transform: none;
+    background: rgba(220, 244, 255, .96);
+    box-shadow: 0 0 12px rgba(var(--connector-rgb), .85);
+    clip-path: none;
+}
+
+.top-nav.dotnet-platform-top-nav .dotnet-zone-connector::after {
+    content: "";
+    position: absolute;
+    left: calc(50% + 24px);
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-top: 2px solid rgba(var(--connector-rgb), .88);
+    border-right: 2px solid rgba(var(--connector-rgb), .88);
+    border-radius: 1px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: transparent;
+    box-shadow: none;
+    clip-path: none;
+}
+
+@media (max-width: 1320px) {
+    .top-nav.dotnet-platform-top-nav {
+        grid-template-columns: minmax(170px, 190px) minmax(0, 1fr);
+        gap: 18px;
+        padding-inline: 24px;
+    }
+
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav {
+        --zone-tab-width: clamp(132px, 10.5vw, 150px);
+        --zone-gap: clamp(30px, 3vw, 44px);
+    }
+
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-tab {
+        min-height: 62px;
+        padding-inline: 15px;
+    }
+
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-tab strong {
+        font-size: .96rem;
+    }
+}
+
+@media (max-width: 1120px) {
+    .top-nav.dotnet-platform-top-nav {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        min-height: auto;
+        overflow: visible;
+    }
+
+    .top-nav.dotnet-platform-top-nav .brand {
+        max-width: none;
+    }
+
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav {
+        justify-content: center;
+        --zone-tab-width: minmax(0, 1fr);
+        --zone-gap: 14px;
+        grid-template-columns: repeat(4, minmax(120px, 1fr));
+        column-gap: var(--zone-gap);
+    }
+
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav::before,
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-connector,
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-connector::before,
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-connector::after {
+        display: none;
+    }
+}
+
+@media (max-width: 680px) {
+    .top-nav.dotnet-platform-top-nav .dotnet-zone-top-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 12px;
+    }
+}
