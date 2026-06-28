@@ -382,7 +382,7 @@
 
 .learning-path-page-story {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.05fr);
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.45fr) minmax(0, 1fr);
     gap: clamp(16px, 1.25vw, 22px);
     margin-top: clamp(14px, 1.2vw, 20px);
 }
@@ -500,8 +500,8 @@
     display: flex;
     gap: 10px;
     align-items: flex-start;
-    margin-top: 16px;
-    min-height: 74px;
+    margin-top: 12px;
+    min-height: 48px;
 }
 
 .learning-path-avatar {
@@ -542,27 +542,83 @@
 .learning-path-skill-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 9px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    margin-top: 2px;
 }
 
-.learning-path-skill-tags span {
+.learning-path-skill-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.learning-path-skill-tag {
     display: inline-flex;
     align-items: center;
-    min-height: 23px;
-    padding: 4px 10px;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 0;
+    width: auto;
+    gap: 6px;
+    min-height: 24px;
+    padding: 3px 12px;
     border-radius: 999px;
-    color: rgba(229, 239, 253, .88);
-    background: rgba(255, 255, 255, .055);
-    border: 1px solid rgba(117, 154, 197, .14);
-    font-size: .70rem;
-    font-weight: 740;
+    color: rgba(238, 245, 255, .92);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .045));
+    border: 1px solid rgba(117, 154, 197, .16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 8px 18px rgba(0, 0, 0, .14);
+    font-size: .75rem;
+    font-weight: 760;
+    line-height: 1;
+    white-space: nowrap;
 }
+
+.learning-path-skill-tag span {
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.learning-path-skill-icon {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+}
+
+.learning-path-skill-icon-brand path,
+.learning-path-skill-icon-brand rect,
+.learning-path-skill-icon-brand circle {
+    fill: currentColor;
+}
+
+.learning-path-skill-icon-lucide {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.learning-path-skill-tag-years { color: #fbbf24; }
+.learning-path-skill-tag-azure { color: #38bdf8; }
+.learning-path-skill-tag-terraform { color: #8b5cf6; }
+.learning-path-skill-tag-github-actions { color: #2f81f7; }
+.learning-path-skill-tag-dotnet { color: #8b5cf6; }
+.learning-path-skill-tag-csharp { color: #6ee7b7; }
+.learning-path-skill-tag-aspnet { color: #8ab4ff; }
+.learning-path-skill-tag-cloud { color: #7c83ff; }
+.learning-path-skill-tag-devops { color: #38bdf8; }
 
 .learning-path-passport-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(max-content, 1fr));
-    margin-top: 12px;
+    margin-top: 16px;
     overflow: hidden;
     border-radius: 14px;
     border: 1px solid rgba(117, 154, 197, .13);
@@ -781,9 +837,9 @@
     }
 
     .learning-path-passport-main {
-        margin-top: 14px;
+        margin-top: 12px;
         gap: 10px;
-        min-height: 66px;
+        min-height: 48px;
     }
 
     .learning-path-avatar {
@@ -794,17 +850,26 @@
 
     .learning-path-skill-tags {
         gap: 6px;
-        margin-top: 9px;
+        margin-top: 2px;
     }
 
-    .learning-path-skill-tags span {
+    .learning-path-skill-row {
+        gap: 7px;
+    }
+
+    .learning-path-skill-tag {
         min-height: 23px;
-        padding: 4px 10px;
-        font-size: .69rem;
+        padding: 3px 10px;
+        font-size: .71rem;
+    }
+
+    .learning-path-skill-icon {
+        width: 13px;
+        height: 13px;
     }
 
     .learning-path-passport-stats {
-        margin-top: 12px;
+        margin-top: 14px;
     }
 
     .learning-path-passport-stats span {
@@ -894,4 +959,27 @@
         text-align: left;
         justify-content: flex-start;
     }
+}
+
+@media (max-width: 760px) {
+    .learning-path-skill-tags {
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .learning-path-skill-row {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 7px;
+    }
+
+    .learning-path-skill-tag {
+        min-height: 23px;
+        padding: 3px 10px;
+        font-size: .71rem;
+    }
+}
+
+.learning-path-skill-tag > span {
+    color: rgba(238, 245, 255, .92);
 }
