@@ -1462,6 +1462,665 @@
       ]
     },
     {
+      "name": "What Is a Monolithic Application?",
+      "slug": "what-is-a-monolithic-application",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **monolithic application** is a software application where all functionality is built, deployed, and executed as a **single unit**.\n\nA typical monolithic application contains multiple modules (for example authentication, orders, products, and payments) that run within the **same application process** and are deployed together.\n\nMonolithic architecture is simple to develop, test, and deploy, making it a common choice for small and medium-sized applications. As applications grow, however, deploying and scaling the entire application as a single unit can become more challenging.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 1,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Problems Do Monoliths Solve Poorly?",
+      "slug": "what-problems-do-monoliths-solve-poorly",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "As monolithic applications grow, they become more difficult to **develop**, **deploy**, and **maintain**.\n\nCommon challenges include:\n\n- **Longer deployment times** --\u003E because the entire application is deployed together.\n- **Limited scalability** --\u003E since individual modules cannot be scaled independently.\n- **Tight coupling** --\u003E between components, making changes more difficult.\n- **Reduced fault isolation** --\u003E where a failure in one module can affect the entire application.\n- **Slower development** --\u003E as larger teams work within the same codebase.\n\nThese challenges led to the adoption of **microservice architecture**, where applications are split into smaller, independently deployable services.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Are Microservices?",
+      "slug": "what-are-microservices",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Microservices** are an architectural style where an application is split into **small**, **independent services**, each responsible for a **single business capability**.\n\nEach microservice can be **developed**, **deployed**, scaled, and **maintained** independently. Services communicate with each other through well-defined APIs or messaging.\n\nCompared to a monolithic application, microservices improve **deployment flexibility**, **scalability**, and **fault isolation**, but also introduce additional architectural and operational complexity.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 3,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Monolith vs Microservices",
+      "slug": "monolith-vs-microservices",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **monolithic application** is deployed and scaled as a **single unit**, while a **microservice architecture** consists of multiple independent services that can be developed, deployed, and scaled separately.\n\nMonoliths are generally **simpler to build, test, and operate**, making them a good choice for smaller applications. Microservices provide greater **scalability**, **deployment flexibility**, and **fault isolation**, but introduce additional complexity in communication, monitoring, and infrastructure.\n\nThe right architecture depends on the **size, complexity, and requirements** of the application.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 4,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Monolith vs Microservices",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Monolith",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Microservices",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Deployment",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Single application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Independent services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Scaling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Entire application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Individual services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Fault Isolation",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Lower",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Higher",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Complexity",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Lower",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Higher",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Team Ownership",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Shared codebase",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Per service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Infrastructure",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Simpler",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "More complex",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "What Is Containerization?",
+      "slug": "what-is-containerization",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Containerization** is the practice of packaging an application together with its **runtime**, **libraries**, **dependencies**, and **configuration** into a **container**.\n\nA container provides a **consistent and isolated execution environment**, allowing the application to run reliably across different machines and operating systems.\n\nContainerization improves **portability**, **deployment consistency**, **resource efficiency**, and **application isolation**, making it a fundamental technology for modern cloud-native applications and microservice architectures.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 5,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Virtual Machines vs Containers",
+      "slug": "virtual-machines-vs-containers",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Both **virtual machines (VMs)** and **containers** provide isolated environments for running applications, but they achieve this in different ways.\n\nA **virtual machine** virtualizes the **hardware** and includes a complete **guest operating system** for each application. A **container** virtualizes the **operating system**, allowing multiple applications to share the same host OS while remaining isolated.\n\nCompared to virtual machines, containers are typically **smaller**, **faster to start**, and **more resource-efficient**, making them well suited for modern cloud-native applications and microservices.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 6,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam componentStyle rectangle\n\nnode \u0022Physical Server\u0022 {\n  node \u0022Hardware\u0022\n  node \u0022Hypervisor\u0022\n\n  node \u0022Virtual Machine 1\u0022 {\n    node \u0022Guest OS 1\u0022\n    component \u0022Application 1\u0022\n  }\n\n  node \u0022Virtual Machine 2\u0022 {\n    node \u0022Guest OS 2\u0022\n    component \u0022Application 2\u0022\n  }\n\n  node \u0022Virtual Machine 3\u0022 {\n    node \u0022Guest OS 3\u0022\n    component \u0022Application 3\u0022\n  }\n}\n\n\u0022Hardware\u0022 -down-\u003E \u0022Hypervisor\u0022\n\u0022Hypervisor\u0022 -down-\u003E \u0022Virtual Machine 1\u0022\n\u0022Hypervisor\u0022 -down-\u003E \u0022Virtual Machine 2\u0022\n\u0022Hypervisor\u0022 -down-\u003E \u0022Virtual Machine 3\u0022\n\n@enduml",
+          "title": "PlantUML Diagram \u2014 Virtual Machines",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam componentStyle rectangle\n\nnode \u0022Physical Server\u0022 {\n  node \u0022Hardware\u0022\n  node \u0022Host Operating System\u0022\n  node \u0022Container Runtime\\n(Docker Engine)\u0022\n\n  node \u0022Container 1\u0022 {\n    component \u0022Application 1\u0022\n  }\n\n  node \u0022Container 2\u0022 {\n    component \u0022Application 2\u0022\n  }\n\n  node \u0022Container 3\u0022 {\n    component \u0022Application 3\u0022\n  }\n}\n\n\u0022Hardware\u0022 -down-\u003E \u0022Host Operating System\u0022\n\u0022Host Operating System\u0022 -down-\u003E \u0022Container Runtime\\n(Docker Engine)\u0022\n\u0022Container Runtime\\n(Docker Engine)\u0022 -down-\u003E \u0022Container 1\u0022\n\u0022Container Runtime\\n(Docker Engine)\u0022 -down-\u003E \u0022Container 2\u0022\n\u0022Container Runtime\\n(Docker Engine)\u0022 -down-\u003E \u0022Container 3\u0022\n\n@enduml",
+          "title": "PlantUML Diagram \u2014 Containers",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Docker?",
+      "slug": "what-is-docker",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Docker** is an open-source platform for **building**, **packaging**, **distributing**, and **running** applications in containers.\n\nUsing Docker, an application and all of its dependencies are packaged into a **Docker image**, which can be executed as a **Docker container**. This ensures the application runs consistently across development, testing, and production environments.\n\nDocker simplifies application deployment, improves portability, and enables fast, lightweight, and isolated execution, making it one of the key technologies behind modern cloud-native applications and microservice architectures.\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 7,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam componentStyle rectangle\n\nnode \u0022Physical Server\u0022 {\n  node \u0022Hardware\u0022\n  node \u0022Hypervisor\u0022\n\n  node \u0022Virtual Machine 1\u0022 {\n    node \u0022Guest OS 1\u0022\n    component \u0022Application 1\u0022\n  }\n\n  node \u0022Virtual Machine 2\u0022 {\n    node \u0022Guest OS 2\u0022\n    component \u0022Application 2\u0022\n  }\n\n  node \u0022Virtual Machine 3\u0022 {\n    node \u0022Guest OS 3\u0022\n    component \u0022Application 3\u0022\n  }\n}\n\n\u0022Hardware\u0022 -down-\u003E \u0022Hypervisor\u0022\n\u0022Hypervisor\u0022 -down-\u003E \u0022Virtual Machine 1\u0022\n\u0022Hypervisor\u0022 -down-\u003E \u0022Virtual Machine 2\u0022\n\u0022Hypervisor\u0022 -down-\u003E \u0022Virtual Machine 3\u0022\n\n@enduml",
+          "title": "PlantUML Diagram \u2014 Virtual Machines",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam componentStyle rectangle\n\nnode \u0022Physical Server\u0022 {\n  node \u0022Hardware\u0022\n  node \u0022Host Operating System\u0022\n  node \u0022Container Runtime\\n(Docker Engine)\u0022\n\n  node \u0022Container 1\u0022 {\n    component \u0022Application 1\u0022\n  }\n\n  node \u0022Container 2\u0022 {\n    component \u0022Application 2\u0022\n  }\n\n  node \u0022Container 3\u0022 {\n    component \u0022Application 3\u0022\n  }\n}\n\n\u0022Hardware\u0022 -down-\u003E \u0022Host Operating System\u0022\n\u0022Host Operating System\u0022 -down-\u003E \u0022Container Runtime\\n(Docker Engine)\u0022\n\u0022Container Runtime\\n(Docker Engine)\u0022 -down-\u003E \u0022Container 1\u0022\n\u0022Container Runtime\\n(Docker Engine)\u0022 -down-\u003E \u0022Container 2\u0022\n\u0022Container Runtime\\n(Docker Engine)\u0022 -down-\u003E \u0022Container 3\u0022\n\n@enduml",
+          "title": "PlantUML Diagram \u2014 Containers",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Docker Image vs Docker Container",
+      "slug": "docker-image-vs-docker-container",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **Docker image** is a **read-only template** that contains an application, its runtime, libraries, dependencies, and configuration.\n\nA **Docker container** is a **running instance** of a Docker image. Multiple containers can be created from the same image, each running independently.\n\nThink of a Docker image as a **class** in C# and a Docker container as an **object** created from that class.\n",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 8,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nskinparam defaultTextAlignment center\n\nartifact \u0022Docker Image\u0022 {\n    artifact \u0022Application\u0022\n    artifact \u0022Runtime\u0022\n    artifact \u0022Libraries\u0022\n    artifact \u0022Dependencies\u0022\n    artifact \u0022Configuration\u0022\n}\n\nnote bottom of \u0022Docker Image\u0022\nRead-only template\nend note\n\n@enduml",
+          "title": "PlantUML Diagram \u2014 Docker Image",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nskinparam defaultTextAlignment center\n\nartifact \u0022Docker Image\u0022\n\nnode \u0022Docker Engine\u0022 {\n    artifact \u0022Container 1\u0022\n    artifact \u0022Container 2\u0022\n    artifact \u0022Container 3\u0022\n}\n\n\u0022Docker Image\u0022 --\u003E \u0022Container 1\u0022 : docker run\n\u0022Docker Image\u0022 --\u003E \u0022Container 2\u0022 : docker run\n\u0022Docker Image\u0022 --\u003E \u0022Container 3\u0022 : docker run\n\nnote bottom\nOne Docker image can create\nmultiple running containers.\nend note\n\n@enduml",
+          "title": "PlantUML Diagram \u2014 Docker Container",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Docker image is to a Docker container what a class is to an object in C#.",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "C#",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Docker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Class",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Docker Image",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Object",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Docker Container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060new MyClass()\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060docker run\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "What Is a Dockerfile?",
+      "slug": "what-is-a-dockerfile",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 9,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Build and Run Your First Docker Container",
+      "slug": "build-and-run-your-first-docker-container",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 10,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Docker Commands Every Developer Should Know",
+      "slug": "docker-commands-every-developer-should-know",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 11,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Is Docker Compose?",
+      "slug": "what-is-docker-compose",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 12,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Why Docker Alone Is Not Enough?",
+      "slug": "why-docker-alone-is-not-enough",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 13,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Is Kubernetes?",
+      "slug": "what-is-kubernetes",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 14,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Is a Kubernetes Pod?",
+      "slug": "what-is-a-kubernetes-pod",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 15,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Is Service Discovery?",
+      "slug": "what-is-service-discovery",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 16,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "REST vs gRPC vs Messaging",
+      "slug": "rest-vs-grpc-vs-messaging",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 17,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Synchronous vs Asynchronous Communication",
+      "slug": "synchronous-vs-asynchronous-communication",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 18,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Is Event-Driven Architecture?",
+      "slug": "what-is-event-driven-architecture",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 19,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "What Is a Message Broker?",
+      "slug": "what-is-a-message-broker",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "...",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 20,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": []
+    },
+    {
       "name": "A Simple C# Program",
       "slug": "a-simple-csharp-program",
       "level": "Draft",
