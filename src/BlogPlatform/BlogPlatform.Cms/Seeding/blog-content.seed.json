@@ -1933,7 +1933,7 @@
       "slug": "what-is-a-dockerfile",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "A **Dockerfile** is a text file that contains a set of instructions for **building a Docker image**.\n\nEach instruction defines a step in the build process, such as selecting a base image, copying application files, installing dependencies, exposing network ports, and specifying the startup command.\n\nDocker reads the Dockerfile and produces a **Docker image**, which can then be used to create one or more **Docker containers**. Using a Dockerfile ensures builds are **repeatable**, **consistent**, and **version-controlled**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 9,
@@ -1942,14 +1942,45 @@
         "Architecture",
         "Azure"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Dockerfile",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "docker",
+          "fileName": "Program.cs",
+          "codeTitle": "Dockerfile",
+          "showCodeTitleBar": false,
+          "code": "FROM mcr.microsoft.com/dotnet/aspnet:9.0\nWORKDIR /app\nCOPY . .\nENTRYPOINT [\u0022dotnet\u0022, \u0022MyApp.dll\u0022]",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Build Docker image --\u003E Run Docker container",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Build Docker image --\u003E Run Docker container",
+          "showCodeTitleBar": false,
+          "code": "docker build -t myapp .\ndocker run -p 8080:8080 myapp",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "Build and Run Your First Docker Container",
       "slug": "build-and-run-your-first-docker-container",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "After creating a **Dockerfile**, the next step is to **build a Docker image** and **run it as a Docker container**.\n\nThe \u0060docker build\u0060 command reads the Dockerfile and creates a **Docker image**. The \u0060docker run\u0060 command then creates and starts a **Docker container** from that image.\n\nThis simple two-step workflow is the foundation of Docker and is used to package, deploy, and run applications consistently across development, testing, and production environments.\n",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 10,
@@ -1958,7 +1989,213 @@
         "Architecture",
         "Azure"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example Application",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Create a new file named \u0060Program.cs\u0060\n\nThis is a minimal ASP.NET Core application that exposes a single HTTP endpoint.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": true,
+          "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\n\napp.MapGet(\u0022/\u0022, () =\u003E \u0022Hello from Docker!\u0022);\n\napp.Run();",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Create a Dockerfile",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Create a file named \u0060Dockerfile\u0060 in the root directory of the project.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "docker",
+          "fileName": "Program.cs",
+          "codeTitle": "Dockerfile",
+          "showCodeTitleBar": true,
+          "code": "FROM mcr.microsoft.com/dotnet/aspnet:9.0\n\nWORKDIR /app\n\nCOPY . .\n\nENTRYPOINT [\u0022dotnet\u0022, \u0022MyApp.dll\u0022]",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Build the Docker Image",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "bash",
+          "fileName": "Program.cs",
+          "codeTitle": "Build the Docker Image",
+          "showCodeTitleBar": false,
+          "code": "docker build -t myapp .",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Explanation:\n\n- \u0060docker build\u0060 --\u003E builds a Docker image\n- \u0060-t myapp\u0060 --\u003E assigns the image name **myapp**\n- \u0060.\u0060 --\u003E tells Docker to use the current directory as the build context",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Run the Docker Container",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "bash",
+          "fileName": "Program.cs",
+          "codeTitle": "Run the Docker Container",
+          "showCodeTitleBar": false,
+          "code": "docker run -p 8080:8080 myapp",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Explanation:\n\n- \u0060docker run\u0060 --\u003E creates and starts a new container.\n- \u0060-p 8080:8080\u0060 --\u003E maps port 8080 on the host to port 8080 inside the container\n- \u0060myapp\u0060 --\u003E is the Docker image to run",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Open your browser and navigate to:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "http://localhost:8080",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "You should see:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "Hello from Docker!",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Step",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Command",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Result",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "1",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060docker build -t myapp .\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Creates a Docker image",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "2",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060docker run -p 8080:8080 myapp\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Creates and starts a Docker container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        }
+      ]
     },
     {
       "name": "Docker Commands Every Developer Should Know",
