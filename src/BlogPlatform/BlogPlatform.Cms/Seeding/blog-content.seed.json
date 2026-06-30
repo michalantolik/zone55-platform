@@ -1726,6 +1726,223 @@
       ]
     },
     {
+      "name": "When Should You Split a Service?",
+      "slug": "when-should-you-split-a-service",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Splitting an application into **multiple services** should solve a **business** or **technical** problem \u2014 not simply follow a trend.\n\nA service is typically split when it needs to be **deployed**, **scaled**, **maintained**, or **owned** independently from the rest of the application.\n\nFor most projects, starting with a **monolith** and splitting services only when necessary is a simpler and more effective approach.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 5,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Good Reasons to Split a Service",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A service boundary should exist because it provides a clear benefit.\n\nCommon reasons include:\n\n- Different **business capabilities**\n- Independent **deployment**\n- Independent **scaling**\n- Separate development teams\n- Different release schedules\n- Clear domain boundaries (Domain-Driven Design)\n- Different technology requirements\n\nWhen these needs appear, splitting a service can improve maintainability and flexibility.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When NOT to Split a Service",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Microservices also introduce additional complexity.\n\nAvoid splitting a service simply because:\n\n- Everyone is using microservices\n- Kubernetes is popular\n- The application is still small\n- One team maintains the entire system\n- There is no clear business boundary\n\nUnnecessary microservices often create more operational overhead than business value.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical Evolution",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nleft to right direction\n\nrectangle \u0022Stage 1\u0022 {\n    component \u0022Monolith\u0022 as Monolith\n}\n\nrectangle \u0022Stage 2\u0022 {\n    component \u0022User Service\u0022 as User\n    component \u0022Order Service\u0022 as Order\n}\n\nrectangle \u0022Stage 3\u0022 {\n    component \u0022User\u0022 as User2\n    component \u0022Order\u0022 as Order2\n    component \u0022Payment\u0022 as Payment\n    component \u0022Notification\u0022 as Notification\n    component \u0022Inventory\u0022 as Inventory\n}\n\nMonolith --\u003E User\nUser --\u003E User2\n\n@enduml",
+          "title": "Application Evolution",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Monolith First",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Many successful systems begin as a **monolithic application**.\n\nAs the application grows, individual business capabilities can gradually be extracted into separate services.\n\nThis approach allows the architecture to evolve based on real requirements instead of assumptions.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common Indicators",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Indicator",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Consider Splitting?",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Different modules require independent deployment",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "One module receives much more traffic than others",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Different teams own different business domains",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Entire application is small and maintained by one team",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Splitting is only for \u0022modern architecture\u0022",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "No clear business boundary exists",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Split a service only when it solves a real problem.**\n\nA good service boundary usually reflects a **business capability** that benefits from **independent deployment**, **independent scaling**, or **independent ownership**.\n\nFor many applications, **starting with a monolith and evolving toward microservices over time** is the simplest and most maintainable approach.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "What Is Containerization?",
       "slug": "what-is-containerization",
       "level": "Draft",
@@ -1733,7 +1950,7 @@
       "summary": "**Containerization** is the practice of packaging an application together with its **runtime**, **libraries**, **dependencies**, and **configuration** into a **container**.\n\nA container provides a **consistent and isolated execution environment**, allowing the application to run reliably across different machines and operating systems.\n\nContainerization improves **portability**, **deployment consistency**, **resource efficiency**, and **application isolation**, making it a fundamental technology for modern cloud-native applications and microservice architectures.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 5,
+      "order": 6,
       "tags": [
         ".NET",
         "Architecture",
@@ -1749,7 +1966,7 @@
       "summary": "Both **virtual machines (VMs)** and **containers** provide isolated environments for running applications, but they achieve this in different ways.\n\nA **virtual machine** virtualizes the **hardware** and includes a complete **guest operating system** for each application. A **container** virtualizes the **operating system**, allowing multiple applications to share the same host OS while remaining isolated.\n\nCompared to virtual machines, containers are typically **smaller**, **faster to start**, and **more resource-efficient**, making them well suited for modern cloud-native applications and microservices.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 6,
+      "order": 7,
       "tags": [
         ".NET",
         "Architecture",
@@ -1780,7 +1997,7 @@
       "summary": "**Docker** is an open-source platform for **building**, **packaging**, **distributing**, and **running** applications in containers.\n\nUsing Docker, an application and all of its dependencies are packaged into a **Docker image**, which can be executed as a **Docker container**. This ensures the application runs consistently across development, testing, and production environments.\n\nDocker simplifies application deployment, improves portability, and enables fast, lightweight, and isolated execution, making it one of the key technologies behind modern cloud-native applications and microservice architectures.\n",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 7,
+      "order": 8,
       "tags": [
         ".NET",
         "Architecture",
@@ -1811,7 +2028,7 @@
       "summary": "A **Docker image** is a **read-only template** that contains an application, its runtime, libraries, dependencies, and configuration.\n\nA **Docker container** is a **running instance** of a Docker image. Multiple containers can be created from the same image, each running independently.\n\nThink of a Docker image as a **class** in C# and a Docker container as an **object** created from that class.\n",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 8,
+      "order": 9,
       "tags": [
         ".NET",
         "Architecture",
@@ -1936,7 +2153,7 @@
       "summary": "A **Dockerfile** is a text file that contains a set of instructions for **building a Docker image**.\n\nEach instruction defines a step in the build process, such as selecting a base image, copying application files, installing dependencies, exposing network ports, and specifying the startup command.\n\nDocker reads the Dockerfile and produces a **Docker image**, which can then be used to create one or more **Docker containers**. Using a Dockerfile ensures builds are **repeatable**, **consistent**, and **version-controlled**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 9,
+      "order": 10,
       "tags": [
         ".NET",
         "Architecture",
@@ -1983,7 +2200,7 @@
       "summary": "After creating a **Dockerfile**, the next step is to **build a Docker image** and **run it as a Docker container**.\n\nThe \u0060docker build\u0060 command reads the Dockerfile and creates a **Docker image**. The \u0060docker run\u0060 command then creates and starts a **Docker container** from that image.\n\nThis simple two-step workflow is the foundation of Docker and is used to package, deploy, and run applications consistently across development, testing, and production environments.\n",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 10,
+      "order": 11,
       "tags": [
         ".NET",
         "Architecture",
@@ -2202,23 +2419,7 @@
       "slug": "docker-commands-every-developer-should-know",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
-      "dotnetZone": "cloud-advanced",
-      "dotnetZoneStep": "microservices",
-      "order": 11,
-      "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
-      ],
-      "bodyBlocks": []
-    },
-    {
-      "name": "What Is Docker Compose?",
-      "slug": "what-is-docker-compose",
-      "level": "Draft",
-      "focus": "Preview",
-      "summary": "...",
+      "summary": "**Docker** provides a simple command-line interface (CLI) for building, running, inspecting, and managing containers.\n\nThe most commonly used commands allow you to:\n\n- Build Docker images\n- Run and stop containers\n- View running containers\n- Inspect logs\n- Execute commands inside containers\n- Remove unused images and containers\n\nLearning these commands is enough to work with most Docker-based development environments.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 12,
@@ -2227,14 +2428,371 @@
         "Architecture",
         "Azure"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Docker CLI Basics",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Docker commands follow a simple format:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "bash",
+          "fileName": "Program.cs",
+          "codeTitle": "Docker CLI syntax",
+          "showCodeTitleBar": true,
+          "code": "docker \u003Ccommand\u003E [options]",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Most Common Docker Commands",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Command",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker build\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Build a Docker image",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker images\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "List available images",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker run\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Create and start a container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker ps\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "List running containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker ps -a\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "List all containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker stop\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Stop a running container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker start\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Start an existing container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker restart\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Restart a container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker logs\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "View container logs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker exec\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Execute a command inside a running container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker rm\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Remove a container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker rmi\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Remove an image",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker pull\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Download an image from Docker Hub",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker push\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Upload an image to a registry",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker system prune\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Remove unused Docker resources",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example Workflow",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A typical development workflow might look like this:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "bash",
+          "fileName": "Program.cs",
+          "codeTitle": "Typical Docker workflow",
+          "showCodeTitleBar": true,
+          "code": "# Build an image\ndocker build -t my-api .\n\n# Run a container\ndocker run -d -p 8080:80 --name my-api my-api\n\n# View running containers\ndocker ps\n\n# Check application logs\ndocker logs my-api\n\n# Execute a shell inside the container\ndocker exec -it my-api sh\n\n# Stop the container\ndocker stop my-api\n\n# Remove the container\ndocker rm my-api",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Most Docker development tasks can be performed using fewer than fifteen commands.**\n\nA typical workflow consists of:\n\n1. Build an image --\u003E \u0060docker build\u0060\n2. Run a container --\u003E \u0060docker run\u0060\n3. Inspect the application --\u003E \u0060docker ps\u0060, \u0060docker logs\u0060\n4. Debug --\u003E \u0060docker exec\u0060\n5. Stop and remove containers \u0060docker stop\u0060, \u0060docker rm\u0060\n\nLearning these commands provides a solid foundation before moving on to **Docker Compose** and **Kubernetes**.",
+          "rows": []
+        }
+      ]
     },
     {
-      "name": "Why Docker Alone Is Not Enough?",
-      "slug": "why-docker-alone-is-not-enough",
+      "name": "What Is Docker Compose?",
+      "slug": "what-is-docker-compose",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "**Docker Compose** is a tool for defining and running **multi-container applications**.\n\nInstead of starting each container manually with multiple docker run commands, you describe the entire application in a single \u0060compose.yaml\u0060 file.\n\nDocker Compose can create, start, stop, and remove all application containers with a single command.\n\nIt is commonly used in local development environments where applications depend on multiple services such as **databases**, **message brokers**, or **caches**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 13,
@@ -2243,7 +2801,696 @@
         "Architecture",
         "Azure"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why Docker Compose?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Many applications consist of more than one container.\n\nFor example, an ASP.NET Core application might require:\n\n- Web API\n- SQL Server\n- Redis\n- RabbitMQ\n\nStarting each service manually quickly becomes repetitive and error-prone.\n\nDocker Compose solves this problem by allowing you to define the entire application in a single configuration file.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How Docker Compose Works",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Docker Compose reads a \u0060compose.yaml\u0060 file that describes:\n\n- Containers (services)\n- Docker images\n- Port mappings\n- Environment variables\n- Volumes\n- Networks\n- Dependencies between services\n\nRunning one command starts the complete application.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example Architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nrectangle \u0022Docker Compose\u0022 {\n\n    component \u0022Web API\u0022 as Api\n    database \u0022SQL Server\u0022 as Db\n    component \u0022Redis\u0022 as Redis\n    queue \u0022RabbitMQ\u0022 as Rabbit\n\n    Api --\u003E Db\n    Api --\u003E Redis\n    Api --\u003E Rabbit\n}\n\n@enduml",
+          "title": "Docker Compose Example",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example \u0060compose.yaml\u0060",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A minimal Docker Compose configuration might look like this:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "yaml",
+          "fileName": "Program.cs",
+          "codeTitle": "compose.yaml",
+          "showCodeTitleBar": true,
+          "code": "services:\n\n  api:\n    build: .\n    ports:\n      - \u00228080:8080\u0022\n\n  sql:\n    image: mcr.microsoft.com/mssql/server:2022-latest\n\n  redis:\n    image: redis:latest",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This configuration starts three containers:\n\n- ASP.NET Core application\n- SQL Server\n- Redis\n\nDocker Compose automatically creates a shared network so the containers can communicate with each other.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common Docker Compose Commands",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Command",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose up\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Create and start all services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose up -d\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Start services in background",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose down\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Stop and remove all services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose ps\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "List running services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose logs\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "View logs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose restart\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Restart services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060docker compose build\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Build application images",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Docker Compose vs Docker",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Docker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Docker Compose",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Manages individual containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Manages multiple containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Uses \u0060docker run\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Uses \u0060compose.yaml\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Good for simple containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Good for complete applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Manual configuration",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Configuration stored as code",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Docker Compose** makes it easy to run **multi-container applications**.\n\nInstead of starting containers one by one, you define the entire application in a \u0060compose.yaml\u0060 file and manage everything with a few simple commands.\n\nDocker Compose is widely used for **local development**, while larger production environments typically use **Kubernetes** for container orchestration.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Why Docker Alone Is Not Enough?",
+      "slug": "why-docker-alone-is-not-enough",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Docker** solves the problem of **packaging and running individual containers**, but it does **not** manage large numbers of containers running across multiple servers.\n\nAs applications grow, additional challenges arise, such as **scaling**, **high availability**, **service discovery**, **load balancing**, and **automatic recovery**.\n\nThese operational challenges require a **container orchestration platform**, such as **Kubernetes**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 14,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What Docker Does Well",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Docker makes it easy to package an application together with all of its dependencies into a portable container.\n\nIt allows developers to:\n\n- Build container images\n- Run containers\n- Stop and restart containers\n- Share images through registries\n- Create consistent development environments\n\nFor small applications and local development, Docker is often all you need.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Where Docker Starts to Struggle",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Running a single container is simple.\n\nRunning **hundreds of containers** across **multiple servers** is a completely different challenge.\n\nQuestions quickly arise:\n\n- Which server should run a new container?\n- What happens if a server fails?\n- How are failed containers restarted?\n- How can traffic be distributed between multiple container instances?\n- How do containers find each other?\n- How can applications be updated without downtime?\n\nDocker does not provide complete solutions for these problems.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical Production Challenges",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Challenge",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Docker Alone",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Run a container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Build container images",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Scale across multiple servers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Automatic scheduling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Self-healing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Service discovery",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Load balancing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Rolling updates",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "From Docker to Kubernetes",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nleft to right direction\n\nrectangle \u0022Single Machine\u0022 {\n    component \u0022Docker\u0022\n}\n\nrectangle \u0022Cluster\u0022 {\n    component \u0022Kubernetes\u0022\n}\n\nDocker --\u003E Kubernetes : Orchestrates many containers\n\n@enduml",
+          "title": "Container Evolution",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Who Is Responsible for What?",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Docker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Creates containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Manages containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Builds images",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Schedules containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Runs individual containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Runs applications across clusters",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Local development",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Production orchestration",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Docker and Kubernetes solve different problems**.\n\nDocker focuses on **creating and running containers**, while Kubernetes focuses on **managing containers at scale**.\n\nFor many small applications, Docker is sufficient. As applications grow and require **high availability**, **automatic scaling**, and **resilience**, platforms such as **Kubernetes** become the preferred solution.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "What Is Kubernetes?",
@@ -2253,7 +3500,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 14,
+      "order": 15,
       "tags": [
         ".NET",
         "Architecture",
@@ -2269,7 +3516,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 15,
+      "order": 16,
       "tags": [
         ".NET",
         "Architecture",
@@ -2285,7 +3532,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 16,
+      "order": 17,
       "tags": [
         ".NET",
         "Architecture",
@@ -2301,7 +3548,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 17,
+      "order": 18,
       "tags": [
         ".NET",
         "Architecture",
@@ -2317,7 +3564,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 18,
+      "order": 19,
       "tags": [
         ".NET",
         "Architecture",
@@ -2333,7 +3580,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 19,
+      "order": 20,
       "tags": [
         ".NET",
         "Architecture",
@@ -2349,7 +3596,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 20,
+      "order": 21,
       "tags": [
         ".NET",
         "Architecture",
@@ -2542,7 +3789,7 @@
       "slug": "what-are-records-in-csharp",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "**Records** are a reference type introduced in **C# 9** that simplify the creation of immutable data models.\n\nUnlike regular classes, records provide **value-based equality** by default. Two record instances are considered equal when all of their properties have the same values.\n\nRecords are commonly used for:\n\n- DTOs (Data Transfer Objects)\n- Request and response models\n- Configuration objects\n- Domain value objects\n\nRecords also support the \u0060with\u0060 expression, making it easy to create modified copies while preserving immutability.\n\nWhen objects primarily represent **data rather than behavior**, records are often a better choice than classes.",
+      "summary": "**Records** are a reference type introduced in **C# 9** that simplify the creation of **immutable** data models.\n\nUnlike regular classes, records provide **value-based equality** by default. Two record instances are considered equal when all of their properties have the same values.\n\nRecords are commonly used for:\n\n- DTO\n- API Request\n- API Response\n- Configuration\n- Value objects\n\nRecords also support the \u0060with\u0060 expression, making it easy to create modified copies while preserving immutability.\n\nWhen objects primarily represent **data rather than behavior**, records are often a better choice than classes.",
       "dotnetZone": "foundation",
       "dotnetZoneStep": "modern-csharp-dotnet",
       "order": 1,
@@ -2574,7 +3821,7 @@
       "slug": "difference-between-record-and-class",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "Both **records** and **classes** are **reference types**, but they are designed for different purposes.\n\nA **class** is typically used to model objects with **behavior**, **identity**, and **mutable state**.\n\nA **record** is designed to model **data**. It provides **value-based equality**, concise syntax, and is commonly used with immutable objects.\n\nUse a **class** when an object\u0027s identity matters (for example, services, entities, or domain models with behavior).\n\nUse a **record** when an object\u0027s values matter more than its identity (for example, DTOs, request/response models, configuration objects, and value objects).\n\n---\n\n**Key Takeaway**\n- **Class** \u2192 best for objects with behavior and identity.\n- **Record** \u2192 best for immutable data and value objects.\n- Records compare **values**, while classes compare **references** by default.",
+      "summary": "Both **records** and **classes** are **reference types**, but they are designed for different purposes.\n\nA **class** is typically used to model objects with **behavior**, **identity**, and **mutable state**.\n\nA **record** is designed to model **data**. It provides **value-based equality**, concise syntax, and is commonly used with immutable objects.\n\nUse a **class** when an object\u0027s identity matters (for example, services, entities, or domain models with behavior).\n\nUse a **record** when an object\u0027s values matter more than its identity (for example, DTO, API request, API response, models, configuration objects, and value objects).\n\n---\n\n**Key Takeaway**\n- **Class** \u2192 best for mutable objects with behavior and identity.\n- **Record** \u2192 best for immutable data objects and value objects.\n- Records compare **values**, while classes compare **references** by default.",
       "dotnetZone": "foundation",
       "dotnetZoneStep": "modern-csharp-dotnet",
       "order": 2,
@@ -2607,7 +3854,384 @@
         },
         {
           "type": "text",
-          "text": "- **Class** \u2192 best for objects with behavior and identity.\n- **Record** \u2192 best for immutable data and value objects.\n- Records compare **values**, while classes compare **references** by default.",
+          "text": "- **Class** \u2192 best for mutable objects with behavior and identity.\n- **Record** \u2192 best for immutable data objects and value objects.\n- Records compare **values**, while classes compare **references** by default.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Why Would You Use a Record Instead of a Class?",
+      "slug": "why-use-record-instead-of-class",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Both **records** and **classes** are reference types, but they are designed to solve different problems.\n\nUse a **record** when an object primarily represents **data**. Use a **class** when an object has **behavior**, **identity**, or a **lifecycle**.\n\nThe biggest advantage of records is **value-based equality**, concise syntax, immutability support, and the ability to easily create modified copies using the \u0060with\u0060 expression.\n\nChoosing between a record and a class is less about syntax and more about **what your object represents**.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "modern-csharp-dotnet",
+      "order": 3,
+      "tags": [
+        ".NET",
+        "Interview"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why did C# introduce records?\n\nBefore records were introduced, developers often created small classes whose only purpose was to store data.\n\nTypical examples include:\n\n- DTOs\n- API requests\n- API responses\n- Configuration objects\n\nThese classes usually contained very little behavior and required a lot of repetitive code such as constructors, equality members, and \u0060GetHashCode()\u0060 implementations.\n\nRecords were introduced to solve this problem.\n\nThey provide a simpler way to model **immutable data** while automatically supporting **value-based equality**.\n\n---\n\n## Think about what the object represents\n\nThe easiest way to decide between a record and a class is to ask yourself:\n\n\u003E **Does this object represent data or behavior?**\n\nIf the answer is **data**, a record is usually the better choice.\n\nIf the answer is **behavior**, a class is usually the better choice.\n\n---\n\n## Example: \u0060UserResponse\u0060 - API Response DTO\n\nImagine your application calls an external REST API.\n\nIn this case, you don\u0027t care about the object\u0027s identity.\n\nYou only care about the values returned by the API.\n\nA record is a perfect fit.\n",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "UserResponse",
+          "showCodeTitleBar": true,
+          "code": "public record UserResponse(\n    int Id,\n    string Name,\n    string Email);",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "---\n\n## Example: \u0060Bank Account\u0060 - domain model (or domain entity)\n\nNow imagine a bank account.\n\nA bank account has:\n\n- identity\n- state\n- behavior\n- business rules\n\nEven if two accounts contain exactly the same data, they are still two different accounts.\n\nA class is the correct choice.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "BankAccount",
+          "showCodeTitleBar": true,
+          "code": "public class BankAccount\n{\n    public Guid Id { get; }\n    public decimal Balance { get; private set; }\n\n    public void Deposit(decimal amount)\n    {\n        Balance \u002B= amount;\n    }\n\n    public void Withdraw(decimal amount)\n    {\n        Balance -= amount;\n    }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "---\n\n## Real-world examples\n\nRecords are commonly used for:\n\n- **DTOs**\n- **API requests**\n- **API responses**\n- **Configuration objects**\n- **Value Objects**\n- **Event messages**\n- **Commands**\n- **Queries**\n\nClasses are commonly used for:\n\n- **Services**\n- **Repositories**\n- **Controllers**\n- **DbContext**\n- **Domain Entities**\n- **Managers**\n- **Business objects**\n\n---\n\n## Decision table",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Object",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Record",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Class",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "DTO",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "API Request",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "API Response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Configuration",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Value Object",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Event",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Entity",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Repository",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Controller",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "DbContext",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "---\n\n## Why records are a good choice for data\n\nRecords provide several useful features out of the box:\n\n- **Value-based equality**\n- **Concise syntax**\n- **Immutability support**\n- **\u0060with\u0060 expression**\n- Better readability for data models\n\nBecause these features are built into the language, developers write less code while making their intent clearer.\n\n---\n\n## When should you avoid records?\n\nA record is probably **not** the right choice when:\n\n- the object has significant business logic\n- object identity matters\n- the object changes frequently during its lifetime\n- mutable state is an important part of the design\n\nIn these situations, a class usually models the problem more naturally.\n\n---\n\n## A simple rule\n\nA good rule of thumb is:\n\n\u003E **If an object mainly stores data, use a record.**\n\n\u003E **If an object performs work or owns behavior, use a class.**\n\nThis simple guideline works surprisingly well in most real-world applications.\n\n---\n\n## Interview Answer (30 seconds)\n\nIf an interviewer asks:\n\n\u003E **Why would you use a record instead of a class?**\n\nA good answer is:\n\n\u003E I use records when an object primarily represents **data rather than behavior**. Typical examples are DTOs, API requests, API responses, configuration objects, and value objects. Records provide value-based equality, concise syntax, and support immutable models. When an object\u0027s identity or behavior is important, I use a class instead.\n\n---\n\n## Key Takeaway\n\nA **record** is not a replacement for a class.\n\nInstead, it is another tool that solves a different problem.\n\n- Use **records** for **data**.\n- Use **classes** for **behavior**.\n- Think about **what the object represents**, not just how it is implemented.",
           "rows": []
         }
       ]
