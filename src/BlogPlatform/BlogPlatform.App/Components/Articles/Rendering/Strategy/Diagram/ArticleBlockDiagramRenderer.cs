@@ -84,7 +84,7 @@ public static class ArticleBlockDiagramRenderer
     {
         var normalizedSource = RemoveProtectedPlantUmlSkinParams(source).Trim();
 
-        var skinparams = CreatePlantUmlSkinParams(theme);
+        var skinparams = Zone55PlantUmlTheme.CreateSkinParams(theme);
 
         if (!normalizedSource.Contains("@start", StringComparison.OrdinalIgnoreCase))
         {
@@ -99,75 +99,6 @@ public static class ArticleBlockDiagramRenderer
         }
 
         return normalizedSource.Insert(firstLineBreakIndex + 1, $"{skinparams}\n");
-    }
-
-    private static string CreatePlantUmlSkinParams(PlantUmlThemeValues theme)
-    {
-        var lineColor = NormalizePlantUmlColor(theme.Line, "#a7b4c8");
-        var nodeTextColor = NormalizePlantUmlColor(theme.NodeText, "#E5E7EB");
-        var nodeBorderColor = NormalizePlantUmlColor(theme.NodeBorder, "#7d8ca3");
-        var nodeBgColor = NormalizePlantUmlColor(theme.NodeBg, "#374151");
-        var fontFamily = NormalizePlantUmlFontFamily(theme.FontFamily);
-
-        return $$$"""
-skinparam backgroundColor transparent
-skinparam shadowing false
-skinparam defaultFontName {{{fontFamily}}}
-skinparam defaultFontColor {{{nodeTextColor}}}
-skinparam ArrowColor {{{lineColor}}}
-skinparam ArrowFontColor {{{lineColor}}}
-skinparam ArrowThickness 1
-skinparam rectangle {
-    BackgroundColor {{{nodeBgColor}}}
-    BorderColor {{{nodeBorderColor}}}
-    FontColor {{{nodeTextColor}}}
-}
-skinparam class {
-    BackgroundColor {{{nodeBgColor}}}
-    BorderColor {{{nodeBorderColor}}}
-    FontColor {{{nodeTextColor}}}
-}
-skinparam component {
-    BackgroundColor {{{nodeBgColor}}}
-    BorderColor {{{nodeBorderColor}}}
-    FontColor {{{nodeTextColor}}}
-}
-skinparam package {
-    BackgroundColor {{{nodeBgColor}}}
-    BorderColor {{{nodeBorderColor}}}
-    FontColor {{{nodeTextColor}}}
-}
-""";
-    }
-
-    private static string NormalizePlantUmlColor(string? value, string fallback)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return fallback;
-        }
-
-        var trimmed = value.Trim();
-
-        if (trimmed.StartsWith("#", StringComparison.Ordinal) ||
-            trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase))
-        {
-            return trimmed;
-        }
-
-        return fallback;
-    }
-
-    private static string NormalizePlantUmlFontFamily(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return "SansSerif";
-        }
-
-        return value
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .FirstOrDefault() ?? "SansSerif";
     }
 
     private static string EncodePlantUml(string source)
@@ -212,25 +143,6 @@ skinparam package {
             return string.Empty;
         }
 
-        var protectedBlockNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "rectangle",
-            "class",
-            "component",
-            "package"
-        };
-
-        var protectedSingleParams = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "backgroundColor",
-            "shadowing",
-            "defaultFontName",
-            "defaultFontColor",
-            "ArrowColor",
-            "ArrowFontColor",
-            "ArrowThickness"
-        };
-
         var lines = source.Replace("\r\n", "\n").Split('\n');
         var result = new List<string>();
         var skippingProtectedBlock = false;
@@ -270,12 +182,12 @@ skinparam package {
                 continue;
             }
 
-            if (protectedSingleParams.Contains(firstToken))
+            if (Zone55PlantUmlTheme.ProtectedSingleParams.Contains(firstToken))
             {
                 continue;
             }
 
-            if (protectedBlockNames.Contains(firstToken) && skinparamBody.Contains('{', StringComparison.Ordinal))
+            if (Zone55PlantUmlTheme.ProtectedBlockNames.Contains(firstToken) && skinparamBody.Contains('{', StringComparison.Ordinal))
             {
                 skippingProtectedBlock = true;
                 protectedBlockDepth = 1;
