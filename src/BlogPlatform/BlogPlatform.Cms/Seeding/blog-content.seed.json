@@ -3427,42 +3427,848 @@
       "slug": "what-is-kubernetes",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "**Kubernetes** (often abbreviated as **K8s**) is an open-source **container orchestration** platform that automates the deployment, scaling, and management of containerized applications.\n\nInstead of managing individual containers manually, Kubernetes manages the **desired state** of an entire application and continuously works to keep it running.\n\nIt is commonly used to run applications reliably across multiple servers in production environments.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 15,
       "tags": [
         "Microservices"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why Kubernetes?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Docker makes it easy to run a single container.\n\nHowever, production applications often consist of dozens or even hundreds of containers running across multiple servers.\n\nManaging those containers manually quickly becomes difficult.\n\nKubernetes automates many of these operational tasks so applications remain available, scalable, and resilient.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What Kubernetes Does",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Capability",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Deploy applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Starts application containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Scale applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Adds or removes container instances automatically",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Self-healing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Restarts failed containers automatically",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Load balancing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Distributes traffic between running containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Service discovery",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Allows services to find each other",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Rolling updates",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Deploys new versions with little or no downtime",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How Kubernetes Works",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Instead of telling Kubernetes **how** to run containers step by step, you describe the **desired state** of your application.\n\nFor example:\n\n- Run **three instances** of my API\n- Restart failed containers automatically\n- Expose the application on port 80\n\nKubernetes continuously monitors the cluster and works to keep the actual state matching the desired state.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "High-Level Architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nleft to right direction\n\nnode \u0022Kubernetes Cluster\u0022 {\n\n    node \u0022Worker Node 1\u0022 {\n        component \u0022Container\u0022\n        component \u0022Container\u0022\n    }\n\n    node \u0022Worker Node 2\u0022 {\n        component \u0022Container\u0022\n        component \u0022Container\u0022\n    }\n\n}\n\ncloud \u0022Users\u0022\n\nUsers --\u003E \u0022Kubernetes Cluster\u0022\n\n@enduml",
+          "title": "Kubernetes at a High Level",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Docker vs Kubernetes",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Docker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Creates and runs containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Manages containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Works well on a single machine",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Works across many machines",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Focuses on individual containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Focuses on complete applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Container runtime",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Container orchestration platform",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Where Is Kubernetes Used?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Kubernetes is commonly used to run:\n\n- Microservices\n- Cloud-native applications\n- Web APIs\n- Enterprise platforms\n- AI and machine learning workloads\n- Large-scale distributed systems\n\nMajor cloud providers such as **Microsoft Azure**, **Amazon Web Services (AWS)**, and **Google Cloud Platform (GCP)** offer managed Kubernetes services.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Kubernetes manages containerized applications at scale.**\n\nWhile **Docker** focuses on creating and running individual containers, Kubernetes automates the deployment, scaling, networking, and recovery of containers across multiple servers.\n\nFor modern cloud-native applications, Docker and Kubernetes are often used **together**, with Docker packaging the application and Kubernetes managing its execution.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "What Is a Kubernetes Pod?",
       "slug": "what-is-a-kubernetes-pod",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "A **Pod **is the **smallest deployable** unit in Kubernetes.\n\nA Pod contains one or more **containers** that are deployed, started, stopped, and managed **together**.\n\nContainers within the same Pod **share the same network**, **IP address**, and **storage volumes**, allowing them to communicate efficiently.\n\nAlthough a Pod can contain multiple containers, **most Pods run a single application container**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 16,
       "tags": [
         "Microservices"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why Does Kubernetes Use Pods?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Kubernetes does **not** manage individual containers directly.\n\nInstead, it manages **Pods**, which act as a wrapper around one or more containers.\n\nThis allows Kubernetes to treat related containers as a **single unit** for deployment, scaling, networking, and lifecycle management.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What Can a Pod Contain?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Pod usually contains:\n\n- One application container --\u003E \u2705 (most common)\n- Multiple tightly coupled containers --\u003E (less common)\n\nFor example:\n\n- An ASP.NET Core API\n- A logging sidecar\n- A monitoring sidecar\n\nThese containers start, stop, and restart together.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pod Architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nrectangle \u0022Pod\u0022 {\n\n    component \u0022ASP.NET Core Web API\u0022\n\n}\n\nnote bottom\nMost Pods contain\na single container.\nend note\n\n@enduml",
+          "title": "Single Pod",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Multiple Containers in a Pod",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nrectangle \u0022Pod\u0022 {\n\n    component \u0022ASP.NET Core Web API\u0022 as Api\n    component \u0022Logging Sidecar\u0022 as Logs\n    component \u0022Monitoring Sidecar\u0022 as Monitor\n\n}\n\nApi \u003C--\u003E Logs\nApi \u003C--\u003E Monitor\n\nnote bottom\nContainers share\nnetwork and storage.\nend note\n\n@enduml",
+          "title": "Pod with Sidecar Containers",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Characteristics of a Pod",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Characteristic",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Smallest deployable unit",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Kubernetes deploys Pods, not individual containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Contains one or more containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Usually one application container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Shared network",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Containers share the same IP address and ports",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Shared storage",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Containers can access shared volumes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Shared lifecycle",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Containers start, stop, and restart together",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Container vs Pod",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Pod",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Runs an application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Hosts one or more containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Created by Docker (or another container runtime)",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Created and managed by Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Executes application code",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Represents the deployable unit in Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A simple ASP.NET Core application running in Kubernetes is typically deployed as:",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nrectangle \u0022Pod\u0022 {\n    component \u0022ASP.NET Core\\nContainer\u0022\n}\n\nnote bottom\nMost simple applications run as\none container inside one Pod.\nend note\n\n@enduml",
+          "title": "One Pod with One Container",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If higher availability is required, Kubernetes runs multiple Pods, each containing its own application container.\n\nThis allows traffic to be distributed between multiple application instances.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nleft to right direction\n\nrectangle \u0022Pod 1\u0022 {\n    component \u0022ASP.NET Core\\nContainer\u0022 as App1\n}\n\nrectangle \u0022Pod 2\u0022 {\n    component \u0022ASP.NET Core\\nContainer\u0022 as App2\n}\n\nrectangle \u0022Pod 3\u0022 {\n    component \u0022ASP.NET Core\\nContainer\u0022 as App3\n}\n\n\n@enduml",
+          "title": "Three Pods with One Container Each",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Pod** is the smallest deployable unit in Kubernetes.\n\nRather than managing individual containers, Kubernetes manages Pods, each containing **one or more closely related containers**.\n\nIn most real-world applications, one Pod runs one application container, while Kubernetes creates additional Pods to provide **scalability**, **high availability**, and **fault tolerance**.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "What Is Service Discovery?",
       "slug": "what-is-service-discovery",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "**Service Discovery** is the process of allowing **services to automatically find and communicate with each other** without knowing their physical location or IP address.\n\nInstead of connecting to a specific server, applications communicate using a **service name**. The underlying platform resolves that name to one or more running service instances.\n\nService discovery is a fundamental capability in **microservice architectures**, where services are frequently deployed, scaled, and replaced.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 17,
       "tags": [
         "Microservices"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why Is Service Discovery Needed?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In a traditional monolithic application, all modules run inside the same process, so communication is straightforward.\n\nIn a microservice architecture, however, services run as separate processes and often on different servers.\n\nTheir IP addresses can change whenever they are restarted, updated, or scaled.\n\nInstead of hardcoding IP addresses, applications use **service names**, allowing the platform to locate the correct service automatically.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Without Service Discovery",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Without service discovery, applications would need to know the exact network address of every service they communicate with.\n\nIf a service is moved or restarted, those addresses may change, requiring manual configuration updates.\n\nThis quickly becomes difficult to manage as the number of services grows",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "With Service Discovery",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "With service discovery, applications send requests to a service name instead of an IP address.\n\nThe platform automatically resolves the service name to one of the available service instances.\n\nApplications do not need to know where the service is running.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nleft to right direction\n\ncomponent \u0022Order Service\u0022 as Order\n\ncloud \u0022Service Registry\u0022\n\ncomponent \u0022Payment Service\\n(Pod 1)\u0022 as P1\ncomponent \u0022Payment Service\\n(Pod 2)\u0022 as P2\ncomponent \u0022Payment Service\\n(Pod 3)\u0022 as P3\n\nOrder --\u003E \u0022payment-service\u0022\n\n\u0022payment-service\u0022 --\u003E \u0022Service Registry\u0022\n\n\u0022Service Registry\u0022 --\u003E P1\n\u0022Service Registry\u0022 --\u003E P2\n\u0022Service Registry\u0022 --\u003E P3\n\n@enduml",
+          "title": "Service Discovery",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical Benefits",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Benefit",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "No hardcoded IP addresses",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Services communicate using names",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Supports scaling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "New service instances are discovered automatically",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Supports self-healing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Replaced instances become available without configuration changes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Simplifies communication",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Applications don\u0027t need to know where services are running",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Improves reliability",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Requests can be routed to healthy instances",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Where Is Service Discovery Used?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Service discovery is commonly used in:\n\n- Kubernetes\n- Docker Compose\n- Service meshes\n- Cloud platforms\n- Microservice architectures\n\nFor example, in Kubernetes, every Service receives a stable DNS name that applications use to communicate with the Pods behind it.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Service Discovery** allows applications to communicate using **service names instead of IP addresses**.\n\nAs services are deployed, restarted, or scaled, the platform automatically keeps track of their locations, making communication between microservices simpler, more reliable, and easier to maintain.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "REST vs gRPC vs Messaging",
