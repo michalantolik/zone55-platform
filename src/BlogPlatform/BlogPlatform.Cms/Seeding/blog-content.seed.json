@@ -184,9 +184,7 @@
       "dotnetZoneStep": "design-patterns",
       "order": 1,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Design Patterns"
       ],
       "bodyBlocks": [
         {
@@ -301,9 +299,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 1,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -317,9 +313,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 2,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -333,9 +327,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 3,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -349,9 +341,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 4,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -365,9 +355,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 5,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -381,9 +369,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 6,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -397,9 +383,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 7,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -413,9 +397,7 @@
       "dotnetZoneStep": "azure-integration",
       "order": 8,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Azure Integration"
       ],
       "bodyBlocks": []
     },
@@ -429,7 +411,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 1,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": []
     },
@@ -443,7 +425,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 2,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": []
     },
@@ -457,7 +439,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 3,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": []
     },
@@ -471,7 +453,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 4,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": []
     },
@@ -485,7 +467,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 5,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": []
     },
@@ -499,7 +481,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 6,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": [
         {
@@ -536,7 +518,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 7,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": [
         {
@@ -884,7 +866,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 8,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": [
         {
@@ -913,7 +895,7 @@
       "dotnetZoneStep": "cicd-pipelines",
       "order": 9,
       "tags": [
-        "CI/CD"
+        "CI/CD Pipelines"
       ],
       "bodyBlocks": [
         {
@@ -1225,9 +1207,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 1,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": [
         {
@@ -1252,9 +1232,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 2,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1268,9 +1246,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 3,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1284,9 +1260,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 4,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1300,9 +1274,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 5,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1316,9 +1288,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 6,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1332,9 +1302,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 7,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1348,9 +1316,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 8,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1364,9 +1330,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 9,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1380,9 +1344,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 10,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1396,9 +1358,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 11,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": []
     },
@@ -1412,9 +1372,7 @@
       "dotnetZoneStep": "infrastructure-as-code",
       "order": 12,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Infrastructure as Code"
       ],
       "bodyBlocks": [
         {
@@ -1471,9 +1429,7 @@
       "dotnetZoneStep": "microservices",
       "order": 1,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -1487,9 +1443,7 @@
       "dotnetZoneStep": "microservices",
       "order": 2,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -1503,9 +1457,7 @@
       "dotnetZoneStep": "microservices",
       "order": 3,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -1519,9 +1471,7 @@
       "dotnetZoneStep": "microservices",
       "order": 4,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -1735,9 +1685,7 @@
       "dotnetZoneStep": "microservices",
       "order": 5,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -1952,9 +1900,7 @@
       "dotnetZoneStep": "microservices",
       "order": 6,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -1968,9 +1914,7 @@
       "dotnetZoneStep": "microservices",
       "order": 7,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -1999,9 +1943,7 @@
       "dotnetZoneStep": "microservices",
       "order": 8,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -2030,9 +1972,7 @@
       "dotnetZoneStep": "microservices",
       "order": 9,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -2155,9 +2095,7 @@
       "dotnetZoneStep": "microservices",
       "order": 10,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -2202,9 +2140,7 @@
       "dotnetZoneStep": "microservices",
       "order": 11,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -2424,9 +2360,7 @@
       "dotnetZoneStep": "microservices",
       "order": 12,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -2797,9 +2731,7 @@
       "dotnetZoneStep": "microservices",
       "order": 13,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -3153,9 +3085,7 @@
       "dotnetZoneStep": "microservices",
       "order": 14,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": [
         {
@@ -3502,9 +3432,7 @@
       "dotnetZoneStep": "microservices",
       "order": 15,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3518,9 +3446,7 @@
       "dotnetZoneStep": "microservices",
       "order": 16,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3534,9 +3460,7 @@
       "dotnetZoneStep": "microservices",
       "order": 17,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3550,9 +3474,7 @@
       "dotnetZoneStep": "microservices",
       "order": 18,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3566,9 +3488,7 @@
       "dotnetZoneStep": "microservices",
       "order": 19,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3582,9 +3502,7 @@
       "dotnetZoneStep": "microservices",
       "order": 20,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3598,9 +3516,7 @@
       "dotnetZoneStep": "microservices",
       "order": 21,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Microservices"
       ],
       "bodyBlocks": []
     },
@@ -3794,9 +3710,7 @@
       "dotnetZoneStep": "modern-csharp-dotnet",
       "order": 1,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Modern C# \u0026 .NET"
       ],
       "bodyBlocks": [
         {
@@ -3826,9 +3740,7 @@
       "dotnetZoneStep": "modern-csharp-dotnet",
       "order": 2,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "Modern C# \u0026 .NET"
       ],
       "bodyBlocks": [
         {
@@ -3869,7 +3781,7 @@
       "dotnetZoneStep": "modern-csharp-dotnet",
       "order": 3,
       "tags": [
-        ".NET",
+        "Modern C# \u0026 .NET",
         "Interview"
       ],
       "bodyBlocks": [
@@ -4246,9 +4158,7 @@
       "dotnetZoneStep": "aspnet-core-ecosystem",
       "order": 1,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "ASP.NET Core Ecosystem"
       ],
       "bodyBlocks": []
     },
@@ -4262,9 +4172,7 @@
       "dotnetZoneStep": "aspnet-core-ecosystem",
       "order": 2,
       "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
+        "ASP.NET Core Ecosystem"
       ],
       "bodyBlocks": [
         {
