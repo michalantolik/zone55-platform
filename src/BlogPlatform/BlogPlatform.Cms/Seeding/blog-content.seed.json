@@ -844,6 +844,658 @@
       ]
     },
     {
+      "name": "What Is Kubernetes?",
+      "slug": "what-is-k8",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Kubernetes** (often abbreviated as **K8s**) is an open-source **container orchestration** platform that automates the deployment, scaling, and management of containerized applications.\n\nInstead of managing individual containers manually, Kubernetes manages the **desired state** of an entire application and continuously works to keep it running.\n\nIt is commonly used to run applications reliably across multiple servers in production environments.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 12,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why Kubernetes?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Docker makes it easy to run a single container.\n\nHowever, production applications often consist of dozens or even hundreds of containers running across multiple servers.\n\nManaging those containers manually quickly becomes difficult.\n\nKubernetes automates many of these operational tasks so applications remain available, scalable, and resilient.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What Kubernetes Does",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Capability",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Deploy applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Starts application containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Scale applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Adds or removes container instances automatically",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Self-healing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Restarts failed containers automatically",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Load balancing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Distributes traffic between running containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Service discovery",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Allows services to find each other",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Rolling updates",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Deploys new versions with little or no downtime",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How Kubernetes Works",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Instead of telling Kubernetes **how** to run containers step by step, you describe the **desired state** of your application.\n\nFor example:\n\n- Run **three instances** of my API\n- Restart failed containers automatically\n- Expose the application on port 80\n\nKubernetes continuously monitors the cluster and works to keep the actual state matching the desired state.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "High-Level Architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nleft to right direction\n\nnode \u0022Kubernetes Cluster\u0022 {\n\n    node \u0022Worker Node 1\u0022 {\n        component \u0022Container\u0022\n        component \u0022Container\u0022\n    }\n\n    node \u0022Worker Node 2\u0022 {\n        component \u0022Container\u0022\n        component \u0022Container\u0022\n    }\n\n}\n\ncloud \u0022Users\u0022\n\nUsers --\u003E \u0022Kubernetes Cluster\u0022\n\n@enduml",
+          "title": "Kubernetes at a High Level",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Docker vs Kubernetes",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Docker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Creates and runs containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Manages containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Works well on a single machine",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Works across many machines",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Focuses on individual containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Focuses on complete applications",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Container runtime",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Container orchestration platform",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Where Is Kubernetes Used?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Kubernetes is commonly used to run:\n\n- Microservices\n- Cloud-native applications\n- Web APIs\n- Enterprise platforms\n- AI and machine learning workloads\n- Large-scale distributed systems\n\nMajor cloud providers such as **Microsoft Azure**, **Amazon Web Services (AWS)**, and **Google Cloud Platform (GCP)** offer managed Kubernetes services.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Kubernetes manages containerized applications at scale.**\n\nWhile **Docker** focuses on creating and running individual containers, Kubernetes automates the deployment, scaling, networking, and recovery of containers across multiple servers.\n\nFor modern cloud-native applications, Docker and Kubernetes are often used **together**, with Docker packaging the application and Kubernetes managing its execution.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Why Choose AKS Instead of Azure App Service?",
+      "slug": "why-choose-aks-instead-of-app-service",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Both **Azure App Service** and **Azure Kubernetes Service (AKS)** allow you to host applications in Azure, but they target different levels of complexity and control.\n\n**Azure App Service** is a fully managed **Platform as a Service (PaaS)** designed for quickly deploying web applications and APIs. **AKS** is a managed **Kubernetes** platform that provides greater flexibility, scalability, and control over containerized applications.\n\nThe choice depends on the application\u0027s architecture, operational requirements, and the level of infrastructure control needed.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 13,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure App Service",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Azure App Service** is designed to simplify application hosting.\n\nMicrosoft manages the infrastructure, operating system, runtime updates, and much of the platform, allowing developers to focus primarily on application code.\n\nIt is an excellent choice for hosting **ASP.NET Core web applications** and **REST APIs** with minimal operational overhead.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure Kubernetes Service (AKS)",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Azure Kubernetes Service (AKS)** is designed for running **containerized applications** at scale.\n\nApplications are packaged into containers and deployed to a Kubernetes cluster, where Kubernetes manages scheduling, scaling, networking, and self-healing.\n\nAKS provides significantly more flexibility than App Service but also requires a deeper understanding of Kubernetes concepts and cluster management.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comparison",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Azure App Service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Azure Kubernetes Service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Platform",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "PaaS",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Deployment",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Infrastructure management",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Mostly managed",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Cluster managed by Kubernetes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Complexity",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Low",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "High",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Scalability",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Automatic",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Advanced and highly configurable",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Multiple microservices",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Limited",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Excellent",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Best suited for",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Web Apps, REST APIs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Cloud-native and microservices",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use Azure App Service?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **Azure App Service** when:\n\n- Hosting a web application or REST API.\n- You want the fastest deployment.\n- Infrastructure management should be minimal.\n- Your application architecture is relatively simple.\n- You do not require Kubernetes features.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use AKS?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **AKS** when:\n\n- Running multiple microservices.\n- Deploying containerized applications.\n- Managing complex cloud-native architectures.\n- Requiring advanced scaling and orchestration.\n- Running workloads that benefit from Kubernetes features.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Azure App Service vs AKS\n\nactor User\n\ncloud Azure {\n\n    package \u0022Azure App Service\u0022 {\n        component \u0022ASP.NET Core API\u0022\n    }\n\n    package \u0022Azure Kubernetes Service\u0022 {\n\n        frame \u0022Deployment\u0022 {\n\n            frame \u0022Pod\u0022 {\n                component \u0022API Container\u0022\n            }\n\n            frame \u0022Pod\u0022 {\n                component \u0022Worker Container\u0022\n            }\n\n            frame \u0022Pod\u0022 {\n                component \u0022Background Job\u0022\n            }\n\n        }\n\n    }\n\n}\n\nUser --\u003E \u0022ASP.NET Core API\u0022\n\nUser --\u003E \u0022API Container\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose a company develops an internal business application consisting of a single ASP.NET Core Web API.\n\nIn this scenario, **Azure App Service** is usually the simplest and most cost-effective choice.\n\nNow imagine the application evolves into dozens of independent microservices that require independent deployments, advanced scaling, rolling updates, and container orchestration.\n\nIn that case, **Azure Kubernetes Service** becomes a much better fit.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Can they work together?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Yes. Many organizations use both services.\n\nSome applications run on **Azure App Service** because they are simple to manage, while more complex or containerized workloads run on **AKS**.\n\nChoosing the right platform for each workload helps balance simplicity, flexibility, and operational cost.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **Azure App Service** when you want to deploy web applications quickly with minimal infrastructure management.\n\nChoose **Azure Kubernetes Service (AKS)** when your application requires **container orchestration**, **advanced scalability**, **microservices**, or greater control over the runtime environment.\n\nFor many organizations, the best solution is not choosing one over the other, but using each platform where it provides the greatest value.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "What Is Azure Service Bus?",
       "slug": "what-is-azure-service-bus",
       "level": "Draft",
@@ -851,7 +1503,7 @@
       "summary": "**Azure Service Bus** is a **fully managed messaging service** that enables applications and services to communicate by exchanging **messages**.\n\nInstead of communicating directly with each other, applications send messages to **queues** or **topics**, allowing other applications to process them asynchronously. This improves **reliability**, **scalability**, and **decoupling** between different parts of a system.\n\nAzure Service Bus is commonly used in **distributed systems**, **microservices**, and **event-driven architectures**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 12,
+      "order": 14,
       "tags": [
         "Azure Integration"
       ],
@@ -930,7 +1582,7 @@
       "summary": "**Azure Service Bus Queues** and **Topics** are two messaging models that enable applications to communicate **asynchronously**.\n\nA **Queue** delivers each message to **exactly one consumer**, making it ideal for distributing work between multiple workers.\n\nA **Topic** can deliver the **same message to multiple independent subscribers**, making it suitable for event-driven systems where several applications need to react to the same event.\n\nChoosing between a Queue and a Topic depends on whether a message should be processed by **one** consumer or **many** consumers.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 14,
+      "order": 15,
       "tags": [
         "Azure Integration"
       ],
@@ -1187,7 +1839,7 @@
       "summary": "**Azure Service Bus** enables applications to communicate by exchanging **messages** instead of calling each other directly.\n\nA **producer** sends a message to Azure Service Bus, where it is stored until a **consumer** retrieves and processes it. Because the sender and receiver do not communicate directly, they can operate independently and at different times.\n\nThis asynchronous communication improves the **reliability**, **scalability**, and **availability** of distributed applications.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 14,
+      "order": 16,
       "tags": [
         "Azure Integration"
       ],
@@ -1283,7 +1935,7 @@
       "summary": "**Azure SQL Database** is a **fully managed relational database service** based on **Microsoft SQL Server**.\n\nIt allows you to store, organize, and query structured data without managing database servers, operating systems, backups, or software updates.\n\nBecause Azure SQL Database is a **Platform as a Service (PaaS)** offering, Microsoft manages the underlying infrastructure, allowing developers to focus on designing databases and building applications.\n\nAzure SQL Database is commonly used by **ASP.NET Core** applications, **REST APIs**, and enterprise business systems.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 15,
+      "order": 17,
       "tags": [
         "Azure Integration"
       ],
@@ -1366,7 +2018,7 @@
       "summary": "**Azure Storage** is a **managed cloud storage service** that provides scalable, durable, and highly available storage for different types of data.\n\nInstead of offering a single storage solution, Azure Storage includes several specialized services designed for different scenarios, such as storing **files**, **objects**, **messages**, and **structured NoSQL data**.\n\nAzure Storage is commonly used by **web applications**, **microservices**, **mobile applications**, and **cloud-native solutions**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 16,
+      "order": 18,
       "tags": [
         "Azure Integration"
       ],
@@ -1438,7 +2090,7 @@
       "summary": "**Azure Key Vault** is a **managed security service** that securely stores and manages **secrets**, **cryptographic keys**, and **certificates** used by applications and cloud services.\n\nInstead of storing sensitive information such as passwords, connection strings, or API keys directly in application code or configuration files, applications can securely retrieve them from Azure Key Vault at runtime.\n\nAzure Key Vault helps improve **security**, **centralized management**, and **access control** for sensitive application data.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 17,
+      "order": 19,
       "tags": [
         "Azure Integration"
       ],
@@ -1510,7 +2162,7 @@
       "summary": "**Managed Identity** is an Azure feature that allows an **Azure resource** to securely authenticate with other Azure services **without storing usernames, passwords, or secrets**.\n\nInstead of keeping credentials in application configuration or source code, Azure automatically creates and manages an identity for the application. The application can then use this identity to access services such as **Azure Key Vault**, **Azure Storage**, or **Azure SQL Database**.\n\nManaged Identity simplifies authentication while improving the **security** and **maintainability** of cloud applications.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "azure-integration",
-      "order": 18,
+      "order": 20,
       "tags": [
         "Azure Integration"
       ],
@@ -6338,8 +6990,8 @@
       ]
     },
     {
-      "name": "REST vs gRPC vs Messaging",
-      "slug": "rest-vs-grpc-vs-messaging",
+      "name": "Synchronous vs Asynchronous Communication",
+      "slug": "synchronous-vs-asynchronous-communication",
       "level": "Draft",
       "focus": "Preview",
       "summary": "...",
@@ -6352,46 +7004,1473 @@
       "bodyBlocks": []
     },
     {
-      "name": "Synchronous vs Asynchronous Communication",
-      "slug": "synchronous-vs-asynchronous-communication",
+      "name": "REST vs gRPC vs Messaging",
+      "slug": "rest-vs-grpc-vs-messaging",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "**REST**, **gRPC**, and **Messaging** are three common approaches for communication between applications and services.\n\n**REST** is based on HTTP and is widely used for web APIs. **gRPC** provides high-performance communication using Protocol Buffers and HTTP/2. **Messaging** enables asynchronous communication through a message broker, allowing applications to operate independently.\n\nChoosing the right approach depends on factors such as **response time**, **performance**, **reliability**, and **system architecture**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 24,
       "tags": [
         "Microservices"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "REST",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**REST (Representational State Transfer)** is the most common way for applications to communicate over HTTP.\n\nA client sends a request and waits for the server to return a response.\n\nREST is simple, widely supported, and ideal for exposing public APIs and web applications.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "gRPC",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**gRPC** is a high-performance communication framework developed by Google.\n\nInstead of JSON, gRPC exchanges compact **Protocol Buffers (Protobuf)** messages over **HTTP/2**, making communication faster and more efficient.\n\nIt is commonly used for communication between internal microservices where performance is important.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Messaging",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Messaging** allows applications to exchange messages asynchronously through a **message broker** such as **Azure Service Bus**, **RabbitMQ**, or **Apache Kafka**.\n\nInstead of waiting for an immediate response, the sender places a message on a queue or topic, and the receiving application processes it later.\n\nThis approach improves reliability, scalability, and resilience in distributed systems.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comparison",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "REST",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "gRPC",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Messaging",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Communication",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Synchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Synchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Asynchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Immediate response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Transport",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "HTTP",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "HTTP/2",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Message Broker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Data format",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "JSON",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Protocol Buffers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Messages",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Performance",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Good",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Excellent",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Depends on broker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Loose coupling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Low",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Low",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "High",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Best for",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Public APIs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Internal services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Background processing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\ncomponent \u0022REST API\u0022\n\ncomponent \u0022gRPC Service\u0022\n\nqueue \u0022Message Broker\u0022\n\ncomponent \u0022Background Worker\u0022\n\nClient --\u003E \u0022REST API\u0022 : HTTP / JSON\n\nClient --\u003E \u0022gRPC Service\u0022 : HTTP/2 / Protobuf\n\nClient --\u003E \u0022Message Broker\u0022 : Publish message\n\n\u0022Message Broker\u0022 --\u003E \u0022Background Worker\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use REST?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **REST** when:\n\n- Building public APIs.\n- Browsers or mobile applications consume the API.\n- Simplicity and compatibility are more important than maximum performance.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use gRPC?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **gRPC** when:\n\n- Communication happens between internal services.\n- High performance and low latency are important.\n- Both client and server are under your control.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use Messaging?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **Messaging** when:\n\n- Immediate responses are not required.\n- Applications should remain loosely coupled.\n- Work can be processed in the background.\n- The system must tolerate temporary failures.\n- Multiple services need to react to the same event.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Can they work together?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Yes. Modern cloud-native applications often use all three communication styles.\n\nFor example:\n\n- A web application communicates with a REST API.\n- Internal microservices communicate using gRPC.\n- Background processing is handled through a messaging system such as Azure Service Bus.\n\nEach communication style solves a different problem, and using them together allows systems to balance simplicity, performance, and reliability.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**REST**, **gRPC**, and **Messaging** are complementary communication styles rather than competing technologies.\n\n- Use **REST** for simple and widely compatible APIs.\n- Use **gRPC** for fast communication between internal services.\n- Use **Messaging** for asynchronous, reliable communication in distributed systems.\n\nChoosing the appropriate communication style depends on the requirements of the application rather than on a single technology being universally better.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "What Is Event-Driven Architecture?",
       "slug": "what-is-event-driven-architecture",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "**Event-Driven Architecture (EDA)** is an architectural style in which applications communicate by **publishing and reacting to events**.\n\nInstead of calling other services directly, an application publishes an event describing something that has happened. Other applications can subscribe to that event and perform their own work independently.\n\nThis approach reduces coupling between services while improving **scalability**, **reliability**, and **flexibility**, making it a common choice for **microservices** and **cloud-native applications**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 25,
       "tags": [
         "Microservices"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What is an event?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "An **event** is a notification that **something has already happened**.\n\nExamples include:\n\n- Order Created\n- Payment Completed\n- User Registered\n- File Uploaded\n- Invoice Generated\n\nAn event describes a completed action. It does not tell another application what to do \u2014 it simply announces that something has happened.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How does Event-Driven Architecture work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In an Event-Driven Architecture, applications communicate by exchanging events instead of calling each other directly.\n\nOne application publishes an event, while one or more other applications subscribe to that event and react independently.\n\nThe publisher does not need to know which applications will process the event.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Event-Driven Architecture\n\ncomponent \u0022Order Service\u0022\n\nqueue \u0022Message Broker\u0022\n\ncomponent \u0022Email Service\u0022\n\ncomponent \u0022Inventory Service\u0022\n\ncomponent \u0022Billing Service\u0022\n\n\u0022Order Service\u0022 --\u003E \u0022Message Broker\u0022 : Publish\\nOrder Created\n\n\u0022Message Broker\u0022 --\u003E \u0022Email Service\u0022\n\n\u0022Message Broker\u0022 --\u003E \u0022Inventory Service\u0022\n\n\u0022Message Broker\u0022 --\u003E \u0022Billing Service\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Event-Driven Architecture?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Event-Driven Architecture offers several advantages:\n\n- Loose coupling between services\n- Better scalability\n- Improved fault tolerance\n- Easier integration of new services\n- Independent deployment of applications\n\nBecause services communicate through events instead of direct calls, each service can evolve independently.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose a customer places an order.\n\nThe **Order Service** publishes an **Order Created** event.\n\nSeveral independent services react to the same event:\n\n- Email Service sends a confirmation email.\n- Inventory Service reserves products.\n- Billing Service generates an invoice.\n\nThe Order Service does not need to know that these services exist.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Event-Driven vs Direct Communication",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Direct Communication",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Event-Driven Architecture",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Services call each other directly",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Services communicate through events",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Strong coupling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Loose coupling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Immediate response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Usually asynchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Harder to extend",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Easy to add new subscribers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "More dependencies",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Fewer dependencies",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common technologies",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Event-Driven Architecture can be implemented using many messaging technologies, including:\n\n- Azure Service Bus\n- Azure Event Grid\n- Azure Event Hubs\n- RabbitMQ\n- Apache Kafka\n\nThese technologies provide the infrastructure for publishing and delivering events between applications.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Event-Driven Architecture** is an architectural style where applications communicate by **publishing and reacting to events** rather than calling each other directly.\n\nThis approach creates **loosely coupled**, **scalable**, and **resilient** systems that are easier to extend as new services and business requirements are introduced.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "What Is a Message Broker?",
       "slug": "what-is-a-message-broker",
       "level": "Draft",
       "focus": "Preview",
-      "summary": "...",
+      "summary": "A **Message Broker** is a software component that enables applications to communicate by **sending and receiving messages** instead of communicating directly.\n\nRather than connecting services together, applications exchange messages through the broker. The broker receives messages from producers and delivers them to the appropriate consumers.\n\nMessage brokers improve **reliability**, **scalability**, and **loose coupling**, making them a key building block of **event-driven** and **microservices** architectures.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
       "order": 26,
       "tags": [
         "Microservices"
       ],
-      "bodyBlocks": []
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use a Message Broker?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In distributed systems, applications often need to communicate with each other.\n\nIf every application communicates directly using HTTP, each service depends on the availability and responsiveness of the others.\n\nA **Message Broker** removes this dependency by acting as an intermediary. Applications send messages to the broker, and the broker delivers them to the appropriate consumers.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How does it work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Message Broker sits between **message producers** and **message consumers**.\n\nThe producer sends a message to the broker.\n\nThe broker stores or forwards the message and delivers it to one or more consumers.\n\nBecause the producer and consumer do not communicate directly, they can operate independently.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Message Broker\n\ncomponent \u0022Producer\u0022\n\nqueue \u0022Message Broker\u0022\n\ncomponent \u0022Consumer A\u0022\n\ncomponent \u0022Consumer B\u0022\n\n\u0022Producer\u0022 --\u003E \u0022Message Broker\u0022 : Send message\n\n\u0022Message Broker\u0022 --\u003E \u0022Consumer A\u0022\n\n\u0022Message Broker\u0022 --\u003E \u0022Consumer B\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Benefits",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Using a Message Broker provides several advantages:\n\n- Loose coupling between applications\n- Asynchronous communication\n- Improved reliability\n- Better scalability\n- Temporary message storage\n- Easier integration of new services",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common use cases",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Message brokers are commonly used for:\n\n- Communication between microservices\n- Background processing\n- Event-driven systems\n- Order processing\n- Sending notifications\n- Integrating independent applications",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common Message Brokers",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Popular message broker technologies include:\n\n- Azure Service Bus\n- RabbitMQ\n- Apache Kafka\n- Amazon SQS\n- Google Cloud Pub/Sub\n\nAlthough they differ in features and implementation, they all provide a way for applications to exchange messages without communicating directly.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Message Broker vs Direct Communication",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Direct Communication",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Message Broker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Services call each other directly",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Services communicate through a broker",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Strong coupling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Loose coupling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Immediate response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Usually asynchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "More dependencies",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Fewer dependencies",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Harder to scale",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Easier to scale",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose an online store creates a new order.\n\nInstead of directly calling the Email Service, Inventory Service, and Billing Service, the **Order Service** sends an **Order Created** message to the Message Broker.\n\nEach service independently receives the message and performs its own work.\n\nThe Order Service does not need to know which services process the message or whether they are currently running.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Message Broker** enables applications to communicate by exchanging messages rather than communicating directly.\n\nBy decoupling producers and consumers, message brokers improve **reliability**, **scalability**, and **flexibility**, making them an essential component of modern **microservices** and **event-driven architectures**.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Commands vs Events",
+      "slug": "commands-vs-events",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Commands** and **Events** are two different types of messages used in distributed systems and event-driven architectures.\n\nA **Command** represents a request to perform an action and is typically handled by **one specific service**. An **Event** represents something that has already happened and can be consumed by **multiple independent services**.\n\nUnderstanding the difference between Commands and Events is essential for designing **loosely coupled**, **scalable**, and **maintainable** microservices.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 28,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What is a Command?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Command** is a message that requests an application to perform an action.\n\nIt is sent to **one specific receiver**, which is responsible for executing the requested operation.\n\nA Command expresses **intent** and expects the receiving service to decide whether the action can be performed.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Example.cs",
+          "code": "public sealed class Example\n{\n    public string Name { get; set; } = string.Empty;\n}",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Examples of Commands",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Examples of Commands include:\n\n- Create Order\n- Process Payment\n- Send Invoice\n- Cancel Reservation\n- Register User\n\nA Command asks another service to perform work.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What is an Event?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "An **Event** is a message that describes **something that has already happened**.\n\nIt is published after a successful operation and can be consumed by **multiple independent services**.\n\nUnlike a Command, an Event does not tell another service what to do. It simply communicates a fact.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Examples of Events",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Examples of Events include:\n\n- Order Created\n- Payment Completed\n- User Registered\n- Invoice Generated\n- Product Shipped\n\nAn Event announces that an action has already occurred.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Commands vs Events\n\ncomponent \u0022Order API\u0022\n\nqueue \u0022Message Broker\u0022\n\ncomponent \u0022Order Service\u0022\n\ncomponent \u0022Email Service\u0022\n\ncomponent \u0022Inventory Service\u0022\n\ncomponent \u0022Billing Service\u0022\n\n\u0022Order API\u0022 --\u003E \u0022Message Broker\u0022 : Command\\nCreate Order\n\n\u0022Message Broker\u0022 --\u003E \u0022Order Service\u0022\n\n\u0022Order Service\u0022 --\u003E \u0022Message Broker\u0022 : Event\\nOrder Created\n\n\u0022Message Broker\u0022 --\u003E \u0022Email Service\u0022\n\n\u0022Message Broker\u0022 --\u003E \u0022Inventory Service\u0022\n\n\u0022Message Broker\u0022 --\u003E \u0022Billing Service\u0022\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comparison",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Command",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Event",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Purpose",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Request an action",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Announce something happened",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Meaning",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0022Please do this.\u0022",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0022This already happened.\u0022",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Consumers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Usually one",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "One or many",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Communication",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Directed",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Published",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Typical use",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Execute business logic",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Notify interested services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose a customer places an order.\n\nThe application sends a **Create Order** command to the **Order Service**.\n\nAfter the order is successfully created, the Order Service publishes an **Order Created** event.\n\nOther services, such as the Email Service, Inventory Service, and Billing Service, can independently react to the event without the Order Service knowing they exist.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why is the distinction important?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Separating Commands from Events helps build loosely coupled systems.\n\nCommands define **what should happen**, while Events describe **what has already happened**.\n\nThis separation allows services to evolve independently and makes it easier to add new consumers without changing the existing application.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Command** requests that an action be performed.\n\nAn **Event** announces that an action has already been completed.\n\nCommands are typically handled by **one service**, while Events can be consumed by **multiple services**, making them a fundamental building block of **event-driven** and **microservices** architectures.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Why Choose Azure Service Bus Instead of Synchronous HTTP?",
+      "slug": "why-choose-azure-service-bus-instead-of-synchronous-http",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Both **synchronous HTTP communication** and **Azure Service Bus** enable applications to communicate, but they solve different architectural problems.\n\n**HTTP** is best suited for scenarios where an immediate response is required. **Azure Service Bus** is designed for **asynchronous communication**, allowing applications to exchange messages without depending on each other being available at the same time.\n\nChoosing the right communication model depends on your application\u0027s requirements for **availability**, **scalability**, **reliability**, and **response time**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 28,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Synchronous HTTP",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "With **synchronous HTTP**, one application sends a request directly to another application and waits for a response.\n\nIf the receiving application is unavailable or responding slowly, the caller must wait or handle the failure immediately.\n\nThis approach is ideal when an immediate result is required.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure Service Bus",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "With **Azure Service Bus**, the sending application places a **message** on a queue or topic and continues its work.\n\nThe receiving application processes the message later, when it is available.\n\nBecause the sender and receiver operate independently, temporary outages or spikes in traffic have much less impact on the overall system.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comparison",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "HTTP",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Azure Service Bus",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Communication",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Synchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Asynchronous",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Immediate response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Sender waits",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C No",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Loose coupling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C Limited",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Yes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Handles traffic spikes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C Limited",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Excellent",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Fault tolerance",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u274C Lower",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u2705 Higher",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Typical use",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "REST APIs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Background processing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Consider an online store.\n\nWhen a customer places an order, the API should respond quickly with an order confirmation.\n\nHowever, tasks such as:\n\n- Sending a confirmation email\n- Generating an invoice\n- Updating inventory\n- Notifying external systems\n\ndo not need to complete before returning the response.\n\nInstead of calling each service synchronously, the application can send messages to **Azure Service Bus**, allowing those tasks to run independently in the background.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Customer\n\ncomponent \u0022Order API\u0022\n\nqueue \u0022Azure Service Bus\u0022\n\ncomponent \u0022Email Service\u0022\n\ncomponent \u0022Inventory Service\u0022\n\ncomponent \u0022Invoice Service\u0022\n\nCustomer --\u003E \u0022Order API\u0022\n\n\u0022Order API\u0022 --\u003E Customer : Order Created\n\n\u0022Order API\u0022 --\u003E \u0022Azure Service Bus\u0022 : Publish OrderCreated\n\n\u0022Azure Service Bus\u0022 --\u003E \u0022Email Service\u0022\n\n\u0022Azure Service Bus\u0022 --\u003E \u0022Inventory Service\u0022\n\n\u0022Azure Service Bus\u0022 --\u003E \u0022Invoice Service\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use HTTP?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **HTTP** when:\n\n- The client needs an immediate response.\n- The operation is short-lived.\n- The request must complete before continuing.\n- You are exposing a REST API.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When should you use Azure Service Bus?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Choose **Azure Service Bus** when:\n\n- Work can be processed later.\n- Multiple services need to react to the same event.\n- Systems should remain loosely coupled.\n- Reliability is more important than an immediate response.\n- Applications must tolerate temporary failures.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Can they work together?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Yes. Modern cloud applications commonly use both communication models.\n\nA client typically communicates with a **REST API** using HTTP. After processing the request, the API publishes one or more messages to **Azure Service Bus** so that background services can perform additional work asynchronously.\n\nUsing HTTP for user interactions and Azure Service Bus for background processing combines fast responses with reliable, scalable system design.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Use **HTTP** when an application needs an **immediate response**.\n\nUse **Azure Service Bus** when work can be processed **asynchronously**, improving **reliability**, **scalability**, and **fault tolerance**.\n\nIn many cloud-native architectures, both technologies are used together: **HTTP handles client requests**, while **Azure Service Bus coordinates background communication between services**.",
+          "rows": []
+        }
+      ]
     },
     {
       "name": "A Simple C# Program",
