@@ -4936,6 +4936,100 @@
       ]
     },
     {
+      "name": "What Is Kubernetes Architecture?",
+      "slug": "what-is-kubernetes-architecture",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Kubernetes Architecture** describes how a **Kubernetes cluster** is organized to deploy, manage, and scale containerized applications.\n\nA Kubernetes cluster consists of a **Control Plane**, which manages the cluster, and one or more **Worker Nodes**, where application containers run. Together, these components provide automated deployment, scaling, self-healing, and high availability.\n\nUnderstanding Kubernetes Architecture is the foundation for learning concepts such as **Pods**, **Deployments**, **Services**, and **Ingress**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 16,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why learn Kubernetes Architecture?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Before deploying applications to Kubernetes, it is important to understand how a Kubernetes cluster is organized.\n\nKnowing the role of the **Control Plane** and **Worker Nodes** makes it much easier to understand how Kubernetes schedules workloads, manages resources, and keeps applications running.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Main components",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Kubernetes cluster consists of two main parts:\n\n- **Control Plane** \u2013 manages the cluster and makes scheduling decisions.\n- **Worker Nodes** \u2013 run application workloads inside containers.\n\nThe Control Plane continuously monitors the cluster and ensures that the actual state matches the desired state defined by the user.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Control Plane responsibilities",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The **Control Plane** is responsible for managing the entire Kubernetes cluster.\n\nIts responsibilities include:\n\n- Scheduling workloads\n- Managing cluster state\n- Monitoring nodes\n- Starting and stopping workloads\n- Responding to failures",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Worker Node responsibilities",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Worker Nodes are machines that execute application workloads.\n\nEach Worker Node can run multiple **Pods**, and each Pod contains one or more application containers.\n\nThe Control Plane continuously communicates with Worker Nodes to ensure that applications remain healthy and available.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Kubernetes Cluster Architecture\n\ncloud \u0022Kubernetes Cluster\u0022 {\n\n    node \u0022Control Plane\u0022 {\n\n        component \u0022API Server\u0022\n        component \u0022Scheduler\u0022\n        component \u0022Controller Manager\u0022\n        database \u0022etcd\u0022\n    }\n\n    node \u0022Worker Node 1\u0022 {\n        frame \u0022Pod\u0022 {\n            component \u0022Container\u0022\n        }\n    }\n\n    node \u0022Worker Node 2\u0022 {\n        frame \u0022Pod\u0022 {\n            component \u0022Container\u0022\n        }\n    }\n\n    node \u0022Worker Node 3\u0022 {\n        frame \u0022Pod\u0022 {\n            component \u0022Container\u0022\n        }\n    }\n\n}\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How it works",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When an application is deployed, the request is sent to the **Control Plane**.\n\nThe Control Plane decides which **Worker Node** should run the application and schedules the workload accordingly.\n\nIf a Worker Node becomes unavailable, Kubernetes automatically schedules replacement Pods on healthy nodes, helping keep the application available.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A **Kubernetes cluster** consists of a **Control Plane**, which manages the cluster, and **Worker Nodes**, which run application workloads.\n\nThis architecture enables Kubernetes to automatically deploy, scale, monitor, and recover containerized applications, making it a powerful platform for running cloud-native software.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "What Is a Kubernetes Pod?",
       "slug": "what-is-a-kubernetes-pod",
       "level": "Draft",
@@ -4943,7 +5037,7 @@
       "summary": "A **Pod **is the **smallest deployable** unit in Kubernetes.\n\nA Pod contains one or more **containers** that are deployed, started, stopped, and managed **together**.\n\nContainers within the same Pod **share the same network**, **IP address**, and **storage volumes**, allowing them to communicate efficiently.\n\nAlthough a Pod can contain multiple containers, **most Pods run a single application container**.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 16,
+      "order": 17,
       "tags": [
         "Microservices"
       ],
@@ -5254,6 +5348,788 @@
       ]
     },
     {
+      "name": "Node vs Pod vs Container",
+      "slug": "node-vs-pod-vs-container",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Nodes**, **Pods**, and **Containers** are the fundamental building blocks of a Kubernetes cluster.\n\nA **Node** is a machine that provides computing resources. A **Pod** is the smallest deployable unit in Kubernetes and contains one or more **Containers**. Containers run the actual application, while Pods manage how containers are executed within the cluster.\n\nUnderstanding the relationship between these components is essential before learning Kubernetes Deployments, Services, and scaling.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 18,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "The hierarchy",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "These three components work together in a simple hierarchy:\n\n- A **Node** hosts one or more Pods.\n- A **Pod** contains one or more Containers.\n- A **Container** runs the application.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What is a Node?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Node** is a physical or virtual machine that belongs to a Kubernetes cluster.\n\nIts primary responsibility is to provide CPU, memory, storage, and networking resources for running application workloads.\n\nA Kubernetes cluster typically consists of multiple Worker Nodes managed by the Control Plane.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What is a Pod?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Pod** is the smallest deployable unit in Kubernetes.\n\nA Pod groups one or more closely related Containers that share the same network and storage resources.\n\nIn most applications, a Pod contains a single application container.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What is a Container?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Container** packages an application together with everything it needs to run, including its runtime, libraries, and dependencies.\n\nContainers are lightweight, portable, and isolated from each other, making them ideal for cloud-native applications.\n\nKubernetes does not run containers directly \u2014 it manages them through Pods.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Relationship",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Node \u2192 Pod \u2192 Container\n\nnode \u0022Worker Node\u0022 {\n\n    frame \u0022Pod A\u0022 {\n\n        component \u0022Container\\nASP.NET Core API\u0022\n\n    }\n\n    frame \u0022Pod B\u0022 {\n\n        component \u0022Container\\nBackground Worker\u0022\n\n    }\n\n    frame \u0022Pod C\u0022 {\n\n        component \u0022Container\\nRedis\u0022\n\n    }\n\n}\n\n@enduml",
+          "title": "Relationship",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comparison",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Component",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Purpose",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Node",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Provides computing resources for workloads",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Pod",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Hosts one or more Containers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Container",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Runs the application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Simple analogy",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A simple way to think about these components is:\n\n- **Node** \u2192 Apartment building\n- **Pod** \u2192 Apartment\n- **Container** \u2192 Person living inside the apartment\n\nThe building contains many apartments, and each apartment contains one or more people.\n\nSimilarly, a Kubernetes Node hosts multiple Pods, and each Pod contains one or more Containers.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Container** runs the application.\n\nA **Pod** groups one or more Containers and is the smallest unit Kubernetes deploys.\n\nA **Node** provides the computing resources that host Pods.\n\nThe relationship can be summarized as:\n\n**Node \u2192 Pod \u2192 Container**",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is a Kubernetes Deployment?",
+      "slug": "what-is-a-kubernetes-deployment",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **Kubernetes Deployment** is a resource that manages the lifecycle of **Pods**.\n\nInstead of creating Pods manually, you define the **desired state** of your application, such as the container image, number of replicas, and update strategy. Kubernetes continuously ensures that the actual state matches the desired state.\n\nDeployments make it easy to **deploy**, **scale**, **update**, and **recover** applications running in a Kubernetes cluster.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 19,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use a Deployment?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Pods are designed to be **temporary**.\n\nIf a Pod crashes, is deleted, or a Worker Node becomes unavailable, the Pod may disappear.\n\nA **Deployment** continuously monitors the application and automatically creates new Pods when necessary, helping ensure that the desired number of application instances is always running.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What does a Deployment manage?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Kubernetes Deployment is responsible for:\n\n- Creating Pods\n- Maintaining the desired number of replicas\n- Replacing failed Pods\n- Rolling out application updates\n- Rolling back failed deployments\n- Scaling applications",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Kubernetes Deployment\n\nframe \u0022Deployment\u0022 {\n\n    frame \u0022ReplicaSet\u0022 {\n\n        frame \u0022Pod\u0022 {\n            component \u0022Container\u0022\n        }\n\n        frame \u0022Pod\u0022 {\n            component \u0022Container\u0022\n        }\n\n        frame \u0022Pod\u0022 {\n            component \u0022Container\u0022\n        }\n\n    }\n\n}\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How does it work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When you create a Deployment, you specify how many copies (**replicas**) of your application should run.\n\nKubernetes creates the required Pods and continuously monitors them.\n\nIf a Pod fails, Kubernetes automatically creates a replacement. If you update the application, Kubernetes gradually replaces the old Pods with new ones while keeping the application available.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Kubernetes Deployments provide several built-in capabilities, including:\n\n- Self-healing\n- Scaling\n- Rolling updates\n- Rollbacks\n- Replica management\n- Declarative configuration",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose an ASP.NET Core Web API is deployed with **3 replicas**.\n\nIf one Pod crashes, the Deployment automatically creates a new Pod so that **3 running Pods** are maintained.\n\nIf a new version of the application is deployed, Kubernetes gradually replaces the existing Pods without taking the application offline.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Deployment vs Pod",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Pod",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Deployment",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Runs the application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Manages Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Temporary",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Long-lived resource",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Can fail and disappear",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Recreates failed Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Created manually or by controllers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Creates and manages Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Does not scale itself",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Supports scaling and rolling updates",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A **Pod** runs your application, while a **Deployment** manages the Pods.\n\nDeployments ensure that the correct number of Pods is always running and provide features such as **self-healing**, **scaling**, **rolling updates**, and **rollbacks**, making them the standard way to deploy applications in Kubernetes.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is a Kubernetes Service?",
+      "slug": "what-is-a-kubernetes-service",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **Kubernetes Service** is a resource that provides a **stable network endpoint** for accessing one or more **Pods**.\n\nBecause Pods are temporary and their IP addresses can change, applications should communicate through a Service instead of connecting directly to individual Pods.\n\nA Kubernetes Service automatically routes traffic to healthy Pods, enabling **load balancing**, **service discovery**, and reliable communication between applications.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 20,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use a Kubernetes Service?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Pods are **temporary**.\n\nWhen a Pod is recreated, it usually receives a **new IP address**. If applications communicated directly with Pod IPs, those connections would frequently break.\n\nA **Kubernetes Service** provides a stable address that always points to the currently running Pods, even if individual Pods are replaced.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How does it work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Kubernetes Service sits in front of one or more Pods.\n\nInstead of sending requests directly to a Pod, clients communicate with the Service.\n\nThe Service automatically forwards each request to one of the healthy Pods managed by a Deployment.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Kubernetes Service\n\nactor User\n\ncomponent \u0022Kubernetes Service\u0022\n\nframe \u0022Deployment\u0022 {\n\n    frame \u0022Pod\u0022 {\n        component \u0022ASP.NET Core API\u0022\n    }\n\n    frame \u0022Pod\u0022 {\n        component \u0022ASP.NET Core API\u0022\n    }\n\n    frame \u0022Pod\u0022 {\n        component \u0022ASP.NET Core API\u0022\n    }\n\n}\n\nUser --\u003E \u0022Kubernetes Service\u0022\n\n\u0022Kubernetes Service\u0022 --\u003E \u0022ASP.NET Core API\u0022\n\u0022Kubernetes Service\u0022 --\u003E \u0022ASP.NET Core API\u0022\n\u0022Kubernetes Service\u0022 --\u003E \u0022ASP.NET Core API\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What does a Service provide?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A Kubernetes Service provides several important capabilities:\n\n- Stable network endpoint\n- Automatic load balancing\n- Service discovery\n- Routing to healthy Pods\n- Decoupling clients from individual Pods",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose an ASP.NET Core Web API is running with **three Pods**.\n\nA client sends a request to the **Service** instead of directly to a Pod.\n\nThe Service automatically forwards the request to one of the available Pods. If one Pod fails, traffic is automatically routed to the remaining healthy Pods.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Service vs Deployment",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Deployment",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Creates and manages Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Exposes Pods over the network",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Maintains replicas",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Provides a stable network endpoint",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Performs rolling updates",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Routes requests to healthy Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Focuses on application lifecycle",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Focuses on application connectivity",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Deployment** manages the lifecycle of Pods, while a **Service** makes those Pods accessible over the network.\n\nBy providing a **stable network endpoint**, automatic **load balancing**, and **service discovery**, Kubernetes Services allow applications to communicate reliably even as Pods are created, updated, or replaced.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Ingress?",
+      "slug": "what-is-ingress",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Ingress** is a Kubernetes resource that manages **external HTTP and HTTPS traffic** entering a Kubernetes cluster.\n\nInstead of exposing each application separately, an Ingress provides a single entry point and routes incoming requests to the appropriate **Kubernetes Services** based on rules such as the requested host or URL path.\n\nIngress simplifies application exposure by supporting features such as **URL routing**, **host-based routing**, **TLS/SSL termination**, and **load balancing**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "microservices",
+      "order": 21,
+      "tags": [
+        "Microservices"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Ingress?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Kubernetes Service** makes an application available inside or outside the cluster, but exposing many Services individually can become difficult to manage.\n\n**Ingress** provides a single entry point for external traffic and routes requests to the correct Service based on routing rules.\n\nThis allows multiple applications to share the same public IP address while remaining independently accessible.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How does it work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When a user sends an HTTP or HTTPS request, it first reaches the **Ingress Controller**.\n\nThe Ingress Controller examines the routing rules and forwards the request to the appropriate **Kubernetes Service**.\n\nThe Service then routes the request to one of the healthy Pods running the application.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title Kubernetes Ingress\n\nactor User\n\ncomponent \u0022Ingress\u0022\n\ncomponent \u0022Web Service\u0022\n\ncomponent \u0022API Service\u0022\n\nframe \u0022Deployment\u0022 {\n\n    frame \u0022Web Pod\u0022 {\n        component \u0022Frontend\u0022\n    }\n\n    frame \u0022API Pod\u0022 {\n        component \u0022ASP.NET Core API\u0022\n    }\n\n}\n\nUser --\u003E Ingress\n\nIngress --\u003E \u0022Web Service\u0022\nIngress --\u003E \u0022API Service\u0022\n\n\u0022Web Service\u0022 --\u003E \u0022Frontend\u0022\n\n\u0022API Service\u0022 --\u003E \u0022ASP.NET Core API\u0022\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Ingress provides several built-in capabilities, including:\n\n- HTTP and HTTPS routing\n- Host-based routing\n- URL path routing\n- TLS/SSL termination\n- Load balancing\n- Single public entry point",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Suppose a Kubernetes cluster hosts two applications:\n\n- A frontend website\n- An ASP.NET Core Web API\n\nInstead of assigning a separate public IP address to each application, an Ingress can route requests based on the URL:\n\n- **example.com** \u2192 Frontend\n- **example.com/api** \u2192 Web API\n\nBoth applications are accessible through a single public endpoint.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Service vs Ingress",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Ingress",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Connects clients to Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Connects Internet traffic to Services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Provides a stable endpoint",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Provides external routing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Routes traffic to Pods",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Routes traffic to Services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Operates inside the cluster",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Acts as the cluster entry point",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Kubernetes Service** provides a stable network endpoint for Pods, while **Ingress** controls how **external HTTP and HTTPS traffic** enters the Kubernetes cluster.\n\nBy routing requests to the appropriate Services, Ingress enables multiple applications to share a single public entry point while supporting features such as **host-based routing**, **URL path routing**, and **TLS termination**.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "What Is Service Discovery?",
       "slug": "what-is-service-discovery",
       "level": "Draft",
@@ -5261,7 +6137,7 @@
       "summary": "**Service Discovery** is the process of allowing **services to automatically find and communicate with each other** without knowing their physical location or IP address.\n\nInstead of connecting to a specific server, applications communicate using a **service name**. The underlying platform resolves that name to one or more running service instances.\n\nService discovery is a fundamental capability in **microservice architectures**, where services are frequently deployed, scaled, and replaced.",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 17,
+      "order": 22,
       "tags": [
         "Microservices"
       ],
@@ -5469,7 +6345,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 18,
+      "order": 23,
       "tags": [
         "Microservices"
       ],
@@ -5483,7 +6359,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 19,
+      "order": 24,
       "tags": [
         "Microservices"
       ],
@@ -5497,7 +6373,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 20,
+      "order": 25,
       "tags": [
         "Microservices"
       ],
@@ -5511,7 +6387,7 @@
       "summary": "...",
       "dotnetZone": "cloud-advanced",
       "dotnetZoneStep": "microservices",
-      "order": 21,
+      "order": 26,
       "tags": [
         "Microservices"
       ],
