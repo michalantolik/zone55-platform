@@ -402,6 +402,1197 @@
       "bodyBlocks": []
     },
     {
+      "name": "What Is Azure App Service?",
+      "slug": "what-is-azure-app-service",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure App Service** is a fully managed **Platform as a Service (PaaS)** offering that allows you to host **web applications**, **REST APIs**, and **background jobs** without managing servers or infrastructure.\n\nWith Azure App Service, Microsoft is responsible for managing the operating system, runtime, security updates, scaling infrastructure, and load balancing. Developers can focus on building and deploying applications instead of maintaining servers.\n\nAzure App Service supports multiple programming languages and frameworks, including **.NET**, **Java**, **Node.js**, **Python**, and **PHP**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 9,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Azure App Service?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure App Service is one of the easiest ways to deploy an **ASP.NET Core** application to Azure.\n\nTypical use cases include:\n\n- Hosting web applications\n- Hosting REST APIs\n- Internal business applications\n- Public websites\n- Backend services for mobile applications",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What does Microsoft manage?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Because Azure App Service is a **Platform as a Service (PaaS)** offering, Microsoft manages most of the underlying infrastructure, including:\n\n- Physical servers\n- Virtual machines\n- Operating system\n- Runtime installation\n- Security updates\n- Load balancing\n- Automatic scaling infrastructure",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What are you responsible for?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "As the application owner, you are responsible for:\n\n- Application code\n- Configuration\n- Authentication and authorization\n- Application data\n- Connection strings\n- Secrets and application settings",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure App Service provides many built-in features, including:\n\n- Automatic deployment\n- Custom domains\n- HTTPS support\n- Deployment slots\n- Autoscaling\n- Managed Identity\n- Integration with GitHub Actions\n- Monitoring through Application Insights",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A simple PlantUML diagram would fit your platform well:",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    node \u0022Azure App Service\u0022 {\n        component \u0022ASP.NET Core\\nWeb API\u0022\n    }\n\n    database \u0022Azure SQL\u0022\n\n    folder \u0022Azure Blob Storage\u0022\n\n    component \u0022Azure Key Vault\u0022\n}\n\nUser --\u003E \u0022ASP.NET Core\\nWeb API\u0022\n\n\u0022ASP.NET Core\\nWeb API\u0022 --\u003E \u0022Azure SQL\u0022\n\n\u0022ASP.NET Core\\nWeb API\u0022 --\u003E \u0022Azure Blob Storage\u0022\n\n\u0022ASP.NET Core\\nWeb API\u0022 --\u003E \u0022Azure Key Vault\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Azure App Service** is a fully managed **PaaS** platform for hosting web applications and APIs.\n\nIt removes the need to manage servers while providing built-in features such as deployment, scaling, HTTPS, monitoring, and integration with other Azure services.\n\nFor many **ASP.NET Core** applications, Azure App Service is the simplest and most common deployment option.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Are Azure Functions?",
+      "slug": "what-are-azure-functions",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Functions** is a **serverless compute service** that allows you to run small pieces of code called **functions** without provisioning or managing servers.\n\nFunctions are executed in response to **events** such as HTTP requests, timer schedules, queue messages, or file uploads. They automatically scale based on demand, making them well suited for event-driven and background processing workloads.\n\nAzure Functions supports multiple programming languages, including **C#**, **Java**, **JavaScript**, **Python**, and **PowerShell**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 10,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Azure Functions?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Functions is designed for applications that perform **small**, **independent**, and **event-driven** tasks.\n\nTypical use cases include:\n\n- Processing HTTP requests\n- Running scheduled jobs\n- Processing queue messages\n- Reacting to file uploads\n- Sending notifications\n- Automating background tasks",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How do Azure Functions work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Instead of running continuously like a traditional web application, an Azure Function runs **only when it is triggered**.\n\nA trigger starts the function, the function executes its code, and then stops. Azure automatically allocates the required computing resources and scales the application based on the current workload.\n\nThis execution model is known as **serverless computing**.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common triggers",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Functions can be triggered by many different events, including:\n\n- HTTP requests\n- Timer schedules\n- Azure Service Bus messages\n- Azure Queue Storage messages\n- Azure Blob Storage events\n- Event Grid events",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Functions provides several built-in capabilities, including:\n\n- Automatic scaling\n- Pay-per-execution pricing (Consumption plan)\n- Multiple trigger types\n- Multiple programming languages\n- Integration with Azure services\n- Monitoring through Application Insights\n- Managed Identity support",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure Function\u0022\n\n    queue \u0022Service Bus\u0022\n\n    folder \u0022Blob Storage\u0022\n\n    database \u0022Azure SQL\u0022\n\n}\n\nUser --\u003E \u0022Azure Function\u0022 : HTTP Trigger\n\n\u0022Blob Storage\u0022 --\u003E \u0022Azure Function\u0022 : Blob Trigger\n\n\u0022Service Bus\u0022 --\u003E \u0022Azure Function\u0022 : Queue Trigger\n\n\u0022Azure Function\u0022 --\u003E \u0022Azure SQL\u0022\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Azure Functions** is a **serverless compute service** that executes code in response to **events**.\n\nUnlike traditional applications that run continuously, functions execute **only when triggered**, automatically scale with demand, and are commonly used for APIs, automation, background processing, and event-driven applications.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Azure App Service vs Azure Functions",
+      "slug": "azure-app-service-vs-azure-functions",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Both **Azure App Service** and **Azure Functions** allow you to run application code in Azure, but they are designed for different types of workloads.\n\n**Azure App Service** is best suited for **long-running web applications and REST APIs** that are continuously available. **Azure Functions** is a **serverless compute service** designed to execute **small pieces of code** in response to events such as HTTP requests, timer schedules, or queue messages.\n\nChoosing the right service depends on your application\u0027s architecture, execution model, and scalability requirements.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 11,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Differences",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Azure App Service",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Azure Functions",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Compute model",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Runs continuously",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Runs only when triggered",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Best suited for",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Web applications and REST APIs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Event-driven workloads",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Typical workload",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Long-running application",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Short-lived function",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Scaling",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Manual or automatic",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Automatic",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Billing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "App Service Plan or other hosting plans",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Consumption or Premium plans",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Entry point",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Application startup",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Trigger",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When to use Azure App Service?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure App Service is a good choice when your application needs to:\n\n- Host a web application\n- Expose a REST API\n- Maintain application state\n- Handle many HTTP requests\n- Run continuously",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When to use Azure Functions?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Functions is a good choice when your application needs to:\n\n- Execute code when an event occurs\n- Process background tasks\n- Run scheduled jobs\n- Process queue or Service Bus messages\n- React to Blob Storage events",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Can they work together?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Yes. In many real-world solutions, **Azure App Service** and **Azure Functions** are used together.\n\nA web application hosted in **Azure App Service** can handle user requests, while **Azure Functions** process background work such as sending emails, generating reports, processing uploaded files, or handling messages from Azure Service Bus.\n\nUsing each service for the workload it is best suited for results in a simpler and more scalable architecture.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure App Service\\n(Web API)\u0022\n\n    component \u0022Azure Function\u0022\n\n    queue \u0022Service Bus\u0022\n\n    database \u0022Azure SQL\u0022\n}\n\nUser --\u003E \u0022Azure App Service\\n(Web API)\u0022\n\n\u0022Azure App Service\\n(Web API)\u0022 --\u003E \u0022Service Bus\u0022\n\n\u0022Service Bus\u0022 --\u003E \u0022Azure Function\u0022\n\n\u0022Azure Function\u0022 --\u003E \u0022Azure SQL\u0022\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Both services execute application code, but they serve different purposes.\n\nUse **Azure App Service** for **web applications** and **REST APIs** that run continuously.\n\nUse **Azure Functions** for **event-driven**, **serverless**, and **background processing** workloads.\n\nMany modern Azure solutions combine both services to build scalable and maintainable cloud applications.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Azure Service Bus?",
+      "slug": "what-is-azure-service-bus",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Service Bus** is a **fully managed messaging service** that enables applications and services to communicate by exchanging **messages**.\n\nInstead of communicating directly with each other, applications send messages to **queues** or **topics**, allowing other applications to process them asynchronously. This improves **reliability**, **scalability**, and **decoupling** between different parts of a system.\n\nAzure Service Bus is commonly used in **distributed systems**, **microservices**, and **event-driven architectures**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 12,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common use cases",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Service Bus is commonly used for:\n\n- Communication between microservices\n- Background processing\n- Order processing\n- Sending emails and notifications\n- Integrating independent applications\n- Decoupling distributed systems",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Service Bus provides several built-in capabilities, including:\n\n- Reliable message delivery\n- Queues\n- Topics and subscriptions\n- Message ordering\n- Duplicate message detection\n- Dead-letter queues\n- Transactions",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncomponent \u0022Web API\\n(App Service)\u0022 as API\n\nqueue \u0022Azure Service Bus\u0022\n\ncomponent \u0022Azure Function\u0022 as Function\n\ndatabase \u0022Azure SQL\u0022\n\nUser --\u003E API\n\nAPI --\u003E \u0022Azure Service Bus\u0022 : Send message\n\n\u0022Azure Service Bus\u0022 --\u003E Function : Receive message\n\nFunction --\u003E \u0022Azure SQL\u0022\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure Service Bus communication between AKS Pods",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Pods in AKS should not always communicate directly with each other.\n\nFor asynchronous work, one pod can send a message to **Azure Service Bus**, and another pod can process that message later. This makes communication more reliable, scalable, and loosely coupled.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title \n\nactor User\n\ncloud \u0022Azure\u0022 {\n\n    node \u0022Azure Kubernetes Service (AKS)\u0022 {\n\n        node \u0022Pod: Order API\u0022 as OrderPod {\n            component \u0022Order Container\u0022 as OrderContainer\n        }\n\n        node \u0022Pod: Payment Worker\u0022 as PaymentPod {\n            component \u0022Payment Container\u0022 as PaymentContainer\n        }\n\n        node \u0022Pod: Email Worker\u0022 as EmailPod {\n            component \u0022Email Container\u0022 as EmailContainer\n        }\n    }\n\n    queue \u0022Azure Service Bus\\nQueue / Topic\u0022 as ServiceBus\n\n    database \u0022Azure SQL Database\u0022 as SqlDb\n}\n\nUser --\u003E OrderContainer : HTTP request\n\nOrderContainer --\u003E ServiceBus : Send message\n\nServiceBus --\u003E PaymentContainer : Receive message\n\nServiceBus --\u003E EmailContainer : Receive message\n\nPaymentContainer --\u003E SqlDb : Save payment status\n\nEmailContainer --\u003E SqlDb : Save notification status\n\n@enduml",
+          "title": "Azure Service Bus communication between AKS Pods",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Azure Service Bus** is a **managed messaging service** that enables applications to exchange **messages** asynchronously.\n\nInstead of communicating directly, applications send messages through **queues** or **topics**, making distributed systems more **reliable**, **scalable**, and **loosely coupled**.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Azure Service Bus: Queues vs Topics",
+      "slug": "azure-service-bus-queues-vs-topics",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Service Bus Queues** and **Topics** are two messaging models that enable applications to communicate **asynchronously**.\n\nA **Queue** delivers each message to **exactly one consumer**, making it ideal for distributing work between multiple workers.\n\nA **Topic** can deliver the **same message to multiple independent subscribers**, making it suitable for event-driven systems where several applications need to react to the same event.\n\nChoosing between a Queue and a Topic depends on whether a message should be processed by **one** consumer or **many** consumers.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 14,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure Service Bus Queue",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Queue** follows the **Point-to-Point** messaging model.\n\nA producer sends a message to the queue, and **one** consumer receives and processes that message.\n\nIf multiple consumers listen to the same queue, each message is delivered to **only one** of them.\n\nTypical use cases include:\n\n- Background processing\n- Order processing\n- Payment processing\n- Task distribution",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\ncomponent \u0022Web API\u0022 as API\n\nqueue \u0022Service Bus Queue\u0022\n\ncomponent \u0022Worker A\u0022\n\ncomponent \u0022Worker B\u0022\n\nAPI --\u003E \u0022Service Bus Queue\u0022\n\n\u0022Service Bus Queue\u0022 --\u003E \u0022Worker A\u0022\n\u0022Service Bus Queue\u0022 --\u003E \u0022Worker B\u0022\n\nnote bottom\nEach message is processed\nby only one worker.\nend note\n\n@enduml",
+          "title": "Queue example",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure Service Bus Topic",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **Topic** follows the **Publish-Subscribe (Pub/Sub)** messaging model.\n\nA producer publishes a message to a topic, and **multiple subscribers** can receive their own copy of that message.\n\nEach subscriber processes the message independently.\n\nTypical use cases include:\n\n- Sending notifications\n- Event-driven architectures\n- Microservices\n- Business events",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\ncomponent \u0022Order Service\u0022\n\nqueue \u0022Service Bus Topic\u0022\n\ncomponent \u0022Billing Service\u0022\n\ncomponent \u0022Email Service\u0022\n\ncomponent \u0022Inventory Service\u0022\n\n\u0022Order Service\u0022 --\u003E \u0022Service Bus Topic\u0022\n\n\u0022Service Bus Topic\u0022 --\u003E \u0022Billing Service\u0022\n\n\u0022Service Bus Topic\u0022 --\u003E \u0022Email Service\u0022\n\n\u0022Service Bus Topic\u0022 --\u003E \u0022Inventory Service\u0022\n\n@enduml",
+          "title": "Topic example",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Queue vs Topic",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Feature",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Queue",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Topic",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Messaging model",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Point-to-Point",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Publish-Subscribe",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Consumers",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "One",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Multiple",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Message copies",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "One",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "One per subscription",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Typical use",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Task processing",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Event distribution",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Example",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Process an order",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Notify multiple services",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When to use a Queue?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Use a **Queue** when a message should be processed by **only one** application or worker.\n\nQueues are commonly used to distribute work across multiple instances of the same service.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "When to use a Topic?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Use a **Topic** when **multiple independent applications** need to react to the same event.\n\nEach subscriber receives its own copy of the message and processes it independently.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Both **Queues** and **Topics** provide asynchronous messaging through **Azure Service Bus**, but they solve different problems.\n\nUse a **Queue** when each message should be processed **once** by **one consumer**.\n\nUse a **Topic** when the same event should be delivered to **multiple subscribers**, allowing several applications or microservices to react independently.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "How Azure Service Bus Works",
+      "slug": "how-azure-service-bus-works",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Service Bus** enables applications to communicate by exchanging **messages** instead of calling each other directly.\n\nA **producer** sends a message to Azure Service Bus, where it is stored until a **consumer** retrieves and processes it. Because the sender and receiver do not communicate directly, they can operate independently and at different times.\n\nThis asynchronous communication improves the **reliability**, **scalability**, and **availability** of distributed applications.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 14,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Basic message flow",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A typical Azure Service Bus communication consists of three components:\n\n- **Producer** \u2013 creates and sends a message.\n- **Azure Service Bus** \u2013 stores the message until it is processed.\n- **Consumer** \u2013 receives and processes the message.\n\nThe producer does not need to know whether the consumer is currently running. Likewise, the consumer does not need to know who sent the message.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Message flow",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\ncomponent \u0022Producer\u0022 as Producer\n\nqueue \u0022Azure Service Bus\u0022\n\ncomponent \u0022Consumer\u0022 as Consumer\n\nProducer --\u003E \u0022Azure Service Bus\u0022 : Send message\n\n\u0022Azure Service Bus\u0022 --\u003E Consumer : Receive message\n\n@enduml",
+          "title": "Message flow",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Consider an online store.\n\nWhen a customer places an order, the **Order API** sends a message to **Azure Service Bus**.\n\nA separate **Order Processing Service** retrieves the message and processes the order. If the processing service is temporarily unavailable, the message remains in Azure Service Bus until it can be processed.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Customer\n\ncomponent \u0022Order API\u0022\n\nqueue \u0022Azure Service Bus\u0022\n\ncomponent \u0022Order Processing Service\u0022\n\ndatabase \u0022Azure SQL Database\u0022\n\nCustomer --\u003E \u0022Order API\u0022\n\n\u0022Order API\u0022 --\u003E \u0022Azure Service Bus\u0022 : Send order\n\n\u0022Azure Service Bus\u0022 --\u003E \u0022Order Processing Service\u0022\n\n\u0022Order Processing Service\u0022 --\u003E \u0022Azure SQL Database\u0022\n\n@enduml",
+          "title": "Example architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why not call services directly?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Without Azure Service Bus, applications often communicate using direct HTTP requests.\n\nIf the receiving application is unavailable, the request may fail immediately.\n\nWith Azure Service Bus, messages are stored until they are successfully processed, making communication more reliable and reducing coupling between applications.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common communication patterns",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Service Bus supports multiple messaging patterns, including:\n\n- One producer \u2192 one consumer (**Queue**)\n- One producer \u2192 multiple consumers (**Topic**)\n\nThese messaging models are explained in the next articles.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Azure Service Bus** acts as a **message broker** between applications.\n\nInstead of communicating directly, applications exchange **messages** through Azure Service Bus. This enables **asynchronous communication**, allowing applications to operate independently while improving **reliability**, **scalability**, and **fault tolerance**.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Azure SQL Database?",
+      "slug": "what-is-azure-sql-database",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure SQL Database** is a **fully managed relational database service** based on **Microsoft SQL Server**.\n\nIt allows you to store, organize, and query structured data without managing database servers, operating systems, backups, or software updates.\n\nBecause Azure SQL Database is a **Platform as a Service (PaaS)** offering, Microsoft manages the underlying infrastructure, allowing developers to focus on designing databases and building applications.\n\nAzure SQL Database is commonly used by **ASP.NET Core** applications, **REST APIs**, and enterprise business systems.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 15,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Azure SQL Database?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure SQL Database is designed for applications that require a reliable relational database.\n\nTypical use cases include:\n\n- Web applications\n- REST APIs\n- Enterprise applications\n- E-commerce systems\n- Business applications",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What does Microsoft manage?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Because Azure SQL Database is a **Platform as a Service (PaaS)** offering, Microsoft manages the database infrastructure, including:\n\n- Physical servers\n- Operating system\n- SQL Server installation\n- Security updates\n- Automatic backups\n- High availability",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What are you responsible for?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "As the application owner, you are responsible for:\n\n- Database schema\n- Tables and relationships\n- SQL queries\n- Stored procedures\n- User permissions\n- Application data",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure SQL Database provides many built-in features, including:\n\n- Automatic backups\n- High availability\n- Automatic scaling\n- Built-in security\n- Point-in-time restore\n- Geo-replication\n- Integration with Azure services",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure App Service\\n(Web API)\u0022 as App\n\n    database \u0022Azure SQL Database\u0022 as Sql\n}\n\nUser --\u003E App\n\nApp --\u003E Sql : SQL queries\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Azure SQL Database** is a **fully managed relational database service** based on **Microsoft SQL Server**.\n\nIt provides the familiar SQL Server experience while removing the need to manage database infrastructure. For many **ASP.NET Core** applications, Azure SQL Database is the preferred cloud database for storing structured data.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Azure Storage?",
+      "slug": "what-is-azure-storage",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Storage** is a **managed cloud storage service** that provides scalable, durable, and highly available storage for different types of data.\n\nInstead of offering a single storage solution, Azure Storage includes several specialized services designed for different scenarios, such as storing **files**, **objects**, **messages**, and **structured NoSQL data**.\n\nAzure Storage is commonly used by **web applications**, **microservices**, **mobile applications**, and **cloud-native solutions**.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 16,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Azure Storage?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Storage is designed to store different types of application data.\n\nTypical use cases include:\n\n- Uploading files\n- Storing images and videos\n- Sharing files between applications\n- Exchanging messages between services\n- Storing structured NoSQL data",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Azure Storage services",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Storage consists of several storage services, each optimized for a different type of data:\n\n- **Blob Storage** \u2013 object storage for files such as images, videos, and documents.\n- **Queue Storage** \u2013 simple message queues for asynchronous communication.\n- **File Storage** \u2013 managed file shares accessible using the SMB protocol.\n- **Table Storage** \u2013 NoSQL key-value store for structured data.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Storage provides several built-in capabilities, including:\n\n- High durability\n- High availability\n- Automatic replication\n- Scalability\n- Encryption at rest\n- Integration with Azure services",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure App Service\\n(Web API)\u0022 as App\n\n    folder \u0022Blob Storage\u0022\n\n    collections \u0022Table Storage\u0022\n\n    queue \u0022Queue Storage\u0022\n\n    folder \u0022File Storage\u0022\n}\n\nUser --\u003E App\n\nApp --\u003E \u0022Blob Storage\u0022\n\nApp --\u003E \u0022Table Storage\u0022\n\nApp --\u003E \u0022Queue Storage\u0022\n\nApp --\u003E \u0022File Storage\u0022\n\n@enduml",
+          "title": "Typical architecture",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "**Azure Storage** is a collection of cloud storage services designed for different types of data.\n\nRather than using one storage solution for every scenario, Azure provides specialized services such as **Blob Storage**, **Queue Storage**, **File Storage**, and **Table Storage**, allowing developers to choose the most appropriate storage type for their applications.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Azure Key Vault?",
+      "slug": "what-is-azure-key-vault",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Azure Key Vault** is a **managed security service** that securely stores and manages **secrets**, **cryptographic keys**, and **certificates** used by applications and cloud services.\n\nInstead of storing sensitive information such as passwords, connection strings, or API keys directly in application code or configuration files, applications can securely retrieve them from Azure Key Vault at runtime.\n\nAzure Key Vault helps improve **security**, **centralized management**, and **access control** for sensitive application data.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 17,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Azure Key Vault?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Applications often need access to sensitive information such as passwords, connection strings, certificates, and API keys.\n\nInstead of storing these values in source code or configuration files, Azure Key Vault provides a secure central location where applications can retrieve them when needed.\n\nThis reduces the risk of exposing sensitive information and simplifies secret management across multiple applications and environments.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What can Azure Key Vault store?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Key Vault can securely store:\n\n- Secrets\n- Cryptographic keys\n- SSL/TLS certificates\n- Connection strings\n- API keys\n- Passwords",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common features",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Azure Key Vault provides several built-in capabilities, including:\n\n- Secure secret storage\n- Centralized secret management\n- Access control using Azure Entra ID\n- Secret versioning\n- Audit logging\n- Integration with Azure services",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure App Service\\n(Web API)\u0022 as App\n\n    component \u0022Azure Key Vault\u0022 as KeyVault\n\n    database \u0022Azure SQL Database\u0022 as Sql\n}\n\nUser --\u003E App\n\nApp --\u003E KeyVault : Retrieve connection string\n\nApp --\u003E Sql : Connect using retrieved secret\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Azure Key Vault** provides a secure and centralized way to store and manage **secrets**, **keys**, and **certificates** used by applications.\n\nRather than storing sensitive information in application code or configuration files, applications retrieve it securely from Azure Key Vault, improving **security**, **maintainability**, and **access control**.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Managed Identity?",
+      "slug": "what-is-managed-identity",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Managed Identity** is an Azure feature that allows an **Azure resource** to securely authenticate with other Azure services **without storing usernames, passwords, or secrets**.\n\nInstead of keeping credentials in application configuration or source code, Azure automatically creates and manages an identity for the application. The application can then use this identity to access services such as **Azure Key Vault**, **Azure Storage**, or **Azure SQL Database**.\n\nManaged Identity simplifies authentication while improving the **security** and **maintainability** of cloud applications.",
+      "dotnetZone": "cloud-advanced",
+      "dotnetZoneStep": "azure-integration",
+      "order": 18,
+      "tags": [
+        "Azure Integration"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why use Managed Identity?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Applications often need to access other Azure services.\n\nFor example, an **ASP.NET Core** application hosted in **Azure App Service** may need to retrieve a connection string from **Azure Key Vault**.\n\nWithout Managed Identity, the application would need to store credentials somewhere, increasing the risk of exposing sensitive information.\n\nManaged Identity eliminates this problem by allowing Azure to authenticate the application automatically.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "How does it work?",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When **Managed Identity** is enabled for an Azure resource, Azure creates an identity for that resource.\n\nWhen the application requests access to another Azure service, Azure verifies the identity and issues a temporary access token.\n\nIf the identity has the required permissions, the requested resource is returned without the application providing a username or password.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical architecture",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure App Service\\n(Web API)\u0022 as App\n\n    component \u0022Managed Identity\u0022 as Identity\n\n    component \u0022Azure Key Vault\u0022 as KeyVault\n\n}\n\nUser --\u003E App\n\nApp --\u003E Identity : Request access token\n\nIdentity --\u003E KeyVault : Authenticate\n\nKeyVault --\u003E App : Return secret\n\n@enduml",
+          "title": "Typical architecture - basic",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor User\n\ncloud Azure {\n\n    component \u0022Azure App Service\\n(Web API)\u0022 as App\n\n    component \u0022Azure Instance\\nMetadata Service (IMDS)\u0022 as IMDS\n\n    component \u0022Microsoft Entra ID\u0022 as Entra\n\n    component \u0022Azure Key Vault\u0022 as KeyVault\n\n}\n\nUser --\u003E App\n\nApp --\u003E IMDS : Request access token\n\nIMDS --\u003E Entra : Verify Managed Identity\n\nEntra --\u003E IMDS : Access token\n\nIMDS --\u003E App : Access token\n\nApp --\u003E KeyVault : Read secret\\n(Bearer Token)\n\nKeyVault --\u003E App : Secret\n\n@enduml",
+          "title": "Typical architecture - detailed",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common use cases",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Managed Identity is commonly used to access:\n\n- Azure Key Vault\n- Azure Storage\n- Azure SQL Database\n- Azure Service Bus\n- Azure Event Hubs",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Benefits",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Using Managed Identity provides several advantages:\n\n- No passwords stored in source code\n- No connection secrets in configuration files\n- Automatic credential management\n- Improved security\n- Easy integration with Azure services",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**Managed Identity** allows Azure resources to securely authenticate with other Azure services **without managing credentials**.\n\nIt is commonly used together with **Azure Key Vault**, allowing applications to retrieve secrets securely while eliminating the need to store passwords or API keys in application code or configuration files.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "What is continuous integration ?",
       "slug": "what-is-continuous-integration",
       "level": "Draft",
