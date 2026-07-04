@@ -9160,6 +9160,541 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "What Is HTTP?",
+      "slug": "what-is-http",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**HTTP (HyperText Transfer Protocol)** is the standard protocol used for communication between a **client** and a **server** over the web.\n\nA client sends an **HTTP request** to a server, and the server returns an **HTTP response**.\n\nHTTP is the foundation of **REST APIs** and is used by almost every modern web application.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 1,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Client and Server\n\nHTTP communication always involves two parties:\n\n- **Client** \u2013 sends an HTTP request.\n- **Server** \u2013 processes the request and returns an HTTP response.\n\nExamples of clients include:\n\n- Web browsers\n- Mobile applications\n- Desktop applications\n- Another Web API\n\nAn **ASP.NET Core Web API** usually acts as the **server**.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Request and Response\n\nEvery HTTP communication follows the same pattern:\n\n1. The client sends an **HTTP request**.\n2. The server processes the request.\n3. The server returns an **HTTP response**.\n\nThe response contains:\n\n- A **status code** (for example, \u0060200 OK\u0060 or \u0060404 Not Found\u0060)\n- Optional data (usually **JSON** in Web APIs)",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example\n\nA client requests information about a product:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/products/5 HTTP/1.1",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The server responds:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "HTTP/1.1 200 OK\n\n{\n  \u0022id\u0022: 5,\n  \u0022name\u0022: \u0022Laptop\u0022,\n  \u0022price\u0022: 3999\n}",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**HTTP** is the protocol that allows **clients** and **servers** to communicate over the web.\n\nA client sends an **HTTP request**, the server processes it, and returns an **HTTP response**.\n\nEvery **ASP.NET Core Web API** is built on top of HTTP.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "PlantUML Diagram",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n\u0027 title HTTP Request / Response\n\nactor Client\n\nnode \u0022ASP.NET Core Web API\u0022 as Api\n\nClient -\u003E Api : HTTP Request\nApi --\u003E Client : HTTP Response\\n(JSON \u002B Status Code)\n\n@enduml",
+          "title": "HTTP",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is a Web API?",
+      "slug": "what-is-a-web-api",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **Web API** is an application that allows different software systems to communicate over **HTTP**.\n\nClients send **HTTP requests** to the API, and the API processes them and returns **HTTP responses**, usually containing **JSON** data.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 2,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What Is a Web API?\n\nA **Web API** exposes data or functionality over the web.\n\nInstead of displaying web pages, it returns data that can be used by other applications, such as web, mobile, or desktop apps.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## How Does It Work?\n\nA client sends an **HTTP request** to the API.\n\nThe API processes the request, performs the required operation, and returns an **HTTP response**, usually containing **JSON** data.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Common Clients\n\nA Web API can be called by:\n\n- Web applications\n- Mobile applications\n- Desktop applications\n- Other APIs",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A **Web API** enables applications to communicate over **HTTP**.\n\nIt receives requests from clients, processes them, and returns data, making it possible for different systems to work together.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "PlantUML Diagram",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nnode \u0022Web API\u0022 as Api\ndatabase Database\n\nClient -\u003E Api : HTTP Request\nApi -\u003E Database : Read / Write\nDatabase --\u003E Api\nApi --\u003E Client : HTTP Response (JSON)\n\n@enduml",
+          "title": "Web API",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is REST?",
+      "slug": "what-is-rest",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**REST (Representational State Transfer)** is an architectural style for designing **Web APIs**.\n\nREST APIs expose **resources** through **URLs** and use standard **HTTP methods** such as \u0060GET\u0060, \u0060POST\u0060, \u0060PUT\u0060, \u0060PATCH\u0060, and \u0060DELETE\u0060 to work with those resources.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 3,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What Is REST?\n\n**REST** defines a common way for clients and servers to communicate over **HTTP**.\n\nInstead of calling actions, REST APIs work with **resources**, such as users, products, or orders.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Resources\n\nIn a REST API, everything is treated as a **resource**.\n\nExamples:\n\n- \u0060/api/products\u0060\n- \u0060/api/users\u0060\n- \u0060/api/orders\u0060\n\nEach resource is identified by its own **URL**.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## HTTP Methods\n\nREST uses standard HTTP methods to perform operations on resources.\n\nFor example:\n\n- \u0060GET\u0060 \u2013 retrieve a resource\n- \u0060POST\u0060 \u2013 create a resource\n- \u0060PUT\u0060 \u2013 replace a resource\n- \u0060PATCH\u0060 \u2013 update part of a resource\n- \u0060DELETE\u0060 \u2013 remove a resource",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "## Key Takeaway\n\n**REST** is an architectural style for building **Web APIs**.\n\nIt organizes applications around **resources**, identifies them with **URLs**, and uses standard **HTTP methods** to create, read, update, and delete data.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "REST",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nrectangle \u0022REST API\u0022 as Api\n\nClient -\u003E Api : GET /api/products\nApi --\u003E Client : 200 OK \u002B JSON\n\nClient -\u003E Api : POST /api/products\nApi --\u003E Client : 201 Created\n\nClient -\u003E Api : DELETE /api/products/5\nApi --\u003E Client : 204 No Content\n\n@enduml",
+          "title": "REST",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "HTTP vs REST vs Web API",
+      "slug": "http-vs-rest-vs-web-api",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**HTTP**, **REST**, and **Web API** are closely related, but they are not the same.\n\n**HTTP** is the communication protocol, **REST** is an architectural style, and a **Web API** is an application that uses HTTP and often follows REST principles.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 4,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## HTTP vs REST vs Web API\n\nAlthough these terms are often used interchangeably, they describe different things.\n\n- **HTTP** defines **how** data is transferred.\n- **REST** defines **how** a Web API should be designed.\n- **Web API** is the application that exposes data or functionality to clients.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Comparison",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Concept",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**HTTP**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Communication protocol",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**REST**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Architectural style for designing Web APIs",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**Web API**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Application that exposes endpoints over HTTP",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Think of them like this:\n\n- **HTTP** = how applications communicate.\n- **REST** = how a Web API should be designed.\n- **Web API** = the application that clients communicate with.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "HTTP vs REST vs Web API",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nrectangle \u0022HTTP\\n(Protocol)\u0022 as HTTP\nrectangle \u0022REST\\n(Architecture)\u0022 as REST\nrectangle \u0022Web API\\n(Application)\u0022 as API\n\nHTTP --\u003E REST : Used by\nREST --\u003E API : Implemented by\n\n@enduml",
+          "title": "HTTP vs REST vs Web API",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Are HTTP Methods?",
+      "slug": "what-are-http-methods",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**HTTP methods** define the action a client wants to perform on a resource.\n\nThe most common methods are **GET**, **POST**, **PUT**, **PATCH**, and **DELETE**.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 5,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What Are HTTP Methods?\n\nAn **HTTP method** tells the server what action should be performed on a resource.\n\nFor example, a client can retrieve, create, replace, update, or delete data.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Common HTTP Methods",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Method",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Purpose",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Common Status Codes",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": " **GET** **POST**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Retrieve data",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060200 OK\u0060, \u0060404 Not Found\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**POST**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Create data",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060201 Created\u0060, \u0060400 Bad Request\u0060 ",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**PUT** ",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Replace data",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060200 OK\u0060, \u0060204 No Content\u0060, \u0060404 Not Found\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**PATCH**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Update part of the data",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060200 OK\u0060, \u0060204 No Content\u0060, \u0060404 Not Found\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**DELETE**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Delete data",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060204 No Content\u0060, \u0060404 Not Found\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "HTTP methods define **what operation** should be performed on a resource.\n\nEvery REST API uses HTTP methods to create, read, update, and delete data.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "What Are HTTP Methods?",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nrectangle \u0022Web API\u0022 as Api\n\nClient -\u003E Api : GET\nClient -\u003E Api : POST\nClient -\u003E Api : PUT\nClient -\u003E Api : PATCH\nClient -\u003E Api : DELETE\n\n@enduml",
+          "title": "What Are HTTP Methods?",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
     }
   ]
 }
