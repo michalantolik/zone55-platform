@@ -8653,6 +8653,252 @@
       ]
     },
     {
+      "name": "Returning Child Resources",
+      "slug": "returning-child-resources",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Resources in a REST API often have **parent-child relationships**.\n\nIn this article, you\u0027ll learn how to return child resources using nested routes, why they belong in a separate controller, and how to return the correct HTTP status codes when either the parent or child resource doesn\u0027t exist.",
+      "dotnetZone": "foundation",
+      "dotnetZoneStep": "csharp-dotnet",
+      "order": 2,
+      "tags": [
+        ".NET",
+        "Architecture",
+        "Azure"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Parent and Child Resources\n\nNot every resource exists on its own.\n\nFor example, a **City** can contain multiple **Points of Interest**.\n\nIn this relationship:\n\n- **City** is the parent resource.\n- **Point of Interest** is the child resource.\n\nA child resource belongs to its parent and is usually accessed through it.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Our In-Memory Data",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "CitiesDataStore.cs",
+          "showCodeTitleBar": true,
+          "code": "Cities = new List\u003CCityDto\u003E()\n{\n    new CityDto()\n    {\n        Id = 1,\n        Name = \u0022New York City\u0022,\n        Description = \u0022The one with that big park.\u0022,\n        PointsOfInterest = new List\u003CPointOfInterestDto\u003E()\n        {\n            new PointOfInterestDto()\n            {\n                Id = 1,\n                Name = \u0022Central Park\u0022,\n                Description = \u0022The most visited urban park in the United States.\u0022\n            }\n        }\n    }\n};",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Our Data Model\n\nBefore using a real database, we store everything in memory.\n\nEach \u0060CityDto\u0060 contains a collection of \u0060PointOfInterestDto\u0060 objects.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass CityDto\n{\n    \u002BId : int\n    \u002BName : string\n    \u002BDescription : string?\n    \u002BPointsOfInterest : ICollection\u003CPointOfInterestDto\u003E\n}\n\nclass PointOfInterestDto\n{\n    \u002BId : int\n    \u002BName : string\n    \u002BDescription : string?\n}\n\nCityDto \u00221\u0022 *-- \u00220..*\u0022 PointOfInterestDto : contains\n\n@enduml",
+          "title": ".",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This allows our API to return both cities and the points of interest that belong to them.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "CityDto",
+          "showCodeTitleBar": true,
+          "code": "public class CityDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n\n    public int NumberOfPointsOfInterest =\u003E PointsOfInterest.Count;\n\n    public ICollection\u003CPointOfInterestDto\u003E PointsOfInterest { get; set; }\n        = new List\u003CPointOfInterestDto\u003E();\n}",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointOfInterestDto",
+          "showCodeTitleBar": true,
+          "code": "public class PointOfInterestDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why a Separate Controller?\n\nAlthough points of interest belong to cities, they are **separate resources**.\n\nInstead of placing every endpoint inside \u0060CitiesController\u0060, we create a dedicated \u0060PointsOfInterestController\u0060.\n\nThis keeps each controller focused on a single type of resource and makes the API easier to understand and maintain.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Nested Routes\n\nThe controller uses the following route:\n\n- \u0060api/cities/{cityId}/pointsofinterest\u0060\n\nThis tells clients that points of interest belong to a specific city.\n\nFor example:\n\n- \u0060GET /api/cities/1/pointsofinterest\u0060\n\nreturns all points of interest for city **1**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointsOfInterestController.cs",
+          "showCodeTitleBar": true,
+          "code": "[Route(\u0022api/cities/{cityId}/pointsofinterest\u0022)]\n[ApiController]\npublic class PointsOfInterestController : ControllerBase\n{\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning All Child Resources\n\nThe first endpoint returns every point of interest for the requested city.\n\n- \u0060GET /api/cities/1/pointsofinterest\u0060\n\nThe controller first searches for the city.\n\nIf the city exists, it returns the collection of child resources together with **200 OK**.\n\nIf the city doesn\u0027t exist, the API returns **404 Not Found**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointsOfInterestController.cs",
+          "showCodeTitleBar": true,
+          "code": "[HttpGet]\npublic ActionResult\u003CIEnumerable\u003CPointOfInterestDto\u003E\u003E GetPointsOfInterest(int cityId)\n{\n    var city = CitiesDataStore.Current.Cities\n        .FirstOrDefault(c =\u003E c.Id == cityId);\n\n    if (city == null)\n    {\n        return NotFound();\n    }\n\n    return Ok(city.PointsOfInterest);\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning a Single Child Resource\n\nSometimes the client needs only one child resource.\n\nFor example:\n\n- \u0060GET /api/cities/1/pointsofinterest/2\u0060\n\nThe controller first finds the requested city.\n\nNext, it searches for the point of interest inside that city.\n\nIf both resources exist, the API returns the requested object together with **200 OK**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointsOfInterestController.cs",
+          "showCodeTitleBar": true,
+          "code": "[HttpGet(\u0022{pointOfInterestId}\u0022)]\npublic ActionResult\u003CPointOfInterestDto\u003E GetPointOfInterest(\n    int cityId,\n    int pointOfInterestId)\n{\n    var city = CitiesDataStore.Current.Cities\n        .FirstOrDefault(c =\u003E c.Id == cityId);\n\n    if (city == null)\n    {\n        return NotFound();\n    }\n\n    var pointOfInterest = city.PointsOfInterest\n        .FirstOrDefault(p =\u003E p.Id == pointOfInterestId);\n\n    if (pointOfInterest == null)\n    {\n        return NotFound();\n    }\n\n    return Ok(pointOfInterest);\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why Check the Parent First?\n\nBefore searching for a point of interest, the controller first verifies that the city exists.\n\nThis follows the resource hierarchy.\n\nIf the parent resource doesn\u0027t exist, there is no point searching for one of its child resources.\n\nFor this reason, the controller returns **404 Not Found** immediately when the requested city cannot be found.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning Proper Status Codes\n\nThe controller can return different responses depending on the result.",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Situation",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "City exists",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**200 OK** ",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "City not found",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**404 Not Found**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Point of interest exists",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**200 OK**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Point of interest not found",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**404 Not Found**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Using proper HTTP status codes allows clients to understand the result of the request without inspecting the response body.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A REST API can model **parent-child relationships** using **nested resources**.\n\nIn this example, **points of interest** belong to a **city**, so they are accessed through nested routes such as:\n\n- \u0060/api/cities/{cityId}/pointsofinterest\u0060\n\nThe controller first verifies that the parent resource exists, then returns the requested child resource together with the appropriate HTTP status code.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "What are Records in C#?",
       "slug": "what-are-records-in-csharp",
       "level": "Draft",
@@ -10030,6 +10276,322 @@
         {
           "type": "summary",
           "summary": "An **API Controller** is the **entry point** for HTTP requests in an ASP.NET Core Web API.\n\n- \u0060[ApiController]\u0060 marks the class as a Web API controller.\n- \u0060[Route]\u0060 defines the endpoint URL.\n- \u0060[HttpGet]\u0060 maps **GET** requests to an action method.\n- The action executes your code and returns an HTTP response.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Return Data and Status Codes",
+      "slug": "return-data-and-status-codes",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Most Web APIs exist to **return data**.\n\nIn this article, you\u0027ll build endpoints that return a collection of cities and a single city by its identifier. You\u0027ll also learn why APIs should return **proper HTTP status codes** instead of only JSON data.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 7,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why do we need some data?\n\nSo far, our API controller exists, but it doesn\u0027t return anything useful.\n\nBefore connecting to a real database, it is common to use **in-memory data**. This allows us to focus on learning how a Web API works without introducing Entity Framework Core or SQL.\n\nLater, we can replace the in-memory data with a real database without changing the API endpoints very much.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## In-memory data store\n\nFor this example, we\u0027ll create a simple class that stores a collection of cities in memory.\n\nThe data is created when the application starts and remains available while the application is running.\n\nThis is **not a database**. It is simply a list of objects stored in the application\u0027s memory.\n\nLater, this class will be replaced with Entity Framework Core and a real database.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What is a DTO?\n\nEach city is represented by a **DTO (Data Transfer Object)**.\n\nA DTO is a simple object used to transfer data between the server and the client.\n\nOur \u0060CityDto\u0060 contains three properties:\n\n- \u0060Id\u0060\n- \u0060Name\u0060\n- \u0060Description\u0060\n\nDTOs usually contain **only the data** that should be sent to the client. They do not contain business logic.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning all cities\n\nThe first endpoint returns the entire collection of cities.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": "Returning all cities",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The controller reads the data from the in-memory store and returns it to the client.\n\nThe client receives a JSON array containing all available cities.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning a single city\n\nSometimes the client needs only one resource.\n\nThe following endpoint returns a single city by its identifier.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": "Returning one city",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/2",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The controller searches the collection for a matching city.\n\nIf the city exists, it is returned to the client.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why not just return JSON?\n\nA Web API should return **both**:\n\n- the response data\n- the correct HTTP status code\n\nFor example, imagine a client requests a city that doesn\u0027t exist.\n\nReturning an empty JSON object would not clearly explain what happened.\n\nInstead, the API should return the **404 Not Found** status code.\n\nHTTP status codes tell the client whether the request was successful before it even looks at the response body.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning proper status codes\n\nASP.NET Core provides helper methods for returning common HTTP responses.\n\nFor example:",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Method",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Status code",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": " \u0060Ok()\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**200 OK**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060NotFound()\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**404 Not Found**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060BadRequest()\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**400 Bad Request**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060Created()\u0060 ",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**201 Created**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "In our controller:\n\n- \u0060Ok(city)\u0060 returns the requested city together with **200 OK**\n- \u0060NotFound()\u0060 returns **404 Not Found** when the city doesn\u0027t exist",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why use ActionResult\u003CT\u003E?\n\nOur controller methods return:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "ActionResult\u003CCityDto\u003E",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "instead of simply:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "CityDto",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This gives the controller more flexibility.\n\nInstead of always returning data, it can return different HTTP responses when needed.\n\nFor example:\n\n- \u0060Ok(city)\u0060\n- \u0060NotFound()\u0060\n- \u0060BadRequest()\u0060\n\nAll of these can be returned from the same action.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\ncontrol \u0022CitiesController\u0022 as Controller\ndatabase \u0022CitiesDataStore\\n(in-memory)\u0022 as Store\n\nClient --\u003E Controller : GET /api/cities/{id}\n\nController --\u003E Store : Find city by id\n\nalt City found\n    Store --\u003E Controller : CityDto\n    Controller --\u003E Client : 200 OK \u002B CityDto\nelse City not found\n    Store --\u003E Controller : null\n    Controller --\u003E Client : 404 Not Found\nend\n\n@enduml",
+          "title": "Returning Data from a Web API",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A Web API should return both **data** and the **correct HTTP status code**.\n\nFor this example, we use an **in-memory data store** instead of a database, allowing us to focus on how API endpoints work.\n\nThe controller returns **DTOs** to the client and uses \u0060ActionResult\u003CT\u003E\u0060 so it can return responses such as **200 OK** or **404 Not Found** when appropriate.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Customizing Problem Details",
+      "slug": "customizing-problem-details",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "ASP.NET Core automatically returns **Problem Details** for many HTTP errors.\n\nIn this article, you\u0027ll learn how to customize the response by adding your own properties. This allows your API to include additional information that can help clients and developers diagnose problems.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 8,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why Customize Problem Details?\n\nThe default response is often enough.\n\nHowever, sometimes you want to include additional information, such as:\n\n- server name\n- request identifier\n- correlation ID\n- documentation links\n- application-specific error information\n\nThis makes troubleshooting much easier.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Configuring Problem Details\n\nProblem Details can be configured during application startup.\n\nThe following code registers the service and customizes every Problem Details response generated by the application.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": true,
+          "code": "builder.Services.AddProblemDetails(options =\u003E\n{\n    options.CustomizeProblemDetails = ctx =\u003E\n    {\n        ctx.ProblemDetails.Extensions.Add(\n            \u0022additionalInfo\u0022,\n            \u0022Additional info example\u0022);\n\n        ctx.ProblemDetails.Extensions.Add(\n            \u0022server\u0022,\n            Environment.MachineName);\n    };\n});",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## The Extensions Collection\n\nThe \u0060Extensions\u0060 collection allows you to add your own properties to the Problem Details response.\n\nEach property becomes part of the JSON returned to the client.\n\nIn this example we add:\n\n- \u0060additionalInfo\u0060\n- \u0060server\u0060\n\nClients can read these values just like any other JSON property.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example Response\n\nA customized Problem Details response might look like this:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": "Example response",
+          "showCodeTitleBar": true,
+          "code": "{\n  \u0022type\u0022: \u0022...\u0022,\n  \u0022title\u0022: \u0022Not Found\u0022,\n  \u0022status\u0022: 404,\n  \u0022detail\u0022: \u0022...\u0022,\n  \u0022additionalInfo\u0022: \u0022Additional info example\u0022,\n  \u0022server\u0022: \u0022WEB-SERVER-01\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The additional properties appear alongside the standard Problem Details fields.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Should You Add?\n\nOnly include information that is useful for debugging or troubleshooting.\n\nCommon examples include:\n\n- Correlation ID\n- Trace ID\n- Documentation URL\n- Error code\n- Request ID\n\nAvoid exposing sensitive information such as passwords, connection strings, or internal implementation details.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "## Key Takeaway\n\nASP.NET Core allows you to customize every Problem Details response.\n\nUsing the \u0060Extensions\u0060 collection, you can include additional information that helps clients understand and troubleshoot API errors while still following the standard Problem Details format.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022ASP.NET Core\u0022 as Api\n\ncollections \u0022ProblemDetails\u0022 as PD\n\nClient -\u003E Api : HTTP Request\n\nApi -\u003E PD : Create Problem Details\n\nPD -\u003E PD : Add custom\\nextensions\n\nPD --\u003E Client : JSON response\n\n@enduml",
+          "title": "Customizing Problem Details",
+          "showDiagramTitleBar": true,
           "rows": []
         }
       ]
