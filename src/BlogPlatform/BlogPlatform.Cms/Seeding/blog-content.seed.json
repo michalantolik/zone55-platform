@@ -9695,6 +9695,344 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Your First API Controller",
+      "slug": "your-first-api-controller",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "An **API Controller** is simply a C# class that handles incoming HTTP requests.\n\nWhen a client sends a request to your API, ASP.NET Core finds the correct controller, executes the appropriate action method, and returns an HTTP response.\n\nThink of a controller as the **entry point** into your Web API.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 6,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example HTTP Request",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Example.cs",
+          "codeTitle": "Example HTTP Request",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Creating your first controller\n\nCreate a new class inside the **Controllers** folder.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "CitiesController.cs",
+          "showCodeTitleBar": true,
+          "code": "using Microsoft.AspNetCore.Mvc;\n\nnamespace CityInfo.API.Controllers;\n\n[ApiController]\n[Route(\u0022api/cities\u0022)]\npublic class CitiesController : ControllerBase\n{\n\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Base route\n\nThe \u0060[Route]\u0060 attribute defines the base URL for all endpoints in this controller.\n\nAt this point, the controller exists, but it doesn\u0027t handle any requests yet.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Base URL",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": "Base URL",
+          "showCodeTitleBar": false,
+          "code": "/api/cities",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Understanding the attributes",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Attribute",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Purpose",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060[ApiController]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Marks the class as a Web API controller.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060[Route(\u0022api/cities\u0022)]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Defines the URL prefix for all endpoints in this controller.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "## Adding your first endpoint\n\nNow add an action method that handles **HTTP GET** requests.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "CitiesController.cs",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "CitiesController.cs",
+          "showCodeTitleBar": true,
+          "code": "using Microsoft.AspNetCore.Mvc;\n\nnamespace CityInfo.API.Controllers;\n\n[ApiController]\n[Route(\u0022api/cities\u0022)]\npublic class CitiesController : ControllerBase\n{\n    [HttpGet]\n    public JsonResult GetCities()\n    {\n        return new JsonResult(\n            new List\u003Cobject\u003E\n            {\n                new { Id = 1, Name = \u0022New York City\u0022 },\n                new { Id = 2, Name = \u0022Antwerp\u0022 }\n            });\n    }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## HTTP Request\n\nThe \u0060[HttpGet]\u0060 attribute tells ASP.NET Core that this method handles **GET** requests.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Request",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Request",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## HTTP Response\n\nThe action returns a JSON response.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": "JSON Response",
+          "showCodeTitleBar": true,
+          "code": "[\n  {\n    \u0022id\u0022: 1,\n    \u0022name\u0022: \u0022New York City\u0022\n  },\n  {\n    \u0022id\u0022: 2,\n    \u0022name\u0022: \u0022Antwerp\u0022\n  }\n]",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## How routing works\n\nASP.NET Core combines the controller route with the action attribute to build the final endpoint URL.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Routing table",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Controller",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Action",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Final URL",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060[Route(\u0022api/cities\u0022)]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060[HttpGet]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060/api/cities\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060[Route(\u0022api/cities\u0022)]\u0060 ",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060[HttpGet(\u0022{id}\u0022)]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060/api/cities/5\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060[Route(\u0022api/cities\u0022)]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060[HttpPost]\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "\u0060/api/cities\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "## Request flow\n\nEvery request follows the same basic path through ASP.NET Core.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\ntop to bottom direction\n\nrectangle \u0022HTTP Request\u0022 as Request\nrectangle \u0022Routing\u0022 as Routing\nrectangle \u0022CitiesController\u0022 as Controller\nrectangle \u0022GetCities()\u0022 as Action\nrectangle \u0022HTTP Response\\n(JSON)\u0022 as Response\n\nRequest --\u003E Routing\nRouting --\u003E Controller\nController --\u003E Action\nAction --\u003E Response\n\n@enduml",
+          "title": "Flow diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "An **API Controller** is the **entry point** for HTTP requests in an ASP.NET Core Web API.\n\n- \u0060[ApiController]\u0060 marks the class as a Web API controller.\n- \u0060[Route]\u0060 defines the endpoint URL.\n- \u0060[HttpGet]\u0060 maps **GET** requests to an action method.\n- The action executes your code and returns an HTTP response.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
