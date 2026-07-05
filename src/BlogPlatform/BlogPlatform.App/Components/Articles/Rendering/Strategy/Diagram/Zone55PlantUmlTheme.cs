@@ -49,6 +49,27 @@ internal static class Zone55PlantUmlTheme
         "BoxPadding",
         "SequenceLifeLineBorderColor",
         "SequenceLifeLineBackgroundColor",
+        "ParticipantBackgroundColor",
+        "ParticipantBorderColor",
+        "ParticipantFontColor",
+        "ActorBackgroundColor",
+        "ActorBorderColor",
+        "ActorFontColor",
+        "BoundaryBackgroundColor",
+        "BoundaryBorderColor",
+        "BoundaryFontColor",
+        "ControlBackgroundColor",
+        "ControlBorderColor",
+        "ControlFontColor",
+        "EntityBackgroundColor",
+        "EntityBorderColor",
+        "EntityFontColor",
+        "DatabaseBackgroundColor",
+        "DatabaseBorderColor",
+        "DatabaseFontColor",
+        "CollectionsBackgroundColor",
+        "CollectionsBorderColor",
+        "CollectionsFontColor",
         "SequenceGroupBackgroundColor",
         "SequenceGroupBorderColor",
         "SequenceGroupFontColor",
@@ -206,6 +227,27 @@ skinparam note {
 
 skinparam SequenceLifeLineBorderColor {{{softLineColor}}}
 skinparam SequenceLifeLineBackgroundColor {{{surfaceColor}}}
+skinparam ParticipantBackgroundColor {{{nodeBgColor}}}
+skinparam ParticipantBorderColor {{{borderColor}}}
+skinparam ParticipantFontColor {{{nodeTextColor}}}
+skinparam ActorBackgroundColor {{{nodeBgColor}}}
+skinparam ActorBorderColor {{{borderColor}}}
+skinparam ActorFontColor {{{nodeTextColor}}}
+skinparam BoundaryBackgroundColor {{{nodeBgColor}}}
+skinparam BoundaryBorderColor {{{borderColor}}}
+skinparam BoundaryFontColor {{{nodeTextColor}}}
+skinparam ControlBackgroundColor {{{nodeBgColor}}}
+skinparam ControlBorderColor {{{borderColor}}}
+skinparam ControlFontColor {{{nodeTextColor}}}
+skinparam EntityBackgroundColor {{{nodeBgColor}}}
+skinparam EntityBorderColor {{{borderColor}}}
+skinparam EntityFontColor {{{nodeTextColor}}}
+skinparam DatabaseBackgroundColor {{{accentBgColor}}}
+skinparam DatabaseBorderColor {{{borderColor}}}
+skinparam DatabaseFontColor {{{nodeTextColor}}}
+skinparam CollectionsBackgroundColor {{{accentBgColor}}}
+skinparam CollectionsBorderColor {{{borderColor}}}
+skinparam CollectionsFontColor {{{nodeTextColor}}}
 skinparam SequenceGroupBackgroundColor {{{surfaceColor}}}
 skinparam SequenceGroupBorderColor {{{borderColor}}}
 skinparam SequenceGroupFontColor {{{nodeTextColor}}}
