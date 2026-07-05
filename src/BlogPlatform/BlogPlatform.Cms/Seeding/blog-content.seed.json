@@ -12038,6 +12038,300 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Creating Your First POST Endpoint",
+      "slug": "creating-your-first-post-endpoint",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A POST endpoint is used to create a new resource. The client sends data in the request body, ASP.NET Core binds it to a DTO, and the API typically returns 201 Created if the resource is created successfully.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 23,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "This is the first paragraph.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Is a POST Endpoint?\n\nA **POST** endpoint receives data from the client and creates a **new resource**.\n\nFor example, a client can send a request to create a new city.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "POST /api/cities",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The request body contains the data to create the resource.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example Request",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "POST /api/cities\nContent-Type: application/json\n\n{\n  \u0022name\u0022: \u0022London\u0022,\n  \u0022description\u0022: \u0022Capital of England\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "ASP.NET Core automatically converts the JSON into a C# object.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "DTO",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "public record CityDto(\n    string Name,\n    string Description);",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The request body is bound to this DTO.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Controller",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[ApiController]\n[Route(\u0022api/[controller]\u0022)]\npublic class CitiesController : ControllerBase\n{\n    [HttpPost]\n    public IActionResult Create(CityDto city)\n    {\n        // Save city...\n\n        return Created();\n    }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When the client sends a POST request:\n\n1. ASP.NET Core reads the JSON body.\n2. It creates a \u0060CityDto\u0060.\n3. The action executes.\n4. The API returns a response.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Response",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A successful POST request usually returns:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "HTTP/1.1 201 Created",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Optionally, the response can include the newly created resource.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "HTTP/1.1 201 Created\n\n{\n  \u0022id\u0022: 1,\n  \u0022name\u0022: \u0022London\u0022,\n  \u0022description\u0022: \u0022Capital of England\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical Status Codes",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Status",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Meaning",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": " **201 Created**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Resource created successfully",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**400 Bad Request**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Invalid request data",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**401 Unauthorized**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Authentication required",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": " **403 Forbidden**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "User is not allowed to create the resource",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**409 Conflict**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Resource already exists",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**415 Unsupported Media Type**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Unsupported request format",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022ASP.NET Core API\u0022 as Api\nentity \u0022CityDto\u0022 as Dto\ndatabase Database\n\nClient -\u003E Api : POST /api/cities\\nJSON body\n\nApi -\u003E Dto : Bind JSON\n\nApi -\u003E Database : Save city\n\nDatabase --\u003E Api : New ID\n\nApi --\u003E Client : 201 Created\n\n@enduml",
+          "title": "Request Flow",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A **POST** endpoint is used to **create a new resource**.\n\nThe client sends data to the API, and the API uses that data to create the resource.\n\nIf the operation succeeds, the API usually returns **201 Created**.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
