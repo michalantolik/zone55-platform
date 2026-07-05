@@ -18,15 +18,18 @@ public sealed class BlogContentController : ControllerBase
     private readonly IBlogContentAdminService _blogContent;
     private readonly ILogger<BlogContentController> _logger;
     private readonly BlogContentSeedOperationsOptions _seedOptions;
+    private readonly BlogSeedImportJobService _seedImportJobs;
 
     public BlogContentController(
         IBlogContentAdminService blogContent,
         ILogger<BlogContentController> logger,
-        IOptions<BlogContentSeedOperationsOptions> seedOptions)
+        IOptions<BlogContentSeedOperationsOptions> seedOptions,
+        BlogSeedImportJobService seedImportJobs)
     {
         _blogContent = blogContent;
         _logger = logger;
         _seedOptions = seedOptions.Value;
+        _seedImportJobs = seedImportJobs;
     }
 
     [HttpGet("dotnet-roadmap")]
@@ -76,10 +79,59 @@ public sealed class BlogContentController : ControllerBase
         return Ok(result);
     }
 
+
+    [AllowAnonymous]
+    [HttpPost("seed-import/github/start")]
+    public ActionResult<BlogSeedImportJobSnapshot> StartSeedContentImportFromGitHub()
+    {
+        var unauthorized = ValidateGitHubSeedApiKey();
+
+        if (unauthorized is not null)
+        {
+            return unauthorized;
+        }
+
+        var started = _seedImportJobs.TryStart(out var snapshot);
+
+        return started
+            ? Accepted(snapshot)
+            : Conflict(snapshot);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("seed-import/github/status")]
+    public ActionResult<BlogSeedImportJobSnapshot> GetSeedContentImportStatus()
+    {
+        var unauthorized = ValidateGitHubSeedApiKey();
+
+        if (unauthorized is not null)
+        {
+            return unauthorized;
+        }
+
+        return Ok(_seedImportJobs.GetSnapshot());
+    }
+
     [AllowAnonymous]
     [HttpPost("seed-import/github")]
     public async Task<ActionResult<CmsSeedImportResponse>> ImportSeedContentFromGitHub(
         CancellationToken cancellationToken)
+    {
+        var unauthorized = ValidateGitHubSeedApiKey();
+
+        if (unauthorized is not null)
+        {
+            return unauthorized;
+        }
+
+        _logger.LogInformation("GitHub seed import requested.");
+
+        var result = await _blogContent.ImportSeedContentAsync(cancellationToken);
+
+        return Ok(result);
+    }
+
+    private ActionResult? ValidateGitHubSeedApiKey()
     {
         if (string.IsNullOrWhiteSpace(_seedOptions.ApiKey))
         {
@@ -106,11 +158,7 @@ public sealed class BlogContentController : ControllerBase
                 DateTimeOffset.UtcNow));
         }
 
-        _logger.LogInformation("GitHub seed import requested.");
-
-        var result = await _blogContent.ImportSeedContentAsync(cancellationToken);
-
-        return Ok(result);
+        return null;
     }
 
     [HttpGet("document-types")]

@@ -23,6 +23,7 @@ public sealed class BlogContentSeederComposer : IComposer
         builder.Services.AddSingleton<ISeedBlockSerializationStrategy, TableSeedBlockSerializationStrategy>();
 
         builder.Services.AddSingleton<BlogSeedBlockSerializationService>();
+        builder.Services.AddSingleton<BlogSeedImportJobService>();
 
         builder.Services.AddTransient<BlogContentSeeder>();
         builder.Services.AddHostedService<BlogContentSeederHostedService>();

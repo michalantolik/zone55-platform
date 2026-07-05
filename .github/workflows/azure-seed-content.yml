@@ -110,21 +110,77 @@ jobs:
       - name: Seed Azure database
         shell: bash
         run: |
-          response=$(curl -sS -X POST \
-            "${CMS_PUBLIC_URL}api/blog-content/seed-import/github" \
-            -H "X-BlogPlatform-Seed-Key: ${{ secrets.BLOG_CONTENT_SEED_API_KEY }}" \
-            -H "Accept: application/json")
+          set -euo pipefail
 
-          echo "$response"
+          seed_key_header="X-BlogPlatform-Seed-Key: ${{ secrets.BLOG_CONTENT_SEED_API_KEY }}"
+          status_file="seed-result.json"
 
-          success=$(echo "$response" | jq -r '.success')
+          start_response_file=$(mktemp)
+          start_status=$(curl -sS -X POST \
+            "${CMS_PUBLIC_URL}api/blog-content/seed-import/github/start" \
+            -H "$seed_key_header" \
+            -H "Accept: application/json" \
+            -o "$start_response_file" \
+            -w "%{http_code}")
 
-          if [ "$success" != "true" ]; then
-            echo "::error::Seed import failed."
+          cat "$start_response_file"
+          echo ""
+
+          if [ "$start_status" != "202" ] && [ "$start_status" != "409" ]; then
+            echo "::error::Seed import could not be started. HTTP ${start_status}."
             exit 1
           fi
 
-          echo "$response" > seed-result.json
+          if ! jq -e . "$start_response_file" > /dev/null; then
+            echo "::error::Seed import start response was not valid JSON."
+            exit 1
+          fi
+
+          attempts=90
+          delay_seconds=10
+
+          for i in $(seq 1 "$attempts"); do
+            response_file=$(mktemp)
+            status_code=$(curl -sS \
+              "${CMS_PUBLIC_URL}api/blog-content/seed-import/github/status" \
+              -H "$seed_key_header" \
+              -H "Accept: application/json" \
+              -o "$response_file" \
+              -w "%{http_code}")
+
+            echo "Seed status attempt ${i}/${attempts} - HTTP ${status_code}"
+            cat "$response_file"
+            echo ""
+
+            if [ "$status_code" != "200" ]; then
+              echo "::error::Seed import status check failed. HTTP ${status_code}."
+              exit 1
+            fi
+
+            if ! jq -e . "$response_file" > /dev/null; then
+              echo "::error::Seed import status response was not valid JSON."
+              exit 1
+            fi
+
+            seed_status=$(jq -r '.status' "$response_file")
+
+            if [ "$seed_status" = "succeeded" ]; then
+              cp "$response_file" "$status_file"
+              echo "Seed import completed successfully."
+              exit 0
+            fi
+
+            if [ "$seed_status" = "failed" ]; then
+              cp "$response_file" "$status_file"
+              echo "::error::Seed import failed."
+              exit 1
+            fi
+
+            sleep "$delay_seconds"
+          done
+
+          echo "::error::Seed import did not finish in time."
+          exit 1
 
       - name: Refresh API content cache
         shell: bash
