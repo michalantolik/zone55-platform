@@ -11648,6 +11648,165 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Reading Query String Values",
+      "slug": "reading-query-string-values",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Query string values are values that appear after the \u0060?\u0060 in a URL.\n\nIn this article, you\u0027ll learn how ASP.NET Core automatically reads query string values and passes them to your controller action.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 19,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "First heading",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This is the first paragraph.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Example.cs",
+          "code": "public sealed class Example\n{\n    public string Name { get; set; } = string.Empty;\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Is a Query String?\n\nA **query string** is the part of a URL that appears after the \u0060?\u0060.\n\nFor example:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities?page=2\u0026pageSize=10",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In this request:\n\n- \u0060page\u0060 has the value **2**\n- \u0060pageSize\u0060 has the value **10**\n\nQuery string values are commonly used for **filtering**, **sorting**, and **pagination**.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Reading Query String Values\n\nASP.NET Core automatically reads query string values and passes them to your controller action.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpGet]\npublic IActionResult GetCities(\n    int page,\n    int pageSize)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When the client requests:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities?page=2\u0026pageSize=10",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "the \u0060page\u0060 parameter receives **2** and the \u0060pageSize\u0060 parameter receives **10** automatically.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022HTTP Request\u0022 as Request\nparticipant \u0022Model Binding\u0022 as Binding\nparticipant Controller\n\nClient -\u003E Request : GET /api/cities?page=2\u0026pageSize=10\n\nRequest -\u003E Binding : page = 2\\npageSize = 10\n\nBinding -\u003E Controller : GetCities(2, 10)\n\n@enduml",
+          "title": "Model Binding Query String Values",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Using \u0060[FromQuery]\u0060\n\nYou can explicitly tell ASP.NET Core that a value should come from the query string.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpGet]\npublic IActionResult GetCities(\n    [FromQuery] int page,\n    [FromQuery] int pageSize)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In most cases, this attribute isn\u0027t required because ASP.NET Core can determine it automatically.\n\nHowever, using \u0060[FromQuery]\u0060 can make your code more explicit and easier to read.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## When Should You Use It?\n\nQuery string values are useful when the client needs to control **how data is returned**, rather than **which resource** is returned.\n\nTypical examples include:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities?page=2",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities?page=2\u0026pageSize=10",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities?sortBy=name",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "These values allow the client to customize the response without changing the resource itself.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Query string values appear after the **\u0060?\u0060** in a URL.\n\nASP.NET Core automatically reads these values using **Model Binding** and passes them to your controller action.\n\nThe \u0060[FromQuery]\u0060 attribute is optional in most cases, but it can make your code more explicit.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
