@@ -12332,6 +12332,81 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "What Is Validation?",
+      "slug": "what-is-validation",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Validation** checks whether data sent to an API is correct before your application uses it.\n\nIn **ASP.NET Core**, validation usually runs automatically during model binding.\n\nIf the request is invalid, the API returns **400 Bad Request** instead of continuing with incorrect data.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 24,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why validate input?\n\nClients can send incorrect data, for example:\n\n- Missing required fields\n- Text that is too long\n- Invalid values\n\nWithout validation, invalid data may cause errors later, such as database exceptions.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Validation with Data Annotations\n\nValidation rules are usually added to a DTO using **Data Annotations**.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Code example",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "public class CityDto\n{\n    [Required]\n    [MaxLength(50)]\n    public string Name { get; set; }\n\n    [MaxLength(200)]\n    public string? Description { get; set; }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In this example:\n\n- \u0060Required\u0060 means the value must be provided.\n- \u0060MaxLength\u0060 limits the number of characters.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What happens when validation fails?\n\nWhen a controller uses the \u0060[ApiController]\u0060 attribute, ASP.NET Core automatically validates the request.\n\nIf validation fails, the framework returns: \u0060400 Bad Request\u0060 along with details about the validation errors.\n\nYou usually don\u0027t need to write validation-checking code yourself.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Custom error messages\n\nYou can provide your own validation message.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[Required(ErrorMessage = \u0022Please provide a city name.\u0022)]\npublic string Name { get; set; }",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Always validate input received by your API.\n\nValidation helps catch incorrect data early and allows the API to return **400 Bad Request** instead of failing later with unexpected errors.\n\nUsing **Data Annotations** together with the **\u0060[ApiController]\u0060** attribute makes this easy in ASP.NET Core.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
