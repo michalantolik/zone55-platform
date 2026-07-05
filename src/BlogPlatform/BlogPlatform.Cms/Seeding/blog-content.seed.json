@@ -8653,252 +8653,6 @@
       ]
     },
     {
-      "name": "Returning Child Resources",
-      "slug": "returning-child-resources",
-      "level": "Draft",
-      "focus": "Preview",
-      "summary": "Resources in a REST API often have **parent-child relationships**.\n\nIn this article, you\u0027ll learn how to return child resources using nested routes, why they belong in a separate controller, and how to return the correct HTTP status codes when either the parent or child resource doesn\u0027t exist.",
-      "dotnetZone": "foundation",
-      "dotnetZoneStep": "csharp-dotnet",
-      "order": 2,
-      "tags": [
-        ".NET",
-        "Architecture",
-        "Azure"
-      ],
-      "bodyBlocks": [
-        {
-          "type": "text",
-          "text": "## Parent and Child Resources\n\nNot every resource exists on its own.\n\nFor example, a **City** can contain multiple **Points of Interest**.\n\nIn this relationship:\n\n- **City** is the parent resource.\n- **Point of Interest** is the child resource.\n\nA child resource belongs to its parent and is usually accessed through it.",
-          "rows": []
-        },
-        {
-          "type": "heading",
-          "level": 2,
-          "text": "Our In-Memory Data",
-          "rows": []
-        },
-        {
-          "type": "codeSnippet",
-          "language": "csharp",
-          "fileName": "Program.cs",
-          "codeTitle": "CitiesDataStore.cs",
-          "showCodeTitleBar": true,
-          "code": "Cities = new List\u003CCityDto\u003E()\n{\n    new CityDto()\n    {\n        Id = 1,\n        Name = \u0022New York City\u0022,\n        Description = \u0022The one with that big park.\u0022,\n        PointsOfInterest = new List\u003CPointOfInterestDto\u003E()\n        {\n            new PointOfInterestDto()\n            {\n                Id = 1,\n                Name = \u0022Central Park\u0022,\n                Description = \u0022The most visited urban park in the United States.\u0022\n            }\n        }\n    }\n};",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Our Data Model\n\nBefore using a real database, we store everything in memory.\n\nEach \u0060CityDto\u0060 contains a collection of \u0060PointOfInterestDto\u0060 objects.",
-          "rows": []
-        },
-        {
-          "type": "plantUmlDiagram",
-          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass CityDto\n{\n    \u002BId : int\n    \u002BName : string\n    \u002BDescription : string?\n    \u002BPointsOfInterest : ICollection\u003CPointOfInterestDto\u003E\n}\n\nclass PointOfInterestDto\n{\n    \u002BId : int\n    \u002BName : string\n    \u002BDescription : string?\n}\n\nCityDto \u00221\u0022 *-- \u00220..*\u0022 PointOfInterestDto : contains\n\n@enduml",
-          "title": ".",
-          "showDiagramTitleBar": false,
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "This allows our API to return both cities and the points of interest that belong to them.",
-          "rows": []
-        },
-        {
-          "type": "codeSnippet",
-          "language": "csharp",
-          "fileName": "Program.cs",
-          "codeTitle": "CityDto",
-          "showCodeTitleBar": true,
-          "code": "public class CityDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n\n    public int NumberOfPointsOfInterest =\u003E PointsOfInterest.Count;\n\n    public ICollection\u003CPointOfInterestDto\u003E PointsOfInterest { get; set; }\n        = new List\u003CPointOfInterestDto\u003E();\n}",
-          "rows": []
-        },
-        {
-          "type": "codeSnippet",
-          "language": "csharp",
-          "fileName": "Program.cs",
-          "codeTitle": "PointOfInterestDto",
-          "showCodeTitleBar": true,
-          "code": "public class PointOfInterestDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n}",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Why a Separate Controller?\n\nAlthough points of interest belong to cities, they are **separate resources**.\n\nInstead of placing every endpoint inside \u0060CitiesController\u0060, we create a dedicated \u0060PointsOfInterestController\u0060.\n\nThis keeps each controller focused on a single type of resource and makes the API easier to understand and maintain.",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Nested Routes\n\nThe controller uses the following route:\n\n- \u0060api/cities/{cityId}/pointsofinterest\u0060\n\nThis tells clients that points of interest belong to a specific city.\n\nFor example:\n\n- \u0060GET /api/cities/1/pointsofinterest\u0060\n\nreturns all points of interest for city **1**.",
-          "rows": []
-        },
-        {
-          "type": "codeSnippet",
-          "language": "csharp",
-          "fileName": "Program.cs",
-          "codeTitle": "PointsOfInterestController.cs",
-          "showCodeTitleBar": true,
-          "code": "[Route(\u0022api/cities/{cityId}/pointsofinterest\u0022)]\n[ApiController]\npublic class PointsOfInterestController : ControllerBase\n{\n}",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Returning All Child Resources\n\nThe first endpoint returns every point of interest for the requested city.\n\n- \u0060GET /api/cities/1/pointsofinterest\u0060\n\nThe controller first searches for the city.\n\nIf the city exists, it returns the collection of child resources together with **200 OK**.\n\nIf the city doesn\u0027t exist, the API returns **404 Not Found**.",
-          "rows": []
-        },
-        {
-          "type": "codeSnippet",
-          "language": "csharp",
-          "fileName": "Program.cs",
-          "codeTitle": "PointsOfInterestController.cs",
-          "showCodeTitleBar": true,
-          "code": "[HttpGet]\npublic ActionResult\u003CIEnumerable\u003CPointOfInterestDto\u003E\u003E GetPointsOfInterest(int cityId)\n{\n    var city = CitiesDataStore.Current.Cities\n        .FirstOrDefault(c =\u003E c.Id == cityId);\n\n    if (city == null)\n    {\n        return NotFound();\n    }\n\n    return Ok(city.PointsOfInterest);\n}",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Returning a Single Child Resource\n\nSometimes the client needs only one child resource.\n\nFor example:\n\n- \u0060GET /api/cities/1/pointsofinterest/2\u0060\n\nThe controller first finds the requested city.\n\nNext, it searches for the point of interest inside that city.\n\nIf both resources exist, the API returns the requested object together with **200 OK**.",
-          "rows": []
-        },
-        {
-          "type": "codeSnippet",
-          "language": "csharp",
-          "fileName": "Program.cs",
-          "codeTitle": "PointsOfInterestController.cs",
-          "showCodeTitleBar": true,
-          "code": "[HttpGet(\u0022{pointOfInterestId}\u0022)]\npublic ActionResult\u003CPointOfInterestDto\u003E GetPointOfInterest(\n    int cityId,\n    int pointOfInterestId)\n{\n    var city = CitiesDataStore.Current.Cities\n        .FirstOrDefault(c =\u003E c.Id == cityId);\n\n    if (city == null)\n    {\n        return NotFound();\n    }\n\n    var pointOfInterest = city.PointsOfInterest\n        .FirstOrDefault(p =\u003E p.Id == pointOfInterestId);\n\n    if (pointOfInterest == null)\n    {\n        return NotFound();\n    }\n\n    return Ok(pointOfInterest);\n}",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Why Check the Parent First?\n\nBefore searching for a point of interest, the controller first verifies that the city exists.\n\nThis follows the resource hierarchy.\n\nIf the parent resource doesn\u0027t exist, there is no point searching for one of its child resources.\n\nFor this reason, the controller returns **404 Not Found** immediately when the requested city cannot be found.",
-          "rows": []
-        },
-        {
-          "type": "text",
-          "text": "## Returning Proper Status Codes\n\nThe controller can return different responses depending on the result.",
-          "rows": []
-        },
-        {
-          "type": "table",
-          "hasHeaderRow": true,
-          "hasHeaderColumn": false,
-          "autoNumberRows": false,
-          "tableStyle": "dense-engineering",
-          "defaultHorizontalAlignment": "left",
-          "defaultVerticalAlignment": "middle",
-          "rows": [
-            [
-              {
-                "text": "Situation",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              },
-              {
-                "text": "Response",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              }
-            ],
-            [
-              {
-                "text": "City exists",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              },
-              {
-                "text": "**200 OK** ",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              }
-            ],
-            [
-              {
-                "text": "City not found",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              },
-              {
-                "text": "**404 Not Found**",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              }
-            ],
-            [
-              {
-                "text": "Point of interest exists",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              },
-              {
-                "text": "**200 OK**",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              }
-            ],
-            [
-              {
-                "text": "Point of interest not found",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              },
-              {
-                "text": "**404 Not Found**",
-                "emoji": "",
-                "imageUrl": "",
-                "imageAlt": "",
-                "horizontalAlignment": "",
-                "verticalAlignment": ""
-              }
-            ]
-          ]
-        },
-        {
-          "type": "text",
-          "text": "Using proper HTTP status codes allows clients to understand the result of the request without inspecting the response body.",
-          "rows": []
-        },
-        {
-          "type": "heading",
-          "level": 2,
-          "text": "Key Takeaway",
-          "rows": []
-        },
-        {
-          "type": "summary",
-          "summary": "A REST API can model **parent-child relationships** using **nested resources**.\n\nIn this example, **points of interest** belong to a **city**, so they are accessed through nested routes such as:\n\n- \u0060/api/cities/{cityId}/pointsofinterest\u0060\n\nThe controller first verifies that the parent resource exists, then returns the requested child resource together with the appropriate HTTP status code.",
-          "rows": []
-        }
-      ]
-    },
-    {
       "name": "What are Records in C#?",
       "slug": "what-are-records-in-csharp",
       "level": "Draft",
@@ -10516,6 +10270,250 @@
       ]
     },
     {
+      "name": "Returning Child Resources",
+      "slug": "returning-child-resources",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Resources in a REST API often have **parent-child relationships**.\n\nIn this article, you\u0027ll learn how to return child resources using nested routes, why they belong in a separate controller, and how to return the correct HTTP status codes when either the parent or child resource doesn\u0027t exist.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 8,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Parent and Child Resources\n\nNot every resource exists on its own.\n\nFor example, a **City** can contain multiple **Points of Interest**.\n\nIn this relationship:\n\n- **City** is the parent resource.\n- **Point of Interest** is the child resource.\n\nA child resource belongs to its parent and is usually accessed through it.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Our In-Memory Data",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "CitiesDataStore.cs",
+          "showCodeTitleBar": true,
+          "code": "Cities = new List\u003CCityDto\u003E()\n{\n    new CityDto()\n    {\n        Id = 1,\n        Name = \u0022New York City\u0022,\n        Description = \u0022The one with that big park.\u0022,\n        PointsOfInterest = new List\u003CPointOfInterestDto\u003E()\n        {\n            new PointOfInterestDto()\n            {\n                Id = 1,\n                Name = \u0022Central Park\u0022,\n                Description = \u0022The most visited urban park in the United States.\u0022\n            }\n        }\n    }\n};",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Our Data Model\n\nBefore using a real database, we store everything in memory.\n\nEach \u0060CityDto\u0060 contains a collection of \u0060PointOfInterestDto\u0060 objects.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nskinparam classAttributeIconSize 0\n\nclass CityDto\n{\n    \u002BId : int\n    \u002BName : string\n    \u002BDescription : string?\n    \u002BPointsOfInterest : ICollection\u003CPointOfInterestDto\u003E\n}\n\nclass PointOfInterestDto\n{\n    \u002BId : int\n    \u002BName : string\n    \u002BDescription : string?\n}\n\nCityDto \u00221\u0022 *-- \u00220..*\u0022 PointOfInterestDto : contains\n\n@enduml",
+          "title": ".",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This allows our API to return both cities and the points of interest that belong to them.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "CityDto",
+          "showCodeTitleBar": true,
+          "code": "public class CityDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n\n    public int NumberOfPointsOfInterest =\u003E PointsOfInterest.Count;\n\n    public ICollection\u003CPointOfInterestDto\u003E PointsOfInterest { get; set; }\n        = new List\u003CPointOfInterestDto\u003E();\n}",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointOfInterestDto",
+          "showCodeTitleBar": true,
+          "code": "public class PointOfInterestDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why a Separate Controller?\n\nAlthough points of interest belong to cities, they are **separate resources**.\n\nInstead of placing every endpoint inside \u0060CitiesController\u0060, we create a dedicated \u0060PointsOfInterestController\u0060.\n\nThis keeps each controller focused on a single type of resource and makes the API easier to understand and maintain.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Nested Routes\n\nThe controller uses the following route:\n\n- \u0060api/cities/{cityId}/pointsofinterest\u0060\n\nThis tells clients that points of interest belong to a specific city.\n\nFor example:\n\n- \u0060GET /api/cities/1/pointsofinterest\u0060\n\nreturns all points of interest for city **1**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointsOfInterestController.cs",
+          "showCodeTitleBar": true,
+          "code": "[Route(\u0022api/cities/{cityId}/pointsofinterest\u0022)]\n[ApiController]\npublic class PointsOfInterestController : ControllerBase\n{\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning All Child Resources\n\nThe first endpoint returns every point of interest for the requested city.\n\n- \u0060GET /api/cities/1/pointsofinterest\u0060\n\nThe controller first searches for the city.\n\nIf the city exists, it returns the collection of child resources together with **200 OK**.\n\nIf the city doesn\u0027t exist, the API returns **404 Not Found**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointsOfInterestController.cs",
+          "showCodeTitleBar": true,
+          "code": "[HttpGet]\npublic ActionResult\u003CIEnumerable\u003CPointOfInterestDto\u003E\u003E GetPointsOfInterest(int cityId)\n{\n    var city = CitiesDataStore.Current.Cities\n        .FirstOrDefault(c =\u003E c.Id == cityId);\n\n    if (city == null)\n    {\n        return NotFound();\n    }\n\n    return Ok(city.PointsOfInterest);\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning a Single Child Resource\n\nSometimes the client needs only one child resource.\n\nFor example:\n\n- \u0060GET /api/cities/1/pointsofinterest/2\u0060\n\nThe controller first finds the requested city.\n\nNext, it searches for the point of interest inside that city.\n\nIf both resources exist, the API returns the requested object together with **200 OK**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "PointsOfInterestController.cs",
+          "showCodeTitleBar": true,
+          "code": "[HttpGet(\u0022{pointOfInterestId}\u0022)]\npublic ActionResult\u003CPointOfInterestDto\u003E GetPointOfInterest(\n    int cityId,\n    int pointOfInterestId)\n{\n    var city = CitiesDataStore.Current.Cities\n        .FirstOrDefault(c =\u003E c.Id == cityId);\n\n    if (city == null)\n    {\n        return NotFound();\n    }\n\n    var pointOfInterest = city.PointsOfInterest\n        .FirstOrDefault(p =\u003E p.Id == pointOfInterestId);\n\n    if (pointOfInterest == null)\n    {\n        return NotFound();\n    }\n\n    return Ok(pointOfInterest);\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why Check the Parent First?\n\nBefore searching for a point of interest, the controller first verifies that the city exists.\n\nThis follows the resource hierarchy.\n\nIf the parent resource doesn\u0027t exist, there is no point searching for one of its child resources.\n\nFor this reason, the controller returns **404 Not Found** immediately when the requested city cannot be found.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning Proper Status Codes\n\nThe controller can return different responses depending on the result.",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Situation",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Response",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "City exists",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**200 OK** ",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "City not found",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**404 Not Found**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Point of interest exists",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**200 OK**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "Point of interest not found",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "**404 Not Found**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Using proper HTTP status codes allows clients to understand the result of the request without inspecting the response body.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A REST API can model **parent-child relationships** using **nested resources**.\n\nIn this example, **points of interest** belong to a **city**, so they are accessed through nested routes such as:\n\n- \u0060/api/cities/{cityId}/pointsofinterest\u0060\n\nThe controller first verifies that the parent resource exists, then returns the requested child resource together with the appropriate HTTP status code.",
+          "rows": []
+        }
+      ]
+    },
+    {
       "name": "Customizing Problem Details",
       "slug": "customizing-problem-details",
       "level": "Draft",
@@ -10523,7 +10521,7 @@
       "summary": "ASP.NET Core automatically returns **Problem Details** for many HTTP errors.\n\nIn this article, you\u0027ll learn how to customize the response by adding your own properties. This allows your API to include additional information that can help clients and developers diagnose problems.",
       "dotnetZone": "web-app-development",
       "dotnetZoneStep": "aspnet-core-web-api",
-      "order": 8,
+      "order": 9,
       "tags": [
         "ASP.NET Core Web API"
       ],
@@ -10592,6 +10590,578 @@
           "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022ASP.NET Core\u0022 as Api\n\ncollections \u0022ProblemDetails\u0022 as PD\n\nClient -\u003E Api : HTTP Request\n\nApi -\u003E PD : Create Problem Details\n\nPD -\u003E PD : Add custom\\nextensions\n\nPD --\u003E Client : JSON response\n\n@enduml",
           "title": "Customizing Problem Details",
           "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Content Negotiation?",
+      "slug": "what-is-content-negotiation",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "When a client calls a Web API, it may want the response in different formats, such as **JSON** or **XML**.\n\n**Content Negotiation** is the process of choosing the response format that both the client and the server support.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 10,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Imagine This Situation\n\nYour API returns a city.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "return Ok(city);",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "However, the controller returns a **C# object**, not JSON.\n\nSo how does the client receive JSON?\n\nSomething inside ASP.NET Core converts the C# object into a format that the client understands.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant Controller\nparticipant \u0022ASP.NET Core\u0022 as Api\n\nClient -\u003E Controller : GET /api/cities/1\n\nController --\u003E Api : CityDto\n\nApi --\u003E Client : JSON response\n\n@enduml",
+          "title": "C# DTO Object to JSON Response",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Different Clients Prefer Different Formats\n\nNot every client application prefers the same response format.\n\nFor example:\n\n- A web application usually expects **JSON**.\n- Another system may expect **XML**.\n\nBefore sending the response, the client can tell the server which format it prefers.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Is Content Negotiation?\n\n**Content Negotiation** is simply an agreement between the client and the server about the response format.\n\nFor example:\n\n**Client**\n\n--\u003E I\u0027d like the response in JSON.\n\n**Server**\n\n--\u003E I support JSON, so I\u0027ll send JSON.\n\nOr:\n\n**Client**\n\n--\u003E I\u0027d like the response in XML.\n\n**Server**\n\n--\u003E I support XML, so I\u0027ll send XML.\n\nIf the requested format isn\u0027t supported, the server usually returns its default format, which is commonly **JSON**.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022ASP.NET Core\u0022 as Api\n\nClient -\u003E Api : GET /api/cities/1\\nAccept: application/json\n\nApi --\u003E Client : 200 OK\\napplication/json\n\n@enduml",
+          "title": "Content Negotiation",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## The Accept Header\n\nThe client tells the server which response format it prefers by using the **Accept** header.\n\nFor example:\n\n- \u0060Accept: application/json\u0060\n\nor\n\n- \u0060Accept: application/xml\u0060\n\nThis header doesn\u0027t contain any data.\n\nIt only tells the server which format the client would like to receive.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Output Formatter\n\nOnce ASP.NET Core knows which response format to use, an **Output Formatter** converts the C# object into that format.\n\nFor example, it can convert a \u0060CityDto\u0060 into JSON or XML.\n\nThe controller doesn\u0027t create JSON or XML itself.\n\nASP.NET Core performs this conversion automatically.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Input Formatter\n\nWhen the client sends data to the server, the opposite happens.\n\nThe client sends JSON.\n\nASP.NET Core converts that JSON into a C# object.\n\nInput formatters are commonly used for **POST**, **PUT**, and **PATCH** requests.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022Input Formatter\u0022 as Formatter\nparticipant Controller\n\nClient -\u003E Formatter : JSON request body\n\nFormatter -\u003E Controller : CityDto\n\nController --\u003E Client : 201 Created\n\n@enduml",
+          "title": "Input Formatter",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Accept vs Content-Type\n\nThese two HTTP headers are easy to confuse.",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Header",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Purpose",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**Accept**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Which response format the client wants",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "**Content-Type**",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Which format the client is sending",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "For example:\n\n- \u0060Accept: application/json\u0060\n\nmeans:\n\n--\u003E Please send the response as JSON.\n\nWhereas:\n\n- \u0060Content-Type: application/json\u0060\n\nmeans:\n\n--\u003E I\u0027m sending JSON to the server.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core\u0022 as Api\n\nClient -\u003E Api : GET /api/cities\\nAccept: application/json\n\nApi --\u003E Client : 200 OK\\napplication/json\n\n@enduml",
+          "title": "Accept Header",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core\u0022 as Api\n\nClient -\u003E Api : POST /api/cities\\nContent-Type: application/json\n\nApi --\u003E Client : 201 Created\n\n@enduml",
+          "title": "Content-Type Header",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core\u0022 as Api\n\nClient -\u003E Api : GET /api/cities\\nAccept: application/json\n\nApi --\u003E Client : 200 OK\\napplication/json\n\n@enduml",
+          "title": "Accept Header",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Does ASP.NET Core Do This Automatically?\n\nYes.\n\nWhen you return:\n\n- \u0060return Ok(city);\u0060\n\nASP.NET Core automatically:\n\n- Performs Content Negotiation.\n- Chooses an Output Formatter.\n- Converts the object into the requested format.\n- Sends the response to the client.\n\nIn most applications, you don\u0027t need to write any additional code.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "The **Accept** header tells which response format the client wants.\n\nThe **Content-Type** header tells which request format the client is sending.\n\nASP.NET Core automatically handles the conversion between C# objects and the requested format (**JSON**, **XML**).",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is 406 Not Acceptable?",
+      "slug": "what-is-406-not-acceptable",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "By default, ASP.NET Core returns its default response format, even if the client requests a format that isn\u0027t supported.\n\nIn this article, you\u0027ll learn how to enable **406 Not Acceptable** responses and make your API follow the client\u0027s requested response format more strictly.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 11,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## The Default Behavior\n\nSuppose your API only supports **JSON**.\n\nThe client sends the following request:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities\nAccept: application/pdf",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The client requests **PDF**, but the API can\u0027t generate PDF responses.\n\nBy default, ASP.NET Core ignores the unsupported format and returns its default response format instead, which is usually **JSON**.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Returning the Default Format\n\nWithout any additional configuration, the response looks like this:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "HTTP/1.1 200 OK\nContent-Type: application/json",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Even though the client requested **application/pdf**, the API still returns **JSON** because it is the default configured formatter.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Enabling 406 Not Acceptable\n\nASP.NET Core can be configured to reject unsupported response formats.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": true,
+          "code": "builder.Services.AddControllers(options =\u003E\n{\n    options.ReturnHttpNotAcceptable = true;\n});",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When this option is enabled, ASP.NET Core follows the **Accept** header more strictly.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Changes?\n\nNow imagine the same request:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities\nAccept: application/pdf",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Since the API doesn\u0027t support PDF responses, ASP.NET Core returns:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "HTTP/1.1 406 Not Acceptable",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Instead of silently falling back to JSON, the API tells the client that it cannot produce the requested response format.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## When Is 406 Returned?\n\nA **406 Not Acceptable** response is returned when:\n\n- The client requests a response format using the **Accept** header.\n- The API doesn\u0027t support that format.\n- \u0060ReturnHttpNotAcceptable\u0060 is enabled.\n\nIf the requested format is supported, the API returns the response normally.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "By default, ASP.NET Core returns its default response format when the requested format isn\u0027t supported.\n\nEnabling \u0060ReturnHttpNotAcceptable\u0060 changes this behavior and returns **406 Not Acceptable** instead.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core Web API\u0022 as Api\n\nClient -\u003E Api : GET /api/cities\\nAccept: application/pdf\n\nApi --\u003E Client : 406 Not Acceptable\n\n@enduml",
+          "title": "Returning 406 Not Acceptable",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "How ASP.NET Core Chooses a Formatter",
+      "slug": "how-aspnet-core-chooses-a-formatter",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "ASP.NET Core keeps **Input Formatters** and **Output Formatters** in an ordered list.\n\nWhen processing a request or response, it checks the formatters from top to bottom and uses the **first formatter** that supports the requested media type.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 12,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Formatter Lists\n\nASP.NET Core stores **Input Formatters** and **Output Formatters** in an ordered list.\n\nEach formatter knows how to read or write one or more data formats, such as **JSON** or **XML**.\n\nWhen a request or response is processed, ASP.NET Core checks these formatters one by one until it finds a matching formatter.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why Does the Order Matter?\n\nThe order of the formatters is important.\n\nIf multiple formatters support the same media type, ASP.NET Core always uses the **first matching formatter** and ignores the rest.\n\nFor this reason, changing the order can change how your API processes requests and responses.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example\n\nImagine the following Output Formatter order:\n\n1. JSON Formatter\n2. XML Formatter\n3. Custom Formatter\n\nThe client sends:\n\n- \u0060Accept: application/json\u0060\n\nASP.NET Core checks the list from top to bottom.\n\nThe first formatter supports **JSON**, so it is selected immediately.\n\nThe remaining formatters are not checked.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\ncollections \u0022Output Formatters\u0022 as Formatters\n\nparticipant \u0022ASP.NET Core\u0022 as Api\n\nClient -\u003E Api : Accept: application/json\n\nApi -\u003E Formatters : Check formatter #1\n\nFormatters --\u003E Api : JSON supported \u2713\n\nApi --\u003E Client : JSON response\n\n@enduml",
+          "title": "Choosing an Output Formatter",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Changing the Order\n\nYou can change the formatter order by inserting a formatter at the beginning of the list.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": true,
+          "code": "options.OutputFormatters.Insert(0, new MyCustomFormatter());",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Now your custom formatter has the highest priority.\n\nIf it supports the requested media type, ASP.NET Core uses it before any other formatter.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "ASP.NET Core checks formatters **from top to bottom**.\n\nThe **first formatter** that supports the requested media type is selected to process the request or response.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Adding XML Support",
+      "slug": "adding-xml-support",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "By default, ASP.NET Core returns **JSON** responses.\n\nYou can also configure your API to support **XML** by adding an XML formatter.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 13,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## JSON by Default\n\nASP.NET Core uses **JSON** as its default response format.\n\nWhen you return a C# object from a controller, it is automatically converted into JSON.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Adding XML Support\n\nTo support XML responses, register an XML formatter during application startup.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": true,
+          "code": "builder.Services.AddControllers(options =\u003E\n{\n    options.ReturnHttpNotAcceptable = true;\n})\n.AddXmlDataContractSerializerFormatters();",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "After adding the XML formatter, your API can return both **JSON** and **XML**.\n",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Requesting XML Response",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core Web API\u0022 as Api\n\nClient -\u003E Api : GET /api/cities\\nAccept: application/xml\n\nApi --\u003E Client : XML response\n\n@enduml",
+          "title": "Requesting XML Response",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "ASP.NET Core returns **JSON** by default.\n\nBy adding an XML formatter, the same API can also return **XML** without changing your controllers.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Downloading a File from an API",
+      "slug": "downloading-file-from-api",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "An ASP.NET Core Web API can return not only JSON but also files.\n\nIn this article, you\u0027ll learn how to read a file, detect its content type, and send it to the client for download.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 14,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Returning a File\n\nAn API can return many kinds of files, for example:\n\n- PDF documents\n- Images\n- Excel files\n- ZIP archives\n\nASP.NET Core provides the \u0060File()\u0060 helper method to send files to the client.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Check Whether the File Exists\n\nBefore returning a file, make sure it exists.\n\nIf it doesn\u0027t, return **404 Not Found**.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Check Whether the File Exists",
+          "showCodeTitleBar": false,
+          "code": "if (!System.IO.File.Exists(pathToFile))\n{\n    return NotFound();\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Register the Content Type Provider\n\nASP.NET Core doesn\u0027t automatically know how to map every file extension to a **Content-Type**.\n\nTo detect file types, register a \u0060FileExtensionContentTypeProvider\u0060 as a service.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Later, you can inject this service into your controller and use it to determine the correct **Content-Type** for a file.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": true,
+          "code": "builder.Services.AddSingleton\u003CFileExtensionContentTypeProvider\u003E();",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Detect the Content Type\n\nThe client needs to know what kind of file is being downloaded.\n\nASP.NET Core can detect the correct **Content-Type** from the file extension.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Detect the Content Type",
+          "showCodeTitleBar": false,
+          "code": "if (!_fileExtensionContentTypeProvider\n       .TryGetContentType(pathToFile, out var contentType))\n{\n    contentType = \u0022application/octet-stream\u0022;\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the file type isn\u0027t recognized, ASP.NET Core uses the generic **application/octet-stream** type.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core Web API\u0022 as Api\ndatabase \u0022File System\u0022 as Files\ncollections \u0022Content Type Provider\u0022 as Provider\n\nClient -\u003E Api : GET /api/files/{id}\n\nApi -\u003E Files : Read file\n\nApi -\u003E Provider : Detect Content-Type\n\nProvider --\u003E Api : application/pdf\n\nApi --\u003E Client : PDF file\n\n@enduml",
+          "title": "Detecting the File Content Type",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Return the File\n\nRead the file and return it using the \u0060File()\u0060 helper.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "ASP.NET Core sends the file together with its **Content-Type** and filename.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Return the File",
+          "showCodeTitleBar": true,
+          "code": "var bytes = System.IO.File.ReadAllBytes(pathToFile);\n\nreturn File(\n    bytes,\n    contentType,\n    Path.GetFileName(pathToFile));",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Downloading a File",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core Web API\u0022 as Api\ndatabase \u0022File System\u0022 as Files\n\nClient -\u003E Api : GET /api/files/{id}\n\nApi -\u003E Files : Read file\n\nFiles --\u003E Api : File bytes\n\nApi --\u003E Client : File download\n\n@enduml",
+          "title": "Downloading a File",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "To return a file from an API:\n\n1. Check that the file exists.\n2. Detect its **Content-Type**.\n3. Read the file.\n4. Return it with the \u0060File()\u0060 helper.\n\nThe client receives the file with the correct filename and media type.",
           "rows": []
         }
       ]
