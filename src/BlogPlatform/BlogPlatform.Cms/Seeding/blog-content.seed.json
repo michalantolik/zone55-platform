@@ -11165,6 +11165,489 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Why Do We Send Data to an API?",
+      "slug": "why-do-we-send-data-to-an-api",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Some API requests only **read data**, while others **send data** to create, update, or delete resources. Understanding when data is sent is the first step toward building REST APIs.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 15,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Reading vs Changing Data\n\nNot every API request sends data.\n\nSome requests only **read information**, while others **change it**.\n\nFor example:\n\n- **GET** retrieves data.\n- **POST** creates new data.\n- **PUT** replaces existing data.\n- **PATCH** updates part of existing data.\n- **DELETE** removes data.\n\nWhen we create or update something, the API needs additional information. That\u0027s why we send data with the request.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nleft to right direction\n\nrectangle \u0022Client\u0022 as Client\nrectangle \u0022API\u0022 as Api\n\nClient --\u003E Api : GET\\nRead data\nApi --\u003E Client : Response\n\nClient --\u003E Api : POST / PUT / PATCH\\nSend data\nApi --\u003E Client : Resource created/updated\n\n@enduml",
+          "title": "Reading vs Changing Data",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example\n\nReading a city.\n\nNo additional data is required:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/1",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Creating a new city.\n\nThe API needs this information to create the new resource:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "POST /api/cities",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022name\u0022: \u0022London\u0022,\n  \u0022description\u0022: \u0022Capital of England\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why This Matters\n\nWhenever an API needs to **create**, **update**, or sometimes **search** using complex criteria, the client must send data along with the request.\n\nIn the next articles, you\u0027ll learn **where this data can be sent** and how **ASP.NET Core automatically reads it**.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "- **GET** usually reads data.\n- **POST**, **PUT**, and **PATCH** send data to the API.\n- The API uses that data to create or modify resources.\n- ASP.NET Core can automatically read the data you send.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Where Can Request Data Come From?",
+      "slug": "where-can-request-data-come-from",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "An HTTP request can send data in different places, such as the URL, query string, headers, or request body. ASP.NET Core can automatically read data from each of these sources.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 16,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Four Common Sources\n\nWhen a client sends a request to an API, the data doesn\u0027t always come from the same place.\n\nThe four most common sources are:\n\n- **Route** \u2013 part of the URL path.\n- **Query string** \u2013 values after the \u0060?\u0060 in the URL.\n- **Headers** \u2013 request metadata.\n- **Request body** \u2013 the main content of the request.\n\nEach source is useful for different kinds of information.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\nleft to right direction\n\nactor Client\n\nrectangle \u0022HTTP Request\u0022 {\n  rectangle \u0022Route\u0022 as Route\n  rectangle \u0022Query String\u0022 as Query\n  rectangle \u0022Headers\u0022 as Headers\n  rectangle \u0022Request Body\u0022 as Body\n}\n\nrectangle \u0022ASP.NET Core API\u0022 as Api\n\nClient --\u003E Route\nClient --\u003E Query\nClient --\u003E Headers\nClient --\u003E Body\n\nRoute --\u003E Api\nQuery --\u003E Api\nHeaders --\u003E Api\nBody --\u003E Api\n\n@enduml",
+          "title": "Common Request Data Sources",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Route",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The value **5** is part of the URL.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/5",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Query String",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The values come after the \u0060?\u0060.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities?page=2\u0026pageSize=10",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Headers",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Headers usually contain metadata, such as authentication tokens.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "Authorization: Bearer eyJ...",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Request Body",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The request body contains the data used to create or update a resource.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "POST /api/cities",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022name\u0022: \u0022London\u0022,\n  \u0022description\u0022: \u0022Capital of England\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## How ASP.NET Core Uses Them\n\nASP.NET Core can automatically read values from these request sources and pass them to your controller action.\n\nIn the next articles, you\u0027ll learn how to read data from each source using features like **model binding** and attributes such as **\u0060[FromRoute]\u0060**, **\u0060[FromQuery]\u0060**, and **\u0060[FromBody]\u0060**.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "- Request data can come from **Route**, **Query String**, **Headers**, or the **Request Body**.\n- Each source is designed for a different purpose.\n- ASP.NET Core can automatically read data from all of them.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is Model Binding?",
+      "slug": "what-is-model-binding",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Model Binding is an ASP.NET Core feature that automatically reads data from an HTTP request and passes it to your controller action.\n\nInstead of manually reading request values, ASP.NET Core creates the method parameters for you.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 17,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## The Problem\n\nImagine the client sends the following request.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/5",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The value **5** is part of the request.\n\nBut how does it become the \u0060cityId\u0060 parameter in your controller action?",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "public IActionResult GetCity(int cityId)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Someone has to read the request and assign the value to \u0060cityId\u0060.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022HTTP Request\u0022 as Request\nparticipant \u0022Controller\u0022 as Controller\n\nClient -\u003E Request : GET /api/cities/5\n\nRequest -\u003E Controller : ?\n\n@enduml",
+          "title": "Request Before Model Binding",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Is Model Binding?\n\n**Model Binding** is the process of reading data from an HTTP request and assigning it to your controller action parameters.\n\nASP.NET Core performs this automatically.\n\nFor example:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/5",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "becomes:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": "Program.cs",
+          "showCodeTitleBar": false,
+          "code": "GetCity(5)",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "without you writing any additional code.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022HTTP Request\u0022 as Request\nparticipant \u0022Model Binding\u0022 as Binding\nparticipant \u0022Controller\u0022 as Controller\n\nClient -\u003E Request : GET /api/cities/5\n\nRequest -\u003E Binding : cityId = 5\n\nBinding -\u003E Controller : GetCity(5)\n\n@enduml",
+          "title": "Model Binding",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## It Works with More Than Route Values\n\nModel Binding can read data from different parts of the request, including:\n\n- Route\n- Query String\n- Headers\n- Request Body\n\nIn the next articles, you\u0027ll learn how ASP.NET Core reads data from each of these sources.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nrectangle \u0022HTTP Request\u0022 {\n\n    rectangle Route\n    rectangle \u0022Query String\u0022 as Query\n    rectangle Headers\n    rectangle \u0022Request Body\u0022 as Body\n}\n\ncomponent \u0022Model Binding\u0022\n\nrectangle Controller\n\nRoute --\u003E \u0022Model Binding\u0022\nQuery --\u003E \u0022Model Binding\u0022\nHeaders --\u003E \u0022Model Binding\u0022\nBody --\u003E \u0022Model Binding\u0022\n\n\u0022Model Binding\u0022 --\u003E Controller\n\n@enduml",
+          "title": "Model Binding Sources",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why Is It Useful?\n\nWithout Model Binding, every controller action would need to manually read values from the HTTP request.\n\nModel Binding performs this work automatically, allowing you to focus on your application logic instead of parsing requests.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Model Binding automatically reads data from an HTTP request and passes it to your controller action.\n\nIt works with data from the **Route**, **Query String**, **Headers**, and **Request Body**, so you don\u0027t have to read these values manually.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Reading Route Values",
+      "slug": "reading-route-values",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Route values are values that appear as part of the URL path.\n\nIn this article, you\u0027ll learn how ASP.NET Core automatically reads route values and passes them to your controller action.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 18,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What Is a Route Value?\n\nA **route value** is a value that appears in the URL path.\n\nFor example:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/5",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In this request, the value **5** is a route value.\n\nIt identifies the city that the client wants to retrieve.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core Web API\u0022 as Api\n\nClient -\u003E Api : GET /api/cities/5\n\nnote right of Api\nRoute value:\ncityId = 5\nend note\n\n@enduml",
+          "title": "Route Value",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Reading the Route Value\n\nASP.NET Core automatically reads the route value and passes it to your controller action.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpGet(\u0022{cityId}\u0022)]\npublic IActionResult GetCity(int cityId)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "When the client requests:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/5",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "the \u0060cityId\u0060 parameter receives the value **5** automatically.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022HTTP Request\u0022 as Request\nparticipant \u0022Model Binding\u0022 as Binding\nparticipant Controller\n\nClient -\u003E Request : GET /api/cities/5\n\nRequest -\u003E Binding : cityId = 5\n\nBinding -\u003E Controller : GetCity(5)\n\n@enduml",
+          "title": "Model Binding Route Value",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Using \u0060[FromRoute]\u0060\n\nYou can explicitly tell ASP.NET Core that a value should come from the route.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpGet(\u0022{cityId}\u0022)]\npublic IActionResult GetCity(\n    [FromRoute] int cityId)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "In most cases, this attribute isn\u0027t required because ASP.NET Core can determine it automatically.\n\nHowever, using \u0060[FromRoute]\u0060 can make your code more explicit and easier to read.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## When Should You Use It?\n\nUse route values when the value identifies a specific resource.\n\nTypical examples include:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/cities/5",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/users/12",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "GET /api/orders/100",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Each route value identifies the resource that the client wants to access.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A **route value** is part of the URL path.\n\nASP.NET Core automatically reads route values using **Model Binding** and passes them to your controller action.\n\nThe \u0060[FromRoute]\u0060 attribute is optional in most cases, but it can make your code more explicit.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
