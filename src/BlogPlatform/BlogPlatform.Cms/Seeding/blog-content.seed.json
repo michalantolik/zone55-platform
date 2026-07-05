@@ -11807,6 +11807,237 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Reading Header Values",
+      "slug": "reading-header-values",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "HTTP headers contain additional information about a request, such as authentication tokens, language preferences, or custom metadata.\n\nIn this article, you\u0027ll learn how ASP.NET Core reads header values and passes them to your controller action.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 20,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What Is a Header?\n\nAn **HTTP header** contains additional information about a request.\n\nUnlike route values or query string values, headers are **not part of the URL**. They are sent separately with every HTTP request.\n\nCommon examples include:\n\n- \u0060Authorization\u0060\n- \u0060User-Agent\u0060\n- \u0060Accept\u0060\n- \u0060Content-Type\u0060",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\nparticipant \u0022ASP.NET Core Web API\u0022 as Api\n\nClient -\u003E Api : HTTP Request\n\nnote right of Api\nAuthorization\nAccept\nContent-Type\nUser-Agent\nend note\n\n@enduml",
+          "title": "HTTP Request Headers",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Reading Header Values\n\nASP.NET Core can automatically read a header value and pass it to your controller action.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpGet]\npublic IActionResult GetData(\n    [FromHeader] string userAgent)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the request contains the following header:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "User-Agent: Mozilla/5.0",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "the \u0060userAgent\u0060 parameter receives the value **\u0022Mozilla/5.0\u0022** automatically.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nactor Client\n\nparticipant \u0022HTTP Request\u0022 as Request\nparticipant \u0022Model Binding\u0022 as Binding\nparticipant Controller\n\nClient -\u003E Request : HTTP GET\n\nRequest -\u003E Binding : User-Agent = Mozilla/5.0\n\nBinding -\u003E Controller : GetData(userAgent)\n\n@enduml",
+          "title": "Model Binding Header Values",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Common Uses\n\nHeaders are often used to send information that applies to the entire request instead of a specific resource.\n\nTypical examples include:\n\n- Authentication tokens\n- Preferred language\n- Client application information\n- Correlation or request IDs",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## When Should You Use It?\n\nUse headers when the information describes the **request itself**, not the resource being accessed.\n\nFor example:\n\n- Authentication \u2192 \u0060Authorization\u0060\n- Preferred response format \u2192 \u0060Accept\u0060\n- Language preference \u2192 \u0060Accept-Language\u0060\n- Request tracking \u2192 \u0060X-Correlation-ID\u0060",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Headers contain additional information about an HTTP request.\n\nASP.NET Core automatically reads header values using **Model Binding** and passes them to your controller action.\n\nUse the **\u0060[FromHeader]\u0060** attribute when you want to explicitly read a value from a request header.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Reading Request Body",
+      "slug": "reading-request-body",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Learn how ASP.NET Core reads data sent in the HTTP request body using the \u0060[FromBody]\u0060 attribute.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 21,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "When creating or updating resources, the client usually sends data in the **request body**.\n\nFor example, a client might send:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022name\u0022: \u0022Paris\u0022,\n  \u0022description\u0022: \u0022Capital of France\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "ASP.NET Core can automatically read this JSON and convert it into a C# object. This process is called **model binding**.\n\nFor API requests, the data usually comes from the request body, so we use the **\u0060[FromBody]\u0060** attribute.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpPost]\npublic IActionResult CreateCity([FromBody] CityDto city)\n{\n    return Ok(city);\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "ASP.NET Core:\n\n- Reads the request body.\n- Converts the JSON into a \u0060CityDto\u0060 object.\n- Passes the object to the action method.\n\nThe client must also send the correct **Content-Type** header:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "Content-Type: application/json",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Without it, ASP.NET Core may not know how to read the request body.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "Use **\u0060[FromBody]\u0060** when the client sends data in the **HTTP request body**, most commonly as JSON.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\u0027 title Reading Request Body\n\nactor Client\nparticipant \u0022ASP.NET Core API\u0022 as Api\nentity \u0022CityDto\u0022 as Dto\n\nClient -\u003E Api : POST /api/cities\\nContent-Type: application/json\\n{name, description}\n\nApi -\u003E Dto : Convert JSON to CityDto\n\nApi --\u003E Client : 201 Created\n\n@enduml",
+          "title": "Reading Request Body",
+          "showDiagramTitleBar": true,
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "What Is a DTO?",
+      "slug": "what-is-a-dto",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **DTO (Data Transfer Object)** is a simple object used to transfer data between a client and an API. It contains only the data that should be sent or received.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 22,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "A **DTO (Data Transfer Object)** is a simple C# class or record whose only purpose is to **transfer data**.\n\nIt is commonly used to:\n\n- Receive data from a client.\n- Send data back to a client.\n\nA DTO should contain **data only**. It should not contain business logic or database operations.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example DTO",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "public class CityDto\n{\n    public int Id { get; set; }\n\n    public string Name { get; set; } = string.Empty;\n\n    public string? Description { get; set; }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why Use DTOs?\n\nInstead of exposing your internal application classes, you expose **DTOs**.\n\nThis lets you:\n\n- Hide internal implementation details.\n- Return only the data clients need.\n- Keep your API stable even if your application changes.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## How a DTO Is Used\n\nWhen creating a resource:\n\n1. The client sends JSON.\n2. ASP.NET Core converts it into a DTO.\n3. Your controller uses the DTO.\n4. The API returns another DTO in the response.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\u0027 title Using a DTO\n\nactor Client\nparticipant API\nentity \u0022CityDto\u0022 as DTO\n\nClient -\u003E API : Send JSON\nAPI -\u003E DTO : Convert JSON\nDTO --\u003E API : Data\nAPI --\u003E Client : Return DTO\n\n@enduml",
+          "title": "Using a DTO",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "A **DTO (Data Transfer Object)** is a simple object used to **transfer data** between a client and an API.\n\nIt helps keep your API clean, secure, and independent from internal application models.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
