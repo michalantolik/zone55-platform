@@ -12407,6 +12407,122 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Data Annotations vs FluentValidation",
+      "slug": "data-annotations-vs-fluentvalidation",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**Data Annotations** define validation rules directly on the model using attributes such as \u0060[Required]\u0060 or \u0060[StringLength]\u0060. They are built into ASP.NET Core and work well for simple validation scenarios.\n\n**FluentValidation** keeps validation rules in separate validator classes using a fluent API. This provides better separation of concerns and is often preferred for more complex applications.\n\nFor most simple APIs, **Data Annotations** are sufficient. As validation logic grows, **FluentValidation** can make your code easier to organize and maintain.\n",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 25,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": []
+    },
+    {
+      "name": "Creating Your First PUT Endpoint",
+      "slug": "creating-your-first-put-endpoint",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**PUT** is used to **fully update** an existing resource. \n\nThe client sends a complete representation of the resource, and any omitted fields are replaced with their default values.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 26,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What is a PUT request?\n\nA **PUT** request is used to **fully update** an existing resource.\n\nUnlike **POST**, which creates a new resource, **PUT** replaces the current resource with the data sent by the client.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "PUT /api/cities/1/pointsofinterest/2",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Creating an Update DTO\n\nIt is a good practice to create a dedicated DTO for updates, even if it currently contains the same properties as the create DTO.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "public class PointOfInterestForUpdateDto\n{\n    public string Name { get; set; } = null!;\n    public string? Description { get; set; }\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This allows create and update models to evolve independently.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Creating the Endpoint\n\nA typical PUT endpoint accepts the resource ID from the route and the updated object from the request body.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpPut(\u0022{pointOfInterestId}\u0022)]\npublic ActionResult UpdatePointOfInterest(\n    int pointOfInterestId,\n    PointOfInterestForUpdateDto dto)\n{\n    // Update resource\n\n    return NoContent();\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Because the DTO is a complex type, ASP.NET Core automatically reads it from the request body.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Full Update\n\nA **PUT** request should contain **all fields** of the resource (except the ID).\n\nIf a field is omitted, it is replaced with its default value.\n\nFor example:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022name\u0022: \u0022Updated name\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the resource also contains a \u0060description\u0060 property, its value becomes \u0060null\u0060 because it was not included in the request.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Response\n\nA successful PUT request commonly returns:\n\n- **204 No Content** \u2013 The resource was updated successfully.\n- **200 OK** \u2013 The updated resource is returned.\n\nBoth responses are valid, but **204 No Content** is often used because the client already knows the updated values.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Use **PUT** when you want to **replace an entire resource**.\n\nThe client should send all fields, because any missing values are treated as default values.\n\nFor partial updates, use **PATCH** instead.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
