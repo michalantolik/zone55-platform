@@ -12523,6 +12523,333 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "What Is HTTP PATCH?",
+      "slug": "what-is-http-patch",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**HTTP PATCH** is an HTTP method used to **partially update a resource**.\n\nUnlike **PUT**, which replaces the entire resource, **PATCH** updates **only the selected fields**.\n\nThis makes requests smaller and avoids sending data that has not changed.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 27,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why Do We Need PATCH?\n\nImagine your API stores the following resource:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022id\u0022: 1,\n  \u0022name\u0022: \u0022Central Park\u0022,\n  \u0022description\u0022: \u0022Beautiful park\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Now imagine you only want to change the **name**.\n\nShould you really send the entire resource again?\n\nNot necessarily.\n\nYou only changed **one field**, so sending everything would be unnecessary.\n\nThis is exactly the problem that **HTTP PATCH** solves.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Does PATCH Do?\n\nInstead of replacing the whole resource, **PATCH** updates **only the fields you specify**.\n\nYou can think of it like this:\n\n- **PUT** \u2192 Replace everything.\n- **PATCH** \u2192 Change only what is different.\n\nPATCH is useful when only a small part of a resource needs to change.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "New text block",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## PUT vs PATCH\n\nSuppose the current resource looks like this:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022id\u0022: 1,\n  \u0022name\u0022: \u0022Central Park\u0022,\n  \u0022description\u0022: \u0022Beautiful park\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "To change only the **name**...\n\nWith **PUT**, you usually send the entire resource:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022id\u0022: 1,\n  \u0022name\u0022: \u0022Updated Central Park\u0022,\n  \u0022description\u0022: \u0022Beautiful park\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "With **PATCH**, you send only the change.\n\nThe server updates only the specified field while leaving everything else unchanged.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example PATCH Request\n\nA PATCH request might look like this:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "text",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "PATCH /api/points-of-interest/1\nContent-Type: application/json",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[\n  {\n    \u0022op\u0022: \u0022replace\u0022,\n    \u0022path\u0022: \u0022/name\u0022,\n    \u0022value\u0022: \u0022Updated Central Park\u0022\n  }\n]",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This request tells the server:\n\n--\u003E replace the **name** property with **\u0022Updated Central Park\u0022**",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Is JSON Patch?\n\nA PATCH request needs a way to describe **what should change**.\n\nInstead of sending the entire object, it sends a list of **instructions**.\n\nThis standard format is called **JSON Patch**.\n\nEach instruction describes:\n\n- what operation to perform\n- which property to update\n- the new value (if needed)\n\nASP.NET Core can automatically understand these instructions and apply them to your object.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Common PATCH Operations\n\nSome of the most common operations are:",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Operation",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060replace\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Changes an existing value",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060add\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Adds a new value",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060remove\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Removes an existing value",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "For beginners, **replace** is the operation you will use most often.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## When Should You Use PATCH?\n\nPATCH is a good choice when you want to:\n\n- Update only one or two fields\n- Avoid sending the entire resource\n- Reduce the amount of data sent over the network\n\nTypical examples include:\n\n- Changing a user\u0027s email address\n- Updating a product price\n- Renaming a city\n- Marking a task as completed",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**HTTP PATCH** is used to **partially update a resource**.\n\nInstead of replacing the whole object like **PUT**, PATCH sends only the changes that should be applied.\n\nIn ASP.NET Core, PATCH requests commonly use **JSON Patch**.\n\nJSON Patch describes changes as a list of operations.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Creating Your First PATCH Endpoint",
+      "slug": "creating-your-first-patch-endpoint",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "A **PATCH endpoint** allows clients to **partially update a resource**.\n\nIn ASP.NET Core, PATCH endpoints typically accept a **JsonPatchDocument** containing the changes to apply.\n\nThe endpoint applies those changes to the resource and returns an appropriate HTTP response.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 28,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why Do We Need a PATCH Endpoint?\n\nIn the previous article, we learned that **PATCH** updates only the fields that have changed.\n\nTo support PATCH requests, our API needs an endpoint that:\n\n- Receives the PATCH request\n- Applies the requested changes\n- Saves the updated resource\n- Returns an appropriate response",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Creating the Endpoint\n\nA PATCH endpoint uses the **\u0060HttpPatch\u0060** attribute.\n\nJust like **GET**, **PUT**, and **DELETE**, the route usually contains the resource identifier.\n\nPATCH request receives the changes as a **\u0060JsonPatchDocument\u0060**.\n\nThe **JsonPatchDocument** contains the list of changes that should be applied to the resource.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpPatch(\u0022{id}\u0022)]\npublic IActionResult PartiallyUpdateCity(\n    int id,\n    JsonPatchDocument\u003CCityForUpdateDto\u003E patchDocument)\n{\n    // Update the resource\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Applying the Changes\n\nAfter loading the resource, apply the patch to it.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "patchDocument.ApplyTo(city);",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This updates the object in memory according to the instructions contained in the PATCH request.\n\nFor example, if the request changes only the **Name**, only that property is updated.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Saving the Updated Resource\n\nAfter applying the changes, save the updated resource.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "_repository.UpdateCity(city);\n\nreturn NoContent();",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A successful PATCH request commonly returns **204 No Content**.\n\nThis indicates that the update has been successfully completed.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Complete Example",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpPatch(\u0022{id}\u0022)]\npublic IActionResult PartiallyUpdateCity(\n    int id,\n    JsonPatchDocument\u003CCityForUpdateDto\u003E patchDocument)\n{\n    var city = _repository.GetCity(id);\n\n    if (city is null)\n    {\n        return NotFound();\n    }\n\n    patchDocument.ApplyTo(city);\n\n    _repository.UpdateCity(city);\n\n    return NoContent();\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What About Validation?\n\nApplying a PATCH document updates the object.\n\nIt does **not** automatically guarantee that the updated object is valid.\n\nFor example, a client could remove a required value or set an invalid one.\n\nIn the next article, we\u0027ll learn how to validate a PATCH request before saving the updated resource.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "A **PATCH endpoint** receives a **JsonPatchDocument**.\n\nIt applies the requested changes to a resource.\n\nIf the update succeeds, the endpoint typically returns **204 No Content**.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
