@@ -1,6 +1,11 @@
-﻿namespace LearnKit.Domain.Articles
+﻿namespace LearnKit.Domain.Articles;
+
+public enum ArticleBlockType
 {
-    internal class ArticleBlockType
-    {
-    }
+    Markdown,
+    Code,
+    Diagram,
+    Table,
+    Callout,
+    Summary
 }

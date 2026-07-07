@@ -1,6 +1,8 @@
-﻿namespace LearnKit.Domain.Articles
+﻿namespace LearnKit.Domain.Articles;
+
+public enum ArticleStatus
 {
-    internal class ArticleStatus
-    {
-    }
+    Draft,
+    Published,
+    Archived
 }
