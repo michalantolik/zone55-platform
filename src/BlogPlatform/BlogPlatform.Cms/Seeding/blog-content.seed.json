@@ -13157,6 +13157,247 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "What Is ProblemDetails?",
+      "slug": "what-is-problemdetails",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "**ProblemDetails** is the standard way to return errors from a Web API.\n\nIt provides a structured JSON response that clients can easily understand.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 32,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## What Is ProblemDetails?\n\nWhen something goes wrong, an API should return more than just an HTTP status code.\n\nFor example, instead of returning only:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "500 Internal Server Error",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "an API can return a **ProblemDetails** object that describes the error in a standard format.\n\nThis makes APIs easier to understand and easier to consume from frontend applications.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Example Response",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022type\u0022: \u0022about:blank\u0022,\n  \u0022title\u0022: \u0022An error occurred while processing your request.\u0022,\n  \u0022status\u0022: 500,\n  \u0022detail\u0022: \u0022An unexpected error occurred.\u0022,\n  \u0022instance\u0022: \u0022/api/cities/1\u0022\n}",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "New heading",
+          "rows": []
+        },
+        {
+          "type": "table",
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": [
+            [
+              {
+                "text": "Property",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Description",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060type\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "A URI that identifies the type of problem.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060title\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "A short description of the error.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060status\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "The HTTP status code.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060detail\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "Additional information about the problem.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ],
+            [
+              {
+                "text": "\u0060instance\u0060",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              },
+              {
+                "text": "The request path where the error occurred.",
+                "emoji": "",
+                "imageUrl": "",
+                "imageAlt": "",
+                "horizontalAlignment": "",
+                "verticalAlignment": ""
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "## Why Use ProblemDetails?\n\nUsing **ProblemDetails** provides several benefits:\n\n- A consistent error format\n- Easier integration for frontend applications\n- Standardized error responses\n- No need to invent your own error structure\n\nMany HTTP clients and libraries already understand this format.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Don\u0027t Return Stack Traces\n\nWhen an unexpected exception occurs, **do not return** the exception message or stack trace to API consumers.\n\nInstead, log the full exception on the server and return a **ProblemDetails** response.\n\nGood:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "json",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "{\n  \u0022title\u0022: \u0022An error occurred while processing your request.\u0022,\n  \u0022status\u0022: 500\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Avoid:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "System.NullReferenceException:\nat MyApplication.Services.UserService...",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Internal implementation details can expose information that users should never see.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## When Is ProblemDetails Used?\n\nProblemDetails is commonly returned for errors such as:\n\n- 400 Bad Request\n- 401 Unauthorized\n- 403 Forbidden\n- 404 Not Found\n- 500 Internal Server Error\n\nIt can also be used for validation errors and other API failures.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Typical Flow",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\nskinparam defaultTextAlignment center\n\nrectangle \u0022Client\u0022 as Client\nrectangle \u0022ASP.NET Core\\nWeb API\u0022 as Api\nrectangle \u0022ProblemDetails\u0022 as Problem\nrectangle \u0022JSON Response\u0022 as Json\n\nClient --\u003E Api : HTTP Request\nApi --\u003E Problem : Exception or\\nvalidation error\nProblem --\u003E Json : Create response\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": false,
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaway",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "**ProblemDetails** is the standard way to return error information from an **ASP.NET Core Web API**.\n\nIt returns a structured JSON response instead of exposing exception details.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
