@@ -12850,6 +12850,313 @@
           "rows": []
         }
       ]
+    },
+    {
+      "name": "Creating Your First DELETE Endpoint",
+      "slug": "creating-your-first-delete-endpoint",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Learn how to create a simple DELETE endpoint in ASP.NET Core Web API to remove a resource.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 29,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why Do We Use DELETE?\n\nSometimes you need to remove a resource from your application.\n\nFor example, you might delete:\n\n- a point of interest\n- a blog post\n- a product\n- a user account\n\nTo do this, APIs use the **HTTP DELETE** method.\n\nUnlike POST or PUT, a DELETE request **does not include a request body**.\n\nThe resource to delete is identified by its URL.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Creating a DELETE Endpoint\n\nTo create a DELETE endpoint, decorate your action with the **\u0060[HttpDelete]\u0060** attribute.\n\nThe resource ID is usually part of the route.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpDelete(\u0022{pointOfInterestId}\u0022)]\npublic IActionResult DeletePointOfInterest(\n    int cityId,\n    int pointOfInterestId)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "Here, \u0060cityId\u0060 and \u0060pointOfInterestId\u0060 come from the URL.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Deleting the Resource\n\nBefore deleting a resource, check that it exists.\n\n- If it doesn\u0027t exist, return **404 Not Found**.\n- If it does, remove it and return **204 No Content**.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example Request",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "DELETE /api/cities/1/pointsofinterest/1",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the request succeeds, the API returns:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "204 No Content",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If you try to retrieve the same resource again, the API returns:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "404 Not Found",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaways",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "- Use **DELETE** to remove a resource.\n- The resource to delete is identified by its URL.\n- DELETE requests **do not have a request body**.\n- Return **404 Not Found** if the resource doesn\u0027t exist.\n- Return **204 No Content** after a successful deletion.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Creating Your First File Upload Endpoint",
+      "slug": "creating-your-first-file-upload-endpoint",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Learn how to upload files to an ASP.NET Core Web API using a simple POST endpoint.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 30,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why Upload Files?\n\nMany applications allow users to upload files.\n\nFor example, users might upload:\n\n- profile pictures\n- PDF documents\n- invoices\n- attachments\n\nTo upload a file, clients send an **HTTP POST** request with the file in the request body.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Accepting a File\n\nIn ASP.NET Core, uploaded files are represented by the **\u0060IFormFile\u0060** type.\n\nDecorate your action with the **\u0060[HttpPost]\u0060** attribute and accept an \u0060IFormFile\u0060 parameter.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "[HttpPost]\npublic async Task\u003CIActionResult\u003E CreateFile(IFormFile file)\n{\n    ...\n}",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "The \u0060IFormFile\u0060 object gives you access to the uploaded file and its contents.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Validate the File\n\nAlways validate uploaded files before saving them.\n\nCommon checks include:\n\n- the file was provided\n- the file size is within your limit\n- the file type is allowed\n\nFor example, you might only accept PDF files.\n\nValidating uploads helps protect your application from invalid or malicious files.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Save the File\n\nOnce the file is validated, copy its contents to a stream and save it.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "using var stream = new FileStream(filePath, FileMode.Create);\n\nawait file.CopyToAsync(stream);",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the upload succeeds, return **200 OK**.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Store Files Safely\n\nNever trust uploaded file names or file types.\n\nIn a production application:\n\n- generate your own file names\n- validate the file type\n- store files outside your application\u0027s folder\n- use a location without execute permissions\n\nThese practices help protect your application from malicious uploads.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Example Request\n\nThe request body uses **form-data** and contains a file.",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "POST /api/files\n\nBody (form-data)\n\nKey: file\nValue: document.pdf",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the upload succeeds, the API returns:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "200 OK",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaways",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "- Use **POST** to upload files.\n- Accept uploaded files with **\u0060IFormFile\u0060**.\n- Always validate file size and type.\n- Never trust uploaded file names.\n- Store uploaded files in a safe location.\n- Return **200 OK** after a successful upload.",
+          "rows": []
+        }
+      ]
+    },
+    {
+      "name": "Handling Exceptions in Your Web API",
+      "slug": "handling-exceptions-in-your-web-api",
+      "level": "Draft",
+      "focus": "Preview",
+      "summary": "Learn why APIs should handle exceptions gracefully and return a safe error response instead of crashing.",
+      "dotnetZone": "web-app-development",
+      "dotnetZoneStep": "aspnet-core-web-api",
+      "order": 31,
+      "tags": [
+        "ASP.NET Core Web API"
+      ],
+      "bodyBlocks": [
+        {
+          "type": "text",
+          "text": "## Why Handle Exceptions?\n\nUnexpected errors can happen in any application.\n\nFor example:\n\n- a database connection fails\n- a file cannot be found\n- an unexpected bug occurs\n\nIf an API doesn\u0027t handle these exceptions, the request fails and the client receives an error.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## What Is an Exception?\n\nAn exception is an unexpected error that occurs while your code is running.\n\nFor example:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "throw new Exception(\u0022Something went wrong.\u0022);",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "If the exception isn\u0027t handled, it bubbles up through the application until ASP.NET Core catches it.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Why Not Return the Exception?\n\nExceptions often contain sensitive information, such as:\n\n- file paths\n- class names\n- stack traces\n- implementation details\n\nThis information is useful for developers, but it should never be exposed to API consumers.\n\nInstead, your API should return a safe error response.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Handle Exceptions Globally\n\nInstead of handling exceptions in every controller, let ASP.NET Core handle them in one central place.",
+          "rows": []
+        },
+        {
+          "type": "plantUmlDiagram",
+          "diagram": "@startuml\n\u0027 title Handle Exceptions Globally\n\nactor Client\nparticipant \u0022ASP.NET Core API\u0022 as Api\nparticipant \u0022Controller\u0022 as Controller\nparticipant \u0022Global Exception Handler\u0022 as Handler\n\nClient -\u003E Api : Send request\nApi -\u003E Controller : Execute action\nController -\u003E Controller : Exception occurs\nController --\u003E Handler : Exception bubbles up\nHandler --\u003E Client : 500 Internal Server Error\n\n@enduml",
+          "title": "PlantUML diagram",
+          "showDiagramTitleBar": true,
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This keeps your controllers clean and ensures every unexpected error is handled consistently.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Return a Proper Error Response\n\nWhen an unexpected exception occurs, the API should return:",
+          "rows": []
+        },
+        {
+          "type": "codeSnippet",
+          "language": "csharp",
+          "fileName": "Program.cs",
+          "codeTitle": ".",
+          "showCodeTitleBar": false,
+          "code": "500 Internal Server Error",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "This tells the client that something went wrong on the server without exposing internal details.",
+          "rows": []
+        },
+        {
+          "type": "text",
+          "text": "## Development vs Production\n\nDuring development, detailed exception information helps you find and fix bugs.\n\nIn production, those details should be hidden from users for security reasons.\n\nDevelopers should see the full exception in the application logs, while clients receive a safe error response.",
+          "rows": []
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key Takeaways",
+          "rows": []
+        },
+        {
+          "type": "summary",
+          "summary": "- Exceptions are unexpected errors that occur while your application is running.\n- Handle exceptions in one central place instead of every controller.\n- Do not expose stack traces or implementation details to clients.\n- Return **500 Internal Server Error** for unexpected exceptions.\n- Keep detailed exception information in your application logs.",
+          "rows": []
+        }
+      ]
     }
   ]
 }
