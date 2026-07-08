@@ -1,6 +1,6 @@
 ﻿using LearnKit.Domain.Roadmaps;
 
-namespace LearnKit.Application.Roadmaps;
+namespace LearnKit.Application.Roadmaps.Contracts;
 
 /// <summary>
 /// Provides access to learning path storage.

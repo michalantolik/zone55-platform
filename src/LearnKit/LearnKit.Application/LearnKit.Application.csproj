@@ -10,4 +10,10 @@
     <ProjectReference Include="..\LearnKit.Domain\LearnKit.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Roadmaps\Handlers\" />
+    <Folder Include="Roadmaps\Models\" />
+    <Folder Include="Roadmaps\Queries\" />
+  </ItemGroup>
+
 </Project>
