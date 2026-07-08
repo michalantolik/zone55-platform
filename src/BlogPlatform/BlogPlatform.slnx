@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/LearnKit/">
+    <Project Path="../LearnKit/LearnKit.Application/LearnKit.Application.csproj" Id="a1bf7594-8c8f-4b2d-933d-73f2eba5ef52" />
     <Project Path="../LearnKit/LearnKit.Domain/LearnKit.Domain.csproj" Id="87ff92b7-897c-405f-ac46-5d9fecd0e4e5" />
   </Folder>
   <Project Path="BlogPlatform.Api/BlogPlatform.Api.csproj" />
