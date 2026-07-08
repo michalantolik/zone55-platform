@@ -10,6 +10,16 @@ public sealed class Article
     private readonly List<ArticleBlock> _blocks = [];
 
     /// <summary>
+    /// Required by Entity Framework to materialize articles from the database.
+    /// </summary>
+    private Article()
+    {
+        Slug = string.Empty;
+        Title = string.Empty;
+        Summary = string.Empty;
+    }
+
+    /// <summary>
     /// Creates a new draft article.
     /// </summary>
     public Article(
