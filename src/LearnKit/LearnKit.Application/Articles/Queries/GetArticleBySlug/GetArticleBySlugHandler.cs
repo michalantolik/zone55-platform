@@ -1,8 +1,7 @@
 ﻿using LearnKit.Application.Articles.Contracts;
 using LearnKit.Application.Articles.Models;
-using LearnKit.Application.Articles.Queries;
 
-namespace LearnKit.Application.Articles.Handlers;
+namespace LearnKit.Application.Articles.Queries.GetArticleBySlug;
 
 /// <summary>
 /// Handles requests to retrieve articles by slug.

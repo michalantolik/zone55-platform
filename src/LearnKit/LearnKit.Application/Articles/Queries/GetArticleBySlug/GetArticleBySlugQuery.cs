@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Application.Articles.Queries;
+﻿namespace LearnKit.Application.Articles.Queries.GetArticleBySlug;
 
 /// <summary>
 /// Represents a request to retrieve an article by its slug.
