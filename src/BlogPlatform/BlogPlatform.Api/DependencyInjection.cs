@@ -5,6 +5,7 @@ using BlogPlatform.Application;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure;
 using BlogPlatform.Infrastructure.Health;
+using LearnKit.Application;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
 
@@ -91,6 +92,7 @@ public static class DependencyInjection
             NoRoadmapArticleAssignmentChecker>();
 
         services.AddApplication();
+        services.AddLearnKitApplication();
         services.AddInfrastructure(configuration);
 
         return services;
