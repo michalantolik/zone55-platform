@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\LearnKit\LearnKit.Application\LearnKit.Application.csproj" />
+		<ProjectReference Include="..\..\LearnKit\LearnKit.Infrastructure\LearnKit.Infrastructure.csproj" />
 		<ProjectReference Include="..\BlogPlatform.Application\BlogPlatform.Application.csproj" />
 		<ProjectReference Include="..\BlogPlatform.Contracts\BlogPlatform.Contracts.csproj" />
 		<ProjectReference Include="..\BlogPlatform.Infrastructure\BlogPlatform.Infrastructure.csproj" />

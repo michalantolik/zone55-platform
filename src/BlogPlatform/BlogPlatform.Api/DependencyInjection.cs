@@ -6,6 +6,8 @@ using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Infrastructure;
 using BlogPlatform.Infrastructure.Health;
 using LearnKit.Application;
+using LearnKit.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
 
@@ -94,6 +96,10 @@ public static class DependencyInjection
         services.AddApplication();
         services.AddLearnKitApplication();
         services.AddInfrastructure(configuration);
+
+        services.AddLearnKitInfrastructure(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("Zone55Connection")));
 
         return services;
     }
