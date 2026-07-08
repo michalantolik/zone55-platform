@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/LearnKit/">
+    <Project Path="../LearnKit/LearnKit.Domain/LearnKit.Domain.csproj" Id="87ff92b7-897c-405f-ac46-5d9fecd0e4e5" />
+  </Folder>
   <Project Path="BlogPlatform.Api/BlogPlatform.Api.csproj" />
   <Project Path="BlogPlatform.App/BlogPlatform.App.csproj" Id="c06c1de6-2f0e-488f-8be9-a43faefd2448" />
   <Project Path="BlogPlatform.Application/BlogPlatform.Application.csproj" />

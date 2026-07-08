@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Domain
+﻿namespace LearnKit.Domain.Roadmaps
 {
     internal class LearningZone
     {
