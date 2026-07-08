@@ -16,7 +16,7 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
         article.HasKey(x => x.Id);
 
         article.Property(x => x.Id)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedNever();
 
         article.HasIndex(x => x.Slug)
             .IsUnique();

@@ -12,6 +12,8 @@ public sealed class LearnKitDbContext : DbContext
 
     public DbSet<Article> Articles => Set<Article>();
 
+    public DbSet<ArticleBlock> ArticleBlocks => Set<ArticleBlock>();
+
     /// <summary>
     /// Applies entity configurations from this assembly.
     /// </summary>
