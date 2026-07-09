@@ -1,6 +1,4 @@
-﻿using LearnKit.Domain.Articles;
-using LearnKit.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+﻿using LearnKit.Infrastructure.Persistence;
 
 namespace LearnKit.Infrastructure.Seed;
 
@@ -8,7 +6,7 @@ namespace LearnKit.Infrastructure.Seed;
 /// Seeds initial LearnKit data for local development.
 /// </summary>
 public sealed class LearnKitDatabaseSeeder
-{}
+{
     public LearnKitDatabaseSeeder(LearnKitDbContext dbContext)
     {
 
