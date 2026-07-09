@@ -31,7 +31,7 @@ public static class ArticleBlockDiagramRenderer
 
     public static string CreatePlantUmlUrl(
         string? diagram,
-        PlantUmlThemeValues theme)
+        BlogPlatform.App.Components.Articles.Shared.PlantUmlThemeValues theme)
     {
         return DiagramRenderer.CreatePlantUmlUrl(diagram, theme);
     }

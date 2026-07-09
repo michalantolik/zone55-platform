@@ -3,7 +3,6 @@
 @page "/{RouteZone}/{RouteStep}"
 @page "/{RouteZone}/{RouteStep}/articles/{RouteArticleSlug}"
 
-@using BlogPlatform.App.Components.Articles
 @using BlogPlatform.App.Components.Articles.LearnKitRendering
 @using BlogPlatform.App.Models.LearnKit
 
@@ -146,14 +145,7 @@ else
                                     </div>
                                 </div>
 
-                                @if (_selectedLearnKitArticle is not null)
-                                {
-                                    <LearnKitArticleRenderer Article="_selectedLearnKitArticle" />
-                                }
-                                else if (_selectedArticle is not null)
-                                {
-                                    <ArticleRenderer Article="_selectedArticle" />
-                                }
+                                <LearnKitArticleRenderer Article="_selectedLearnKitArticle" />
 
                                 <nav class="dotnet-inline-article-reader-bottom" aria-label="Article navigation bottom">
                                     @if (PreviousArticle is null)
@@ -291,7 +283,6 @@ else
 
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
-    private PostDetails? _selectedArticle;
     private LearnKitArticleDetails? _selectedLearnKitArticle;
     private bool _hasCompletedInitialLoad;
     private bool _isInitialPageLoading = true;
@@ -308,7 +299,6 @@ else
         !string.IsNullOrWhiteSpace(EffectiveStep);
 
     private bool IsArticleReaderMode =>
-        _selectedArticle is not null ||
         _selectedLearnKitArticle is not null;
 
     private bool DisplayStepIcons =>
@@ -353,12 +343,10 @@ else
             : $"{CurrentArticleTitle} | Zone55";
 
     private string? CurrentArticleSlug =>
-        _selectedLearnKitArticle?.Slug
-        ?? _selectedArticle?.Slug;
+        _selectedLearnKitArticle?.Slug;
 
     private string? CurrentArticleTitle =>
-        _selectedLearnKitArticle?.Title
-        ?? _selectedArticle?.Title;
+        _selectedLearnKitArticle?.Title;
 
     private LearningPathLevel? SelectedLevel =>
         _learningPathLevels.FirstOrDefault(level =>
@@ -437,9 +425,7 @@ else
     private int SelectedArticleOrder =>
         CurrentArticleIndex >= 0
             ? CurrentArticleIndex + 1
-            : _selectedArticle?.Order > 0
-                ? _selectedArticle.Order
-                : 0;
+            : 0;
 
     private int TotalArticlesInStep =>
         OrderedStepPosts.Count;
@@ -488,7 +474,6 @@ else
     {
         _isInitialPageLoading = true;
         _isArticleAreaLoading = false;
-        _selectedArticle = null;
         _selectedLearnKitArticle = null;
 
         var homeContent = await BlogApi.GetHomeContentAsync();
@@ -530,7 +515,6 @@ else
                 SelectedStepKey);
 
         _currentArticlePage = 1;
-        _selectedArticle = null;
         _selectedLearnKitArticle = null;
 
         await LoadSelectedArticleIfNeededAsync();
@@ -551,14 +535,7 @@ else
 
         if (articleBelongsToSelectedStep)
         {
-            // _selectedLearnKitArticle = await BlogApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
-
-            _selectedLearnKitArticle = await BlogApi.GetLearnKitArticleBySlugAsync("__missing-test__");
-
-            if (_selectedLearnKitArticle is null)
-            {
-                _selectedArticle = await BlogApi.GetPostBySlugAsync(EffectiveArticleSlug);
-            }
+            _selectedLearnKitArticle = await BlogApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
         }
     }
 

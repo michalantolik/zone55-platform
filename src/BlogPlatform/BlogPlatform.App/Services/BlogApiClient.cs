@@ -1,6 +1,5 @@
 ﻿using BlogPlatform.App.Models;
 using BlogPlatform.App.Models.LearnKit;
-using BlogPlatform.App.Services.LearnKit;
 using BlogPlatform.Contracts.DotnetRoadmap;
 using System.Collections.Concurrent;
 using System.Net;
@@ -17,7 +16,6 @@ public sealed class BlogApiClient : IBlogApiClient
 
     private readonly ConcurrentDictionary<string, HomeCacheEntry> _homeCache = [];
     private readonly ConcurrentDictionary<string, Lazy<Task<BlogHomeContent>>> _homeRequests = [];
-    private readonly ConcurrentDictionary<string, PostDetailsCacheEntry> _postDetailsCache = [];
     private readonly ConcurrentDictionary<string, LearnKitArticleDetailsCacheEntry> _learnKitArticleDetailsCache = [];
 
     public BlogApiClient(
@@ -68,60 +66,6 @@ public sealed class BlogApiClient : IBlogApiClient
         var homeContent = await GetHomeContentAsync(cancellationToken);
 
         return homeContent.Posts;
-    }
-
-    public async Task<PostDetails?> GetPostBySlugAsync(
-        string slug,
-        CancellationToken cancellationToken = default)
-    {
-        var cacheKey = slug.Trim().ToLowerInvariant();
-
-        if (_postDetailsCache.TryGetValue(cacheKey, out var cachedPost) &&
-            cachedPost.ExpiresAt > DateTimeOffset.UtcNow)
-        {
-            return cachedPost.Post;
-        }
-
-        var url = $"api/posts/{Uri.EscapeDataString(slug)}";
-
-        try
-        {
-            using var response = await _httpClient.GetAsync(url, cancellationToken);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                _postDetailsCache[cacheKey] = new PostDetailsCacheEntry(
-                    null,
-                    DateTimeOffset.UtcNow.Add(CacheDuration));
-
-                return null;
-            }
-
-            response.EnsureSuccessStatusCode();
-
-            var post = await response.Content.ReadFromJsonAsync<PostDetails>(
-                cancellationToken: cancellationToken);
-
-            _postDetailsCache[cacheKey] = new PostDetailsCacheEntry(
-                post,
-                DateTimeOffset.UtcNow.Add(CacheDuration));
-
-            return post;
-        }
-        catch (Exception ex) when (_postDetailsCache.TryGetValue(cacheKey, out var stalePost))
-        {
-            _logger.LogWarning(
-                ex,
-                "APP failed to refresh post details from API. Returning cached post. Url: {Url}",
-                url);
-
-            return stalePost.Post;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "APP failed to get post details from API. Url: {Url}", url);
-            throw;
-        }
     }
 
     public async Task<LearnKitArticleDetails?> GetLearnKitArticleBySlugAsync(
@@ -233,10 +177,6 @@ public sealed class BlogApiClient : IBlogApiClient
 
     private sealed record HomeCacheEntry(
         BlogHomeContent Content,
-        DateTimeOffset ExpiresAt);
-
-    private sealed record PostDetailsCacheEntry(
-        PostDetails? Post,
         DateTimeOffset ExpiresAt);
 
     private sealed record LearnKitArticleDetailsCacheEntry(

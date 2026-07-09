@@ -3,10 +3,11 @@
 @implements IDisposable
 
 @using System.Text.Json
-@using BlogPlatform.App.Components.Articles
+@using BlogPlatform.App.Components.Articles.LearnKitRendering
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
 @using BlogPlatform.App.Models
+@using BlogPlatform.App.Models.LearnKit
 @using BlogPlatform.App.Services
-@using BlogPlatform.Contracts.Posts
 @using Microsoft.JSInterop
 
 @inject IJSRuntime JS
@@ -55,12 +56,12 @@
     }
     else
     {
-        <ArticleRenderer Article="_article" @key="_renderKey" />
+        <LearnKitArticleRenderer Article="_article" @key="_renderKey" />
     }
 </section>
 
 @code {
-    private PostDetails? _article;
+    private LearnKitArticleDetails? _article;
     private DotNetObjectReference<ArticlePreview>? _objectReference;
     private int _renderKey;
     private int _lastSequence;
@@ -102,7 +103,7 @@
                 sequence,
                 $"JsonIsNull={json is null}; JsonLength={json?.Length ?? 0}");
 
-            var article = JsonSerializer.Deserialize<PostDetails>(
+            var previewArticle = JsonSerializer.Deserialize<PostDetails>(
                 json,
                 new JsonSerializerOptions
                 {
@@ -113,14 +114,14 @@
                 "APP",
                 "AfterDeserialize",
                 sequence,
-                $"ArticleIsNull={article is null}; Title={article?.Title}; BodyHtmlIsNull={article?.BodyHtml is null}");
+                $"ArticleIsNull={previewArticle is null}; Title={previewArticle?.Title}; BodyHtmlIsNull={previewArticle?.BodyHtml is null}");
 
-            if (article is null)
+            if (previewArticle is null)
             {
                 return;
             }
 
-            var blocks = ArticleBlockParser.Parse(article.BodyHtml ?? string.Empty);
+            var article = LegacyPreviewArticleMapper.ToLearnKitArticle(previewArticle);
 
             _article = article;
             _lastSequence = sequence;
@@ -130,7 +131,7 @@
                 "APP",
                 "BeforeStateHasChanged",
                 sequence,
-                $"Title={_article.Title}; SummaryLength={_article.Summary?.Length ?? 0}; Blocks={blocks.Count}; RenderKey={_renderKey}");
+                $"Title={_article.Title}; SummaryLength={_article.Summary?.Length ?? 0}; Blocks={_article.Blocks.Count}; RenderKey={_renderKey}");
 
             await InvokeAsync(StateHasChanged);
 
@@ -144,13 +145,13 @@
                 "blogPlatformPreview.sendAck",
                 sequence,
                 _article.Title,
-                blocks.Count);
+                _article.Blocks.Count);
 
             await Diagnostics.WriteAsync(
                 "APP",
                 "AfterAck",
                 sequence,
-                $"ACK sent. Title={_article.Title}; Blocks={blocks.Count}; RenderKey={_renderKey}");
+                $"ACK sent. Title={_article.Title}; Blocks={_article.Blocks.Count}; RenderKey={_renderKey}");
         }
         catch (Exception ex)
         {

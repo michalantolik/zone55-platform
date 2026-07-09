@@ -1,4 +1,4 @@
-﻿@using BlogPlatform.App.Components.Articles.Rendering.Context
+﻿@using BlogPlatform.App.Components.Articles.Shared
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
 
@@ -35,7 +35,7 @@
     </h3>
 
     <div class="post-summary post-summary-markdown">
-        @ArticleBlockRenderContext.RenderMarkdown(Summary)
+        @MarkdownRenderer.Render(Summary)
     </div>
 
     @if (IsExtensiveArticleCard && TechStack?.Any() == true)

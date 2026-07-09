@@ -46,7 +46,7 @@
     [Parameter, EditorRequired]
     public PostDetails? Article { get; set; }
 
-    private PlantUmlThemeValues _plantUmlTheme = new(
+    private BlogPlatform.App.Components.Articles.Shared.PlantUmlThemeValues _plantUmlTheme = new(
         "#a7b4c8",
         "#E5E7EB",
         "#7d8ca3",
@@ -57,7 +57,7 @@
     {
         if (firstRender)
         {
-            _plantUmlTheme = await JS.InvokeAsync<PlantUmlThemeValues>(
+            _plantUmlTheme = await JS.InvokeAsync<BlogPlatform.App.Components.Articles.Shared.PlantUmlThemeValues>(
                 "blogPlatformArticle.getPlantUmlThemeValues");
 
             StateHasChanged();

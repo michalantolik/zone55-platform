@@ -9,10 +9,6 @@ public interface IBlogApiClient
     Task<BlogHomeContent> GetHomeContentAsync(
         CancellationToken cancellationToken = default);
 
-    Task<PostDetails?> GetPostBySlugAsync(
-        string slug,
-        CancellationToken cancellationToken = default);
-
     Task<IReadOnlyCollection<PostListItem>> GetPostsAsync(
         CancellationToken cancellationToken = default);
 
