@@ -1,6 +1,8 @@
 using Azure.Identity;
 using BlogPlatform.Api;
 using BlogPlatform.Api.Health;
+using LearnKit.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -51,6 +53,16 @@ builder.Services.AddApiPresentation(builder.Configuration);
 builder.Services.AddApiApplicationComposition(builder.Configuration);
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<LearnKitDbContext>();
+
+    dbContext.Database.Migrate();
+}
 
 await app.Services.InitializeApiStorageAsync();
 
