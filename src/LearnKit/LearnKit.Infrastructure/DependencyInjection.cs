@@ -1,4 +1,6 @@
-﻿using LearnKit.Infrastructure.Persistence;
+﻿using LearnKit.Application.Articles.Contracts;
+using LearnKit.Infrastructure.Articles;
+using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +19,8 @@ public static class DependencyInjection
         Action<DbContextOptionsBuilder> configureDbContext)
     {
         services.AddDbContext<LearnKitDbContext>(configureDbContext);
+
+        services.AddScoped<IArticleStore, EfArticleStore>();
 
         return services;
     }
