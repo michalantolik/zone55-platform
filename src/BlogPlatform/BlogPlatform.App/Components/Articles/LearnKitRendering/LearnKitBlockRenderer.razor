@@ -1,0 +1,33 @@
+﻿@using BlogPlatform.App.Models.LearnKit
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Strategy
+
+@inject LearnKitBlockComponentTypeProvider StrategyProvider
+
+@if (Block is not null)
+{
+    var componentType = StrategyProvider.GetComponentType(Block);
+
+    if (componentType is not null)
+    {
+        <DynamicComponent Type="componentType"
+                          Parameters="GetParameters()" />
+    }
+    else
+    {
+        <div>@Block.Type</div>
+    }
+}
+
+@code
+{
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+
+    private Dictionary<string, object?> GetParameters()
+    {
+        return new()
+        {
+            ["Block"] = Block
+        };
+    }
+}

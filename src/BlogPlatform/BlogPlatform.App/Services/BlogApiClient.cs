@@ -1,4 +1,6 @@
 ﻿using BlogPlatform.App.Models;
+using BlogPlatform.App.Models.LearnKit;
+using BlogPlatform.App.Services.LearnKit;
 using BlogPlatform.Contracts.DotnetRoadmap;
 using System.Collections.Concurrent;
 using System.Net;
@@ -16,6 +18,7 @@ public sealed class BlogApiClient : IBlogApiClient
     private readonly ConcurrentDictionary<string, HomeCacheEntry> _homeCache = [];
     private readonly ConcurrentDictionary<string, Lazy<Task<BlogHomeContent>>> _homeRequests = [];
     private readonly ConcurrentDictionary<string, PostDetailsCacheEntry> _postDetailsCache = [];
+    private readonly ConcurrentDictionary<string, LearnKitArticleDetailsCacheEntry> _learnKitArticleDetailsCache = [];
 
     public BlogApiClient(
         HttpClient httpClient,
@@ -121,6 +124,67 @@ public sealed class BlogApiClient : IBlogApiClient
         }
     }
 
+    public async Task<LearnKitArticleDetails?> GetLearnKitArticleBySlugAsync(
+        string slug,
+        CancellationToken cancellationToken = default)
+    {
+        var cacheKey = slug.Trim().ToLowerInvariant();
+
+        if (_learnKitArticleDetailsCache.TryGetValue(cacheKey, out var cachedArticle) &&
+            cachedArticle.ExpiresAt > DateTimeOffset.UtcNow)
+        {
+            return cachedArticle.Article;
+        }
+
+        var url = $"api/learnkit/articles/{Uri.EscapeDataString(slug)}";
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                _learnKitArticleDetailsCache[cacheKey] =
+                    new LearnKitArticleDetailsCacheEntry(
+                        null,
+                        DateTimeOffset.UtcNow.Add(CacheDuration));
+
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var article =
+                await response.Content.ReadFromJsonAsync<LearnKitArticleDetails>(
+                    cancellationToken: cancellationToken);
+
+            _learnKitArticleDetailsCache[cacheKey] =
+                new LearnKitArticleDetailsCacheEntry(
+                    article,
+                    DateTimeOffset.UtcNow.Add(CacheDuration));
+
+            return article;
+        }
+        catch (Exception ex) when (_learnKitArticleDetailsCache.TryGetValue(cacheKey, out var staleArticle))
+        {
+            _logger.LogWarning(
+                ex,
+                "APP failed to refresh LearnKit article from API. Returning cached article. Url: {Url}",
+                url);
+
+            return staleArticle.Article;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "APP failed to get LearnKit article from API. Url: {Url}",
+                url);
+
+            throw;
+        }
+    }
+
     public async Task<IReadOnlyCollection<PostListItem>> GetPostsByStepAsync(
         string zone,
         string step,
@@ -173,5 +237,9 @@ public sealed class BlogApiClient : IBlogApiClient
 
     private sealed record PostDetailsCacheEntry(
         PostDetails? Post,
+        DateTimeOffset ExpiresAt);
+
+    private sealed record LearnKitArticleDetailsCacheEntry(
+        LearnKitArticleDetails? Article,
         DateTimeOffset ExpiresAt);
 }

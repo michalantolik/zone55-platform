@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.App.Models;
+using BlogPlatform.App.Models.LearnKit;
 using BlogPlatform.Contracts.DotnetRoadmap;
 
 namespace BlogPlatform.App.Services;
@@ -21,5 +22,9 @@ public interface IBlogApiClient
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<RoadmapZoneDto>> GetDotnetRoadmapAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<LearnKitArticleDetails?> GetLearnKitArticleBySlugAsync(
+        string slug,
         CancellationToken cancellationToken = default);
 }

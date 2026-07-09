@@ -1,0 +1,18 @@
+﻿@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
+@using BlogPlatform.App.Models.LearnKit
+@using Markdig
+@using Microsoft.AspNetCore.Components
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToSummaryBlock(Block);
+
+    <div class="article-summary-block">
+        @((MarkupString)Markdown.ToHtml(model.Summary))
+    </div>
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+}

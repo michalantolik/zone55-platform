@@ -1,0 +1,36 @@
+﻿@using BlogPlatform.App.Models.LearnKit
+@using Markdig
+@using Microsoft.AspNetCore.Components
+
+@if (Article is not null)
+{
+    <article class="article-card" @key="Article.Id + Article.Title + Article.Summary">
+        <div class="tag-row">
+        </div>
+
+        <h1>@Article.Title</h1>
+
+        <div class="article-meta">
+            <strong>Engineering note</strong>
+            <span>·</span>
+            <span>Michał Antolik</span>
+            <span>·</span>
+        </div>
+
+        <div class="article-summary">
+            @((MarkupString)Markdig.Markdown.ToHtml(Article.Summary ?? string.Empty))
+        </div>
+
+        <div class="article-body">
+            @foreach (var block in Article.Blocks.OrderBy(block => block.SortOrder))
+            {
+                <LearnKitBlockRenderer Block="block" />
+            }
+        </div>
+    </article>
+}
+
+@code {
+    [Parameter]
+    public LearnKitArticleDetails? Article { get; set; }
+}

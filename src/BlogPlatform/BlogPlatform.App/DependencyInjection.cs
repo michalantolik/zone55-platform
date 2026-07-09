@@ -1,4 +1,5 @@
-﻿using BlogPlatform.App.Components.Articles.Rendering.Provider;
+﻿using BlogPlatform.App.Components.Articles.LearnKitRendering.Strategy;
+using BlogPlatform.App.Components.Articles.Rendering.Provider;
 using BlogPlatform.App.Components.Articles.Rendering.Strategy;
 using BlogPlatform.App.Components.Articles.Rendering.Strategy.CallOut;
 using BlogPlatform.App.Components.Articles.Rendering.Strategy.CodeBlock;
@@ -30,6 +31,8 @@ public static class DependencyInjection
         services.AddScoped<IArticleBlockRenderStrategy, SummaryBlockRenderStrategy>();
         services.AddScoped<IArticleBlockRenderStrategy, TableBlockRenderStrategy>();
         services.AddScoped<IArticleBlockRenderStrategy, CalloutBlockRenderStrategy>();
+
+        services.AddScoped<LearnKitBlockComponentTypeProvider>();
 
         return services;
     }

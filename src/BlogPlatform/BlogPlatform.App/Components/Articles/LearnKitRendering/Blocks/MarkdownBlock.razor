@@ -1,0 +1,15 @@
+﻿@using BlogPlatform.App.Models.LearnKit
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
+@using BlogPlatform.App.Components.Articles.Shared
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToMarkdownBlock(Block);
+
+    @MarkdownRenderer.Render(model.Markdown)
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+}
