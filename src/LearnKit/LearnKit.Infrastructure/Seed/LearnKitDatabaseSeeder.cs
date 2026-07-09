@@ -9,8 +9,12 @@ namespace LearnKit.Infrastructure.Seed;
 /// </summary>
 public sealed class LearnKitDatabaseSeeder
 {
-    private const string SeedFilePath =
-        "LearnKit/Seed/Content/learnkit-content.seed.json";
+    private static readonly string SeedFilePath =
+        Path.Combine(
+            AppContext.BaseDirectory,
+            "Seed",
+            "Content",
+            "learnkit-content.seed.json");
 
     private readonly LearnKitDbContext _dbContext;
     private readonly LearnKitContentImporter _contentImporter;

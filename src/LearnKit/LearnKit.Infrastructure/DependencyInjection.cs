@@ -2,6 +2,7 @@
 using LearnKit.Infrastructure.Articles;
 using LearnKit.Infrastructure.Persistence;
 using LearnKit.Infrastructure.Seed;
+using LearnKit.Infrastructure.Seed.Content;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,9 @@ public static class DependencyInjection
         services.AddDbContext<LearnKitDbContext>(configureDbContext);
 
         services.AddScoped<IArticleStore, EfArticleStore>();
+
+        services.AddScoped<LearnKitContentSeedLoader>();
+        services.AddScoped<LearnKitContentImporter>();
         services.AddScoped<LearnKitDatabaseSeeder>();
 
         return services;

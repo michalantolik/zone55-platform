@@ -17,4 +17,10 @@
     <ProjectReference Include="..\LearnKit.Application\LearnKit.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Seed\Content\learnkit-content.seed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
