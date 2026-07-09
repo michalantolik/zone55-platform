@@ -4,6 +4,8 @@
 @page "/{RouteZone}/{RouteStep}/articles/{RouteArticleSlug}"
 
 @using BlogPlatform.App.Components.Articles
+@using BlogPlatform.App.Components.Articles.LearnKitRendering
+@using BlogPlatform.App.Models.LearnKit
 
 @inject IBlogApiClient BlogApi
 @inject IRoadmapViewService RoadmapView
@@ -144,7 +146,14 @@ else
                                     </div>
                                 </div>
 
-                                <ArticleRenderer Article="_selectedArticle" />
+                                @if (_selectedLearnKitArticle is not null)
+                                {
+                                    <LearnKitArticleRenderer Article="_selectedLearnKitArticle" />
+                                }
+                                else if (_selectedArticle is not null)
+                                {
+                                    <ArticleRenderer Article="_selectedArticle" />
+                                }
 
                                 <nav class="dotnet-inline-article-reader-bottom" aria-label="Article navigation bottom">
                                     @if (PreviousArticle is null)
@@ -283,6 +292,7 @@ else
     private IReadOnlyCollection<PostListItem> _posts = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
     private PostDetails? _selectedArticle;
+    private LearnKitArticleDetails? _selectedLearnKitArticle;
     private bool _hasCompletedInitialLoad;
     private bool _isInitialPageLoading = true;
     private bool _isArticleAreaLoading;
@@ -298,7 +308,8 @@ else
         !string.IsNullOrWhiteSpace(EffectiveStep);
 
     private bool IsArticleReaderMode =>
-        _selectedArticle is not null;
+        _selectedArticle is not null ||
+        _selectedLearnKitArticle is not null;
 
     private bool DisplayStepIcons =>
         Configuration.GetValue<bool?>("Features:DisplayStepIcons") ?? false;
@@ -337,9 +348,17 @@ else
             : ArticleSlug;
 
     private string PageTitleText =>
-        _selectedArticle is null
+        CurrentArticleTitle is null
             ? "Zone55"
-            : $"{_selectedArticle.Title} | Zone55";
+            : $"{CurrentArticleTitle} | Zone55";
+
+    private string? CurrentArticleSlug =>
+        _selectedLearnKitArticle?.Slug
+        ?? _selectedArticle?.Slug;
+
+    private string? CurrentArticleTitle =>
+        _selectedLearnKitArticle?.Title
+        ?? _selectedArticle?.Title;
 
     private LearningPathLevel? SelectedLevel =>
         _learningPathLevels.FirstOrDefault(level =>
@@ -434,11 +453,11 @@ else
             .ToList();
 
     private int CurrentArticleIndex =>
-        _selectedArticle is null
+        CurrentArticleSlug is null
             ? -1
             : OrderedStepPosts
                 .Select((Post, Index) => new { Post, Index })
-                .FirstOrDefault(item => string.Equals(item.Post.Slug, _selectedArticle.Slug, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(item => string.Equals(item.Post.Slug, CurrentArticleSlug, StringComparison.OrdinalIgnoreCase))
                 ?.Index ?? -1;
 
     private PostListItem? PreviousArticle =>
@@ -470,6 +489,7 @@ else
         _isInitialPageLoading = true;
         _isArticleAreaLoading = false;
         _selectedArticle = null;
+        _selectedLearnKitArticle = null;
 
         var homeContent = await BlogApi.GetHomeContentAsync();
 
@@ -511,6 +531,7 @@ else
 
         _currentArticlePage = 1;
         _selectedArticle = null;
+        _selectedLearnKitArticle = null;
 
         await LoadSelectedArticleIfNeededAsync();
 
@@ -530,7 +551,14 @@ else
 
         if (articleBelongsToSelectedStep)
         {
-            _selectedArticle = await BlogApi.GetPostBySlugAsync(EffectiveArticleSlug);
+            // _selectedLearnKitArticle = await BlogApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
+
+            _selectedLearnKitArticle = await BlogApi.GetLearnKitArticleBySlugAsync("__missing-test__");
+
+            if (_selectedLearnKitArticle is null)
+            {
+                _selectedArticle = await BlogApi.GetPostBySlugAsync(EffectiveArticleSlug);
+            }
         }
     }
 
@@ -678,9 +706,7 @@ else
         padding: 14px 16px;
         border: 1px solid rgba(117, 154, 197, .18);
         border-radius: 18px;
-        background:
-            radial-gradient(circle at 18% 0%, rgba(125, 211, 252, .08), transparent 38%),
-            rgba(4, 13, 26, .28);
+        background: radial-gradient(circle at 18% 0%, rgba(125, 211, 252, .08), transparent 38%), rgba(4, 13, 26, .28);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
     }
 
@@ -786,9 +812,7 @@ else
         padding: 14px 16px;
         border: 1px solid rgba(117, 154, 197, .18);
         border-radius: 18px;
-        background:
-            linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .018)),
-            rgba(4, 13, 26, .34);
+        background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .018)), rgba(4, 13, 26, .34);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
     }
 
@@ -798,9 +822,9 @@ else
             min-width: 136px;
         }
 
-        .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button:last-child {
-            justify-self: end;
-        }
+            .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button:last-child {
+                justify-self: end;
+            }
 
     .dotnet-inline-article-bottom-status {
         justify-self: center;
@@ -936,13 +960,13 @@ else
             justify-items: stretch;
         }
 
-        .dotnet-article-pager-button,
-        .dotnet-article-pager-button:last-child,
-        .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button,
-        .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button:last-child {
-            width: 100%;
-            justify-self: stretch;
-        }
+            .dotnet-article-pager-button,
+            .dotnet-article-pager-button:last-child,
+            .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button,
+            .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button:last-child {
+                width: 100%;
+                justify-self: stretch;
+            }
 
         .dotnet-article-pager-status,
         .dotnet-inline-article-bottom-status {
