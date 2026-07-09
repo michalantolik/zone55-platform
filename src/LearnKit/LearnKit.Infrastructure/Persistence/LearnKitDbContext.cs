@@ -1,4 +1,5 @@
 ﻿using LearnKit.Domain.Articles;
+using LearnKit.Domain.Roadmaps;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearnKit.Infrastructure.Persistence;
@@ -9,6 +10,12 @@ namespace LearnKit.Infrastructure.Persistence;
 public sealed class LearnKitDbContext : DbContext
 {
     public LearnKitDbContext(DbContextOptions<LearnKitDbContext> options) : base(options) { }
+
+    public DbSet<LearningPath> LearningPaths => Set<LearningPath>();
+
+    public DbSet<LearningZone> LearningZones => Set<LearningZone>();
+
+    public DbSet<LearningStep> LearningSteps => Set<LearningStep>();
 
     public DbSet<Article> Articles => Set<Article>();
 

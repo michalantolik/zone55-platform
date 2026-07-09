@@ -1,4 +1,5 @@
 ﻿using LearnKit.Domain.Articles;
+using LearnKit.Domain.Roadmaps;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,6 +37,11 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
             .IsRequired()
             .HasConversion<string>()
             .HasMaxLength(50);
+
+        article.HasOne<LearningStep>()
+            .WithMany(step => step.Articles)
+            .HasForeignKey(x => x.LearningStepId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         article.HasMany(x => x.Blocks)
             .WithOne()

@@ -25,13 +25,5 @@ public sealed class LearnKitDatabaseSeeder
         {
             return;
         }
-
-        var article = new Article(
-            "hello-learnkit",
-            "Hello LearnKit",
-            "First test article.");
-
-        await _dbContext.Articles.AddAsync(article, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

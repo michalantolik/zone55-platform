@@ -20,16 +20,19 @@ public sealed class Article
     }
 
     /// <summary>
-    /// Creates a new draft article.
+    /// Creates a new draft article assigned to a learning step.
     /// </summary>
     public Article(
+        Guid learningStepId,
         string slug,
         string title,
         string? summary = null)
     {
+        ValidateId(learningStepId, nameof(learningStepId));
         ValidateRequired(slug, nameof(slug), "Article slug is required.");
         ValidateRequired(title, nameof(title), "Article title is required.");
 
+        LearningStepId = learningStepId;
         Slug = slug.Trim();
         Title = title.Trim();
         Summary = NormalizeOptional(summary);
@@ -40,6 +43,11 @@ public sealed class Article
     /// Unique article identifier.
     /// </summary>
     public Guid Id { get; private set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Learning step that owns this article.
+    /// </summary>
+    public Guid LearningStepId { get; private set; }
 
     /// <summary>
     /// URL-friendly article identifier.
@@ -71,6 +79,16 @@ public sealed class Article
     /// Indicates whether the article is published.
     /// </summary>
     public bool IsPublished => Status == ArticleStatus.Published;
+
+    /// <summary>
+    /// Moves the article to another learning step.
+    /// </summary>
+    public void MoveToStep(Guid learningStepId)
+    {
+        ValidateId(learningStepId, nameof(learningStepId));
+
+        LearningStepId = learningStepId;
+    }
 
     /// <summary>
     /// Renames the article.
@@ -132,6 +150,16 @@ public sealed class Article
         foreach (var block in _blocks.OrderBy(block => block.SortOrder))
         {
             block.MoveTo(sortOrder++);
+        }
+    }
+
+    private static void ValidateId(Guid id, string parameterName)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Identifier cannot be empty.",
+                parameterName);
         }
     }
 
