@@ -1,4 +1,5 @@
 ﻿using LearnKit.Application.Articles.Queries.GetArticleBySlug;
+using LearnKit.Application.Roadmaps.Queries.GetLearningPath;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LearnKit.Application;
@@ -15,6 +16,7 @@ public static class DependencyInjection
         this IServiceCollection services)
     {
         services.AddScoped<GetArticleBySlugHandler>();
+        services.AddScoped<GetLearningPathHandler>();
 
         return services;
     }

@@ -13,9 +13,7 @@
   <ItemGroup>
     <Folder Include="Articles\Commands\ArchiveArticle\" />
     <Folder Include="Articles\Commands\RenameArticle\" />
-    <Folder Include="Roadmaps\Models\" />
     <Folder Include="Roadmaps\Commands\" />
-    <Folder Include="Roadmaps\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
