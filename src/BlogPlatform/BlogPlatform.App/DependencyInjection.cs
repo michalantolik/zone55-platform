@@ -1,4 +1,4 @@
-﻿using BlogPlatform.App.Components.Articles.LearnKitRendering.Strategy;
+﻿using BlogPlatform.App.Components.Articles.LearnKitRendering.Provider;
 using BlogPlatform.App.Components.Articles.Rendering.Provider;
 using BlogPlatform.App.Components.Articles.Rendering.Strategy;
 using BlogPlatform.App.Components.Articles.Rendering.Strategy.CallOut;

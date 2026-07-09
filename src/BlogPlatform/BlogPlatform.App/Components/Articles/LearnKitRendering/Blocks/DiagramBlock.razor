@@ -1,17 +1,31 @@
-﻿@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
+@using BlogPlatform.App.Components.Articles.Rendering.Context
+@using BlogPlatform.App.Components.Articles.Shared
 @using BlogPlatform.App.Models.LearnKit
-@using Microsoft.AspNetCore.Components
 
 @if (Block is not null)
 {
     var model = LearnKitBlockDeserializer.ToDiagramBlock(Block);
 
-    <div class="article-diagram">
-        <pre>@model.Diagram</pre>
-    </div>
+    if (string.Equals(model.DiagramType, "Mermaid", StringComparison.OrdinalIgnoreCase))
+    {
+        @DiagramRenderer.RenderMermaid(model.Diagram, model.Title, model.ShowDiagramTitleBar)
+    }
+    else
+    {
+        @DiagramRenderer.RenderPlantUml(model.Diagram, model.Title, model.ShowDiagramTitleBar, PlantUmlTheme)
+    }
 }
 
 @code {
     [Parameter]
     public required LearnKitArticleBlockDetails Block { get; set; }
+
+    [CascadingParameter]
+    public PlantUmlThemeValues PlantUmlTheme { get; set; } = new(
+        "#a7b4c8",
+        "#E5E7EB",
+        "#7d8ca3",
+        "#374151",
+        "SansSerif");
 }

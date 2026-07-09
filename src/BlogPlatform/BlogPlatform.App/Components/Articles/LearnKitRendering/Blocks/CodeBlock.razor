@@ -1,0 +1,65 @@
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
+@using BlogPlatform.App.Components.Articles.Shared
+@using BlogPlatform.App.Models.LearnKit
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToCodeBlock(Block);
+    var title = CodeBlockRenderer.GetCodeTitle(model.CodeTitle, model.FileName, model.Language);
+    var language = CodeBlockRenderer.NormalizeLanguage(model.Language);
+
+    <figure class="@(model.ShowCodeTitleBar ? "code-block" : "code-block code-block-title-hidden")">
+        @if (model.ShowCodeTitleBar)
+        {
+            <div class="snippet-toolbar">
+                <figcaption>@title</figcaption>
+                <button type="button" class="copy-button" @onclick="() => CopyToClipboardAsync(model.Code)">Copy</button>
+            </div>
+        }
+        else
+        {
+            <button type="button" class="copy-button copy-button-floating" @onclick="() => CopyToClipboardAsync(model.Code)">Copy</button>
+        }
+
+        <pre><code class="language-@language">@RenderCodeLines(model.Code)</code></pre>
+    </figure>
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+
+    [CascadingParameter]
+    public Func<string?, Task>? CopyToClipboard { get; set; }
+
+    private async Task CopyToClipboardAsync(string? value)
+    {
+        if (CopyToClipboard is not null)
+        {
+            await CopyToClipboard(value);
+        }
+    }
+
+    private RenderFragment RenderCodeLines(string code) => builder =>
+    {
+        var sequence = 0;
+
+        foreach (var line in CodeBlockRenderer.GetCodeLines(code))
+        {
+            builder.OpenElement(sequence++, "span");
+            builder.AddAttribute(sequence++, "class", "code-line");
+
+            builder.OpenElement(sequence++, "span");
+            builder.AddAttribute(sequence++, "class", "line-number");
+            builder.AddContent(sequence++, line.Number);
+            builder.CloseElement();
+
+            builder.OpenElement(sequence++, "span");
+            builder.AddAttribute(sequence++, "class", "line-content");
+            builder.AddContent(sequence++, line.Text);
+            builder.CloseElement();
+
+            builder.CloseElement();
+        }
+    };
+}

@@ -1,0 +1,78 @@
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Models
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
+@using BlogPlatform.App.Components.Articles.Shared
+@using BlogPlatform.App.Models.LearnKit
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToTableBlock(Block);
+    var tableStyle = TableRenderer.NormalizeTableStyle(model.TableStyle);
+
+    <div class="article-table-wrap article-table-style-@tableStyle">
+        <table class="article-table">
+            <tbody>
+                @for (var rowIndex = 0; rowIndex < model.Rows.Count; rowIndex++)
+                {
+                    var row = model.Rows[rowIndex];
+
+                    <tr>
+                        @for (var columnIndex = 0; columnIndex < row.Count; columnIndex++)
+                        {
+                            var cell = row[columnIndex];
+                            var isHeader =
+                                model.HasHeaderRow && rowIndex == 0 ||
+                                model.HasHeaderColumn && columnIndex == 0;
+                            var horizontalAlignment = cell.HorizontalAlignment ?? model.DefaultHorizontalAlignment;
+                            var verticalAlignment = cell.VerticalAlignment ?? model.DefaultVerticalAlignment;
+                            var style = $"text-align:{TableRenderer.NormalizeHorizontalAlignment(horizontalAlignment)};vertical-align:{TableRenderer.NormalizeVerticalAlignment(verticalAlignment)};";
+
+                            if (isHeader)
+                            {
+                                <th style="@style">
+                                    @RenderCell(cell, model, rowIndex, columnIndex, isHeader)
+                                </th>
+                            }
+                            else
+                            {
+                                <td style="@style">
+                                    @RenderCell(cell, model, rowIndex, columnIndex, isHeader)
+                                </td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+
+    private RenderFragment RenderCell(
+        TableCellModel cell,
+        TableBlockModel table,
+        int rowIndex,
+        int columnIndex,
+        bool isHeader) => builder =>
+    {
+        var sequence = 0;
+
+        if (table.AutoNumberRows && columnIndex == 0 && !isHeader)
+        {
+            builder.OpenElement(sequence++, "span");
+            builder.AddAttribute(sequence++, "class", "table-row-number");
+            builder.AddContent(sequence++, rowIndex.ToString());
+            builder.CloseElement();
+        }
+
+        TableRenderer.RenderCellContent(
+            builder,
+            ref sequence,
+            cell.Text,
+            cell.Emoji,
+            cell.ImageUrl,
+            cell.ImageAlt);
+    };
+}

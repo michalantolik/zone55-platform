@@ -1,6 +1,8 @@
-﻿@using BlogPlatform.App.Models.LearnKit
-@using Markdig
-@using Microsoft.AspNetCore.Components
+@using BlogPlatform.App.Components.Articles.Rendering.Context
+@using BlogPlatform.App.Components.Articles.Shared
+@using BlogPlatform.App.Models.LearnKit
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
 
 @if (Article is not null)
 {
@@ -18,14 +20,18 @@
         </div>
 
         <div class="article-summary">
-            @((MarkupString)Markdig.Markdown.ToHtml(Article.Summary ?? string.Empty))
+            @MarkdownRenderer.Render(Article.Summary)
         </div>
 
         <div class="article-body">
-            @foreach (var block in Article.Blocks.OrderBy(block => block.SortOrder))
-            {
-                <LearnKitBlockRenderer Block="block" />
-            }
+            <CascadingValue Value="_plantUmlTheme">
+                <CascadingValue Value="CopyToClipboardDelegate">
+                    @foreach (var block in Article.Blocks.OrderBy(block => block.SortOrder))
+                    {
+                        <LearnKitBlockRenderer Block="block" />
+                    }
+                </CascadingValue>
+            </CascadingValue>
         </div>
     </article>
 }
@@ -33,4 +39,43 @@
 @code {
     [Parameter]
     public LearnKitArticleDetails? Article { get; set; }
+
+    private Func<string?, Task> CopyToClipboardDelegate => CopyToClipboardAsync;
+
+    private PlantUmlThemeValues _plantUmlTheme = new(
+        "#a7b4c8",
+        "#E5E7EB",
+        "#7d8ca3",
+        "#374151",
+        "SansSerif");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _plantUmlTheme = await JS.InvokeAsync<PlantUmlThemeValues>(
+                "blogPlatformArticle.getPlantUmlThemeValues");
+
+            StateHasChanged();
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "blogPlatformArticle.renderDiagrams");
+        }
+        catch (JSException ex)
+        {
+            Console.WriteLine(
+                $"LearnKit diagram rendering failed: {ex.Message}");
+        }
+    }
+
+    private async Task CopyToClipboardAsync(string? value)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            await JS.InvokeVoidAsync("blogPlatformArticle.copyToClipboard", value);
+        }
+    }
 }

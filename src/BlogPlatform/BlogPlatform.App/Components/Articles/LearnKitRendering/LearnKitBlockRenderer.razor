@@ -1,11 +1,11 @@
-﻿@using BlogPlatform.App.Models.LearnKit
-@using BlogPlatform.App.Components.Articles.LearnKitRendering.Strategy
+@using BlogPlatform.App.Components.Articles.LearnKitRendering.Provider
+@using BlogPlatform.App.Models.LearnKit
 
-@inject LearnKitBlockComponentTypeProvider StrategyProvider
+@inject LearnKitBlockComponentTypeProvider ComponentTypeProvider
 
 @if (Block is not null)
 {
-    var componentType = StrategyProvider.GetComponentType(Block);
+    var componentType = ComponentTypeProvider.GetComponentType(Block);
 
     if (componentType is not null)
     {
@@ -14,7 +14,7 @@
     }
     else
     {
-        <div>@Block.Type</div>
+        <div class="article-unsupported-block">Unsupported LearnKit block: @Block.Type</div>
     }
 }
 

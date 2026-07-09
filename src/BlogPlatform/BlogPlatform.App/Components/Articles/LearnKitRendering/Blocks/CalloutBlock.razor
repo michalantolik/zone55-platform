@@ -1,14 +1,14 @@
 @using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
-@using BlogPlatform.App.Components.Articles.Shared
 @using BlogPlatform.App.Models.LearnKit
 
 @if (Block is not null)
 {
-    var model = LearnKitBlockDeserializer.ToMarkdownBlock(Block);
+    var model = LearnKitBlockDeserializer.ToCalloutBlock(Block);
 
-    <div class="article-markdown-block">
-        @MarkdownRenderer.Render(model.Markdown)
-    </div>
+    <aside class="callout callout-@model.Kind">
+        <strong>@model.Kind</strong>
+        <p>@model.Text</p>
+    </aside>
 }
 
 @code {
