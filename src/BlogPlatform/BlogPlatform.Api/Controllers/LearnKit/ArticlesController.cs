@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BlogPlatform.Api.Controllers.LearnKit
 {
+    /// <summary>
+    /// Exposes LearnKit article endpoints.
+    /// </summary>
     [ApiController]
     [Route("api/learnkit/articles")]
     public class ArticlesController : ControllerBase

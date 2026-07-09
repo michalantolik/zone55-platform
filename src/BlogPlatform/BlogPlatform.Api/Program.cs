@@ -2,6 +2,7 @@ using Azure.Identity;
 using BlogPlatform.Api;
 using BlogPlatform.Api.Health;
 using LearnKit.Infrastructure.Persistence;
+using LearnKit.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -62,6 +63,11 @@ if (app.Environment.IsDevelopment())
         .GetRequiredService<LearnKitDbContext>();
 
     dbContext.Database.Migrate();
+
+    var seeder = scope.ServiceProvider
+        .GetRequiredService<LearnKitDatabaseSeeder>();
+
+    await seeder.SeedAsync();
 }
 
 await app.Services.InitializeApiStorageAsync();
