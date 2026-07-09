@@ -5,7 +5,7 @@ namespace LearnKit.Infrastructure.Seed.Content.Models;
 /// <summary>
 /// Represents one learning path stored in the content seed.
 /// </summary>
-internal sealed class LearningPathSeed
+public sealed class LearningPathSeed
 {
     /// <summary>
     /// Stable unique identifier of the learning path.

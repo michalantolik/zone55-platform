@@ -3,7 +3,7 @@
 /// <summary>
 /// Root model of the LearnKit content seed file.
 /// </summary>
-internal sealed class LearnKitContentSeed
+public sealed class LearnKitContentSeed
 {
     /// <summary>
     /// Version of the seed file schema.

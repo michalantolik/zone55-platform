@@ -6,7 +6,7 @@ namespace LearnKit.Infrastructure.Seed.Content;
 /// <summary>
 /// Loads LearnKit content from the seed file.
 /// </summary>
-internal sealed class LearnKitContentSeedLoader
+public sealed class LearnKitContentSeedLoader
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {

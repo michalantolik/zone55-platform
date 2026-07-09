@@ -6,7 +6,7 @@ namespace LearnKit.Infrastructure.Seed.Content.Models;
 /// <summary>
 /// Represents one article stored in the content seed.
 /// </summary>
-internal sealed class ArticleSeed
+public sealed class ArticleSeed
 {
     /// <summary>
     /// Stable URL-friendly article identifier.

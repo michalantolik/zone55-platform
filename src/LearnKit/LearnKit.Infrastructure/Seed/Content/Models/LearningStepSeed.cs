@@ -5,7 +5,7 @@ namespace LearnKit.Infrastructure.Seed.Content.Models;
 /// <summary>
 /// Represents one learning step stored in the content seed.
 /// </summary>
-internal sealed class LearningStepSeed
+public sealed class LearningStepSeed
 {
     /// <summary>
     /// Stable unique identifier of the learning step.

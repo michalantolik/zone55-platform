@@ -6,7 +6,7 @@ namespace LearnKit.Infrastructure.Seed.Content.Models;
 /// <summary>
 /// Represents one article block stored in the content seed.
 /// </summary>
-internal sealed class ArticleBlockSeed
+public sealed class ArticleBlockSeed
 {
     /// <summary>
     /// Block type, for example Markdown, Code, Diagram or Table.

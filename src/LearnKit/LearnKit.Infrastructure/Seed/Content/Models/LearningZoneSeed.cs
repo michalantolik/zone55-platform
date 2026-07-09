@@ -5,7 +5,7 @@ namespace LearnKit.Infrastructure.Seed.Content.Models;
 /// <summary>
 /// Represents one learning zone stored in the content seed.
 /// </summary>
-internal sealed class LearningZoneSeed
+public sealed class LearningZoneSeed
 {
     /// <summary>
     /// Stable unique identifier of the learning zone.
