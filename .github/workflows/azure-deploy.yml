@@ -258,6 +258,40 @@ jobs:
           app-name: ${{ env.API_APP_NAME }}
           package: ./artifacts/api
 
+      - name: Verify Azure runtime app settings
+        shell: bash
+        run: |
+          require_setting() {
+            local app_name="$1"
+            local setting_name="$2"
+
+            count=$(az webapp config appsettings list \
+              --name "$app_name" \
+              --resource-group "${RESOURCE_GROUP_NAME}" \
+              --query "[?name=='${setting_name}'] | length(@)" \
+              --output tsv)
+
+            if [ "$count" != "1" ]; then
+              echo "::error::Missing app setting '${setting_name}' on '${app_name}'"
+              exit 1
+            fi
+
+            echo "OK: ${app_name} has ${setting_name}"
+          }
+
+          require_setting "${API_APP_NAME}" "ApplicationInsights__ConnectionString"
+          require_setting "${API_APP_NAME}" "ConnectionStrings__Zone55Connection"
+          require_setting "${API_APP_NAME}" "Cors__AllowedOrigins__0"
+
+          require_setting "${CMS_APP_NAME}" "ApplicationInsights__ConnectionString"
+          require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN"
+          require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN_ProviderName"
+          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__WebRouting__UmbracoApplicationUrl"
+          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Imaging__HMACSecretKey"
+          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Unattended__UnattendedUserName"
+          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Unattended__UnattendedUserEmail"
+          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Unattended__UnattendedUserPassword"
+
       - name: Restart App Services after deployment
         shell: bash
         run: |
@@ -327,37 +361,6 @@ jobs:
         run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}" "API root endpoint"
 
-      - name: Verify Azure runtime app settings
-        shell: bash
-        run: |
-          require_setting() {
-            local app_name="$1"
-            local setting_name="$2"
-
-            count=$(az webapp config appsettings list \
-              --name "$app_name" \
-              --resource-group "${RESOURCE_GROUP_NAME}" \
-              --query "[?name=='${setting_name}'] | length(@)" \
-              --output tsv)
-
-            if [ "$count" != "1" ]; then
-              echo "::error::Missing app setting '${setting_name}' on '${app_name}'"
-              exit 1
-            fi
-
-            echo "OK: ${app_name} has ${setting_name}"
-          }
-
-          require_setting "${API_APP_NAME}" "ApplicationInsights__ConnectionString"
-          require_setting "${API_APP_NAME}" "ConnectionStrings__Zone55Connection"
-          require_setting "${API_APP_NAME}" "Cors__AllowedOrigins__0"
-
-          require_setting "${CMS_APP_NAME}" "ApplicationInsights__ConnectionString"
-          require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN"
-          require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN_ProviderName"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__WebRouting__UmbracoApplicationUrl"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Imaging__HMACSecretKey"
-
       - name: Check Blazor Static Web App
         shell: bash
         run: |
@@ -372,6 +375,8 @@ jobs:
         if: failure()
         shell: bash
         run: |
+          set +e
+
           echo "## Enable CMS filesystem logging"
           az webapp log config \
             --name "${CMS_APP_NAME}" \
@@ -380,33 +385,67 @@ jobs:
             --level verbose \
             --web-server-logging filesystem \
             --detailed-error-messages true \
-            --failed-request-tracing true || true
+            --failed-request-tracing true
+
+          echo "## CMS process and runtime configuration"
+          az webapp config show \
+            --name "${CMS_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP_NAME}" \
+            --query "{linuxFxVersion:linuxFxVersion,appCommandLine:appCommandLine,alwaysOn:alwaysOn,healthCheckPath:healthCheckPath}" \
+            --output json
+
+          echo "## CMS application settings names"
+          az webapp config appsettings list \
+            --name "${CMS_APP_NAME}" \
+            --resource-group "${RESOURCE_GROUP_NAME}" \
+            --query "[].name" \
+            --output tsv | sort
 
           echo "## CMS /health/ready"
-          curl -L -s "${CMS_PUBLIC_URL}health/ready" || true
+          curl --location --silent --show-error --connect-timeout 10 --max-time 30 \
+            "${CMS_PUBLIC_URL}health/ready" || true
           echo ""
 
           echo "## CMS /health/live"
-          curl -L -s "${CMS_PUBLIC_URL}health/live" || true
+          curl --location --silent --show-error --connect-timeout 10 --max-time 30 \
+            "${CMS_PUBLIC_URL}health/live" || true
           echo ""
 
-          echo "## CMS /home/LogFiles"
-          az webapp ssh \
+          echo "## Download CMS App Service logs"
+          rm -rf cms-appservice-logs cms-appservice-logs.zip
+          az webapp log download \
             --name "${CMS_APP_NAME}" \
             --resource-group "${RESOURCE_GROUP_NAME}" \
-            --command "ls -la /home/LogFiles && tail -n 500 /home/LogFiles/platform-log-*.txt" || true
+            --log-file cms-appservice-logs.zip || true
 
-          echo "## CMS Umbraco logs"
-          az webapp ssh \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --command "ls -la /home/site/wwwroot/umbraco/Logs && tail -n 500 /home/site/wwwroot/umbraco/Logs/*" || true
+          if [ -f cms-appservice-logs.zip ]; then
+            mkdir -p cms-appservice-logs
+            unzip -q cms-appservice-logs.zip -d cms-appservice-logs || true
 
-          echo "## CMS log stream"
-          az webapp log tail \
+            echo "Downloaded log files:"
+            find cms-appservice-logs -type f -maxdepth 8 -print | sort
+
+            echo "## Relevant CMS log excerpts"
+            grep -RniE \
+              "fatal|error|exception|failed|startup|umbraco|key vault|connection string" \
+              cms-appservice-logs 2>/dev/null | tail -n 1000 || true
+          fi
+
+          echo "## CMS log stream (up to 120 seconds)"
+          timeout 120s az webapp log tail \
             --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --timeout 120 || true
+            --resource-group "${RESOURCE_GROUP_NAME}" || true
+
+      - name: Upload App Service diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cms-app-service-diagnostics
+          path: |
+            cms-appservice-logs.zip
+            cms-appservice-logs
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Write deployment summary
         shell: bash

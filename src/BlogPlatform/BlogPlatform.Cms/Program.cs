@@ -1,4 +1,3 @@
-using Azure.Identity;
 using BlogPlatform.Cms;
 using BlogPlatform.Cms.Health;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -39,8 +38,6 @@ try
     Log.Information("CMS content root: {ContentRoot}", builder.Environment.ContentRootPath);
     Log.Information("CMS environment: {Environment}", builder.Environment.EnvironmentName);
     Log.Information("CMS application name: {ApplicationName}", builder.Environment.ApplicationName);
-
-    AddAzureKeyVaultIfConfigured(builder.Configuration, "CMS");
 
     LogStartupConfiguration(builder.Configuration);
 
@@ -180,31 +177,6 @@ finally
     await Log.CloseAndFlushAsync();
 }
 
-static void AddAzureKeyVaultIfConfigured(
-    ConfigurationManager configuration,
-    string applicationName)
-{
-    var keyVaultUri = configuration["KeyVault:VaultUri"];
-
-    if (string.IsNullOrWhiteSpace(keyVaultUri))
-    {
-        Log.Warning("{ApplicationName} Azure Key Vault is not configured.", applicationName);
-        return;
-    }
-
-    if (!Uri.TryCreate(keyVaultUri, UriKind.Absolute, out var vaultUri))
-    {
-        throw new InvalidOperationException("KeyVault:VaultUri must be an absolute URI.");
-    }
-
-    configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
-
-    Log.Information(
-        "{ApplicationName} Azure Key Vault configuration provider is enabled. VaultUri: {VaultUri}",
-        applicationName,
-        keyVaultUri);
-}
-
 static void ValidateCriticalCmsConfiguration(IConfiguration configuration)
 {
     RequireConfigured(configuration, "ConnectionStrings:umbracoDbDSN");
@@ -240,7 +212,6 @@ static void LogStartupConfiguration(IConfiguration configuration)
 {
     Log.Information("CMS startup configuration snapshot:");
 
-    LogConfigurationPresence(configuration, "KeyVault:VaultUri", secret: false);
     LogConfigurationPresence(configuration, "ApplicationInsights:ConnectionString", secret: true);
     LogConfigurationPresence(configuration, "ConnectionStrings:umbracoDbDSN", secret: true);
     LogConfigurationPresence(configuration, "ConnectionStrings:umbracoDbDSN_ProviderName", secret: false);
