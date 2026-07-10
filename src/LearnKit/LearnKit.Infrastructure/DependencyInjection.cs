@@ -1,5 +1,5 @@
-﻿using LearnKit.Application.Articles.Contracts;
-using LearnKit.Application.Roadmaps.Contracts;
+﻿using LearnKit.Application.Articles.Public.Contracts;
+using LearnKit.Application.Roadmaps.Public.Contracts;
 using LearnKit.Infrastructure.Articles;
 using LearnKit.Infrastructure.Persistence;
 using LearnKit.Infrastructure.Roadmaps;

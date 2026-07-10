@@ -1,6 +1,6 @@
 ﻿using LearnKit.Domain.Articles;
 
-namespace LearnKit.Application.Articles.Contracts;
+namespace LearnKit.Application.Articles.Public.Contracts;
 
 /// <summary>
 /// Provides access to article storage.

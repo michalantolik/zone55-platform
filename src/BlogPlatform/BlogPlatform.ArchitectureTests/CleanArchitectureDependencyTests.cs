@@ -1,4 +1,4 @@
-using BlogPlatform.Api.Controllers.LearnKit;
+using BlogPlatform.Api.Controllers.LearnKit.Public;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Controllers;
 using BlogPlatform.Domain.Entities;

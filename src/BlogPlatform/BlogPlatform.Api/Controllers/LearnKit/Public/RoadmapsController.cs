@@ -1,7 +1,7 @@
-﻿using LearnKit.Application.Roadmaps.Queries.GetLearningPath;
+﻿using LearnKit.Application.Roadmaps.Public.Queries.GetLearningPath;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BlogPlatform.Api.Controllers.LearnKit;
+namespace BlogPlatform.Api.Controllers.LearnKit.Public;
 
 /// <summary>
 /// Provides access to learning paths.

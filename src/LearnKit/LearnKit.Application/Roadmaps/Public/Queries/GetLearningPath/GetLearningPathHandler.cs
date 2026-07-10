@@ -1,7 +1,7 @@
-﻿using LearnKit.Application.Roadmaps.Contracts;
-using LearnKit.Application.Roadmaps.Models;
+﻿using LearnKit.Application.Roadmaps.Public.Contracts;
+using LearnKit.Application.Roadmaps.Public.Models;
 
-namespace LearnKit.Application.Roadmaps.Queries.GetLearningPath;
+namespace LearnKit.Application.Roadmaps.Public.Queries.GetLearningPath;
 
 /// <summary>
 /// Handles loading a learning path by key.

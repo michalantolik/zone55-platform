@@ -1,5 +1,5 @@
-﻿using LearnKit.Application.Roadmaps.Contracts;
-using LearnKit.Application.Roadmaps.Models;
+﻿using LearnKit.Application.Roadmaps.Public.Contracts;
+using LearnKit.Application.Roadmaps.Public.Models;
 using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

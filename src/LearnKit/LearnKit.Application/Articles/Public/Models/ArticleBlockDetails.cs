@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Application.Articles.Models;
+﻿namespace LearnKit.Application.Articles.Public.Models;
 
 /// <summary>
 /// Represents article block data prepared for reading.

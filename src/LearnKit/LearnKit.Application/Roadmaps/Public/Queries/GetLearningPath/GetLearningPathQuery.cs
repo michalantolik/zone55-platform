@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Application.Roadmaps.Queries.GetLearningPath;
+﻿namespace LearnKit.Application.Roadmaps.Public.Queries.GetLearningPath;
 
 /// <summary>
 /// Query used to get a learning path by its key.

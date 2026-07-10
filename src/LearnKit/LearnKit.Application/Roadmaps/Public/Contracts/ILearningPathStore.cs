@@ -1,6 +1,6 @@
-﻿using LearnKit.Application.Roadmaps.Models;
+﻿using LearnKit.Application.Roadmaps.Public.Models;
 
-namespace LearnKit.Application.Roadmaps.Contracts;
+namespace LearnKit.Application.Roadmaps.Public.Contracts;
 
 /// <summary>
 /// Provides read access to learning paths.

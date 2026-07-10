@@ -1,7 +1,7 @@
-﻿using LearnKit.Application.Articles.Queries.GetArticleBySlug;
+﻿using LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BlogPlatform.Api.Controllers.LearnKit
+namespace BlogPlatform.Api.Controllers.LearnKit.Public
 {
     /// <summary>
     /// Exposes LearnKit article endpoints.

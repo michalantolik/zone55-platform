@@ -1,7 +1,7 @@
-﻿using LearnKit.Application.Articles.Contracts;
-using LearnKit.Application.Articles.Models;
+﻿using LearnKit.Application.Articles.Public.Contracts;
+using LearnKit.Application.Articles.Public.Models;
 
-namespace LearnKit.Application.Articles.Queries.GetArticleBySlug;
+namespace LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
 
 /// <summary>
 /// Handles requests to retrieve articles by slug.

@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Application.Roadmaps.Models;
+﻿namespace LearnKit.Application.Roadmaps.Public.Models;
 
 /// <summary>
 /// Short article information used on the learning roadmap.

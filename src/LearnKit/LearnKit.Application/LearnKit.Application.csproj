@@ -7,13 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Roadmaps\Commands\**" />
+    <EmbeddedResource Remove="Roadmaps\Commands\**" />
+    <None Remove="Roadmaps\Commands\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LearnKit.Domain\LearnKit.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Articles\Commands\ArchiveArticle\" />
-    <Folder Include="Articles\Commands\RenameArticle\" />
-    <Folder Include="Roadmaps\Commands\" />
+    <Folder Include="Articles\Admin\Commands\ArchiveArticle\" />
+    <Folder Include="Articles\Admin\Commands\RenameArticle\" />
+    <Folder Include="Articles\Admin\Contracts\" />
+    <Folder Include="Articles\Admin\Models\" />
+    <Folder Include="Roadmaps\Admin\Commands\" />
+    <Folder Include="Roadmaps\Admin\Contracts\" />
+    <Folder Include="Roadmaps\Admin\Models\" />
+    <Folder Include="Roadmaps\Admin\Queries\" />
+    <Folder Include="Roadmaps\Public\Commands\" />
   </ItemGroup>
 
   <ItemGroup>

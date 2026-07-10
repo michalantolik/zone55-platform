@@ -1,4 +1,4 @@
-﻿using LearnKit.Application.Articles.Contracts;
+﻿using LearnKit.Application.Articles.Public.Contracts;
 using LearnKit.Domain.Articles;
 using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

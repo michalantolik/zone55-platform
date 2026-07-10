@@ -1,5 +1,5 @@
-﻿using LearnKit.Application.Articles.Queries.GetArticleBySlug;
-using LearnKit.Application.Roadmaps.Queries.GetLearningPath;
+﻿using LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
+using LearnKit.Application.Roadmaps.Public.Queries.GetLearningPath;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LearnKit.Application;
