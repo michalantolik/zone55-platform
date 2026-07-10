@@ -1,4 +1,4 @@
-﻿using BlogPlatform.Api.Controllers;
+using BlogPlatform.Api.Controllers;
 using BlogPlatform.Application.Posts;
 using BlogPlatform.Cms.Controllers;
 using BlogPlatform.Contracts.Posts;
@@ -219,7 +219,7 @@ public sealed class CleanArchitectureDependencyTests
     public void App_Should_Not_Depend_On_Inner_Implementation_Layers()
     {
         var result = Types
-            .InAssembly(typeof(BlogPlatform.App.Services.IBlogApiClient).Assembly)
+            .InAssembly(typeof(BlogPlatform.App.Services.LearnKit.ILearnKitApiClient).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Domain",
@@ -233,12 +233,12 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void App_Services_Should_Not_Depend_On_Api_Application_Or_Infrastructure()
+    public void App_LearnKit_Services_Should_Not_Depend_On_Api_Application_Or_Infrastructure()
     {
         var result = Types
-            .InAssembly(typeof(BlogPlatform.App.Services.IBlogApiClient).Assembly)
+            .InAssembly(typeof(BlogPlatform.App.Services.LearnKit.ILearnKitApiClient).Assembly)
             .That()
-            .ResideInNamespace("BlogPlatform.App.Services")
+            .ResideInNamespace("BlogPlatform.App.Services.LearnKit")
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Api",
