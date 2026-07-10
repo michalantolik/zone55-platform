@@ -13,14 +13,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<!--
-		  Keep these assemblies in the publish output while CMS is deployed in-place.
-		  Older App Service deployments can leave configuration-provider assemblies
-		  in wwwroot; Umbraco scans all assemblies during startup and requires their
-		  dependencies to remain available. The provider is not registered in Program.cs.
-		-->
-		<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
-		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="MailKit" />
 		<PackageReference Include="MessagePack" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />

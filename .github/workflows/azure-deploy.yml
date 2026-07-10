@@ -251,12 +251,16 @@ jobs:
         with:
           app-name: ${{ env.CMS_APP_NAME }}
           package: ./artifacts/cms
+          clean: true
+          restart: true
 
       - name: Deploy API App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.API_APP_NAME }}
           package: ./artifacts/api
+          clean: true
+          restart: true
 
       - name: Verify Azure runtime app settings
         shell: bash
