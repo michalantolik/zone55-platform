@@ -1,4 +1,4 @@
-﻿using BlogPlatform.App.Models;
+using BlogPlatform.App.Models;
 using BlogPlatform.App.Models.LearnKit.Roadmap;
 
 namespace BlogPlatform.App.Services.LearnKit;
@@ -27,9 +27,9 @@ public static class LearnKitRoadmapMapper
                         Difficulty: "Guided",
                         Icon: string.Empty,
                         Keywords: [],
-                        Posts: step.Articles
+                        Articles: step.Articles
                             .OrderBy(article => article.SortOrder)
-                            .Select(article => new PostListItem(
+                            .Select(article => new ArticleListItem(
                                 Slug: article.Slug,
                                 Title: article.Title,
                                 Summary: article.Summary,

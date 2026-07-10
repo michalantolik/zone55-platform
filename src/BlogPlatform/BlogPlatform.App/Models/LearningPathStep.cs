@@ -9,4 +9,4 @@ public sealed record LearningPathStep(
     string Difficulty,
     string Icon,
     IReadOnlyCollection<string> Keywords,
-    IReadOnlyCollection<PostListItem> Posts);
+    IReadOnlyCollection<ArticleListItem> Articles);

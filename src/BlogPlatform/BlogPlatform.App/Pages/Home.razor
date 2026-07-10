@@ -181,7 +181,7 @@ else
                                 </nav>
                             </div>
                         }
-                        else if (_posts.Count == 0)
+                        else if (_articles.Count == 0)
                         {
                             <div class="dotnet-empty-step-card">
                                 <strong>No articles yet</strong>
@@ -190,20 +190,20 @@ else
                         else
                         {
                             <div class="post-grid">
-                                @foreach (var article in PagedPosts.Select((post, index) => new
+                                @foreach (var article in PagedArticles.Select((article, index) => new
                                 {
-                                    Post = post,
+                                    Article = article,
                                     Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
                                 }))
                                 {
-                                    <PostCard Title="@article.Post.Title"
-                                              Summary="@article.Post.Summary"
+                                    <ArticleCard Title="@article.Article.Title"
+                                              Summary="@article.Article.Summary"
                                               StepTitle="@SelectedStepTitle"
-                                              Level="@article.Post.Level"
-                                              Focus="@article.Post.Focus"
-                                              Url="@GetInlineArticleUrl(article.Post.Slug)"
-                                              TechStack="@article.Post.Tags"
-                                              ArticleOrder="@(article.Post.Order > 0 ? article.Post.Order : article.Order)" />
+                                              Level="@article.Article.Level"
+                                              Focus="@article.Article.Focus"
+                                              Url="@GetInlineArticleUrl(article.Article.Slug)"
+                                              TechStack="@article.Article.Tags"
+                                              ArticleOrder="@(article.Article.Order > 0 ? article.Article.Order : article.Order)" />
                                 }
                             </div>
 
@@ -282,7 +282,7 @@ else
     [SupplyParameterFromQuery(Name = "article")]
     public string? ArticleSlug { get; set; }
 
-    private IReadOnlyCollection<PostListItem> _posts = [];
+    private IReadOnlyCollection<ArticleListItem> _articles = [];
     private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
     private LearnKitArticleDetails? _selectedLearnKitArticle;
     private bool _hasCompletedInitialLoad;
@@ -381,10 +381,10 @@ else
         Math.Max(1, Configuration.GetValue<int?>("LearningPath:ArticlesPerStepPage") ?? 3);
 
     private int TotalArticlePages =>
-        Math.Max(1, (int)Math.Ceiling(_posts.Count / (double)ArticlesPerStepPage));
+        Math.Max(1, (int)Math.Ceiling(_articles.Count / (double)ArticlesPerStepPage));
 
     private bool ShouldShowArticlePager =>
-        _posts.Count > ArticlesPerStepPage;
+        _articles.Count > ArticlesPerStepPage;
 
     private bool IsFirstArticlePage =>
         _currentArticlePage <= 1;
@@ -392,8 +392,8 @@ else
     private bool IsLastArticlePage =>
         _currentArticlePage >= TotalArticlePages;
 
-    private IEnumerable<PostListItem> PagedPosts =>
-        OrderedStepPosts
+    private IEnumerable<ArticleListItem> PagedArticles =>
+        OrderedStepArticles
             .Skip((_currentArticlePage - 1) * ArticlesPerStepPage)
             .Take(ArticlesPerStepPage);
 
@@ -429,32 +429,32 @@ else
             : 0;
 
     private int TotalArticlesInStep =>
-        OrderedStepPosts.Count;
+        OrderedStepArticles.Count;
 
-    private IReadOnlyList<PostListItem> OrderedStepPosts =>
-        _posts
-            .Select((Post, Index) => new { Post, Index })
-            .OrderBy(item => item.Post.Order > 0 ? item.Post.Order : int.MaxValue)
+    private IReadOnlyList<ArticleListItem> OrderedStepArticles =>
+        _articles
+            .Select((Article, Index) => new { Article, Index })
+            .OrderBy(item => item.Article.Order > 0 ? item.Article.Order : int.MaxValue)
             .ThenBy(item => item.Index)
-            .Select(item => item.Post)
+            .Select(item => item.Article)
             .ToList();
 
     private int CurrentArticleIndex =>
         CurrentArticleSlug is null
             ? -1
-            : OrderedStepPosts
-                .Select((Post, Index) => new { Post, Index })
-                .FirstOrDefault(item => string.Equals(item.Post.Slug, CurrentArticleSlug, StringComparison.OrdinalIgnoreCase))
+            : OrderedStepArticles
+                .Select((Article, Index) => new { Article, Index })
+                .FirstOrDefault(item => string.Equals(item.Article.Slug, CurrentArticleSlug, StringComparison.OrdinalIgnoreCase))
                 ?.Index ?? -1;
 
-    private PostListItem? PreviousArticle =>
+    private ArticleListItem? PreviousArticle =>
         CurrentArticleIndex > 0
-            ? OrderedStepPosts[CurrentArticleIndex - 1]
+            ? OrderedStepArticles[CurrentArticleIndex - 1]
             : null;
 
-    private PostListItem? NextArticle =>
-        CurrentArticleIndex >= 0 && CurrentArticleIndex < OrderedStepPosts.Count - 1
-            ? OrderedStepPosts[CurrentArticleIndex + 1]
+    private ArticleListItem? NextArticle =>
+        CurrentArticleIndex >= 0 && CurrentArticleIndex < OrderedStepArticles.Count - 1
+            ? OrderedStepArticles[CurrentArticleIndex + 1]
             : null;
 
     private string SelectedStepUrl =>
@@ -484,9 +484,9 @@ else
             ? []
             : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
 
-        _posts = IsLearningPathView
+        _articles = IsLearningPathView
             ? []
-            : SelectedStep?.Posts ?? [];
+            : SelectedStep?.Articles ?? [];
 
         _currentArticlePage = 1;
 
@@ -509,9 +509,9 @@ else
             ? []
             : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
 
-        _posts = IsLearningPathView
+        _articles = IsLearningPathView
             ? []
-            : SelectedStep?.Posts ?? [];
+            : SelectedStep?.Articles ?? [];
 
         _currentArticlePage = 1;
         _selectedLearnKitArticle = null;
@@ -529,8 +529,8 @@ else
             return;
         }
 
-        var articleBelongsToSelectedStep = _posts.Any(post =>
-            string.Equals(post.Slug, EffectiveArticleSlug, StringComparison.OrdinalIgnoreCase));
+        var articleBelongsToSelectedStep = _articles.Any(article =>
+            string.Equals(article.Slug, EffectiveArticleSlug, StringComparison.OrdinalIgnoreCase));
 
         if (articleBelongsToSelectedStep)
         {

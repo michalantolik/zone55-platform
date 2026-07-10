@@ -21,9 +21,9 @@
                             @if (DisplayStepArticleCounts)
                             {
                                 <small>
-                                    @(step.Posts.Count == 0
+                                    @(step.Articles.Count == 0
                                         ? "No articles yet"
-                                        : $"{step.Posts.Count} article(s)")
+                                        : $"{step.Articles.Count} article(s)")
                                 </small>
                             }
                         </a>
