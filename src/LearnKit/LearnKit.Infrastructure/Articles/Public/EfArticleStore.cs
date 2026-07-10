@@ -3,7 +3,7 @@ using LearnKit.Domain.Articles;
 using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearnKit.Infrastructure.Articles;
+namespace LearnKit.Infrastructure.Articles.Public;
 
 /// <summary>
 /// Entity Framework implementation of <see cref="IArticleStore"/>.

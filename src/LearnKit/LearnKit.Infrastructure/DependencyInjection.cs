@@ -1,6 +1,8 @@
-﻿using LearnKit.Application.Articles.Public.Contracts;
+﻿using LearnKit.Application.Articles.Admin.Contracts;
+using LearnKit.Application.Articles.Public.Contracts;
 using LearnKit.Application.Roadmaps.Public.Contracts;
 using LearnKit.Infrastructure.Articles;
+using LearnKit.Infrastructure.Articles.Public;
 using LearnKit.Infrastructure.Persistence;
 using LearnKit.Infrastructure.Roadmaps;
 using LearnKit.Infrastructure.Seed;
@@ -25,6 +27,8 @@ public static class DependencyInjection
         services.AddDbContext<LearnKitDbContext>(configureDbContext);
 
         services.AddScoped<IArticleStore, EfArticleStore>();
+        services.AddScoped<IArticleManagementStore, EfArticleManagementStore>();
+
         services.AddScoped<ILearningPathStore, EfLearningPathStore>();
 
         services.AddScoped<LearnKitContentSeedLoader>();

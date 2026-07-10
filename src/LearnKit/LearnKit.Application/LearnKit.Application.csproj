@@ -19,8 +19,6 @@
   <ItemGroup>
     <Folder Include="Articles\Admin\Commands\ArchiveArticle\" />
     <Folder Include="Articles\Admin\Commands\RenameArticle\" />
-    <Folder Include="Articles\Admin\Contracts\" />
-    <Folder Include="Articles\Admin\Models\" />
     <Folder Include="Roadmaps\Admin\Commands\" />
     <Folder Include="Roadmaps\Admin\Contracts\" />
     <Folder Include="Roadmaps\Admin\Models\" />

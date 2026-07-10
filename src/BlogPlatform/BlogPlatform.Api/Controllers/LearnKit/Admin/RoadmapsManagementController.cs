@@ -2,7 +2,7 @@
 
 namespace BlogPlatform.Api.Controllers.LearnKit.Admin
 {
-    public class ArticlesController : ControllerBase
+    public class RoadmapsManagementController : ControllerBase
     {
 
     }
