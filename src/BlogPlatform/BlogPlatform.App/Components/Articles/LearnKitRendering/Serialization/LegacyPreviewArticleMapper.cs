@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
-using BlogPlatform.App.Models;
-using BlogPlatform.App.Models.LearnKit;
+﻿using BlogPlatform.App.Models;
+using BlogPlatform.App.Models.LearnKit.Articles;
 using BlogPlatform.Contracts.Posts;
+using System.Text.Json;
 
 namespace BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization;
 

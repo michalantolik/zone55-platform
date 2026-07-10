@@ -5,6 +5,8 @@
 
 @using BlogPlatform.App.Components.Articles.LearnKitRendering
 @using BlogPlatform.App.Models.LearnKit
+@using BlogPlatform.App.Models.LearnKit.Articles
+@using BlogPlatform.App.Services.LearnKit
 
 @inject IBlogApiClient BlogApi
 @inject IRoadmapViewService RoadmapView
@@ -478,9 +480,12 @@ else
 
         var homeContent = await BlogApi.GetHomeContentAsync();
 
-        _learningPathLevels = await RoadmapView.GetDotnetRoadmapAsync(
-            homeContent.Posts,
-            cancellationToken: default);
+        var learningPath =
+            await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+
+        _learningPathLevels = learningPath is null
+            ? []
+            : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
 
         _posts = IsLearningPathView
             ? homeContent.Posts
@@ -504,9 +509,12 @@ else
 
         var homeContent = await BlogApi.GetHomeContentAsync();
 
-        _learningPathLevels = await RoadmapView.GetDotnetRoadmapAsync(
-            homeContent.Posts,
-            cancellationToken: default);
+        var learningPath =
+            await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+
+        _learningPathLevels = learningPath is null
+            ? []
+            : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
 
         _posts = IsLearningPathView
             ? homeContent.Posts

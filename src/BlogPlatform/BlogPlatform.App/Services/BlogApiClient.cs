@@ -1,5 +1,7 @@
 ﻿using BlogPlatform.App.Models;
 using BlogPlatform.App.Models.LearnKit;
+using BlogPlatform.App.Models.LearnKit.Articles;
+using BlogPlatform.App.Models.LearnKit.Roadmap;
 using BlogPlatform.Contracts.DotnetRoadmap;
 using System.Collections.Concurrent;
 using System.Net;
@@ -123,6 +125,37 @@ public sealed class BlogApiClient : IBlogApiClient
             _logger.LogError(
                 ex,
                 "APP failed to get LearnKit article from API. Url: {Url}",
+                url);
+
+            throw;
+        }
+    }
+
+    public async Task<LearnKitLearningPathDetails?> GetLearnKitLearningPathByKeyAsync(
+        string key,
+        CancellationToken cancellationToken = default)
+    {
+        var url = $"api/learnkit/roadmaps/{Uri.EscapeDataString(key)}";
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<LearnKitLearningPathDetails>(
+                cancellationToken: cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "APP failed to get LearnKit learning path from API. Url: {Url}",
                 url);
 
             throw;

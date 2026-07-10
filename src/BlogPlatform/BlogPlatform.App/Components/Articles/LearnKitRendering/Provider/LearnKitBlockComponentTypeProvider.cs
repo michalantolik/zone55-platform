@@ -1,5 +1,5 @@
 using BlogPlatform.App.Components.Articles.LearnKitRendering.Blocks;
-using BlogPlatform.App.Models.LearnKit;
+using BlogPlatform.App.Models.LearnKit.Articles;
 
 namespace BlogPlatform.App.Components.Articles.LearnKitRendering.Provider;
 

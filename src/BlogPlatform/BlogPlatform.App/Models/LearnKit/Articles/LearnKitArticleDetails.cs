@@ -1,4 +1,4 @@
-﻿namespace BlogPlatform.App.Models.LearnKit;
+﻿namespace BlogPlatform.App.Models.LearnKit.Articles;
 
 public sealed class LearnKitArticleDetails
 {

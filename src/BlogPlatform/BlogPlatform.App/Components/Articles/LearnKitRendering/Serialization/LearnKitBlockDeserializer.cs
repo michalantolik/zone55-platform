@@ -2,6 +2,7 @@ using System.Text.Json;
 using BlogPlatform.App.Components.Articles.LearnKitRendering.Helpers;
 using BlogPlatform.App.Components.Articles.LearnKitRendering.Models;
 using BlogPlatform.App.Models.LearnKit;
+using BlogPlatform.App.Models.LearnKit.Articles;
 
 namespace BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization;
 
