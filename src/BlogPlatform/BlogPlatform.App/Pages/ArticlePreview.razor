@@ -1,11 +1,10 @@
-﻿@page "/preview/article"
+@page "/preview/article"
 @layout PreviewLayout
 @implements IDisposable
 
 @using System.Text.Json
 @using BlogPlatform.App.Components.Articles.LearnKitRendering
 @using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization
-@using BlogPlatform.App.Models
 @using BlogPlatform.App.Models.LearnKit
 @using BlogPlatform.App.Models.LearnKit.Articles
 @using BlogPlatform.App.Services
@@ -104,7 +103,7 @@
                 sequence,
                 $"JsonIsNull={json is null}; JsonLength={json?.Length ?? 0}");
 
-            var previewArticle = JsonSerializer.Deserialize<PostDetails>(
+            var previewArticle = JsonSerializer.Deserialize<LearnKitArticlePreviewPayload>(
                 json,
                 new JsonSerializerOptions
                 {
@@ -115,14 +114,14 @@
                 "APP",
                 "AfterDeserialize",
                 sequence,
-                $"ArticleIsNull={previewArticle is null}; Title={previewArticle?.Title}; BodyHtmlIsNull={previewArticle?.BodyHtml is null}");
+                $"ArticleIsNull={previewArticle is null}; Title={previewArticle?.Title}; BodyContentIsNull={previewArticle?.BodyContent is null}");
 
             if (previewArticle is null)
             {
                 return;
             }
 
-            var article = LegacyPreviewArticleMapper.ToLearnKitArticle(previewArticle);
+            var article = LearnKitArticlePreviewMapper.ToArticle(previewArticle);
 
             _article = article;
             _lastSequence = sequence;
