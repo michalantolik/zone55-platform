@@ -1,5 +1,6 @@
-﻿using BlogPlatform.App.Components.Articles.LearnKitRendering.Provider;
+using BlogPlatform.App.Components.Articles.LearnKitRendering.Provider;
 using BlogPlatform.App.Services;
+using BlogPlatform.App.Services.LearnKit;
 
 namespace BlogPlatform.App;
 
@@ -11,7 +12,7 @@ public static class DependencyInjection
     {
         services.AddScoped(_ => apiHttpClient);
 
-        services.AddScoped<IBlogApiClient, BlogApiClient>();
+        services.AddScoped<ILearnKitApiClient, LearnKitApiClient>();
         services.AddScoped<IPreviewDiagnosticsClient, PreviewDiagnosticsClient>();
         services.AddScoped<LearnKitBlockComponentTypeProvider>();
 

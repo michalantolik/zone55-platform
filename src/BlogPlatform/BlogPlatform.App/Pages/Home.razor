@@ -8,7 +8,7 @@
 @using BlogPlatform.App.Models.LearnKit.Articles
 @using BlogPlatform.App.Services.LearnKit
 
-@inject IBlogApiClient BlogApi
+@inject ILearnKitApiClient LearnKitApi
 @inject IConfiguration Configuration
 
 <PageTitle>@PageTitleText</PageTitle>
@@ -478,7 +478,7 @@ else
         _selectedLearnKitArticle = null;
 
         var learningPath =
-            await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("dotnet");
 
         _learningPathLevels = learningPath is null
             ? []
@@ -503,7 +503,7 @@ else
         StateHasChanged();
 
         var learningPath =
-            await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("dotnet");
 
         _learningPathLevels = learningPath is null
             ? []
@@ -534,7 +534,7 @@ else
 
         if (articleBelongsToSelectedStep)
         {
-            _selectedLearnKitArticle = await BlogApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
+            _selectedLearnKitArticle = await LearnKitApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
         }
     }
 

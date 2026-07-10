@@ -4,7 +4,7 @@
 
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
-@inject IBlogApiClient BlogApi
+@inject ILearnKitApiClient LearnKitApi
 
 @using BlogPlatform.App.Services.LearnKit
 
@@ -42,7 +42,7 @@
         Navigation.LocationChanged += HandleLocationChanged;
 
         var learningPath =
-            await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("dotnet");
 
         _levels = learningPath is null
             ? []
