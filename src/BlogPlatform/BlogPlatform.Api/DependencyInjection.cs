@@ -26,9 +26,6 @@ public static class DependencyInjection
         services.Configure<ClientLoggingOptions>(
             configuration.GetSection("ClientLogging"));
 
-        services.Configure<BlogContentCacheOperationsOptions>(
-            configuration.GetSection("BlogContentCacheOperations"));
-
         services.AddRateLimiter(options =>
         {
             options.AddPolicy("ClientLogs", httpContext =>

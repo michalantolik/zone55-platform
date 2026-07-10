@@ -1,4 +1,4 @@
-using Azure.Identity;
+﻿using Azure.Identity;
 using BlogPlatform.Api;
 using BlogPlatform.Api.Health;
 using LearnKit.Infrastructure.Persistence;
@@ -100,9 +100,9 @@ app.MapGet("/", () => Results.Ok(new
     },
     Endpoints = new[]
     {
-        "/api/posts/home",
-        "/api/posts",
-        "/api/roadmap"
+        "/api/learnkit/articles/{slug}",
+        "/api/learnkit/roadmaps/{key}",
+        "/api/roadmap/dotnet"
     }
 }));
 

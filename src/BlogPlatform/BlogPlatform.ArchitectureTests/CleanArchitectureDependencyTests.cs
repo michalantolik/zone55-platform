@@ -1,9 +1,9 @@
-using BlogPlatform.Api.Controllers;
-using BlogPlatform.Application.Posts;
+using BlogPlatform.Api.Controllers.LearnKit;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Controllers;
-using BlogPlatform.Contracts.Posts;
+using BlogPlatform.Contracts.DotnetRoadmap;
 using BlogPlatform.Domain.Entities;
-using BlogPlatform.Infrastructure.Cms;
+using BlogPlatform.Infrastructure.Roadmap;
 using NetArchTest.Rules;
 using System.Reflection;
 using System.Xml.Linq;
@@ -38,7 +38,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Application_Should_Not_Depend_On_Outer_Layers()
     {
         var result = Types
-            .InAssembly(typeof(IBlogPostQueryService).Assembly)
+            .InAssembly(typeof(IRoadmapQueryService).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Infrastructure",
@@ -58,7 +58,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Application_Should_Not_Reference_Infrastructure_Implementations()
     {
         var result = Types
-            .InAssembly(typeof(IBlogPostQueryService).Assembly)
+            .InAssembly(typeof(IRoadmapQueryService).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Infrastructure.Cms",
@@ -73,7 +73,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Infrastructure_Should_Not_Depend_On_Presentation_Or_Contracts()
     {
         var result = Types
-            .InAssembly(typeof(UmbracoDeliveryApiBlogPostRepository).Assembly)
+            .InAssembly(typeof(SqlDotnetRoadmapStore).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Api",
@@ -90,7 +90,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Contracts_Should_Be_Independent()
     {
         var result = Types
-            .InAssembly(typeof(PostListItemDto).Assembly)
+            .InAssembly(typeof(RoadmapZoneDto).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Application",
@@ -108,7 +108,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Api_Should_Not_Depend_On_Cms_App_Or_Domain()
     {
         var result = Types
-            .InAssembly(typeof(PostsController).Assembly)
+            .InAssembly(typeof(ArticlesController).Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Cms",
@@ -123,7 +123,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Api_Controllers_Should_Not_Depend_On_Infrastructure()
     {
         var result = Types
-            .InAssembly(typeof(PostsController).Assembly)
+            .InAssembly(typeof(ArticlesController).Assembly)
             .That()
             .ResideInNamespace("BlogPlatform.Api.Controllers")
             .ShouldNot()
@@ -137,7 +137,7 @@ public sealed class CleanArchitectureDependencyTests
     public void Api_Mapping_Should_Not_Depend_On_Infrastructure()
     {
         var result = Types
-            .InAssembly(typeof(PostsController).Assembly)
+            .InAssembly(typeof(ArticlesController).Assembly)
             .That()
             .ResideInNamespace("BlogPlatform.Api.Mapping")
             .ShouldNot()
