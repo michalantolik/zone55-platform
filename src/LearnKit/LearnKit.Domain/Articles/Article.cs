@@ -26,15 +26,24 @@ public sealed class Article
         Guid learningStepId,
         string slug,
         string title,
+        int sortOrder,
         string? summary = null)
     {
         ValidateId(learningStepId, nameof(learningStepId));
         ValidateRequired(slug, nameof(slug), "Article slug is required.");
         ValidateRequired(title, nameof(title), "Article title is required.");
 
+        if (sortOrder < 1)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(sortOrder),
+                "Sort order must be greater than zero.");
+        }
+
         LearningStepId = learningStepId;
         Slug = slug.Trim();
         Title = title.Trim();
+        SortOrder = sortOrder;
         Summary = NormalizeOptional(summary);
         Status = ArticleStatus.Draft;
     }
@@ -58,6 +67,11 @@ public sealed class Article
     /// Article title shown to the user.
     /// </summary>
     public string Title { get; private set; }
+
+    /// <summary>
+    /// Position of the article inside its learning step.
+    /// </summary>
+    public int SortOrder { get; private set; }
 
     /// <summary>
     /// Short article description.

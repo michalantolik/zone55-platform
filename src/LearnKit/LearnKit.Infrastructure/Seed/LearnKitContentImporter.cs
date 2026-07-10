@@ -98,6 +98,7 @@ public sealed class LearnKitContentImporter
             learningStepId,
             seed.Slug,
             seed.Title,
+            seed.SortOrder,
             seed.Summary);
 
         if (seed.Status == ArticleStatus.Published)

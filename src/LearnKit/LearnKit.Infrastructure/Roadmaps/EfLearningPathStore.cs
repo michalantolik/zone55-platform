@@ -54,7 +54,7 @@ internal sealed class EfLearningPathStore : ILearningPathStore
                                         Title = article.Title,
                                         Summary = article.Summary,
                                         Status = article.Status.ToString(),
-                                        SortOrder = 0
+                                        SortOrder = article.SortOrder
                                     })
                                     .ToList()
                             })
