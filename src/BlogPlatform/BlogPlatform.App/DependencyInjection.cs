@@ -12,7 +12,6 @@ public static class DependencyInjection
         services.AddScoped(_ => apiHttpClient);
 
         services.AddScoped<IBlogApiClient, BlogApiClient>();
-        services.AddScoped<IRoadmapViewService, RoadmapViewService>();
         services.AddScoped<IPreviewDiagnosticsClient, PreviewDiagnosticsClient>();
         services.AddScoped<LearnKitBlockComponentTypeProvider>();
 
