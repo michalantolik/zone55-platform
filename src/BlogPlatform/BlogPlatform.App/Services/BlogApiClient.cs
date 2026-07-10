@@ -1,7 +1,5 @@
-using BlogPlatform.App.Models.LearnKit;
 using BlogPlatform.App.Models.LearnKit.Articles;
 using BlogPlatform.App.Models.LearnKit.Roadmap;
-using BlogPlatform.Contracts.DotnetRoadmap;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
@@ -23,14 +21,6 @@ public sealed class BlogApiClient : IBlogApiClient
     {
         _httpClient = httpClient;
         _logger = logger;
-    }
-
-    public async Task<IReadOnlyCollection<RoadmapZoneDto>> GetDotnetRoadmapAsync(
-    CancellationToken cancellationToken = default)
-    {
-        return await _httpClient.GetFromJsonAsync<IReadOnlyCollection<RoadmapZoneDto>>(
-            "api/roadmap/dotnet",
-            cancellationToken) ?? [];
     }
 
     public async Task<LearnKitArticleDetails?> GetLearnKitArticleBySlugAsync(
