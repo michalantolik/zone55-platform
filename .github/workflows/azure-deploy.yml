@@ -426,9 +426,9 @@ jobs:
             find cms-appservice-logs -type f -maxdepth 8 -print | sort
 
             echo "## Relevant CMS log excerpts"
-            grep -RniE \
-              "fatal|error|exception|failed|startup|umbraco|key vault|connection string" \
-              cms-appservice-logs 2>/dev/null | tail -n 1000 || true
+            grep -RniE -B 30 -A 30 \
+              "fatal|error|exception|failed|startup|umbraco|key vault|connection string|TypeLoader|Could not load" \
+              cms-appservice-logs 2>/dev/null | tail -n 3000 || true
           fi
 
           echo "## CMS log stream (up to 120 seconds)"
