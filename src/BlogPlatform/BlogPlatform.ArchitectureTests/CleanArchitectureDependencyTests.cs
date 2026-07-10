@@ -1,7 +1,6 @@
 using BlogPlatform.Api.Controllers.LearnKit;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Controllers;
-using BlogPlatform.Contracts.DotnetRoadmap;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Roadmap;
 using NetArchTest.Rules;
@@ -81,24 +80,6 @@ public sealed class CleanArchitectureDependencyTests
                 "BlogPlatform.App",
                 "BlogPlatform.Contracts",
                 "Umbraco.Cms")
-            .GetResult();
-
-        Assert.True(result.IsSuccessful, BuildMessage(result));
-    }
-
-    [Fact]
-    public void Contracts_Should_Be_Independent()
-    {
-        var result = Types
-            .InAssembly(typeof(RoadmapZoneDto).Assembly)
-            .ShouldNot()
-            .HaveDependencyOnAny(
-                "BlogPlatform.Application",
-                "BlogPlatform.Domain",
-                "BlogPlatform.Infrastructure",
-                "BlogPlatform.Api",
-                "BlogPlatform.Cms",
-                "BlogPlatform.App")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));
@@ -203,7 +184,10 @@ public sealed class CleanArchitectureDependencyTests
 
         var violations = controllerTypes
             .SelectMany(GetPublicSurfaceTypes)
-            .Where(type => type.FullName?.StartsWith("Umbraco.Cms", StringComparison.Ordinal) == true)
+            .Where(type =>
+                type.FullName?.StartsWith(
+                    "Umbraco.Cms",
+                    StringComparison.Ordinal) == true)
             .Select(type => type.FullName)
             .Distinct()
             .OrderBy(name => name)
@@ -219,7 +203,10 @@ public sealed class CleanArchitectureDependencyTests
     public void App_Should_Not_Depend_On_Inner_Implementation_Layers()
     {
         var result = Types
-            .InAssembly(typeof(BlogPlatform.App.Services.LearnKit.ILearnKitApiClient).Assembly)
+            .InAssembly(
+                typeof(
+                    BlogPlatform.App.Services.LearnKit.ILearnKitApiClient)
+                .Assembly)
             .ShouldNot()
             .HaveDependencyOnAny(
                 "BlogPlatform.Domain",
@@ -236,7 +223,10 @@ public sealed class CleanArchitectureDependencyTests
     public void App_LearnKit_Services_Should_Not_Depend_On_Api_Application_Or_Infrastructure()
     {
         var result = Types
-            .InAssembly(typeof(BlogPlatform.App.Services.LearnKit.ILearnKitApiClient).Assembly)
+            .InAssembly(
+                typeof(
+                    BlogPlatform.App.Services.LearnKit.ILearnKitApiClient)
+                .Assembly)
             .That()
             .ResideInNamespace("BlogPlatform.App.Services.LearnKit")
             .ShouldNot()
@@ -254,13 +244,49 @@ public sealed class CleanArchitectureDependencyTests
     {
         var root = FindSolutionRoot();
 
-        AssertProjectReferences(root, "BlogPlatform.Domain", []);
-        AssertProjectReferences(root, "BlogPlatform.Application", ["BlogPlatform.Domain"]);
-        AssertProjectReferences(root, "BlogPlatform.Infrastructure", ["BlogPlatform.Application", "BlogPlatform.Domain"]);
-        AssertProjectReferences(root, "BlogPlatform.Contracts", []);
-        AssertProjectReferences(root, "BlogPlatform.App", []);
-        AssertProjectReferences(root, "BlogPlatform.Api", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
-        AssertProjectReferences(root, "BlogPlatform.Cms", ["BlogPlatform.Application", "BlogPlatform.Infrastructure"]);
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Domain",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Application",
+            ["BlogPlatform.Domain"]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Infrastructure",
+            [
+                "BlogPlatform.Application",
+                "BlogPlatform.Domain"
+            ]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Contracts",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.App",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Api",
+            [
+                "LearnKit.Application",
+                "LearnKit.Infrastructure"
+            ]);
+
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Cms",
+            [
+                "BlogPlatform.Application",
+                "BlogPlatform.Infrastructure"
+            ]);
     }
 
     [Fact]
@@ -268,7 +294,10 @@ public sealed class CleanArchitectureDependencyTests
     {
         var root = FindSolutionRoot();
 
-        AssertProjectReferences(root, "BlogPlatform.Application", ["BlogPlatform.Domain"]);
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Application",
+            ["BlogPlatform.Domain"]);
     }
 
     [Fact]
@@ -276,7 +305,10 @@ public sealed class CleanArchitectureDependencyTests
     {
         var root = FindSolutionRoot();
 
-        AssertProjectReferences(root, "BlogPlatform.Contracts", []);
+        AssertProjectReferences(
+            root,
+            "BlogPlatform.Contracts",
+            []);
     }
 
     private static IEnumerable<Type> GetPublicSurfaceTypes(Type type)
@@ -289,7 +321,10 @@ public sealed class CleanArchitectureDependencyTests
             }
         }
 
-        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        foreach (var method in type.GetMethods(
+                     BindingFlags.Public |
+                     BindingFlags.Instance |
+                     BindingFlags.DeclaredOnly))
         {
             yield return method.ReturnType;
 
@@ -299,7 +334,10 @@ public sealed class CleanArchitectureDependencyTests
             }
         }
 
-        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        foreach (var property in type.GetProperties(
+                     BindingFlags.Public |
+                     BindingFlags.Instance |
+                     BindingFlags.DeclaredOnly))
         {
             yield return property.PropertyType;
         }
@@ -311,7 +349,10 @@ public sealed class CleanArchitectureDependencyTests
         IReadOnlyCollection<string> allowedReferences)
     {
         var projectFile = Directory
-            .EnumerateFiles(solutionRoot.FullName, $"{projectName}.csproj", SearchOption.AllDirectories)
+            .EnumerateFiles(
+                solutionRoot.FullName,
+                $"{projectName}.csproj",
+                SearchOption.AllDirectories)
             .Single();
 
         var document = XDocument.Load(projectFile);
@@ -320,7 +361,7 @@ public sealed class CleanArchitectureDependencyTests
             .Descendants("ProjectReference")
             .Select(reference => reference.Attribute("Include")?.Value)
             .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(GetProjectNameFromReference)
+            .Select(value => GetProjectNameFromReference(value!))
             .OrderBy(value => value)
             .ToList();
 
@@ -337,7 +378,10 @@ public sealed class CleanArchitectureDependencyTests
 
         while (directory is not null)
         {
-            if (File.Exists(Path.Combine(directory.FullName, "BlogPlatform.slnx")))
+            if (File.Exists(
+                    Path.Combine(
+                        directory.FullName,
+                        "BlogPlatform.slnx")))
             {
                 return directory;
             }
@@ -345,12 +389,15 @@ public sealed class CleanArchitectureDependencyTests
             directory = directory.Parent;
         }
 
-        throw new DirectoryNotFoundException("Could not find BlogPlatform.slnx.");
+        throw new DirectoryNotFoundException(
+            "Could not find BlogPlatform.slnx.");
     }
 
-    private static string BuildMessage(NetArchTest.Rules.TestResult result)
+    private static string BuildMessage(
+        NetArchTest.Rules.TestResult result)
     {
-        if (result.FailingTypeNames is null || !result.FailingTypeNames.Any())
+        if (result.FailingTypeNames is null ||
+            !result.FailingTypeNames.Any())
         {
             return "Architecture rule failed.";
         }
@@ -359,11 +406,13 @@ public sealed class CleanArchitectureDependencyTests
                string.Join(", ", result.FailingTypeNames);
     }
 
-    private static string GetProjectNameFromReference(string projectReference)
+    private static string GetProjectNameFromReference(
+        string projectReference)
     {
         var normalizedReference = projectReference
             .Replace('\\', '/');
 
-        return Path.GetFileNameWithoutExtension(normalizedReference);
+        return Path.GetFileNameWithoutExtension(
+            normalizedReference);
     }
 }

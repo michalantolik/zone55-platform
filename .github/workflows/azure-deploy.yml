@@ -317,10 +317,10 @@ jobs:
         run: |
           bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}api/blog-content/articles" "CMS articles endpoint"
 
-      - name: Check API home endpoint
+      - name: Check LearnKit roadmap endpoint
         shell: bash
         run: |
-          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/posts/home" "API home endpoint"
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/learnkit/roadmaps/dotnet" "LearnKit roadmap endpoint"
 
       - name: Check API root endpoint
         shell: bash
@@ -349,8 +349,7 @@ jobs:
           }
 
           require_setting "${API_APP_NAME}" "ApplicationInsights__ConnectionString"
-          require_setting "${API_APP_NAME}" "ConnectionStrings__umbracoDbDSN"
-          require_setting "${API_APP_NAME}" "UmbracoDeliveryApi__BaseUrl"
+          require_setting "${API_APP_NAME}" "ConnectionStrings__Zone55Connection"
           require_setting "${API_APP_NAME}" "Cors__AllowedOrigins__0"
 
           require_setting "${CMS_APP_NAME}" "ApplicationInsights__ConnectionString"

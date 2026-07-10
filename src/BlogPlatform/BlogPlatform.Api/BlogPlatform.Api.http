@@ -1,6 +1,16 @@
-@BlogPlatform.Api_HostAddress = http://localhost:5083
+﻿@BlogPlatform.Api_HostAddress = https://localhost:7246
 
-GET {{BlogPlatform.Api_HostAddress}}/weatherforecast/
+GET {{BlogPlatform.Api_HostAddress}}/health/ready
+Accept: application/json
+
+###
+
+GET {{BlogPlatform.Api_HostAddress}}/api/learnkit/roadmaps/dotnet
+Accept: application/json
+
+###
+
+GET {{BlogPlatform.Api_HostAddress}}/api/learnkit/articles/components-of-the-dotnet-framework
 Accept: application/json
 
 ###

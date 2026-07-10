@@ -121,37 +121,27 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
 
-      # SQL Server connection
-      ConnectionStrings__umbracoDbDSN: >-
+      # LearnKit SQL Server connection
+      ConnectionStrings__Zone55Connection: >-
         Server=sqlserver,1433;
-        Database=BlogPlatformCms;
+        Database=Zone55Db;
         User Id=sa;
         Password=${SQL_SA_PASSWORD:-BlogPlatform_Dev#2024};
         TrustServerCertificate=True;
         MultipleActiveResultSets=True;
 
-      # Umbraco Delivery API — use the internal service name
-      UmbracoDeliveryApi__BaseUrl: "http://cms:8080"
-      UmbracoDeliveryApi__PostsEndpoint: "api/blog-content/articles"
-      UmbracoDeliveryApi__FreshCacheSeconds: "60"
-      UmbracoDeliveryApi__StaleCacheSeconds: "300"
-      UmbracoDeliveryApi__TimeoutSeconds: "30"
-      UmbracoDeliveryApi__RetryCount: "3"
-      UmbracoDeliveryApi__RetryDelayMilliseconds: "500"
       ClientLogging__Enabled: "true"
       ClientLogging__MaxMessageLength: "2000"      
 
       # Allow Blazor app origin (CORS)
       Cors__AllowedOrigins__0: "http://localhost:8080"
 
-      # Cache operations API key
-      BlogContentCacheOperations__ApiKey: "${BLOG_CONTENT_SEED_API_KEY:-local-dev-seed-key}"
     ports:
       - "5000:8080"
     networks:
       - blogplatform-net
     depends_on:
-      cms:
+      sqlserver:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]

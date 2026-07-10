@@ -130,43 +130,28 @@ jobs:
             exit 1
           fi
 
-      - name: Verify API content cache
+      - name: Verify LearnKit API content
         shell: bash
         run: |
-          curl -L -sS "${API_PUBLIC_URL}api/posts/home" > api-home.json
+          curl -L -sS "${API_PUBLIC_URL}api/learnkit/roadmaps/dotnet" > learnkit-roadmap.json
 
-          api_posts=$(jq -r '.posts | length' api-home.json)
-          first_slug=$(jq -r '.posts[0].slug // empty' api-home.json)
+          zones=$(jq -r '.zones | length' learnkit-roadmap.json)
+          first_slug=$(jq -r '[.zones[].steps[].articles[]][0].slug // empty' learnkit-roadmap.json)
 
-          echo "API cached posts: ${api_posts}"
-          echo "First API post slug: ${first_slug}"
+          echo "LearnKit zones: ${zones}"
+          echo "First LearnKit article slug: ${first_slug}"
 
-          if [ "$api_posts" -lt 1 ]; then
-            echo "::error::API returned no cached posts. Run Azure seed content first."
+          if [ "$zones" -lt 1 ]; then
+            echo "::error::LearnKit API returned no roadmap zones."
             exit 1
           fi
 
           if [ -z "$first_slug" ]; then
-            echo "::error::API returned posts but first post has no slug."
+            echo "::error::LearnKit roadmap contains no article slug."
             exit 1
           fi
 
-          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/posts/${first_slug}" "API first article details"
-
-      - name: Compare CMS and API article counts
-        shell: bash
-        run: |
-          cms_articles=$(jq -r 'length' cms-articles.json)
-          api_posts=$(jq -r '.posts | length' api-home.json)
-
-          echo "CMS articles: ${cms_articles}"
-          echo "API posts: ${api_posts}"
-
-          if [ "$api_posts" -ne "$cms_articles" ]; then
-            echo "::error::API cached post count does not match CMS article count."
-            echo "::error::Run Azure seed content again to refresh the API cache."
-            exit 1
-          fi
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/learnkit/articles/${first_slug}" "LearnKit first article details"
 
       - name: Verify Blazor Static Web App
         shell: bash

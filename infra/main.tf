@@ -144,19 +144,11 @@ resource "azurerm_linux_web_app" "api" {
     "ApplicationInsights__ConnectionString" = azurerm_application_insights.main.connection_string
     "KeyVault__VaultUri"                    = azurerm_key_vault.main.vault_uri
 
-    "ConnectionStrings__umbracoDbDSN" = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_connection_string.versionless_id})"
+    "ConnectionStrings__Zone55Connection" = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_connection_string.versionless_id})"
 
     "Cors__AllowedOrigins__0" = local.app_url
 
-    "UmbracoDeliveryApi__BaseUrl"                = local.cms_url
-    "UmbracoDeliveryApi__PostsEndpoint"          = "api/blog-content/articles"
-    "UmbracoDeliveryApi__FreshCacheSeconds"      = "600"
-    "UmbracoDeliveryApi__StaleCacheSeconds"      = "3600"
-    "UmbracoDeliveryApi__TimeoutSeconds"         = "30"
-    "UmbracoDeliveryApi__RetryCount"             = "3"
-    "UmbracoDeliveryApi__RetryDelayMilliseconds" = "1500"
 
-    "BlogContentCacheOperations__ApiKey" = var.blog_content_seed_api_key
   }
 }
 

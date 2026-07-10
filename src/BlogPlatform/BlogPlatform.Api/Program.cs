@@ -55,22 +55,18 @@ builder.Services.AddApiApplicationComposition(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-
     var dbContext = scope.ServiceProvider
         .GetRequiredService<LearnKitDbContext>();
 
-    dbContext.Database.Migrate();
+    await dbContext.Database.MigrateAsync();
 
     var seeder = scope.ServiceProvider
         .GetRequiredService<LearnKitDatabaseSeeder>();
 
     await seeder.SeedAsync();
 }
-
-await app.Services.InitializeApiStorageAsync();
 
 app.UseSerilogRequestLogging();
 
@@ -101,8 +97,7 @@ app.MapGet("/", () => Results.Ok(new
     Endpoints = new[]
     {
         "/api/learnkit/articles/{slug}",
-        "/api/learnkit/roadmaps/{key}",
-        "/api/roadmap/dotnet"
+        "/api/learnkit/roadmaps/{key}"
     }
 }));
 

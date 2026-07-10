@@ -1,10 +1,5 @@
 ﻿using BlogPlatform.Api.Controllers;
 using BlogPlatform.Api.Health;
-using BlogPlatform.Api.Roadmap;
-using BlogPlatform.Application;
-using BlogPlatform.Application.Roadmap;
-using BlogPlatform.Infrastructure;
-using BlogPlatform.Infrastructure.Health;
 using LearnKit.Application;
 using LearnKit.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -50,14 +45,9 @@ public static class DependencyInjection
                 "self",
                 () => HealthCheckResult.Healthy("API process is alive."),
                 tags: ["live"])
-            .AddCheck<SqlServerConnectionHealthCheck>(
-                "sql-server",
-                tags: ["ready"])
-            .AddCheck<UmbracoDeliveryApiHealthCheck>(
-                "umbraco-delivery-api",
+            .AddCheck<LearnKitDatabaseHealthCheck>(
+                "learnkit-database",
                 tags: ["ready"]);
-
-        services.AddHttpClient("umbraco-delivery-api-health");
 
         services.AddCors(options =>
         {
@@ -86,25 +76,12 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddScoped<
-            IRoadmapArticleAssignmentChecker,
-            NoRoadmapArticleAssignmentChecker>();
-
-        services.AddApplication();
         services.AddLearnKitApplication();
-        services.AddInfrastructure(configuration);
 
         services.AddLearnKitInfrastructure(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("Zone55Connection")));
 
         return services;
-    }
-
-    public static Task InitializeApiStorageAsync(
-        this IServiceProvider services,
-        CancellationToken cancellationToken = default)
-    {
-        return services.InitializeBlogPlatformDatabaseAsync(cancellationToken);
     }
 }
