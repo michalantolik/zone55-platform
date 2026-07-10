@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @page "/articles"
 @page "/{RouteZone}/{RouteStep}"
 @page "/{RouteZone}/{RouteStep}/articles/{RouteArticleSlug}"
@@ -477,8 +477,6 @@ else
         _isArticleAreaLoading = false;
         _selectedLearnKitArticle = null;
 
-        var homeContent = await BlogApi.GetHomeContentAsync();
-
         var learningPath =
             await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
 
@@ -487,10 +485,8 @@ else
             : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
 
         _posts = IsLearningPathView
-            ? homeContent.Posts
-            : await BlogApi.GetPostsByStepAsync(
-                SelectedZoneKey,
-                SelectedStepKey);
+            ? []
+            : SelectedStep?.Posts ?? [];
 
         _currentArticlePage = 1;
 
@@ -506,8 +502,6 @@ else
         _isArticleAreaLoading = true;
         StateHasChanged();
 
-        var homeContent = await BlogApi.GetHomeContentAsync();
-
         var learningPath =
             await BlogApi.GetLearnKitLearningPathByKeyAsync("dotnet");
 
@@ -516,10 +510,8 @@ else
             : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
 
         _posts = IsLearningPathView
-            ? homeContent.Posts
-            : await BlogApi.GetPostsByStepAsync(
-                SelectedZoneKey,
-                SelectedStepKey);
+            ? []
+            : SelectedStep?.Posts ?? [];
 
         _currentArticlePage = 1;
         _selectedLearnKitArticle = null;
