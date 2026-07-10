@@ -258,9 +258,9 @@ public sealed class CleanArchitectureDependencyTests
         AssertProjectReferences(root, "BlogPlatform.Application", ["BlogPlatform.Domain"]);
         AssertProjectReferences(root, "BlogPlatform.Infrastructure", ["BlogPlatform.Application", "BlogPlatform.Domain"]);
         AssertProjectReferences(root, "BlogPlatform.Contracts", []);
-        AssertProjectReferences(root, "BlogPlatform.App", ["BlogPlatform.Contracts"]);
+        AssertProjectReferences(root, "BlogPlatform.App", []);
         AssertProjectReferences(root, "BlogPlatform.Api", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
-        AssertProjectReferences(root, "BlogPlatform.Cms", ["BlogPlatform.Application", "BlogPlatform.Contracts", "BlogPlatform.Infrastructure"]);
+        AssertProjectReferences(root, "BlogPlatform.Cms", ["BlogPlatform.Application", "BlogPlatform.Infrastructure"]);
     }
 
     [Fact]

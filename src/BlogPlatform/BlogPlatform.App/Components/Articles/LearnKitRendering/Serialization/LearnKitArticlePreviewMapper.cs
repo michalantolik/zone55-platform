@@ -1,5 +1,5 @@
 using BlogPlatform.App.Models.LearnKit.Articles;
-using BlogPlatform.Contracts.Posts;
+using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization.PreviewBlocks;
 using System.Text.Json;
 
 namespace BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization;
@@ -28,7 +28,7 @@ public static class LearnKitArticlePreviewMapper
         };
     }
 
-    private static IReadOnlyCollection<ArticleBlockDto> ParseBlocks(string? body)
+    private static IReadOnlyCollection<PreviewArticleBlock> ParseBlocks(string? body)
     {
         if (string.IsNullOrWhiteSpace(body))
         {
@@ -37,11 +37,11 @@ public static class LearnKitArticlePreviewMapper
 
         try
         {
-            return ArticleBlockParser.Parse(body);
+            return PreviewArticleBlockParser.Parse(body);
         }
         catch (JsonException)
         {
-            return [new ArticleBlockDto(ArticleBlockType.Text)
+            return [new PreviewArticleBlock(PreviewArticleBlockType.Text)
             {
                 Text = body
             }];
@@ -49,7 +49,7 @@ public static class LearnKitArticlePreviewMapper
     }
 
     private static LearnKitArticleBlockDetails ToLearnKitBlock(
-        ArticleBlockDto block,
+        PreviewArticleBlock block,
         int sortOrder)
     {
         var type = GetLearnKitBlockType(block);
@@ -63,24 +63,24 @@ public static class LearnKitArticlePreviewMapper
         };
     }
 
-    private static string GetLearnKitBlockType(ArticleBlockDto block)
+    private static string GetLearnKitBlockType(PreviewArticleBlock block)
     {
         return block.Type switch
         {
-            ArticleBlockType.Code => LearnKitBlockTypes.Code,
-            ArticleBlockType.PlantUml or ArticleBlockType.Mermaid => LearnKitBlockTypes.Diagram,
-            ArticleBlockType.Table => LearnKitBlockTypes.Table,
-            ArticleBlockType.Callout => LearnKitBlockTypes.Callout,
-            ArticleBlockType.Summary => LearnKitBlockTypes.Summary,
+            PreviewArticleBlockType.Code => LearnKitBlockTypes.Code,
+            PreviewArticleBlockType.PlantUml or PreviewArticleBlockType.Mermaid => LearnKitBlockTypes.Diagram,
+            PreviewArticleBlockType.Table => LearnKitBlockTypes.Table,
+            PreviewArticleBlockType.Callout => LearnKitBlockTypes.Callout,
+            PreviewArticleBlockType.Summary => LearnKitBlockTypes.Summary,
             _ => LearnKitBlockTypes.Markdown
         };
     }
 
-    private static object CreateContent(ArticleBlockDto block)
+    private static object CreateContent(PreviewArticleBlock block)
     {
         return block.Type switch
         {
-            ArticleBlockType.Heading => new
+            PreviewArticleBlockType.Heading => new
             {
                 type = "heading",
                 level = block.Level,
@@ -89,7 +89,7 @@ public static class LearnKitArticlePreviewMapper
                 sourceType = "heading"
             },
 
-            ArticleBlockType.Text => new
+            PreviewArticleBlockType.Text => new
             {
                 type = "text",
                 text = block.Text,
@@ -97,14 +97,14 @@ public static class LearnKitArticlePreviewMapper
                 sourceType = "text"
             },
 
-            ArticleBlockType.Summary => new
+            PreviewArticleBlockType.Summary => new
             {
                 type = "summary",
                 summary = block.Summary ?? block.Text,
                 sourceType = "summary"
             },
 
-            ArticleBlockType.Code => new
+            PreviewArticleBlockType.Code => new
             {
                 type = "codeSnippet",
                 code = block.Code,
@@ -115,7 +115,7 @@ public static class LearnKitArticlePreviewMapper
                 sourceType = "codeSnippet"
             },
 
-            ArticleBlockType.PlantUml => new
+            PreviewArticleBlockType.PlantUml => new
             {
                 type = "plantUmlDiagram",
                 diagram = block.Diagram,
@@ -125,7 +125,7 @@ public static class LearnKitArticlePreviewMapper
                 sourceType = "plantUmlDiagram"
             },
 
-            ArticleBlockType.Mermaid => new
+            PreviewArticleBlockType.Mermaid => new
             {
                 type = "mermaidDiagram",
                 diagram = block.Diagram,
@@ -135,7 +135,7 @@ public static class LearnKitArticlePreviewMapper
                 sourceType = "mermaidDiagram"
             },
 
-            ArticleBlockType.Table => new
+            PreviewArticleBlockType.Table => new
             {
                 type = "table",
                 rows = block.TableRows.Select(row => row.Select(cell => new
@@ -156,7 +156,7 @@ public static class LearnKitArticlePreviewMapper
                 sourceType = "table"
             },
 
-            ArticleBlockType.Callout => new
+            PreviewArticleBlockType.Callout => new
             {
                 type = "callout",
                 kind = block.Kind,
