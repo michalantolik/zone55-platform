@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Domain.Articles;
+namespace LearnKit.Domain.Articles;
 
 /// <summary>
 /// Represents a single block inside an article.
@@ -31,7 +31,7 @@ public sealed class ArticleBlock
     /// <summary>
     /// Determines how the block should be rendered.
     /// </summary>
-    public ArticleBlockType Type { get; }
+    public ArticleBlockType Type { get; private set; }
 
     /// <summary>
     /// Determines the position inside the article.
@@ -42,6 +42,14 @@ public sealed class ArticleBlock
     /// Block content stored as JSON.
     /// </summary>
     public string ContentJson { get; private set; }
+
+    /// <summary>
+    /// Changes the block type.
+    /// </summary>
+    public void ChangeType(ArticleBlockType type)
+    {
+        Type = type;
+    }
 
     /// <summary>
     /// Updates the block content.

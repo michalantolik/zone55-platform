@@ -76,6 +76,7 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
         CancellationToken cancellationToken = default)
     {
         return _dbContext.Articles
+            .Include(article => article.Blocks)
             .FirstOrDefaultAsync(
                 article => article.Id == articleId,
                 cancellationToken);

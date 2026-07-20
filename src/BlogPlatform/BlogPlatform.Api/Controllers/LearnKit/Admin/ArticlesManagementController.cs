@@ -1,4 +1,8 @@
 using LearnKit.Application.Articles.Admin.Commands.CreateArticle;
+using LearnKit.Application.Articles.Admin.Commands.CreateArticleBlock;
+using LearnKit.Application.Articles.Admin.Commands.DeleteArticleBlock;
+using LearnKit.Application.Articles.Admin.Commands.ReorderArticleBlocks;
+using LearnKit.Application.Articles.Admin.Commands.UpdateArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
 using BlogPlatform.Api.Controllers.LearnKit.Admin.Models;
 using LearnKit.Application.Articles.Admin.Commands.UnpublishArticle;
@@ -19,6 +23,10 @@ public sealed class ArticlesManagementController : ControllerBase
     private readonly GetArticlesForManagementHandler _getArticlesForManagementHandler;
     private readonly GetArticleForEditingHandler _getArticleForEditingHandler;
     private readonly CreateArticleHandler _createArticleHandler;
+    private readonly CreateArticleBlockHandler _createArticleBlockHandler;
+    private readonly UpdateArticleBlockHandler _updateArticleBlockHandler;
+    private readonly DeleteArticleBlockHandler _deleteArticleBlockHandler;
+    private readonly ReorderArticleBlocksHandler _reorderArticleBlocksHandler;
     private readonly PublishArticleHandler _publishArticleHandler;
     private readonly UnpublishArticleHandler _unpublishArticleHandler;
     private readonly UpdateArticleHandler _updateArticleHandler;
@@ -30,6 +38,10 @@ public sealed class ArticlesManagementController : ControllerBase
         GetArticlesForManagementHandler getArticlesForManagementHandler,
         GetArticleForEditingHandler getArticleForEditingHandler,
         CreateArticleHandler createArticleHandler,
+        CreateArticleBlockHandler createArticleBlockHandler,
+        UpdateArticleBlockHandler updateArticleBlockHandler,
+        DeleteArticleBlockHandler deleteArticleBlockHandler,
+        ReorderArticleBlocksHandler reorderArticleBlocksHandler,
         PublishArticleHandler publishArticleHandler,
         UnpublishArticleHandler unpublishArticleHandler,
         UpdateArticleHandler updateArticleHandler)
@@ -37,6 +49,10 @@ public sealed class ArticlesManagementController : ControllerBase
         _getArticlesForManagementHandler = getArticlesForManagementHandler;
         _getArticleForEditingHandler = getArticleForEditingHandler;
         _createArticleHandler = createArticleHandler;
+        _createArticleBlockHandler = createArticleBlockHandler;
+        _updateArticleBlockHandler = updateArticleBlockHandler;
+        _deleteArticleBlockHandler = deleteArticleBlockHandler;
+        _reorderArticleBlocksHandler = reorderArticleBlocksHandler;
         _publishArticleHandler = publishArticleHandler;
         _unpublishArticleHandler = unpublishArticleHandler;
         _updateArticleHandler = updateArticleHandler;
@@ -126,6 +142,112 @@ public sealed class ArticlesManagementController : ControllerBase
             cancellationToken);
 
         if (!updated)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Adds a block to an article.
+    /// </summary>
+    [HttpPost("{articleId:guid}/blocks")]
+    public async Task<IActionResult> CreateBlock(
+        Guid articleId,
+        [FromBody] CreateArticleBlockRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateArticleBlockCommand(
+            articleId,
+            request.Type,
+            request.SortOrder,
+            request.ContentJson);
+
+        var blockId = await _createArticleBlockHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (blockId is null)
+        {
+            return NotFound();
+        }
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { articleId },
+            new { blockId });
+    }
+
+    /// <summary>
+    /// Updates an article block.
+    /// </summary>
+    [HttpPut("{articleId:guid}/blocks/{blockId:guid}")]
+    public async Task<IActionResult> UpdateBlock(
+        Guid articleId,
+        Guid blockId,
+        [FromBody] UpdateArticleBlockRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateArticleBlockCommand(
+            articleId,
+            blockId,
+            request.Type,
+            request.ContentJson);
+
+        var updated = await _updateArticleBlockHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!updated)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Deletes an article block.
+    /// </summary>
+    [HttpDelete("{articleId:guid}/blocks/{blockId:guid}")]
+    public async Task<IActionResult> DeleteBlock(
+        Guid articleId,
+        Guid blockId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteArticleBlockCommand(articleId, blockId);
+
+        var deleted = await _deleteArticleBlockHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Reorders all blocks in an article.
+    /// </summary>
+    [HttpPut("{articleId:guid}/blocks/order")]
+    public async Task<IActionResult> ReorderBlocks(
+        Guid articleId,
+        [FromBody] ReorderArticleBlocksRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ReorderArticleBlocksCommand(
+            articleId,
+            request.OrderedBlockIds);
+
+        var reordered = await _reorderArticleBlocksHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!reordered)
         {
             return NotFound();
         }

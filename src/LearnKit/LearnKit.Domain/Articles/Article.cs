@@ -178,11 +178,81 @@ public sealed class Article
     {
         ArgumentNullException.ThrowIfNull(block);
 
+        foreach (var existingBlock in _blocks
+                     .Where(existingBlock => existingBlock.SortOrder >= block.SortOrder))
+        {
+            existingBlock.MoveTo(existingBlock.SortOrder + 1);
+        }
+
         _blocks.Add(block);
-        ReorderBlocks();
+        NormalizeBlockOrder();
     }
 
-    private void ReorderBlocks()
+    /// <summary>
+    /// Updates an existing block.
+    /// </summary>
+    public bool UpdateBlock(
+        Guid blockId,
+        ArticleBlockType type,
+        string contentJson)
+    {
+        var block = _blocks.FirstOrDefault(block => block.Id == blockId);
+
+        if (block is null)
+        {
+            return false;
+        }
+
+        block.ChangeType(type);
+        block.UpdateContent(contentJson);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Removes an existing block.
+    /// </summary>
+    public bool RemoveBlock(Guid blockId)
+    {
+        var block = _blocks.FirstOrDefault(block => block.Id == blockId);
+
+        if (block is null)
+        {
+            return false;
+        }
+
+        _blocks.Remove(block);
+        NormalizeBlockOrder();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Applies a complete order to the article blocks.
+    /// </summary>
+    public void ReorderBlocks(IReadOnlyCollection<Guid> orderedBlockIds)
+    {
+        ArgumentNullException.ThrowIfNull(orderedBlockIds);
+
+        if (orderedBlockIds.Count != _blocks.Count
+            || orderedBlockIds.Distinct().Count() != orderedBlockIds.Count
+            || orderedBlockIds.Any(blockId => _blocks.All(block => block.Id != blockId)))
+        {
+            throw new ArgumentException(
+                "Block order must contain every article block exactly once.",
+                nameof(orderedBlockIds));
+        }
+
+        var sortOrder = 1;
+
+        foreach (var blockId in orderedBlockIds)
+        {
+            var block = _blocks.Single(block => block.Id == blockId);
+            block.MoveTo(sortOrder++);
+        }
+    }
+
+    private void NormalizeBlockOrder()
     {
         var sortOrder = 1;
 
