@@ -82,10 +82,19 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
     }
 
     /// <inheritdoc />
+    public async Task AddAsync(
+        Article article,
+        CancellationToken cancellationToken = default)
+    {
+        await _dbContext.Articles.AddAsync(
+            article,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
-
 }

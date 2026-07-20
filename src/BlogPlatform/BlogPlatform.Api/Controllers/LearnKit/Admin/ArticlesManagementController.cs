@@ -1,3 +1,4 @@
+using LearnKit.Application.Articles.Admin.Commands.CreateArticle;
 using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
 using BlogPlatform.Api.Controllers.LearnKit.Admin.Models;
 using LearnKit.Application.Articles.Admin.Commands.UnpublishArticle;
@@ -17,6 +18,7 @@ public sealed class ArticlesManagementController : ControllerBase
 {
     private readonly GetArticlesForManagementHandler _getArticlesForManagementHandler;
     private readonly GetArticleForEditingHandler _getArticleForEditingHandler;
+    private readonly CreateArticleHandler _createArticleHandler;
     private readonly PublishArticleHandler _publishArticleHandler;
     private readonly UnpublishArticleHandler _unpublishArticleHandler;
     private readonly UpdateArticleHandler _updateArticleHandler;
@@ -27,12 +29,14 @@ public sealed class ArticlesManagementController : ControllerBase
     public ArticlesManagementController(
         GetArticlesForManagementHandler getArticlesForManagementHandler,
         GetArticleForEditingHandler getArticleForEditingHandler,
+        CreateArticleHandler createArticleHandler,
         PublishArticleHandler publishArticleHandler,
         UnpublishArticleHandler unpublishArticleHandler,
         UpdateArticleHandler updateArticleHandler)
     {
         _getArticlesForManagementHandler = getArticlesForManagementHandler;
         _getArticleForEditingHandler = getArticleForEditingHandler;
+        _createArticleHandler = createArticleHandler;
         _publishArticleHandler = publishArticleHandler;
         _unpublishArticleHandler = unpublishArticleHandler;
         _updateArticleHandler = updateArticleHandler;
@@ -74,6 +78,31 @@ public sealed class ArticlesManagementController : ControllerBase
         }
 
         return Ok(article);
+    }
+
+    /// <summary>
+    /// Creates a new draft article.
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateArticleRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateArticleCommand(
+            request.LearningStepId,
+            request.Slug,
+            request.Title,
+            request.Summary,
+            request.SortOrder);
+
+        var articleId = await _createArticleHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { articleId },
+            new { articleId });
     }
 
     /// <summary>

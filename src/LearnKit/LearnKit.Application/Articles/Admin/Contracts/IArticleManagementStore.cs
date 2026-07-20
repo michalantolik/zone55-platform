@@ -53,9 +53,15 @@ public interface IArticleManagementStore
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Adds a new article to the management store.
+    /// </summary>
+    Task AddAsync(
+        Article article,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Persists pending article management changes.
     /// </summary>
     Task SaveChangesAsync(
         CancellationToken cancellationToken = default);
-
 }

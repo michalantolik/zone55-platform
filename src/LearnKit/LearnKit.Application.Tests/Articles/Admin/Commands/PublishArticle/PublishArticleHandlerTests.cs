@@ -69,6 +69,13 @@ public sealed class PublishArticleHandlerTests
             return Task.FromResult(result);
         }
 
+        public Task AddAsync(
+            Article article,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
         public Task SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {
