@@ -1,5 +1,7 @@
 using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
+using BlogPlatform.Api.Controllers.LearnKit.Admin.Models;
 using LearnKit.Application.Articles.Admin.Commands.UnpublishArticle;
+using LearnKit.Application.Articles.Admin.Commands.UpdateArticle;
 using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +19,7 @@ public sealed class ArticlesManagementController : ControllerBase
     private readonly GetArticleForEditingHandler _getArticleForEditingHandler;
     private readonly PublishArticleHandler _publishArticleHandler;
     private readonly UnpublishArticleHandler _unpublishArticleHandler;
+    private readonly UpdateArticleHandler _updateArticleHandler;
 
     /// <summary>
     /// Creates a new article management controller.
@@ -25,12 +28,14 @@ public sealed class ArticlesManagementController : ControllerBase
         GetArticlesForManagementHandler getArticlesForManagementHandler,
         GetArticleForEditingHandler getArticleForEditingHandler,
         PublishArticleHandler publishArticleHandler,
-        UnpublishArticleHandler unpublishArticleHandler)
+        UnpublishArticleHandler unpublishArticleHandler,
+        UpdateArticleHandler updateArticleHandler)
     {
         _getArticlesForManagementHandler = getArticlesForManagementHandler;
         _getArticleForEditingHandler = getArticleForEditingHandler;
         _publishArticleHandler = publishArticleHandler;
         _unpublishArticleHandler = unpublishArticleHandler;
+        _updateArticleHandler = updateArticleHandler;
     }
 
     /// <summary>
@@ -69,6 +74,34 @@ public sealed class ArticlesManagementController : ControllerBase
         }
 
         return Ok(article);
+    }
+
+    /// <summary>
+    /// Updates basic article details.
+    /// </summary>
+    [HttpPut("{articleId:guid}")]
+    public async Task<IActionResult> Update(
+        Guid articleId,
+        [FromBody] UpdateArticleRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateArticleCommand(
+            articleId,
+            request.Slug,
+            request.Title,
+            request.Summary,
+            request.SortOrder);
+
+        var updated = await _updateArticleHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!updated)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 
     /// <summary>

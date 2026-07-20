@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Domain.Articles;
+namespace LearnKit.Domain.Articles;
 
 /// <summary>
 /// Represents one article in a learning step.
@@ -105,6 +105,16 @@ public sealed class Article
     }
 
     /// <summary>
+    /// Changes the article slug.
+    /// </summary>
+    public void ChangeSlug(string slug)
+    {
+        ValidateRequired(slug, nameof(slug), "Article slug is required.");
+
+        Slug = slug.Trim();
+    }
+
+    /// <summary>
     /// Renames the article.
     /// </summary>
     public void Rename(string title)
@@ -112,6 +122,21 @@ public sealed class Article
         ValidateRequired(title, nameof(title), "Article title is required.");
 
         Title = title.Trim();
+    }
+
+    /// <summary>
+    /// Changes the article position inside its learning step.
+    /// </summary>
+    public void ChangeSortOrder(int sortOrder)
+    {
+        if (sortOrder < 1)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(sortOrder),
+                "Sort order must be greater than zero.");
+        }
+
+        SortOrder = sortOrder;
     }
 
     /// <summary>
