@@ -1,4 +1,5 @@
 using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
+using LearnKit.Application.Articles.Admin.Commands.UnpublishArticle;
 using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ public sealed class ArticlesManagementController : ControllerBase
     private readonly GetArticlesForManagementHandler _getArticlesForManagementHandler;
     private readonly GetArticleForEditingHandler _getArticleForEditingHandler;
     private readonly PublishArticleHandler _publishArticleHandler;
+    private readonly UnpublishArticleHandler _unpublishArticleHandler;
 
     /// <summary>
     /// Creates a new article management controller.
@@ -22,11 +24,13 @@ public sealed class ArticlesManagementController : ControllerBase
     public ArticlesManagementController(
         GetArticlesForManagementHandler getArticlesForManagementHandler,
         GetArticleForEditingHandler getArticleForEditingHandler,
-        PublishArticleHandler publishArticleHandler)
+        PublishArticleHandler publishArticleHandler,
+        UnpublishArticleHandler unpublishArticleHandler)
     {
         _getArticlesForManagementHandler = getArticlesForManagementHandler;
         _getArticleForEditingHandler = getArticleForEditingHandler;
         _publishArticleHandler = publishArticleHandler;
+        _unpublishArticleHandler = unpublishArticleHandler;
     }
 
     /// <summary>
@@ -82,6 +86,28 @@ public sealed class ArticlesManagementController : ControllerBase
             cancellationToken);
 
         if (!published)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Moves a published article back to draft.
+    /// </summary>
+    [HttpPost("{articleId:guid}/unpublish")]
+    public async Task<IActionResult> Unpublish(
+        Guid articleId,
+        CancellationToken cancellationToken)
+    {
+        var command = new UnpublishArticleCommand(articleId);
+
+        var unpublished = await _unpublishArticleHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!unpublished)
         {
             return NotFound();
         }
