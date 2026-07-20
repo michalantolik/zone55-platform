@@ -1,4 +1,5 @@
-﻿using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
+using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
+using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,16 +14,19 @@ public sealed class ArticlesManagementController : ControllerBase
 {
     private readonly GetArticlesForManagementHandler _getArticlesForManagementHandler;
     private readonly GetArticleForEditingHandler _getArticleForEditingHandler;
+    private readonly PublishArticleHandler _publishArticleHandler;
 
     /// <summary>
     /// Creates a new article management controller.
     /// </summary>
     public ArticlesManagementController(
         GetArticlesForManagementHandler getArticlesForManagementHandler,
-        GetArticleForEditingHandler getArticleForEditingHandler)
+        GetArticleForEditingHandler getArticleForEditingHandler,
+        PublishArticleHandler publishArticleHandler)
     {
         _getArticlesForManagementHandler = getArticlesForManagementHandler;
         _getArticleForEditingHandler = getArticleForEditingHandler;
+        _publishArticleHandler = publishArticleHandler;
     }
 
     /// <summary>
@@ -62,4 +66,27 @@ public sealed class ArticlesManagementController : ControllerBase
 
         return Ok(article);
     }
+
+    /// <summary>
+    /// Publishes an article.
+    /// </summary>
+    [HttpPost("{articleId:guid}/publish")]
+    public async Task<IActionResult> Publish(
+        Guid articleId,
+        CancellationToken cancellationToken)
+    {
+        var command = new PublishArticleCommand(articleId);
+
+        var published = await _publishArticleHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!published)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
 }

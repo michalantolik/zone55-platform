@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/LearnKit/">
     <Project Path="../LearnKit/LearnKit.Application/LearnKit.Application.csproj" Id="a1bf7594-8c8f-4b2d-933d-73f2eba5ef52" />
+    <Project Path="../LearnKit/LearnKit.Application.Tests/LearnKit.Application.Tests.csproj" />
     <Project Path="../LearnKit/LearnKit.Domain/LearnKit.Domain.csproj" Id="87ff92b7-897c-405f-ac46-5d9fecd0e4e5" />
     <Project Path="../LearnKit/LearnKit.Infrastructure/LearnKit.Infrastructure.csproj" Id="76c3fdbf-30d6-4944-adfd-6614a0394f50" />
   </Folder>

@@ -1,6 +1,7 @@
-﻿using LearnKit.Application.Articles.Admin.Contracts;
+using LearnKit.Application.Articles.Admin.Contracts;
 using LearnKit.Application.Articles.Admin.Models;
 using LearnKit.Application.Articles.Public.Models;
+using LearnKit.Domain.Articles;
 using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -68,4 +69,23 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
                     .ToList()))
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    /// <inheritdoc />
+    public Task<Article?> GetTrackedByIdAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Articles
+            .FirstOrDefaultAsync(
+                article => article.Id == articleId,
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
 }

@@ -1,4 +1,5 @@
-﻿using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
+using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
+using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
 using LearnKit.Application.Roadmaps.Public.Queries.GetLearningPath;
@@ -22,6 +23,7 @@ public static class DependencyInjection
 
         services.AddScoped<GetArticlesForManagementHandler>();
         services.AddScoped<GetArticleForEditingHandler>();
+        services.AddScoped<PublishArticleHandler>();
 
         return services;
     }

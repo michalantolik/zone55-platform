@@ -1,4 +1,5 @@
 using LearnKit.Application.Articles.Admin.Models;
+using LearnKit.Domain.Articles;
 
 namespace LearnKit.Application.Articles.Admin.Contracts;
 
@@ -34,4 +35,27 @@ public interface IArticleManagementStore
     Task<ArticleManagementDetails?> GetByIdAsync(
         Guid articleId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns a tracked article for a management command.
+    /// </summary>
+    /// <param name="articleId">
+    /// Unique article identifier.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// The tracked article, or <see langword="null"/> when it does not exist.
+    /// </returns>
+    Task<Article?> GetTrackedByIdAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Persists pending article management changes.
+    /// </summary>
+    Task SaveChangesAsync(
+        CancellationToken cancellationToken = default);
+
 }
