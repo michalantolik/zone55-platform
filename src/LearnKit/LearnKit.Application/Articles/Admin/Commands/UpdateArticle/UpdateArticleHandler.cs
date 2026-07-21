@@ -38,6 +38,7 @@ public sealed class UpdateArticleHandler
             return false;
         }
 
+        article.MoveToStep(command.LearningStepId);
         article.ChangeSlug(command.Slug);
         article.Rename(command.Title);
         article.UpdateSummary(command.Summary);

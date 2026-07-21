@@ -132,6 +132,7 @@ public sealed class ArticlesManagementController : ControllerBase
     {
         var command = new UpdateArticleCommand(
             articleId,
+            request.LearningStepId,
             request.Slug,
             request.Title,
             request.Summary,

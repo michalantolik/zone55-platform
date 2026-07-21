@@ -32,6 +32,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\BlogPlatform.Application\BlogPlatform.Application.csproj" />
 		<ProjectReference Include="..\BlogPlatform.Infrastructure\BlogPlatform.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\LearnKit\LearnKit.Application\LearnKit.Application.csproj" />
+		<ProjectReference Include="..\..\LearnKit\LearnKit.Infrastructure\LearnKit.Infrastructure.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>

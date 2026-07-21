@@ -59,6 +59,18 @@ public interface IArticleManagementStore
         Article article,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<Article>> GetTrackedByStepIdAsync(
+        Guid learningStepId,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotSupportedException();
+    }
+
+    void Remove(Article article)
+    {
+        throw new NotSupportedException();
+    }
+
     /// <summary>
     /// Persists pending article management changes.
     /// </summary>

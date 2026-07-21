@@ -1,4 +1,4 @@
-﻿using BlogPlatform.Application;
+using BlogPlatform.Application;
 using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.BlogContent;
 using BlogPlatform.Cms.Health;
@@ -6,6 +6,9 @@ using BlogPlatform.Cms.Roadmap;
 using BlogPlatform.Infrastructure;
 using BlogPlatform.Infrastructure.Health;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using LearnKit.Application;
+using LearnKit.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogPlatform.Cms;
 
@@ -37,6 +40,11 @@ public static class DependencyInjection
         services.AddScoped<
             IBlogContentAdminService,
             BlogContentAdminService>();
+
+        services.AddScoped<ILearnKitArticleAdminService, LearnKitArticleAdminService>();
+        services.AddLearnKitApplication();
+        services.AddLearnKitInfrastructure(options =>
+            options.UseSqlServer(configuration.GetConnectionString("Zone55Connection")));
 
         services.AddApplication();
 

@@ -92,6 +92,20 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
             cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<Article>> GetTrackedByStepIdAsync(
+        Guid learningStepId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Articles
+            .Where(article => article.LearningStepId == learningStepId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public void Remove(Article article)
+    {
+        _dbContext.Articles.Remove(article);
+    }
+
     /// <inheritdoc />
     public async Task SaveChangesAsync(
         CancellationToken cancellationToken = default)

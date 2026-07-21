@@ -20,6 +20,7 @@ namespace LearnKit.Application.Articles.Admin.Commands.UpdateArticle;
 /// </param>
 public sealed record UpdateArticleCommand(
     Guid ArticleId,
+    Guid LearningStepId,
     string Slug,
     string Title,
     string? Summary,

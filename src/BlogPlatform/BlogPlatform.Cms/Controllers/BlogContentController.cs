@@ -1,4 +1,4 @@
-﻿using BlogPlatform.Cms.BlogContent;
+using BlogPlatform.Cms.BlogContent;
 using BlogPlatform.Cms.Security;
 using BlogPlatform.Cms.Seeding;
 using Microsoft.AspNetCore.Authorization;
@@ -16,17 +16,20 @@ namespace BlogPlatform.Cms.Controllers;
 public sealed class BlogContentController : ControllerBase
 {
     private readonly IBlogContentAdminService _blogContent;
+    private readonly ILearnKitArticleAdminService _learnKitArticles;
     private readonly ILogger<BlogContentController> _logger;
     private readonly BlogContentSeedOperationsOptions _seedOptions;
     private readonly BlogSeedImportJobService _seedImportJobs;
 
     public BlogContentController(
         IBlogContentAdminService blogContent,
+        ILearnKitArticleAdminService learnKitArticles,
         ILogger<BlogContentController> logger,
         IOptions<BlogContentSeedOperationsOptions> seedOptions,
         BlogSeedImportJobService seedImportJobs)
     {
         _blogContent = blogContent;
+        _learnKitArticles = learnKitArticles;
         _logger = logger;
         _seedOptions = seedOptions.Value;
         _seedImportJobs = seedImportJobs;
@@ -169,24 +172,26 @@ public sealed class BlogContentController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("articles")]
-    public ActionResult<IReadOnlyCollection<CmsArticleListItemDto>> GetArticles()
+    public async Task<ActionResult<IReadOnlyCollection<CmsArticleListItemDto>>> GetArticles(CancellationToken cancellationToken)
     {
-        return Ok(_blogContent.GetArticles());
+        return Ok(await _learnKitArticles.GetArticlesAsync(cancellationToken));
     }
 
     [HttpGet("articles/reorder")]
-    public ActionResult<IReadOnlyCollection<CmsReorderArticleListItemDto>> GetArticlesForReorder(
+    public async Task<ActionResult<IReadOnlyCollection<CmsReorderArticleListItemDto>>> GetArticlesForReorder(
         [FromQuery] string? zone,
-        [FromQuery] string? step)
+        [FromQuery] string? step,
+        CancellationToken cancellationToken)
     {
-        return Ok(_blogContent.GetArticlesForReorder(zone, step));
+        return Ok(await _learnKitArticles.GetArticlesForReorderAsync(zone, step, cancellationToken));
     }
 
     [HttpPut("articles/reorder")]
-    public ActionResult<CmsReorderArticlesResponse> ReorderArticles(
-        [FromBody] CmsReorderArticlesRequest request)
+    public async Task<ActionResult<CmsReorderArticlesResponse>> ReorderArticles(
+        [FromBody] CmsReorderArticlesRequest request,
+        CancellationToken cancellationToken)
     {
-        var result = _blogContent.ReorderArticles(request);
+        var result = await _learnKitArticles.ReorderArticlesAsync(request, cancellationToken);
 
         return result.Success
             ? Ok(result)
@@ -194,18 +199,19 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpGet("articles/next-order")]
-    public ActionResult<int> GetNextArticleOrder(
+    public async Task<ActionResult<int>> GetNextArticleOrder(
         [FromQuery] string? zone,
         [FromQuery] string? step,
-        [FromQuery] Guid? excludeArticleKey = null)
+        [FromQuery] Guid? excludeArticleKey,
+        CancellationToken cancellationToken)
     {
-        return Ok(_blogContent.GetNextArticleOrder(zone, step, excludeArticleKey));
+        return Ok(await _learnKitArticles.GetNextArticleOrderAsync(zone, step, excludeArticleKey, cancellationToken));
     }
 
     [HttpGet("articles/{key:guid}")]
-    public ActionResult<CmsArticleEditorDto> GetArticle(Guid key)
+    public async Task<ActionResult<CmsArticleEditorDto>> GetArticle(Guid key, CancellationToken cancellationToken)
     {
-        var article = _blogContent.GetArticle(key);
+        var article = await _learnKitArticles.GetArticleAsync(key, cancellationToken);
 
         return article is null
             ? NotFound()
@@ -217,7 +223,7 @@ public sealed class BlogContentController : ControllerBase
         [FromBody] CmsSaveArticleRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _blogContent.CreateArticleAsync(request, cancellationToken);
+        var result = await _learnKitArticles.CreateArticleAsync(request, cancellationToken);
 
         return result.Success
             ? Ok(result)
@@ -230,7 +236,7 @@ public sealed class BlogContentController : ControllerBase
         [FromBody] CmsSaveArticleRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _blogContent.UpdateArticleAsync(key, request, cancellationToken);
+        var result = await _learnKitArticles.UpdateArticleAsync(key, request, cancellationToken);
 
         if (!result.Success && result.Message == "Article not found.")
         {
@@ -243,9 +249,9 @@ public sealed class BlogContentController : ControllerBase
     }
 
     [HttpDelete("articles/{key:guid}")]
-    public ActionResult<CmsDeleteResponse> DeleteArticle(Guid key)
+    public async Task<ActionResult<CmsDeleteResponse>> DeleteArticle(Guid key, CancellationToken cancellationToken)
     {
-        var result = _blogContent.DeleteArticle(key);
+        var result = await _learnKitArticles.DeleteArticleAsync(key, cancellationToken);
 
         if (!result.Success && result.Message == "Article not found.")
         {

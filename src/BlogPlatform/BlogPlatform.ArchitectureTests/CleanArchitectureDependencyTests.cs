@@ -285,7 +285,9 @@ public sealed class CleanArchitectureDependencyTests
             "BlogPlatform.Cms",
             [
                 "BlogPlatform.Application",
-                "BlogPlatform.Infrastructure"
+                "BlogPlatform.Infrastructure",
+                "LearnKit.Application",
+                "LearnKit.Infrastructure"
             ]);
     }
 

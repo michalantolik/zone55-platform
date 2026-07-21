@@ -1,6 +1,7 @@
 using BlogPlatform.Cms;
 using BlogPlatform.Cms.Health;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using LearnKit.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Events;
 
@@ -146,7 +147,13 @@ try
 
     await app.Services.InitializeCmsStorageAsync();
 
-    Log.Information("CMS BlogPlatform custom storage initialized.");
+    await using (var scope = app.Services.CreateAsyncScope())
+    {
+        var learnKitDbContext = scope.ServiceProvider.GetRequiredService<LearnKitDbContext>();
+        await learnKitDbContext.Database.MigrateAsync();
+    }
+
+    Log.Information("CMS BlogPlatform and LearnKit storage initialized.");
 
     app.UseHttpsRedirection();
 

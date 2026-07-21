@@ -1,6 +1,9 @@
 using LearnKit.Application.Articles.Admin.Commands.CreateArticle;
 using LearnKit.Application.Articles.Admin.Commands.CreateArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.DeleteArticleBlock;
+using LearnKit.Application.Articles.Admin.Commands.DeleteArticle;
+using LearnKit.Application.Articles.Admin.Commands.ReorderArticles;
+using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathForManagement;
 using LearnKit.Application.Articles.Admin.Commands.ReorderArticleBlocks;
 using LearnKit.Application.Articles.Admin.Commands.UpdateArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
@@ -34,6 +37,9 @@ public static class DependencyInjection
         services.AddScoped<CreateArticleBlockHandler>();
         services.AddScoped<UpdateArticleBlockHandler>();
         services.AddScoped<DeleteArticleBlockHandler>();
+        services.AddScoped<DeleteArticleHandler>();
+        services.AddScoped<ReorderArticlesHandler>();
+        services.AddScoped<GetLearningPathForManagementHandler>();
         services.AddScoped<ReorderArticleBlocksHandler>();
         services.AddScoped<PublishArticleHandler>();
         services.AddScoped<UnpublishArticleHandler>();

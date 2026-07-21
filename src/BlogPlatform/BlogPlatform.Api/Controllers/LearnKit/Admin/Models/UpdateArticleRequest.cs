@@ -16,6 +16,7 @@ namespace BlogPlatform.Api.Controllers.LearnKit.Admin.Models;
 /// Position of the article inside its learning step.
 /// </param>
 public sealed record UpdateArticleRequest(
+    Guid LearningStepId,
     string Slug,
     string Title,
     string? Summary,

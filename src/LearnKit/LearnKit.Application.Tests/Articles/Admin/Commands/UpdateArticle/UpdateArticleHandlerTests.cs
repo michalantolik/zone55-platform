@@ -19,8 +19,10 @@ public sealed class UpdateArticleHandlerTests
 
         var store = new ArticleManagementStoreStub(article);
         var handler = new UpdateArticleHandler(store);
+        var newLearningStepId = Guid.NewGuid();
         var command = new UpdateArticleCommand(
             article.Id,
+            newLearningStepId,
             "new-slug",
             "New title",
             "New summary",
@@ -29,6 +31,7 @@ public sealed class UpdateArticleHandlerTests
         var result = await handler.HandleAsync(command);
 
         Assert.True(result);
+        Assert.Equal(newLearningStepId, article.LearningStepId);
         Assert.Equal("new-slug", article.Slug);
         Assert.Equal("New title", article.Title);
         Assert.Equal("New summary", article.Summary);
@@ -42,6 +45,7 @@ public sealed class UpdateArticleHandlerTests
         var store = new ArticleManagementStoreStub(null);
         var handler = new UpdateArticleHandler(store);
         var command = new UpdateArticleCommand(
+            Guid.NewGuid(),
             Guid.NewGuid(),
             "new-slug",
             "New title",
