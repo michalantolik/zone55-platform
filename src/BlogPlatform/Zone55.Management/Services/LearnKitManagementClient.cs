@@ -66,6 +66,20 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
         await EnsureSuccessAsync(response, cancellationToken);
     }
 
+    public async Task UpdateArticleBlockAsync(
+        Guid articleId,
+        Guid blockId,
+        UpdateArticleBlockManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsJsonAsync(
+            $"api/learnkit/admin/articles/{articleId}/blocks/{blockId}",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
     public async Task PublishArticleAsync(
         Guid articleId,
         CancellationToken cancellationToken = default)

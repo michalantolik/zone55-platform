@@ -20,6 +20,12 @@ public interface ILearnKitManagementClient
         UpdateArticleManagementRequest request,
         CancellationToken cancellationToken = default);
 
+    Task UpdateArticleBlockAsync(
+        Guid articleId,
+        Guid blockId,
+        UpdateArticleBlockManagementRequest request,
+        CancellationToken cancellationToken = default);
+
     Task PublishArticleAsync(
         Guid articleId,
         CancellationToken cancellationToken = default);

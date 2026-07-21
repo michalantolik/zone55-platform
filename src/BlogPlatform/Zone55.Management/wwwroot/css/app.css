@@ -120,3 +120,16 @@ td code { margin-top: 5px; color: #94a3b8; font-family: ui-monospace, SFMono-Reg
     .editor-actions { width: 100%; }
     .editor-actions > * { flex: 1; }
 }
+
+.block-header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
+.block-header-actions code { overflow-wrap: anywhere; color: #64748b; font-size: .75rem; text-align: right; }
+.secondary-button--compact { min-height: 34px; padding: 6px 11px; }
+.block-editor { padding: 18px; background: #0b1120; }
+.block-json-editor { min-height: 280px !important; font-family: ui-monospace, SFMono-Regular, Consolas, monospace !important; font-size: .86rem !important; tab-size: 2; }
+.block-editor-actions { justify-content: flex-end; }
+.inline-error { margin-top: 14px; padding: 11px 13px; border: 1px solid #7f1d1d; border-radius: 8px; background: #3f151b; color: #fecaca; }
+
+@media (max-width: 720px) {
+    .block-header-actions { align-items: flex-start; flex-direction: column; }
+    .block-header-actions code { text-align: left; }
+}

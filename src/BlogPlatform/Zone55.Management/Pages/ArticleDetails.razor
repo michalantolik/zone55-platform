@@ -156,15 +156,77 @@ else
             <div class="blocks-list">
                 @foreach (var block in _article.Blocks.OrderBy(x => x.SortOrder))
                 {
+                    var isEditing = _editingBlockId == block.Id;
+
                     <article class="block-card">
                         <header>
                             <div>
                                 <span class="block-order">@block.SortOrder</span>
                                 <strong>@block.Type</strong>
                             </div>
-                            <code>@block.Id</code>
+                            <div class="block-header-actions">
+                                <code>@block.Id</code>
+                                @if (!isEditing)
+                                {
+                                    <button class="secondary-button secondary-button--compact"
+                                            type="button"
+                                            @onclick="() => BeginBlockEdit(block)"
+                                            disabled="@_isSavingBlock">
+                                        Edit
+                                    </button>
+                                }
+                            </div>
                         </header>
-                        <pre><code>@FormatJson(block.ContentJson)</code></pre>
+
+                        @if (isEditing)
+                        {
+                            <div class="block-editor">
+                                <div class="form-grid">
+                                    <label class="form-field">
+                                        <span>Type</span>
+                                        <select @bind="_editingBlockType" disabled="@_isSavingBlock">
+                                            @foreach (var blockType in ArticleBlockTypes)
+                                            {
+                                                <option value="@blockType">@blockType</option>
+                                            }
+                                        </select>
+                                    </label>
+
+                                    <label class="form-field form-field--full">
+                                        <span>Content JSON</span>
+                                        <textarea class="block-json-editor"
+                                                  rows="14"
+                                                  spellcheck="false"
+                                                  @bind="_editingBlockContentJson"
+                                                  disabled="@_isSavingBlock"></textarea>
+                                    </label>
+                                </div>
+
+                                @if (_blockErrorMessage is not null)
+                                {
+                                    <div class="inline-error" role="alert">@_blockErrorMessage</div>
+                                }
+
+                                <div class="button-row block-editor-actions">
+                                    <button class="secondary-button"
+                                            type="button"
+                                            @onclick="CancelBlockEdit"
+                                            disabled="@_isSavingBlock">
+                                        Cancel
+                                    </button>
+                                    <button class="primary-button"
+                                            type="button"
+                                            @onclick="SaveBlockAsync"
+                                            disabled="@_isSavingBlock">
+                                        @(_isSavingBlock ? "Saving…" : "Save block")
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <pre><code>@FormatJson(block.ContentJson)</code></pre>
+                        }
                     </article>
                 }
             </div>
@@ -184,8 +246,23 @@ else
     private string _title = string.Empty;
     private string _summary = string.Empty;
     private int _sortOrder;
+    private static readonly string[] ArticleBlockTypes =
+    [
+        "Markdown",
+        "Code",
+        "Diagram",
+        "Table",
+        "Callout",
+        "Summary"
+    ];
+
     private bool _isLoading = true;
     private bool _isSaving;
+    private bool _isSavingBlock;
+    private Guid? _editingBlockId;
+    private string _editingBlockType = string.Empty;
+    private string _editingBlockContentJson = string.Empty;
+    private string? _blockErrorMessage;
     private string? _errorMessage;
     private string? _operationMessage;
 
@@ -273,6 +350,111 @@ else
         {
             _isSaving = false;
         }
+    }
+
+    private void BeginBlockEdit(ArticleBlockDetails block)
+    {
+        if (_isSavingBlock)
+        {
+            return;
+        }
+
+        _editingBlockId = block.Id;
+        _editingBlockType = block.Type;
+        _editingBlockContentJson = FormatJson(block.ContentJson);
+        _blockErrorMessage = null;
+        _errorMessage = null;
+        _operationMessage = null;
+    }
+
+    private void CancelBlockEdit()
+    {
+        if (_isSavingBlock)
+        {
+            return;
+        }
+
+        ClearBlockEditor();
+    }
+
+    private async Task SaveBlockAsync()
+    {
+        if (_article is null || _editingBlockId is null || _isSavingBlock)
+        {
+            return;
+        }
+
+        _blockErrorMessage = ValidateBlockEditor();
+        _errorMessage = null;
+        _operationMessage = null;
+
+        if (_blockErrorMessage is not null)
+        {
+            return;
+        }
+
+        _isSavingBlock = true;
+
+        try
+        {
+            var blockId = _editingBlockId.Value;
+            var request = new UpdateArticleBlockManagementRequest(
+                _editingBlockType,
+                _editingBlockContentJson.Trim());
+
+            await ManagementClient.UpdateArticleBlockAsync(
+                ArticleId,
+                blockId,
+                request);
+
+            await ReloadArticleAsync();
+            ClearBlockEditor();
+            _operationMessage = "Article block was saved.";
+        }
+        catch (HttpRequestException exception)
+        {
+            _blockErrorMessage = exception.Message;
+        }
+        catch (Exception exception)
+        {
+            _blockErrorMessage = $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSavingBlock = false;
+        }
+    }
+
+    private string? ValidateBlockEditor()
+    {
+        if (!ArticleBlockTypes.Contains(_editingBlockType, StringComparer.Ordinal))
+        {
+            return "Block type is invalid.";
+        }
+
+        if (string.IsNullOrWhiteSpace(_editingBlockContentJson))
+        {
+            return "Content JSON is required.";
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(_editingBlockContentJson);
+        }
+        catch (JsonException exception)
+        {
+            return $"Content JSON is invalid: {exception.Message}";
+        }
+
+        return null;
+    }
+
+    private void ClearBlockEditor()
+    {
+        _editingBlockId = null;
+        _editingBlockType = string.Empty;
+        _editingBlockContentJson = string.Empty;
+        _blockErrorMessage = null;
     }
 
     private async Task PublishAsync()
