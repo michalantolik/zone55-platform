@@ -1,4 +1,4 @@
-﻿using BlogPlatform.Cms.Seeding;
+using BlogPlatform.Cms.Seeding;
 
 namespace BlogPlatform.Cms.BlogContent;
 
@@ -14,29 +14,6 @@ public interface IBlogContentAdminService
         CancellationToken cancellationToken);
 
     IReadOnlyCollection<CmsDocumentTypeListItemDto> GetDocumentTypes();
-
-    IReadOnlyCollection<CmsArticleListItemDto> GetArticles();
-
-    CmsArticleEditorDto? GetArticle(Guid key);
-
-    int GetNextArticleOrder(string? dotnetZone, string? dotnetZoneStep, Guid? excludeArticleKey = null);
-
-    IReadOnlyCollection<CmsReorderArticleListItemDto> GetArticlesForReorder(
-        string? dotnetZone,
-        string? dotnetZoneStep);
-
-    CmsReorderArticlesResponse ReorderArticles(CmsReorderArticlesRequest request);
-
-    Task<CmsSaveArticleResponse> CreateArticleAsync(
-        CmsSaveArticleRequest request,
-        CancellationToken cancellationToken);
-
-    Task<CmsSaveArticleResponse> UpdateArticleAsync(
-        Guid key,
-        CmsSaveArticleRequest request,
-        CancellationToken cancellationToken);
-
-    CmsDeleteResponse DeleteArticle(Guid key);
 
     CmsDeleteResponse DeleteDocumentType(Guid key);
 

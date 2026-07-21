@@ -1,7 +1,6 @@
-﻿using BlogPlatform.Application.Roadmap;
+using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Seeding;
 using BlogPlatform.Cms.Seeding.Blocks;
-using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.Text.Json;
 using Umbraco.Cms.Core.Models;
@@ -11,14 +10,12 @@ namespace BlogPlatform.Cms.BlogContent;
 
 public sealed class BlogContentAdminService : IBlogContentAdminService
 {
-    private const string ArticlesCacheKey = "cms-blog-articles";
     private const string DefaultDotnetZone = "foundation";
     private const string DefaultDotnetZoneStep = "basic-syntax";
 
     private readonly IContentService _contentService;
     private readonly IContentTypeService _contentTypeService;
     private readonly ILogger<BlogContentAdminService> _logger;
-    private readonly IMemoryCache _cache;
     private readonly IRoadmapQueryService _roadmapQueries;
     private readonly IRoadmapCommandService _roadmapCommands;
     private readonly BlogSeedBlockSerializationService _blockSerialization;
@@ -28,7 +25,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         IContentService contentService,
         IContentTypeService contentTypeService,
         ILogger<BlogContentAdminService> logger,
-        IMemoryCache cache,
         IRoadmapQueryService roadmapQueries,
         IRoadmapCommandService roadmapCommands,
         BlogSeedBlockSerializationService blockSerialization,
@@ -37,7 +33,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         _contentService = contentService;
         _contentTypeService = contentTypeService;
         _logger = logger;
-        _cache = cache;
         _roadmapQueries = roadmapQueries;
         _roadmapCommands = roadmapCommands;
         _blockSerialization = blockSerialization;
@@ -167,261 +162,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             .ToList();
     }
 
-    public IReadOnlyCollection<CmsArticleListItemDto> GetArticles()
-    {
-        return _cache.GetOrCreate(
-            ArticlesCacheKey,
-            entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20);
-
-                return GetRootArticles()
-                    .Select(MapArticleListItem)
-                    .OrderBy(article => article.DotnetZone)
-                    .ThenBy(article => article.DotnetZoneStep)
-                    .ThenBy(article => article.Order <= 0 ? int.MaxValue : article.Order)
-                    .ThenByDescending(article => article.UpdatedUtc)
-                    .ToList();
-            }) ?? [];
-    }
-
-    public CmsArticleEditorDto? GetArticle(Guid key)
-    {
-        var article = _contentService.GetById(key);
-
-        if (article is null ||
-            article.ContentType.Alias != BlogContentAliases.BlogArticle)
-        {
-            return null;
-        }
-
-        return new CmsArticleEditorDto(
-            article.Key,
-            GetString(article, BlogContentAliases.Title) ?? article.Name ?? string.Empty,
-            GetString(article, BlogContentAliases.Slug) ?? string.Empty,
-            GetString(article, BlogContentAliases.Summary) ?? string.Empty,
-            GetString(article, BlogContentAliases.Level) ?? string.Empty,
-            GetString(article, BlogContentAliases.Focus) ?? string.Empty,
-            GetString(article, BlogContentAliases.DotnetZone),
-            GetString(article, BlogContentAliases.DotnetZoneStep),
-            GetInt(article, BlogContentAliases.Order),
-            GetString(article, BlogContentAliases.Tags) ?? string.Empty,
-            GetString(article, BlogContentAliases.BodyBlocks) ?? string.Empty,
-            true);
-    }
-
-    public int GetNextArticleOrder(
-        string? dotnetZone,
-        string? dotnetZoneStep,
-        Guid? excludeArticleKey = null)
-    {
-        var normalizedZone = string.IsNullOrWhiteSpace(dotnetZone)
-            ? DefaultDotnetZone
-            : dotnetZone;
-
-        var normalizedStep = string.IsNullOrWhiteSpace(dotnetZoneStep)
-            ? DefaultDotnetZoneStep
-            : dotnetZoneStep;
-
-        return GetRootArticles()
-            .Where(article => !excludeArticleKey.HasValue || article.Key != excludeArticleKey.Value)
-            .Where(article => string.Equals(
-                GetString(article, BlogContentAliases.DotnetZone),
-                normalizedZone,
-                StringComparison.OrdinalIgnoreCase))
-            .Where(article => string.Equals(
-                GetString(article, BlogContentAliases.DotnetZoneStep),
-                normalizedStep,
-                StringComparison.OrdinalIgnoreCase))
-            .Select(article => GetInt(article, BlogContentAliases.Order))
-            .Where(order => order > 0)
-            .DefaultIfEmpty(0)
-            .Max() + 1;
-    }
-
-    public IReadOnlyCollection<CmsReorderArticleListItemDto> GetArticlesForReorder(
-        string? dotnetZone,
-        string? dotnetZoneStep)
-    {
-        var normalizedZone = string.IsNullOrWhiteSpace(dotnetZone)
-            ? DefaultDotnetZone
-            : dotnetZone;
-
-        var normalizedStep = string.IsNullOrWhiteSpace(dotnetZoneStep)
-            ? DefaultDotnetZoneStep
-            : dotnetZoneStep;
-
-        return GetRootArticles()
-            .Where(article => string.Equals(
-                GetString(article, BlogContentAliases.DotnetZone),
-                normalizedZone,
-                StringComparison.OrdinalIgnoreCase))
-            .Where(article => string.Equals(
-                GetString(article, BlogContentAliases.DotnetZoneStep),
-                normalizedStep,
-                StringComparison.OrdinalIgnoreCase))
-            .Select(MapReorderArticleListItem)
-            .OrderBy(article => article.Order <= 0 ? int.MaxValue : article.Order)
-            .ThenBy(article => article.Title)
-            .ToList();
-    }
-
-    public CmsReorderArticlesResponse ReorderArticles(CmsReorderArticlesRequest request)
-    {
-        if (string.IsNullOrWhiteSpace(request.DotnetZone) ||
-            string.IsNullOrWhiteSpace(request.DotnetZoneStep))
-        {
-            return new CmsReorderArticlesResponse(
-                false,
-                "Zone and step are required.",
-                []);
-        }
-
-        var articleKeys = request.ArticleKeys.ToList();
-
-        for (var index = 0; index < articleKeys.Count; index++)
-        {
-            var article = _contentService.GetById(articleKeys[index]);
-
-            if (article is null ||
-                article.ContentType.Alias != BlogContentAliases.BlogArticle)
-            {
-                continue;
-            }
-
-            article.SetValue(BlogContentAliases.DotnetZone, request.DotnetZone);
-            article.SetValue(BlogContentAliases.DotnetZoneStep, request.DotnetZoneStep);
-            article.SetValue(BlogContentAliases.Order, index + 1);
-
-            _contentService.Save(article);
-            _contentService.Publish(article, new[] { "*" });
-        }
-
-        ClearCaches();
-
-        return new CmsReorderArticlesResponse(
-            true,
-            "Article order saved.",
-            GetArticlesForReorder(request.DotnetZone, request.DotnetZoneStep));
-    }
-
-    public async Task<CmsSaveArticleResponse> CreateArticleAsync(
-        CmsSaveArticleRequest request,
-        CancellationToken cancellationToken)
-    {
-        var validation = ValidateArticleRequest(request);
-
-        if (validation is not null)
-        {
-            return validation;
-        }
-
-        var slug = CreateSlug(request.Slug);
-        var existingArticle = GetRootArticles()
-            .FirstOrDefault(article => string.Equals(
-                GetString(article, BlogContentAliases.Slug),
-                slug,
-                StringComparison.OrdinalIgnoreCase));
-
-        if (existingArticle is not null)
-        {
-            return new CmsSaveArticleResponse(
-                false,
-                Guid.Empty,
-                "Article slug already exists.");
-        }
-
-        var article = _contentService.Create(
-            request.Title.Trim(),
-            -1,
-            BlogContentAliases.BlogArticle);
-
-        ApplyArticleValues(article, request, slug);
-        _contentService.Save(article);
-        _contentService.Publish(article, new[] { "*" });
-
-        ClearCaches();
-
-        await Task.CompletedTask;
-
-        return new CmsSaveArticleResponse(
-            true,
-            article.Key,
-            "Article created.");
-    }
-
-    public async Task<CmsSaveArticleResponse> UpdateArticleAsync(
-        Guid key,
-        CmsSaveArticleRequest request,
-        CancellationToken cancellationToken)
-    {
-        var validation = ValidateArticleRequest(request);
-
-        if (validation is not null)
-        {
-            return validation;
-        }
-
-        var article = _contentService.GetById(key);
-
-        if (article is null ||
-            article.ContentType.Alias != BlogContentAliases.BlogArticle)
-        {
-            return new CmsSaveArticleResponse(
-                false,
-                key,
-                "Article not found.");
-        }
-
-        var slug = CreateSlug(request.Slug);
-        var existingArticle = GetRootArticles()
-            .FirstOrDefault(existing =>
-                existing.Key != key &&
-                string.Equals(
-                    GetString(existing, BlogContentAliases.Slug),
-                    slug,
-                    StringComparison.OrdinalIgnoreCase));
-
-        if (existingArticle is not null)
-        {
-            return new CmsSaveArticleResponse(
-                false,
-                key,
-                "Article slug already exists.");
-        }
-
-        article.Name = request.Title.Trim();
-        ApplyArticleValues(article, request, slug);
-
-        _contentService.Save(article);
-        _contentService.Publish(article, new[] { "*" });
-
-        ClearCaches();
-
-        await Task.CompletedTask;
-
-        return new CmsSaveArticleResponse(
-            true,
-            article.Key,
-            "Article updated.");
-    }
-
-    public CmsDeleteResponse DeleteArticle(Guid key)
-    {
-        var article = _contentService.GetById(key);
-
-        if (article is null ||
-            article.ContentType.Alias != BlogContentAliases.BlogArticle)
-        {
-            return new CmsDeleteResponse(false, "Article not found.");
-        }
-
-        _contentService.Delete(article);
-        ClearCaches();
-
-        return new CmsDeleteResponse(true, "Article deleted.");
-    }
-
     public CmsDeleteResponse DeleteDocumentType(Guid key)
     {
         var documentType = _contentTypeService.Get(key);
@@ -452,7 +192,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             request.Key,
             cancellationToken);
 
-        ClearCachesIfSuccessful(result);
 
         return new CmsSaveRoadmapResponse(result.Success, result.Message);
     }
@@ -467,7 +206,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             request.Name,
             cancellationToken);
 
-        ClearCachesIfSuccessful(result);
 
         return new CmsSaveRoadmapResponse(result.Success, result.Message);
     }
@@ -480,7 +218,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             zoneKey,
             cancellationToken);
 
-        ClearCachesIfSuccessful(result);
 
         return new CmsDeleteResponse(result.Success, result.Message);
     }
@@ -497,7 +234,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             request.Icon,
             cancellationToken);
 
-        ClearCachesIfSuccessful(result);
 
         return new CmsSaveRoadmapResponse(result.Success, result.Message);
     }
@@ -515,7 +251,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             request.Icon,
             cancellationToken);
 
-        ClearCachesIfSuccessful(result);
 
         return new CmsSaveRoadmapResponse(result.Success, result.Message);
     }
@@ -530,7 +265,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             stepKey,
             cancellationToken);
 
-        ClearCachesIfSuccessful(result);
 
         return new CmsDeleteResponse(result.Success, result.Message);
     }
@@ -542,7 +276,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
 
         await _contentSeeder.SeedAsync();
 
-        ClearCaches();
 
         var summary = await GetDatabaseSummaryAsync(cancellationToken);
 
@@ -663,84 +396,6 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
             content.UpdateDate);
     }
 
-    private CmsReorderArticleListItemDto MapReorderArticleListItem(IContent content)
-    {
-        var title = GetString(content, BlogContentAliases.Title)
-            ?? content.Name
-            ?? "Untitled";
-
-        return new CmsReorderArticleListItemDto(
-            content.Key,
-            title,
-            GetString(content, BlogContentAliases.Slug) ?? CreateSlug(title),
-            GetString(content, BlogContentAliases.Summary) ?? string.Empty,
-            GetString(content, BlogContentAliases.Level) ?? string.Empty,
-            GetString(content, BlogContentAliases.Focus) ?? string.Empty,
-            GetString(content, BlogContentAliases.DotnetZone) ?? DefaultDotnetZone,
-            GetString(content, BlogContentAliases.DotnetZoneStep) ?? DefaultDotnetZoneStep,
-            GetInt(content, BlogContentAliases.Order),
-            content.UpdateDate);
-    }
-
-    private static CmsSaveArticleResponse? ValidateArticleRequest(CmsSaveArticleRequest request)
-    {
-        if (string.IsNullOrWhiteSpace(request.Title))
-        {
-            return new CmsSaveArticleResponse(false, Guid.Empty, "Article title is required.");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Slug))
-        {
-            return new CmsSaveArticleResponse(false, Guid.Empty, "Article slug is required.");
-        }
-
-        return null;
-    }
-
-    private void ApplyArticleValues(
-        IContent article,
-        CmsSaveArticleRequest request,
-        string slug)
-    {
-        var zone = string.IsNullOrWhiteSpace(request.DotnetZone)
-            ? DefaultDotnetZone
-            : request.DotnetZone.Trim();
-
-        var step = string.IsNullOrWhiteSpace(request.DotnetZoneStep)
-            ? DefaultDotnetZoneStep
-            : request.DotnetZoneStep.Trim();
-
-        var order = request.Order.GetValueOrDefault();
-
-        if (order <= 0)
-        {
-            order = GetNextArticleOrder(zone, step, article.Key);
-        }
-
-        article.SetValue(BlogContentAliases.Title, request.Title.Trim());
-        article.SetValue(BlogContentAliases.Slug, slug);
-        article.SetValue(BlogContentAliases.Summary, request.Summary ?? string.Empty);
-        article.SetValue(BlogContentAliases.Level, request.Level ?? string.Empty);
-        article.SetValue(BlogContentAliases.Focus, request.Focus ?? string.Empty);
-        article.SetValue(BlogContentAliases.DotnetZone, zone);
-        article.SetValue(BlogContentAliases.DotnetZoneStep, step);
-        article.SetValue(BlogContentAliases.Order, order);
-        article.SetValue(BlogContentAliases.Tags, request.Tags ?? string.Empty);
-        article.SetValue(
-            BlogContentAliases.BodyBlocks,
-            NormalizeBodyBlocksForUmbraco(request.BodyBlocks));
-
-        if (GetDateTimeOffset(article, BlogContentAliases.PublishedDate) is null)
-        {
-            article.SetValue(BlogContentAliases.PublishedDate, DateTime.UtcNow);
-        }
-    }
-
-    private string NormalizeBodyBlocksForUmbraco(string? bodyBlocksJson)
-    {
-        return _blockSerialization.NormalizeBodyBlocksForUmbraco(bodyBlocksJson);
-    }
-
     private IReadOnlyCollection<IContent> GetRootArticles()
     {
         return _contentService
@@ -813,16 +468,4 @@ public sealed class BlogContentAdminService : IBlogContentAdminService
         return builder.ToString().Trim('-');
     }
 
-    private void ClearCachesIfSuccessful(RoadmapOperationResult result)
-    {
-        if (result.Success)
-        {
-            ClearCaches();
-        }
-    }
-
-    private void ClearCaches()
-    {
-        _cache.Remove(ArticlesCacheKey);
-    }
 }
