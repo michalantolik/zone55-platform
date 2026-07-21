@@ -95,3 +95,28 @@ td code { margin-top: 5px; color: #94a3b8; font-family: ui-monospace, SFMono-Reg
     .section-heading, .block-card > header { align-items: flex-start; flex-direction: column; }
     .block-card > header > code { text-align: left; }
 }
+
+.editor-card { margin-bottom: 24px; padding: 22px; border: 1px solid #263244; border-radius: 12px; background: #111827; }
+.editor-heading { align-items: center; }
+.editor-actions { margin-top: 0; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.form-field { display: grid; gap: 8px; min-width: 0; }
+.form-field--wide { grid-column: span 2; }
+.form-field--full { grid-column: 1 / -1; }
+.form-field > span { color: #cbd5e1; font-size: .85rem; font-weight: 700; }
+.form-field input, .form-field select, .form-field textarea { width: 100%; border: 1px solid #334155; border-radius: 8px; background: #0b1120; color: #f8fafc; font: inherit; }
+.form-field input, .form-field select { min-height: 42px; padding: 9px 11px; }
+.form-field textarea { min-height: 130px; padding: 11px; line-height: 1.5; resize: vertical; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: 2px solid #2563eb; outline-offset: 1px; border-color: #60a5fa; }
+.form-field input:disabled, .form-field select:disabled, .form-field textarea:disabled { opacity: .65; }
+.operation-message { margin-bottom: 18px; padding: 13px 16px; border: 1px solid; border-radius: 9px; }
+.operation-message--success { border-color: #166534; background: #123b2b; color: #bbf7d0; }
+.operation-message--error { border-color: #7f1d1d; background: #3f151b; color: #fecaca; }
+
+@media (max-width: 800px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-field--wide, .form-field--full { grid-column: auto; }
+    .editor-heading { align-items: stretch; }
+    .editor-actions { width: 100%; }
+    .editor-actions > * { flex: 1; }
+}

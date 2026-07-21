@@ -14,4 +14,17 @@ public interface ILearnKitManagementClient
     Task<LearningPathManagementDetails?> GetLearningPathAsync(
         string key,
         CancellationToken cancellationToken = default);
+
+    Task UpdateArticleAsync(
+        Guid articleId,
+        UpdateArticleManagementRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task PublishArticleAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default);
+
+    Task UnpublishArticleAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default);
 }

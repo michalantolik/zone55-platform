@@ -11,7 +11,7 @@
         <p>Reading article details from Zone55.Api.</p>
     </div>
 }
-else if (_errorMessage is not null)
+else if (_errorMessage is not null && _article is null)
 {
     <div class="state-card state-card--error" role="alert">
         <strong>Could not load article</strong>
@@ -43,6 +43,74 @@ else
             @_article.Status
         </span>
     </header>
+
+    @if (_operationMessage is not null)
+    {
+        <div class="operation-message operation-message--success" role="status">@_operationMessage</div>
+    }
+
+    @if (_errorMessage is not null)
+    {
+        <div class="operation-message operation-message--error" role="alert">@_errorMessage</div>
+    }
+
+    <section class="editor-card" aria-labelledby="article-editor-title">
+        <div class="section-heading editor-heading">
+            <div>
+                <p class="eyebrow">Management</p>
+                <h2 id="article-editor-title">Edit article details</h2>
+            </div>
+            <div class="button-row editor-actions">
+                @if (IsPublished(_article.Status))
+                {
+                    <button class="secondary-button" type="button" @onclick="UnpublishAsync" disabled="@_isSaving">
+                        Unpublish
+                    </button>
+                }
+                else
+                {
+                    <button class="secondary-button" type="button" @onclick="PublishAsync" disabled="@_isSaving">
+                        Publish
+                    </button>
+                }
+                <button class="primary-button" type="button" @onclick="SaveAsync" disabled="@_isSaving">
+                    @(_isSaving ? "Saving…" : "Save changes")
+                </button>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <label class="form-field form-field--wide">
+                <span>Title</span>
+                <input @bind="_title" maxlength="300" disabled="@_isSaving" />
+            </label>
+
+            <label class="form-field">
+                <span>Slug</span>
+                <input @bind="_slug" disabled="@_isSaving" />
+            </label>
+
+            <label class="form-field">
+                <span>Sort order</span>
+                <input type="number" min="1" @bind="_sortOrder" disabled="@_isSaving" />
+            </label>
+
+            <label class="form-field form-field--wide">
+                <span>Learning step</span>
+                <select @bind="_learningStepId" disabled="@_isSaving">
+                    @foreach (var step in _learningSteps)
+                    {
+                        <option value="@step.Id">@step.Title</option>
+                    }
+                </select>
+            </label>
+
+            <label class="form-field form-field--full">
+                <span>Summary</span>
+                <textarea rows="6" @bind="_summary" disabled="@_isSaving"></textarea>
+            </label>
+        </div>
+    </section>
 
     <section class="details-grid" aria-label="Article details">
         <article class="details-card details-card--wide">
@@ -109,9 +177,17 @@ else
     public Guid ArticleId { get; set; }
 
     private ArticleManagementDetails? _article;
+    private IReadOnlyCollection<LearningStepManagementDetails> _learningSteps = [];
     private string _learningStepTitle = string.Empty;
+    private Guid _learningStepId;
+    private string _slug = string.Empty;
+    private string _title = string.Empty;
+    private string _summary = string.Empty;
+    private int _sortOrder;
     private bool _isLoading = true;
+    private bool _isSaving;
     private string? _errorMessage;
+    private string? _operationMessage;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -122,6 +198,7 @@ else
     {
         _isLoading = true;
         _errorMessage = null;
+        _operationMessage = null;
 
         try
         {
@@ -132,18 +209,17 @@ else
 
             _article = await articleTask;
             var learningPath = await learningPathTask;
+            _learningSteps = learningPath?.Zones
+                .OrderBy(zone => zone.SortOrder)
+                .SelectMany(zone => zone.Steps.OrderBy(step => step.SortOrder))
+                .ToArray()
+                ?? [];
 
-            _learningStepTitle = _article is null
-                ? string.Empty
-                : learningPath?.Zones
-                    .SelectMany(zone => zone.Steps)
-                    .FirstOrDefault(step => step.Id == _article.LearningStepId)
-                    ?.Title
-                    ?? _article.LearningStepId.ToString();
+            ApplyArticleToEditor();
         }
         catch (HttpRequestException exception)
         {
-            _errorMessage = $"Zone55.Api returned an error: {exception.Message}";
+            _errorMessage = exception.Message;
         }
         catch (Exception exception)
         {
@@ -153,6 +229,147 @@ else
         {
             _isLoading = false;
         }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_article is null || _isSaving)
+        {
+            return;
+        }
+
+        _errorMessage = ValidateEditor();
+        _operationMessage = null;
+
+        if (_errorMessage is not null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            var request = new UpdateArticleManagementRequest(
+                _learningStepId,
+                _slug.Trim(),
+                _title.Trim(),
+                string.IsNullOrWhiteSpace(_summary) ? null : _summary.Trim(),
+                _sortOrder);
+
+            await ManagementClient.UpdateArticleAsync(ArticleId, request);
+            await ReloadArticleAsync();
+            _operationMessage = "Article details were saved.";
+        }
+        catch (HttpRequestException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task PublishAsync()
+    {
+        await ChangePublicationStatusAsync(
+            () => ManagementClient.PublishArticleAsync(ArticleId),
+            "Article was published.");
+    }
+
+    private async Task UnpublishAsync()
+    {
+        await ChangePublicationStatusAsync(
+            () => ManagementClient.UnpublishArticleAsync(ArticleId),
+            "Article was moved to draft.");
+    }
+
+    private async Task ChangePublicationStatusAsync(Func<Task> operation, string successMessage)
+    {
+        if (_article is null || _isSaving)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+        _operationMessage = null;
+
+        try
+        {
+            await operation();
+            await ReloadArticleAsync();
+            _operationMessage = successMessage;
+        }
+        catch (HttpRequestException exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task ReloadArticleAsync()
+    {
+        _article = await ManagementClient.GetArticleAsync(ArticleId)
+            ?? throw new HttpRequestException("The article could not be reloaded after the operation.");
+
+        ApplyArticleToEditor();
+    }
+
+    private void ApplyArticleToEditor()
+    {
+        if (_article is null)
+        {
+            _learningStepTitle = string.Empty;
+            return;
+        }
+
+        _learningStepId = _article.LearningStepId;
+        _slug = _article.Slug;
+        _title = _article.Title;
+        _summary = _article.Summary;
+        _sortOrder = _article.SortOrder;
+        _learningStepTitle = _learningSteps
+            .FirstOrDefault(step => step.Id == _article.LearningStepId)
+            ?.Title
+            ?? _article.LearningStepId.ToString();
+    }
+
+    private string? ValidateEditor()
+    {
+        if (string.IsNullOrWhiteSpace(_title))
+        {
+            return "Title is required.";
+        }
+
+        if (string.IsNullOrWhiteSpace(_slug))
+        {
+            return "Slug is required.";
+        }
+
+        if (_learningStepId == Guid.Empty)
+        {
+            return "Learning step is required.";
+        }
+
+        if (_sortOrder < 1)
+        {
+            return "Sort order must be greater than zero.";
+        }
+
+        return null;
     }
 
     private static string FormatJson(string contentJson)
