@@ -1,7 +1,9 @@
 using LearnKit.Application.Articles.Admin.Commands.CreateArticle;
 using LearnKit.Application.Articles.Admin.Commands.CreateArticleBlock;
+using LearnKit.Application.Articles.Admin.Commands.DeleteArticle;
 using LearnKit.Application.Articles.Admin.Commands.DeleteArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.ReorderArticleBlocks;
+using LearnKit.Application.Articles.Admin.Commands.ReorderArticles;
 using LearnKit.Application.Articles.Admin.Commands.UpdateArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.PublishArticle;
 using BlogPlatform.Api.Controllers.LearnKit.Admin.Models;
@@ -26,7 +28,9 @@ public sealed class ArticlesManagementController : ControllerBase
     private readonly CreateArticleBlockHandler _createArticleBlockHandler;
     private readonly UpdateArticleBlockHandler _updateArticleBlockHandler;
     private readonly DeleteArticleBlockHandler _deleteArticleBlockHandler;
+    private readonly DeleteArticleHandler _deleteArticleHandler;
     private readonly ReorderArticleBlocksHandler _reorderArticleBlocksHandler;
+    private readonly ReorderArticlesHandler _reorderArticlesHandler;
     private readonly PublishArticleHandler _publishArticleHandler;
     private readonly UnpublishArticleHandler _unpublishArticleHandler;
     private readonly UpdateArticleHandler _updateArticleHandler;
@@ -41,7 +45,9 @@ public sealed class ArticlesManagementController : ControllerBase
         CreateArticleBlockHandler createArticleBlockHandler,
         UpdateArticleBlockHandler updateArticleBlockHandler,
         DeleteArticleBlockHandler deleteArticleBlockHandler,
+        DeleteArticleHandler deleteArticleHandler,
         ReorderArticleBlocksHandler reorderArticleBlocksHandler,
+        ReorderArticlesHandler reorderArticlesHandler,
         PublishArticleHandler publishArticleHandler,
         UnpublishArticleHandler unpublishArticleHandler,
         UpdateArticleHandler updateArticleHandler)
@@ -52,7 +58,9 @@ public sealed class ArticlesManagementController : ControllerBase
         _createArticleBlockHandler = createArticleBlockHandler;
         _updateArticleBlockHandler = updateArticleBlockHandler;
         _deleteArticleBlockHandler = deleteArticleBlockHandler;
+        _deleteArticleHandler = deleteArticleHandler;
         _reorderArticleBlocksHandler = reorderArticleBlocksHandler;
+        _reorderArticlesHandler = reorderArticlesHandler;
         _publishArticleHandler = publishArticleHandler;
         _unpublishArticleHandler = unpublishArticleHandler;
         _updateArticleHandler = updateArticleHandler;
@@ -145,6 +153,52 @@ public sealed class ArticlesManagementController : ControllerBase
         if (!updated)
         {
             return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Deletes an article.
+    /// </summary>
+    [HttpDelete("{articleId:guid}")]
+    public async Task<IActionResult> Delete(
+        Guid articleId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeleteArticleCommand(articleId);
+
+        var deleted = await _deleteArticleHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Reorders all articles assigned to one learning step.
+    /// </summary>
+    [HttpPut("order")]
+    public async Task<IActionResult> Reorder(
+        [FromBody] ReorderArticlesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ReorderArticlesCommand(
+            request.LearningStepId,
+            request.OrderedArticleIds);
+
+        var reordered = await _reorderArticlesHandler.HandleAsync(
+            command,
+            cancellationToken);
+
+        if (!reordered)
+        {
+            return BadRequest();
         }
 
         return NoContent();
