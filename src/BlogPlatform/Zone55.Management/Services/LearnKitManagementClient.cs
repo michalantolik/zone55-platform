@@ -16,6 +16,25 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
             ?? [];
     }
 
+    public async Task<ArticleManagementDetails?> GetArticleAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync(
+            $"api/learnkit/admin/articles/{articleId}",
+            cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<ArticleManagementDetails>(
+            cancellationToken: cancellationToken);
+    }
+
     public async Task<LearningPathManagementDetails?> GetLearningPathAsync(
         string key,
         CancellationToken cancellationToken = default)

@@ -1,0 +1,180 @@
+@page "/articles/{ArticleId:guid}"
+@using System.Text.Json
+@inject ILearnKitManagementClient ManagementClient
+
+<PageTitle>@(_article?.Title ?? "Article") | Zone55 Management</PageTitle>
+
+@if (_isLoading)
+{
+    <div class="state-card" role="status">
+        <strong>Loading article…</strong>
+        <p>Reading article details from Zone55.Api.</p>
+    </div>
+}
+else if (_errorMessage is not null)
+{
+    <div class="state-card state-card--error" role="alert">
+        <strong>Could not load article</strong>
+        <p>@_errorMessage</p>
+        <div class="button-row">
+            <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
+            <a class="secondary-button button-link" href="/">Back to articles</a>
+        </div>
+    </div>
+}
+else if (_article is null)
+{
+    <div class="state-card">
+        <strong>Article not found</strong>
+        <p>No LearnKit article exists with this identifier.</p>
+        <a class="secondary-button button-link" href="/">Back to articles</a>
+    </div>
+}
+else
+{
+    <header class="page-header details-header">
+        <div>
+            <a class="back-link" href="/">← Articles</a>
+            <p class="eyebrow">LearnKit article</p>
+            <h1>@_article.Title</h1>
+            <code class="article-slug">@_article.Slug</code>
+        </div>
+        <span class="status-badge @(IsPublished(_article.Status) ? "status-badge--published" : "status-badge--draft")">
+            @_article.Status
+        </span>
+    </header>
+
+    <section class="details-grid" aria-label="Article details">
+        <article class="details-card details-card--wide">
+            <h2>Summary</h2>
+            <p class="summary-text">@(_article.Summary.Length > 0 ? _article.Summary : "No summary.")</p>
+        </article>
+
+        <article class="details-card">
+            <h2>Learning step</h2>
+            <strong>@_learningStepTitle</strong>
+            <code>@_article.LearningStepId</code>
+        </article>
+
+        <article class="details-card">
+            <h2>Order</h2>
+            <strong>@_article.SortOrder</strong>
+        </article>
+
+        <article class="details-card">
+            <h2>Blocks</h2>
+            <strong>@_article.Blocks.Count</strong>
+        </article>
+    </section>
+
+    <section class="blocks-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Content</p>
+                <h2>Article blocks</h2>
+            </div>
+            <span>@_article.Blocks.Count total</span>
+        </div>
+
+        @if (_article.Blocks.Count == 0)
+        {
+            <div class="state-card">
+                <strong>No content blocks</strong>
+                <p>This article does not contain any LearnKit blocks yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="blocks-list">
+                @foreach (var block in _article.Blocks.OrderBy(x => x.SortOrder))
+                {
+                    <article class="block-card">
+                        <header>
+                            <div>
+                                <span class="block-order">@block.SortOrder</span>
+                                <strong>@block.Type</strong>
+                            </div>
+                            <code>@block.Id</code>
+                        </header>
+                        <pre><code>@FormatJson(block.ContentJson)</code></pre>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+}
+
+@code {
+    [Parameter]
+    public Guid ArticleId { get; set; }
+
+    private ArticleManagementDetails? _article;
+    private string _learningStepTitle = string.Empty;
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var articleTask = ManagementClient.GetArticleAsync(ArticleId);
+            var learningPathTask = ManagementClient.GetLearningPathAsync("dotnet");
+
+            await Task.WhenAll(articleTask, learningPathTask);
+
+            _article = await articleTask;
+            var learningPath = await learningPathTask;
+
+            _learningStepTitle = _article is null
+                ? string.Empty
+                : learningPath?.Zones
+                    .SelectMany(zone => zone.Steps)
+                    .FirstOrDefault(step => step.Id == _article.LearningStepId)
+                    ?.Title
+                    ?? _article.LearningStepId.ToString();
+        }
+        catch (HttpRequestException exception)
+        {
+            _errorMessage = $"Zone55.Api returned an error: {exception.Message}";
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private static string FormatJson(string contentJson)
+    {
+        if (string.IsNullOrWhiteSpace(contentJson))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(contentJson);
+            return JsonSerializer.Serialize(
+                document.RootElement,
+                new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (JsonException)
+        {
+            return contentJson;
+        }
+    }
+
+    private static bool IsPublished(string status) =>
+        string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
+}

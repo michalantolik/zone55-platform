@@ -7,6 +7,10 @@ public interface ILearnKitManagementClient
     Task<IReadOnlyCollection<ArticleManagementListItem>> GetArticlesAsync(
         CancellationToken cancellationToken = default);
 
+    Task<ArticleManagementDetails?> GetArticleAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default);
+
     Task<LearningPathManagementDetails?> GetLearningPathAsync(
         string key,
         CancellationToken cancellationToken = default);

@@ -63,7 +63,7 @@ else
                 {
                     <tr>
                         <td>
-                            <strong>@article.Title</strong>
+                            <a class="article-link" href="@($"/articles/{article.Id}")">@article.Title</a>
                             <code>@article.Slug</code>
                         </td>
                         <td>@GetStepTitle(article.LearningStepId)</td>
