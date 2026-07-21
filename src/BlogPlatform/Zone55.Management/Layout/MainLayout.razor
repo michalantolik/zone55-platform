@@ -1,0 +1,21 @@
+@inherits LayoutComponentBase
+
+<div class="management-shell">
+    <aside class="sidebar">
+        <a class="brand" href="/">
+            <span class="brand-mark">Z55</span>
+            <span>
+                <strong>Zone55</strong>
+                <small>Management</small>
+            </span>
+        </a>
+
+        <nav aria-label="Management navigation">
+            <NavLink href="/" Match="NavLinkMatch.All">Articles</NavLink>
+        </nav>
+    </aside>
+
+    <main class="management-content">
+        @Body
+    </main>
+</div>

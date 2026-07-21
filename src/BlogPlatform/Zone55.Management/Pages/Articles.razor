@@ -1,0 +1,136 @@
+@page "/"
+@inject ILearnKitManagementClient ManagementClient
+
+<PageTitle>Articles | Zone55 Management</PageTitle>
+
+<header class="page-header">
+    <div>
+        <p class="eyebrow">LearnKit</p>
+        <h1>Articles</h1>
+        <p>Read-only view of articles stored in LearnKit.</p>
+    </div>
+    <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">
+        Refresh
+    </button>
+</header>
+
+@if (_isLoading)
+{
+    <div class="state-card" role="status">
+        <strong>Loading articles…</strong>
+        <p>Reading management data from Zone55.Api.</p>
+    </div>
+}
+else if (_errorMessage is not null)
+{
+    <div class="state-card state-card--error" role="alert">
+        <strong>Could not load articles</strong>
+        <p>@_errorMessage</p>
+        <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
+    </div>
+}
+else if (_articles.Count == 0)
+{
+    <div class="state-card">
+        <strong>No articles found</strong>
+        <p>The LearnKit article management endpoint returned an empty list.</p>
+    </div>
+}
+else
+{
+    <section class="summary-row" aria-label="Article summary">
+        <div><strong>@_articles.Count</strong><span>All articles</span></div>
+        <div><strong>@_articles.Count(x => IsPublished(x.Status))</strong><span>Published</span></div>
+        <div><strong>@_articles.Sum(x => x.BlockCount)</strong><span>Content blocks</span></div>
+    </section>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Learning step</th>
+                    <th>Status</th>
+                    <th>Order</th>
+                    <th>Blocks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var article in _articles
+                    .OrderBy(x => GetStepTitle(x.LearningStepId))
+                    .ThenBy(x => x.SortOrder)
+                    .ThenBy(x => x.Title))
+                {
+                    <tr>
+                        <td>
+                            <strong>@article.Title</strong>
+                            <code>@article.Slug</code>
+                        </td>
+                        <td>@GetStepTitle(article.LearningStepId)</td>
+                        <td>
+                            <span class="status-badge @(IsPublished(article.Status) ? "status-badge--published" : "status-badge--draft")">
+                                @article.Status
+                            </span>
+                        </td>
+                        <td>@article.SortOrder</td>
+                        <td>@article.BlockCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private IReadOnlyCollection<ArticleManagementListItem> _articles = [];
+    private IReadOnlyDictionary<Guid, string> _stepTitles = new Dictionary<Guid, string>();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var articlesTask = ManagementClient.GetArticlesAsync();
+            var learningPathTask = ManagementClient.GetLearningPathAsync("dotnet");
+
+            await Task.WhenAll(articlesTask, learningPathTask);
+
+            _articles = await articlesTask;
+            var learningPath = await learningPathTask;
+
+            _stepTitles = learningPath?.Zones
+                .SelectMany(zone => zone.Steps)
+                .ToDictionary(step => step.Id, step => step.Title)
+                ?? new Dictionary<Guid, string>();
+        }
+        catch (HttpRequestException exception)
+        {
+            _errorMessage = $"Zone55.Api returned an error: {exception.Message}";
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private string GetStepTitle(Guid learningStepId) =>
+        _stepTitles.TryGetValue(learningStepId, out var title)
+            ? title
+            : learningStepId.ToString();
+
+    private static bool IsPublished(string status) =>
+        string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
+}

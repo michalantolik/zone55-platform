@@ -1,0 +1,37 @@
+using System.Net;
+using System.Net.Http.Json;
+using Zone55.Management.Models;
+
+namespace Zone55.Management.Services;
+
+public sealed class LearnKitManagementClient(HttpClient httpClient)
+    : ILearnKitManagementClient
+{
+    public async Task<IReadOnlyCollection<ArticleManagementListItem>> GetArticlesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await httpClient.GetFromJsonAsync<ArticleManagementListItem[]>(
+                "api/learnkit/admin/articles",
+                cancellationToken)
+            ?? [];
+    }
+
+    public async Task<LearningPathManagementDetails?> GetLearningPathAsync(
+        string key,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync(
+            $"api/learnkit/admin/roadmaps/{Uri.EscapeDataString(key)}",
+            cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<LearningPathManagementDetails>(
+            cancellationToken: cancellationToken);
+    }
+}

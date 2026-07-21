@@ -24,6 +24,7 @@ src/BlogPlatform/
 ├── BlogPlatform.Contracts/
 ├── BlogPlatform.Domain/
 ├── BlogPlatform.Infrastructure/
+├── Zone55.Management/
 └── BlogPlatform.slnx
 ```
 
@@ -33,7 +34,8 @@ src/BlogPlatform/
 
 | Project | Responsibility |
 |---|---|
-| `BlogPlatform.App` | Blazor WebAssembly frontend |
+| `BlogPlatform.App` | Public Blazor WebAssembly frontend |
+| `Zone55.Management` | Read-only LearnKit management client |
 | `BlogPlatform.Api` | Public ASP.NET Core API |
 | `BlogPlatform.Cms` | Umbraco CMS and blog administration |
 | `BlogPlatform.Application` | Application services, queries, commands, and interfaces |
@@ -69,6 +71,17 @@ Contracts ---> no project dependencies
 ---
 
 ## Main Runtime Projects
+
+### `Zone55.Management`
+
+Blazor WebAssembly management client. The current slice displays a read-only list of LearnKit articles and resolves their learning step names through `BlogPlatform.Api`.
+
+Configuration:
+
+```text
+wwwroot/appsettings.json
+wwwroot/appsettings.Production.json
+```
 
 ### `BlogPlatform.App`
 
@@ -183,4 +196,10 @@ Blazor App:
 
 ```bash
 dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj --configuration Release --output ./artifacts/app
+```
+
+Management:
+
+```bash
+dotnet publish src/BlogPlatform/Zone55.Management/Zone55.Management.csproj --configuration Release --output ./artifacts/management
 ```
