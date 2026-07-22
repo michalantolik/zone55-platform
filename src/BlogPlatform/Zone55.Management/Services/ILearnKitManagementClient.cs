@@ -15,15 +15,38 @@ public interface ILearnKitManagementClient
         string key,
         CancellationToken cancellationToken = default);
 
+    Task<Guid> CreateArticleAsync(
+        CreateArticleManagementRequest request,
+        CancellationToken cancellationToken = default);
+
     Task UpdateArticleAsync(
         Guid articleId,
         UpdateArticleManagementRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteArticleAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default);
+
+    Task<Guid> CreateArticleBlockAsync(
+        Guid articleId,
+        CreateArticleBlockManagementRequest request,
         CancellationToken cancellationToken = default);
 
     Task UpdateArticleBlockAsync(
         Guid articleId,
         Guid blockId,
         UpdateArticleBlockManagementRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteArticleBlockAsync(
+        Guid articleId,
+        Guid blockId,
+        CancellationToken cancellationToken = default);
+
+    Task ReorderArticleBlocksAsync(
+        Guid articleId,
+        ReorderArticleBlocksManagementRequest request,
         CancellationToken cancellationToken = default);
 
     Task PublishArticleAsync(

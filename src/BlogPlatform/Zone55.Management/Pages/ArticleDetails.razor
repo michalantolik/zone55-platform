@@ -1,6 +1,8 @@
 @page "/articles/{ArticleId:guid}"
 @using System.Text.Json
 @inject ILearnKitManagementClient ManagementClient
+@inject NavigationManager Navigation
+@inject IJSRuntime JavaScript
 
 <PageTitle>@(_article?.Title ?? "Article") | Zone55 Management</PageTitle>
 
@@ -73,7 +75,10 @@ else
                         Publish
                     </button>
                 }
-                <button class="primary-button" type="button" @onclick="SaveAsync" disabled="@_isSaving">
+                <button class="danger-button" type="button" @onclick="DeleteArticleAsync" disabled="@IsBusy">
+                    Delete article
+                </button>
+                <button class="primary-button" type="button" @onclick="SaveAsync" disabled="@IsBusy">
                     @(_isSaving ? "Saving…" : "Save changes")
                 </button>
             </div>
@@ -141,10 +146,55 @@ else
                 <p class="eyebrow">Content</p>
                 <h2>Article blocks</h2>
             </div>
-            <span>@_article.Blocks.Count total</span>
+            <button class="primary-button" type="button" @onclick="BeginBlockCreate" disabled="@IsBusy">
+                Add block
+            </button>
         </div>
 
-        @if (_article.Blocks.Count == 0)
+        @if (_isCreatingBlock)
+        {
+            <article class="block-card block-card--new">
+                <header>
+                    <div>
+                        <span class="block-order">+</span>
+                        <strong>New article block</strong>
+                    </div>
+                </header>
+                <div class="block-editor">
+                    <div class="form-grid">
+                        <label class="form-field">
+                            <span>Type</span>
+                            <select @bind="_newBlockType" disabled="@_isSavingBlock">
+                                @foreach (var blockType in ArticleBlockTypes)
+                                {
+                                    <option value="@blockType">@blockType</option>
+                                }
+                            </select>
+                        </label>
+                        <label class="form-field">
+                            <span>Position</span>
+                            <input type="number" min="1" max="@(_article.Blocks.Count + 1)" @bind="_newBlockSortOrder" disabled="@_isSavingBlock" />
+                        </label>
+                        <label class="form-field form-field--full">
+                            <span>Content JSON</span>
+                            <textarea class="block-json-editor" rows="14" spellcheck="false" @bind="_newBlockContentJson" disabled="@_isSavingBlock"></textarea>
+                        </label>
+                    </div>
+                    @if (_blockErrorMessage is not null)
+                    {
+                        <div class="inline-error" role="alert">@_blockErrorMessage</div>
+                    }
+                    <div class="button-row block-editor-actions">
+                        <button class="secondary-button" type="button" @onclick="CancelBlockCreate" disabled="@_isSavingBlock">Cancel</button>
+                        <button class="primary-button" type="button" @onclick="CreateBlockAsync" disabled="@_isSavingBlock">
+                            @(_isSavingBlock ? "Adding…" : "Add block")
+                        </button>
+                    </div>
+                </div>
+            </article>
+        }
+
+        @if (_article.Blocks.Count == 0 && !_isCreatingBlock)
         {
             <div class="state-card">
                 <strong>No content blocks</strong>
@@ -168,12 +218,12 @@ else
                                 <code>@block.Id</code>
                                 @if (!isEditing)
                                 {
-                                    <button class="secondary-button secondary-button--compact"
-                                            type="button"
-                                            @onclick="() => BeginBlockEdit(block)"
-                                            disabled="@_isSavingBlock">
-                                        Edit
-                                    </button>
+                                    var orderedBlocks = _article.Blocks.OrderBy(x => x.SortOrder).ToArray();
+                                    var blockIndex = Array.FindIndex(orderedBlocks, x => x.Id == block.Id);
+                                    <button class="icon-button" title="Move block up" type="button" @onclick="() => MoveBlockAsync(block.Id, -1)" disabled="@(IsBusy || blockIndex <= 0)">↑</button>
+                                    <button class="icon-button" title="Move block down" type="button" @onclick="() => MoveBlockAsync(block.Id, 1)" disabled="@(IsBusy || blockIndex >= orderedBlocks.Length - 1)">↓</button>
+                                    <button class="secondary-button secondary-button--compact" type="button" @onclick="() => BeginBlockEdit(block)" disabled="@IsBusy">Edit</button>
+                                    <button class="danger-button danger-button--compact" type="button" @onclick="() => DeleteBlockAsync(block)" disabled="@IsBusy">Delete</button>
                                 }
                             </div>
                         </header>
@@ -259,6 +309,11 @@ else
     private bool _isLoading = true;
     private bool _isSaving;
     private bool _isSavingBlock;
+    private bool _isDeletingArticle;
+    private bool _isCreatingBlock;
+    private string _newBlockType = ArticleBlockTypes[0];
+    private int _newBlockSortOrder = 1;
+    private string _newBlockContentJson = "{}";
     private Guid? _editingBlockId;
     private string _editingBlockType = string.Empty;
     private string _editingBlockContentJson = string.Empty;
@@ -352,6 +407,73 @@ else
         }
     }
 
+    private bool IsBusy => _isSaving || _isSavingBlock || _isDeletingArticle;
+
+    private void BeginBlockCreate()
+    {
+        if (IsBusy || _article is null)
+        {
+            return;
+        }
+
+        ClearBlockEditor();
+        _isCreatingBlock = true;
+        _newBlockType = ArticleBlockTypes[0];
+        _newBlockSortOrder = _article.Blocks.Count + 1;
+        _newBlockContentJson = "{}";
+        _blockErrorMessage = null;
+        _errorMessage = null;
+        _operationMessage = null;
+    }
+
+    private void CancelBlockCreate()
+    {
+        if (!_isSavingBlock)
+        {
+            _isCreatingBlock = false;
+            _blockErrorMessage = null;
+        }
+    }
+
+    private async Task CreateBlockAsync()
+    {
+        if (_article is null || !_isCreatingBlock || _isSavingBlock)
+        {
+            return;
+        }
+
+        _blockErrorMessage = ValidateBlock(_newBlockType, _newBlockContentJson, _newBlockSortOrder);
+        if (_blockErrorMessage is not null)
+        {
+            return;
+        }
+
+        _isSavingBlock = true;
+        try
+        {
+            await ManagementClient.CreateArticleBlockAsync(
+                ArticleId,
+                new CreateArticleBlockManagementRequest(
+                    _newBlockType,
+                    _newBlockSortOrder,
+                    _newBlockContentJson.Trim()));
+
+            await ReloadArticleAsync();
+            _isCreatingBlock = false;
+            _operationMessage = "Article block was added.";
+        }
+        catch (Exception exception)
+        {
+            _blockErrorMessage = exception is HttpRequestException
+                ? exception.Message
+                : $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSavingBlock = false;
+        }
+    }
+
     private void BeginBlockEdit(ArticleBlockDetails block)
     {
         if (_isSavingBlock)
@@ -359,6 +481,7 @@ else
             return;
         }
 
+        _isCreatingBlock = false;
         _editingBlockId = block.Id;
         _editingBlockType = block.Type;
         _editingBlockContentJson = FormatJson(block.ContentJson);
@@ -425,21 +548,29 @@ else
         }
     }
 
-    private string? ValidateBlockEditor()
+    private string? ValidateBlockEditor() =>
+        ValidateBlock(_editingBlockType, _editingBlockContentJson, 1);
+
+    private static string? ValidateBlock(string type, string contentJson, int sortOrder)
     {
-        if (!ArticleBlockTypes.Contains(_editingBlockType, StringComparer.Ordinal))
+        if (!ArticleBlockTypes.Contains(type, StringComparer.Ordinal))
         {
             return "Block type is invalid.";
         }
 
-        if (string.IsNullOrWhiteSpace(_editingBlockContentJson))
+        if (sortOrder < 1)
+        {
+            return "Block position must be greater than zero.";
+        }
+
+        if (string.IsNullOrWhiteSpace(contentJson))
         {
             return "Content JSON is required.";
         }
 
         try
         {
-            using var document = JsonDocument.Parse(_editingBlockContentJson);
+            using var document = JsonDocument.Parse(contentJson);
         }
         catch (JsonException exception)
         {
@@ -455,6 +586,119 @@ else
         _editingBlockType = string.Empty;
         _editingBlockContentJson = string.Empty;
         _blockErrorMessage = null;
+    }
+
+
+    private async Task DeleteBlockAsync(ArticleBlockDetails block)
+    {
+        if (_article is null || IsBusy)
+        {
+            return;
+        }
+
+        var confirmed = await JavaScript.InvokeAsync<bool>(
+            "confirm",
+            $"Delete the {block.Type} block at position {block.SortOrder}? This cannot be undone.");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        _isSavingBlock = true;
+        _errorMessage = null;
+        _operationMessage = null;
+
+        try
+        {
+            await ManagementClient.DeleteArticleBlockAsync(ArticleId, block.Id);
+            await ReloadArticleAsync();
+            _operationMessage = "Article block was deleted.";
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = exception is HttpRequestException
+                ? exception.Message
+                : $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSavingBlock = false;
+        }
+    }
+
+    private async Task MoveBlockAsync(Guid blockId, int direction)
+    {
+        if (_article is null || IsBusy)
+        {
+            return;
+        }
+
+        var orderedIds = _article.Blocks.OrderBy(block => block.SortOrder).Select(block => block.Id).ToList();
+        var currentIndex = orderedIds.IndexOf(blockId);
+        var targetIndex = currentIndex + direction;
+
+        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= orderedIds.Count)
+        {
+            return;
+        }
+
+        (orderedIds[currentIndex], orderedIds[targetIndex]) = (orderedIds[targetIndex], orderedIds[currentIndex]);
+        _isSavingBlock = true;
+        _errorMessage = null;
+        _operationMessage = null;
+
+        try
+        {
+            await ManagementClient.ReorderArticleBlocksAsync(
+                ArticleId,
+                new ReorderArticleBlocksManagementRequest(orderedIds));
+            await ReloadArticleAsync();
+            _operationMessage = "Article block order was updated.";
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = exception is HttpRequestException
+                ? exception.Message
+                : $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSavingBlock = false;
+        }
+    }
+
+    private async Task DeleteArticleAsync()
+    {
+        if (_article is null || IsBusy)
+        {
+            return;
+        }
+
+        var confirmed = await JavaScript.InvokeAsync<bool>(
+            "confirm",
+            $"Delete '{_article.Title}' and all of its blocks? This cannot be undone.");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        _isDeletingArticle = true;
+        _errorMessage = null;
+
+        try
+        {
+            await ManagementClient.DeleteArticleAsync(ArticleId);
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = exception is HttpRequestException
+                ? exception.Message
+                : $"Unexpected error: {exception.Message}";
+            _isDeletingArticle = false;
+        }
     }
 
     private async Task PublishAsync()

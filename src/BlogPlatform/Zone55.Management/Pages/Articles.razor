@@ -9,9 +9,12 @@
         <h1>Articles</h1>
         <p>Manage articles stored in LearnKit.</p>
     </div>
-    <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">
-        Refresh
-    </button>
+    <div class="button-row page-header-actions">
+        <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">
+            Refresh
+        </button>
+        <a class="primary-button button-link" href="/articles/new">New article</a>
+    </div>
 </header>
 
 @if (_isLoading)

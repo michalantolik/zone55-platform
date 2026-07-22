@@ -1,0 +1,183 @@
+@page "/articles/new"
+@inject ILearnKitManagementClient ManagementClient
+@inject NavigationManager Navigation
+
+<PageTitle>New article | Zone55 Management</PageTitle>
+
+<header class="page-header details-header">
+    <div>
+        <a class="back-link" href="/">← Articles</a>
+        <p class="eyebrow">LearnKit article</p>
+        <h1>Create article</h1>
+        <p>Create a draft article and continue editing its content blocks.</p>
+    </div>
+</header>
+
+@if (_isLoading)
+{
+    <div class="state-card" role="status">
+        <strong>Loading learning structure…</strong>
+        <p>Reading available learning steps from Zone55.Api.</p>
+    </div>
+}
+else if (_loadErrorMessage is not null)
+{
+    <div class="state-card state-card--error" role="alert">
+        <strong>Could not load learning steps</strong>
+        <p>@_loadErrorMessage</p>
+        <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
+    </div>
+}
+else
+{
+    @if (_errorMessage is not null)
+    {
+        <div class="operation-message operation-message--error" role="alert">@_errorMessage</div>
+    }
+
+    <section class="editor-card" aria-labelledby="new-article-title">
+        <div class="section-heading editor-heading">
+            <div>
+                <p class="eyebrow">Draft</p>
+                <h2 id="new-article-title">Article details</h2>
+            </div>
+            <div class="button-row editor-actions">
+                <a class="secondary-button button-link" href="/">Cancel</a>
+                <button class="primary-button" type="button" @onclick="CreateAsync" disabled="@_isSaving">
+                    @(_isSaving ? "Creating…" : "Create article")
+                </button>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <label class="form-field form-field--wide">
+                <span>Title</span>
+                <input @bind="_title" @bind:event="oninput" maxlength="300" disabled="@_isSaving" />
+            </label>
+
+            <label class="form-field">
+                <span>Slug</span>
+                <input @bind="_slug" disabled="@_isSaving" />
+            </label>
+
+            <label class="form-field">
+                <span>Sort order</span>
+                <input type="number" min="1" @bind="_sortOrder" disabled="@_isSaving" />
+            </label>
+
+            <label class="form-field form-field--wide">
+                <span>Learning step</span>
+                <select @bind="_learningStepId" disabled="@_isSaving">
+                    @foreach (var group in _stepGroups)
+                    {
+                        <optgroup label="@group.ZoneTitle">
+                            @foreach (var step in group.Steps)
+                            {
+                                <option value="@step.Id">@step.Title</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </label>
+
+            <label class="form-field form-field--full">
+                <span>Summary</span>
+                <textarea rows="6" @bind="_summary" disabled="@_isSaving"></textarea>
+            </label>
+        </div>
+    </section>
+}
+
+@code {
+    private IReadOnlyCollection<StepGroup> _stepGroups = [];
+    private Guid _learningStepId;
+    private string _slug = string.Empty;
+    private string _title = string.Empty;
+    private string _summary = string.Empty;
+    private int _sortOrder = 1;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _loadErrorMessage;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _loadErrorMessage = null;
+
+        try
+        {
+            var learningPath = await ManagementClient.GetLearningPathAsync("dotnet");
+            _stepGroups = learningPath?.Zones
+                .OrderBy(zone => zone.SortOrder)
+                .Select(zone => new StepGroup(
+                    zone.Title,
+                    zone.Steps.OrderBy(step => step.SortOrder).ToArray()))
+                .ToArray()
+                ?? [];
+
+            _learningStepId = _stepGroups.SelectMany(group => group.Steps).FirstOrDefault()?.Id ?? Guid.Empty;
+        }
+        catch (Exception exception)
+        {
+            _loadErrorMessage = exception is HttpRequestException
+                ? exception.Message
+                : $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateAsync()
+    {
+        if (_isSaving)
+        {
+            return;
+        }
+
+        _errorMessage = Validate();
+        if (_errorMessage is not null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            var articleId = await ManagementClient.CreateArticleAsync(
+                new CreateArticleManagementRequest(
+                    _learningStepId,
+                    _slug.Trim(),
+                    _title.Trim(),
+                    string.IsNullOrWhiteSpace(_summary) ? null : _summary.Trim(),
+                    _sortOrder));
+
+            Navigation.NavigateTo($"/articles/{articleId}");
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = exception is HttpRequestException
+                ? exception.Message
+                : $"Unexpected error: {exception.Message}";
+            _isSaving = false;
+        }
+    }
+
+    private string? Validate()
+    {
+        if (string.IsNullOrWhiteSpace(_title)) return "Title is required.";
+        if (string.IsNullOrWhiteSpace(_slug)) return "Slug is required.";
+        if (_learningStepId == Guid.Empty) return "Learning step is required.";
+        if (_sortOrder < 1) return "Sort order must be greater than zero.";
+        return null;
+    }
+
+    private sealed record StepGroup(
+        string ZoneTitle,
+        IReadOnlyCollection<LearningStepManagementDetails> Steps);
+}

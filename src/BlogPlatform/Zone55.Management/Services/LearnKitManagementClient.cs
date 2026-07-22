@@ -53,6 +53,25 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
         return await response.Content.ReadFromJsonAsync<LearningPathManagementDetails>(
             cancellationToken: cancellationToken);
     }
+
+    public async Task<Guid> CreateArticleAsync(
+        CreateArticleManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PostAsJsonAsync(
+            "api/learnkit/admin/articles",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        var created = await response.Content.ReadFromJsonAsync<CreatedArticleResponse>(
+            cancellationToken: cancellationToken);
+
+        return created?.ArticleId
+            ?? throw new HttpRequestException("Zone55.Api did not return the created article identifier.");
+    }
+
     public async Task UpdateArticleAsync(
         Guid articleId,
         UpdateArticleManagementRequest request,
@@ -66,6 +85,36 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
         await EnsureSuccessAsync(response, cancellationToken);
     }
 
+    public async Task DeleteArticleAsync(
+        Guid articleId,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.DeleteAsync(
+            $"api/learnkit/admin/articles/{articleId}",
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task<Guid> CreateArticleBlockAsync(
+        Guid articleId,
+        CreateArticleBlockManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PostAsJsonAsync(
+            $"api/learnkit/admin/articles/{articleId}/blocks",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        var created = await response.Content.ReadFromJsonAsync<CreatedArticleBlockResponse>(
+            cancellationToken: cancellationToken);
+
+        return created?.BlockId
+            ?? throw new HttpRequestException("Zone55.Api did not return the created block identifier.");
+    }
+
     public async Task UpdateArticleBlockAsync(
         Guid articleId,
         Guid blockId,
@@ -74,6 +123,31 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
     {
         using var response = await httpClient.PutAsJsonAsync(
             $"api/learnkit/admin/articles/{articleId}/blocks/{blockId}",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task DeleteArticleBlockAsync(
+        Guid articleId,
+        Guid blockId,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.DeleteAsync(
+            $"api/learnkit/admin/articles/{articleId}/blocks/{blockId}",
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task ReorderArticleBlocksAsync(
+        Guid articleId,
+        ReorderArticleBlocksManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsJsonAsync(
+            $"api/learnkit/admin/articles/{articleId}/blocks/order",
             request,
             cancellationToken);
 
@@ -121,5 +195,4 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
         throw new HttpRequestException(
             $"Zone55.Api returned {(int)response.StatusCode} ({response.StatusCode}). {details}");
     }
-
 }
