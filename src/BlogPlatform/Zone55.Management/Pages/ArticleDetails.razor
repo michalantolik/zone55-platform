@@ -3,7 +3,6 @@
 @inject ILearnKitManagementClient ManagementClient
 @inject NavigationManager Navigation
 @inject IJSRuntime JavaScript
-@inject IConfiguration Configuration
 
 <PageTitle>@(_article?.Title ?? "Article") | Zone55 Management</PageTitle>
 
@@ -108,12 +107,12 @@ else
         <div class="form-grid">
             <label class="form-field form-field--wide">
                 <span>Title</span>
-                <input @bind="_title" maxlength="300" disabled="@_isSaving" />
+                <input @bind="_title" @bind:event="oninput" maxlength="300" disabled="@_isSaving" />
             </label>
 
             <label class="form-field">
                 <span>Slug</span>
-                <input @bind="_slug" disabled="@_isSaving" />
+                <input @bind="_slug" @bind:event="oninput" disabled="@_isSaving" />
             </label>
 
             <label class="form-field">
@@ -133,7 +132,7 @@ else
 
             <label class="form-field form-field--full">
                 <span>Summary</span>
-                <textarea rows="6" @bind="_summary" disabled="@_isSaving"></textarea>
+                <textarea rows="6" @bind="_summary" @bind:event="oninput" disabled="@_isSaving"></textarea>
             </label>
         </div>
     </section>
@@ -304,8 +303,7 @@ else
     </div>
 
     <aside class="article-workspace__preview">
-        <ArticlePreviewWorkspace PreviewUrl="@PreviewUrl"
-                                 Slug="@_slug"
+        <ArticlePreviewWorkspace Slug="@_slug"
                                  Title="@_title"
                                  Summary="@_summary"
                                  BodyContent="@BuildPreviewBodyContent()" />
@@ -855,15 +853,6 @@ else
         if (WorkspaceModes.Contains(mode, StringComparer.Ordinal))
         {
             _workspaceMode = mode;
-        }
-    }
-
-    private string PreviewUrl
-    {
-        get
-        {
-            var baseUrl = Configuration["Portal:BaseUrl"] ?? "https://localhost:7252/";
-            return $"{baseUrl.TrimEnd('/')}/preview/article";
         }
     }
 
