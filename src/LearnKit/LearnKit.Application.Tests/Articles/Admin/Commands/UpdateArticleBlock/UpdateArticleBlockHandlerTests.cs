@@ -11,7 +11,7 @@ public sealed class UpdateArticleBlockHandlerTests
     public async Task HandleAsync_ShouldUpdateBlockAndSave_WhenBlockExists()
     {
         var article = new Article(Guid.NewGuid(), "article", "Article", 1);
-        var block = new ArticleBlock(ArticleBlockType.Markdown, 1, "{}");
+        var block = new ArticleBlock(ArticleBlockType.Markdown, 1, "{\"markdown\":\"Content\"}");
         article.AddBlock(block);
         var store = new ArticleManagementStoreStub(article);
         var handler = new UpdateArticleBlockHandler(store);
@@ -23,6 +23,30 @@ public sealed class UpdateArticleBlockHandlerTests
         Assert.Equal(ArticleBlockType.Code, block.Type);
         Assert.Equal("{\"code\":\"dotnet test\"}", block.ContentJson);
         Assert.Equal(1, store.SaveChangesCallCount);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ShouldKeepExistingBlockWithoutSaving_WhenContentIsInvalid()
+    {
+        var article = new Article(Guid.NewGuid(), "article", "Article", 1);
+        var block = new ArticleBlock(
+            ArticleBlockType.Markdown,
+            1,
+            "{\"markdown\":\"Original\"}");
+        article.AddBlock(block);
+        var store = new ArticleManagementStoreStub(article);
+        var handler = new UpdateArticleBlockHandler(store);
+
+        await Assert.ThrowsAsync<ArticleBlockContentValidationException>(
+            () => handler.HandleAsync(new UpdateArticleBlockCommand(
+                article.Id,
+                block.Id,
+                "Code",
+                "{}")));
+
+        Assert.Equal(ArticleBlockType.Markdown, block.Type);
+        Assert.Equal("{\"markdown\":\"Original\"}", block.ContentJson);
+        Assert.Equal(0, store.SaveChangesCallCount);
     }
 
     [Fact]

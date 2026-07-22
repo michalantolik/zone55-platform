@@ -28,6 +28,24 @@ public sealed class CreateArticleBlockHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_ShouldRejectInvalidContentWithoutSaving()
+    {
+        var article = new Article(Guid.NewGuid(), "article", "Article", 1);
+        var store = new ArticleManagementStoreStub(article);
+        var handler = new CreateArticleBlockHandler(store);
+
+        await Assert.ThrowsAsync<ArticleBlockContentValidationException>(
+            () => handler.HandleAsync(new CreateArticleBlockCommand(
+                article.Id,
+                "Code",
+                1,
+                "{\"language\":\"csharp\"}")));
+
+        Assert.Empty(article.Blocks);
+        Assert.Equal(0, store.SaveChangesCallCount);
+    }
+
+    [Fact]
     public async Task HandleAsync_ShouldReturnNullWithoutSaving_WhenArticleDoesNotExist()
     {
         var store = new ArticleManagementStoreStub(null);

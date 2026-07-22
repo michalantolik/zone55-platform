@@ -203,8 +203,7 @@ public sealed class Article
             return false;
         }
 
-        block.ChangeType(type);
-        block.UpdateContent(contentJson);
+        block.Update(type, contentJson);
 
         return true;
     }

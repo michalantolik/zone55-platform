@@ -16,7 +16,7 @@ public sealed class ArticleBlock
         string contentJson)
     {
         ValidateSortOrder(sortOrder);
-        ValidateContent(contentJson);
+        ArticleBlockContentValidator.Validate(type, contentJson);
 
         Type = type;
         SortOrder = sortOrder;
@@ -46,17 +46,11 @@ public sealed class ArticleBlock
     /// <summary>
     /// Changes the block type.
     /// </summary>
-    public void ChangeType(ArticleBlockType type)
+    public void Update(ArticleBlockType type, string contentJson)
     {
-        Type = type;
-    }
+        ArticleBlockContentValidator.Validate(type, contentJson);
 
-    /// <summary>
-    /// Updates the block content.
-    /// </summary>
-    public void UpdateContent(string contentJson)
-    {
-        ValidateContent(contentJson);
+        Type = type;
         ContentJson = NormalizeContent(contentJson);
     }
 
@@ -76,16 +70,6 @@ public sealed class ArticleBlock
             throw new ArgumentOutOfRangeException(
                 nameof(sortOrder),
                 "Sort order must be greater than zero.");
-        }
-    }
-
-    private static void ValidateContent(string contentJson)
-    {
-        if (string.IsNullOrWhiteSpace(contentJson))
-        {
-            throw new ArgumentException(
-                "Block content cannot be empty.",
-                nameof(contentJson));
         }
     }
 

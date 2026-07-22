@@ -6816,17 +6816,6 @@
                         "sortOrder": 4,
                         "content": {
                           "type": "text",
-                          "text": "",
-                          "rows": [],
-                          "sourceType": "text",
-                          "markdown": ""
-                        }
-                      },
-                      {
-                        "type": 0,
-                        "sortOrder": 5,
-                        "content": {
-                          "type": "text",
                           "text": "## Applying the Changes\n\nAfter loading the resource, apply the patch to it.",
                           "rows": [],
                           "sourceType": "text",
@@ -6835,7 +6824,7 @@
                       },
                       {
                         "type": 1,
-                        "sortOrder": 6,
+                        "sortOrder": 5,
                         "content": {
                           "type": "codeSnippet",
                           "language": "csharp",
@@ -6849,7 +6838,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 7,
+                        "sortOrder": 6,
                         "content": {
                           "type": "text",
                           "text": "This updates the object in memory according to the instructions contained in the PATCH request.\n\nFor example, if the request changes only the **Name**, only that property is updated.",
@@ -6860,7 +6849,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 8,
+                        "sortOrder": 7,
                         "content": {
                           "type": "text",
                           "text": "## Saving the Updated Resource\n\nAfter applying the changes, save the updated resource.",
@@ -6871,7 +6860,7 @@
                       },
                       {
                         "type": 1,
-                        "sortOrder": 9,
+                        "sortOrder": 8,
                         "content": {
                           "type": "codeSnippet",
                           "language": "csharp",
@@ -6885,7 +6874,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 10,
+                        "sortOrder": 9,
                         "content": {
                           "type": "text",
                           "text": "A successful PATCH request commonly returns **204 No Content**.\n\nThis indicates that the update has been successfully completed.",
@@ -6896,7 +6885,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 11,
+                        "sortOrder": 10,
                         "content": {
                           "type": "heading",
                           "level": 2,
@@ -6908,7 +6897,7 @@
                       },
                       {
                         "type": 1,
-                        "sortOrder": 12,
+                        "sortOrder": 11,
                         "content": {
                           "type": "codeSnippet",
                           "language": "csharp",
@@ -6922,7 +6911,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 13,
+                        "sortOrder": 12,
                         "content": {
                           "type": "text",
                           "text": "## What About Validation?\n\nApplying a PATCH document updates the object.\n\nIt does **not** automatically guarantee that the updated object is valid.\n\nFor example, a client could remove a required value or set an invalid one.\n\nIn the next article, we'll learn how to validate a PATCH request before saving the updated resource.",
@@ -6933,7 +6922,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 14,
+                        "sortOrder": 13,
                         "content": {
                           "type": "heading",
                           "level": 2,
@@ -6945,7 +6934,7 @@
                       },
                       {
                         "type": 0,
-                        "sortOrder": 15,
+                        "sortOrder": 14,
                         "content": {
                           "type": "text",
                           "text": "A **PATCH endpoint** receives a **JsonPatchDocument**.\n\nIt applies the requested changes to a resource.\n\nIf the update succeeds, the endpoint typically returns **204 No Content**.",

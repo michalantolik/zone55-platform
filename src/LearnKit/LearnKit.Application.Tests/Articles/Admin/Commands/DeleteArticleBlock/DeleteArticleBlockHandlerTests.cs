@@ -11,8 +11,8 @@ public sealed class DeleteArticleBlockHandlerTests
     public async Task HandleAsync_ShouldDeleteBlockNormalizeOrderAndSave_WhenBlockExists()
     {
         var article = new Article(Guid.NewGuid(), "article", "Article", 1);
-        var first = new ArticleBlock(ArticleBlockType.Markdown, 1, "{}");
-        var second = new ArticleBlock(ArticleBlockType.Code, 2, "{}");
+        var first = new ArticleBlock(ArticleBlockType.Markdown, 1, "{\"markdown\":\"Content\"}");
+        var second = new ArticleBlock(ArticleBlockType.Code, 2, "{\"code\":\"dotnet test\"}");
         article.AddBlock(first);
         article.AddBlock(second);
         var store = new ArticleManagementStoreStub(article);

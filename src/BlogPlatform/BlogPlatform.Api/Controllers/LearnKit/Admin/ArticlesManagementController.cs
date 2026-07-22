@@ -12,6 +12,7 @@ using LearnKit.Application.Articles.Admin.Commands.UpdateArticle;
 using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
+using LearnKit.Domain.Articles;
 
 namespace BlogPlatform.Api.Controllers.LearnKit.Admin;
 
@@ -219,9 +220,18 @@ public sealed class ArticlesManagementController : ControllerBase
             request.SortOrder,
             request.ContentJson);
 
-        var blockId = await _createArticleBlockHandler.HandleAsync(
-            command,
-            cancellationToken);
+        Guid? blockId;
+
+        try
+        {
+            blockId = await _createArticleBlockHandler.HandleAsync(
+                command,
+                cancellationToken);
+        }
+        catch (ArticleBlockContentValidationException exception)
+        {
+            return InvalidBlockContent(exception);
+        }
 
         if (blockId is null)
         {
@@ -250,9 +260,18 @@ public sealed class ArticlesManagementController : ControllerBase
             request.Type,
             request.ContentJson);
 
-        var updated = await _updateArticleBlockHandler.HandleAsync(
-            command,
-            cancellationToken);
+        bool updated;
+
+        try
+        {
+            updated = await _updateArticleBlockHandler.HandleAsync(
+                command,
+                cancellationToken);
+        }
+        catch (ArticleBlockContentValidationException exception)
+        {
+            return InvalidBlockContent(exception);
+        }
 
         if (!updated)
         {
@@ -354,4 +373,17 @@ public sealed class ArticlesManagementController : ControllerBase
         return NoContent();
     }
 
+
+    private ActionResult InvalidBlockContent(
+        ArticleBlockContentValidationException exception)
+    {
+        ModelState.AddModelError("contentJson", exception.Message);
+
+        foreach (var error in exception.Errors)
+        {
+            ModelState.AddModelError("contentJson", error);
+        }
+
+        return ValidationProblem(ModelState);
+    }
 }
