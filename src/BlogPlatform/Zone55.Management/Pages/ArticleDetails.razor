@@ -57,6 +57,24 @@ else
         <div class="operation-message operation-message--error" role="alert">@_errorMessage</div>
     }
 
+    <div class="workspace-mode-toolbar" role="group" aria-label="Article workspace mode">
+        <div>
+            <strong>Article workspace</strong>
+            <span>Choose editing, split, or full preview mode.</span>
+        </div>
+        <div class="preview-mode-switcher">
+            @foreach (var mode in WorkspaceModes)
+            {
+                <button type="button"
+                        class="@(_workspaceMode == mode ? "active" : null)"
+                        aria-pressed="@(_workspaceMode == mode)"
+                        @onclick="() => SetWorkspaceMode(mode)">
+                    @mode
+                </button>
+            }
+        </div>
+    </div>
+
     <div class="article-workspace article-workspace--@_workspaceMode.ToLowerInvariant()">
     <div class="article-workspace__editor">
     <section class="editor-card" aria-labelledby="article-editor-title">
@@ -290,8 +308,7 @@ else
                                  Slug="@_slug"
                                  Title="@_title"
                                  Summary="@_summary"
-                                 BodyContent="@BuildPreviewBodyContent()"
-                                 @bind-Mode="_workspaceMode" />
+                                 BodyContent="@BuildPreviewBodyContent()" />
     </aside>
     </div>
 }
@@ -308,6 +325,8 @@ else
     private string _title = string.Empty;
     private string _summary = string.Empty;
     private int _sortOrder;
+    private static readonly string[] WorkspaceModes = ["Editor", "Split", "Preview"];
+
     private static readonly string[] ArticleBlockTypes =
     [
         "Markdown",
@@ -828,6 +847,14 @@ else
         catch (JsonException)
         {
             return contentJson;
+        }
+    }
+
+    private void SetWorkspaceMode(string mode)
+    {
+        if (WorkspaceModes.Contains(mode, StringComparer.Ordinal))
+        {
+            _workspaceMode = mode;
         }
     }
 

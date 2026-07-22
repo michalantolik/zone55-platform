@@ -22,9 +22,14 @@
             const sequence = event.data.sequence ?? 0;
             const article = event.data.article;
             const json = JSON.stringify(article);
+            const currentDotNetObject = window.blogPlatformPreview.dotNetObject;
+
+            if (!currentDotNetObject) {
+                return;
+            }
 
             try {
-                await dotNetObject.invokeMethodAsync(
+                await currentDotNetObject.invokeMethodAsync(
                     'LoadPreviewArticle',
                     json,
                     sequence);
@@ -32,6 +37,10 @@
                 console.error('[LIVE_PREVIEW] LoadPreviewArticle failed.', error);
             }
         });
+
+        window.parent.postMessage({
+            type: 'BLOG_ARTICLE_PREVIEW_READY'
+        }, '*');
     },
 
     sendAck: (sequence, title, blockCount) => {
