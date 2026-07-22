@@ -1,0 +1,205 @@
+@using System.Text.Json
+
+<div class="typed-block-editor">
+    <div class="typed-block-editor__toolbar">
+        <span>@EditorDescription</span>
+        <button class="text-button" type="button" @onclick="ToggleAdvanced">
+            @(_showAdvanced ? "Use form editor" : "Advanced JSON")
+        </button>
+    </div>
+
+    @if (_showAdvanced)
+    {
+        <label class="form-field form-field--full">
+            <span>Content JSON</span>
+            <textarea class="block-json-editor" rows="14" spellcheck="false" value="@Value" @oninput="OnAdvancedJsonInput"></textarea>
+        </label>
+    }
+    else
+    {
+        @switch (Type)
+        {
+            case "Markdown":
+                <label class="form-field form-field--full">
+                    <span>Markdown</span>
+                    <textarea class="block-content-editor" rows="14" @bind="Markdown" @bind:event="oninput"></textarea>
+                </label>
+                break;
+            case "Code":
+                <div class="form-grid">
+                    <label class="form-field"><span>Language</span><input @bind="Language" @bind:event="oninput" /></label>
+                    <label class="form-field"><span>File name</span><input @bind="FileName" @bind:event="oninput" /></label>
+                    <label class="form-field"><span>Title</span><input @bind="CodeTitle" @bind:event="oninput" /></label>
+                    <label class="check-field"><input type="checkbox" @bind="ShowTitleBar" /><span>Show title bar</span></label>
+                    <label class="form-field form-field--full"><span>Code</span><textarea class="block-content-editor block-content-editor--code" rows="16" spellcheck="false" @bind="Code" @bind:event="oninput"></textarea></label>
+                </div>
+                break;
+            case "Diagram":
+                <div class="form-grid">
+                    <label class="form-field"><span>Diagram type</span><select @bind="DiagramType"><option value="plantuml">PlantUML</option><option value="mermaid">Mermaid</option></select></label>
+                    <label class="form-field"><span>Title</span><input @bind="DiagramTitle" @bind:event="oninput" /></label>
+                    <label class="check-field"><input type="checkbox" @bind="ShowTitleBar" /><span>Show title bar</span></label>
+                    <label class="form-field form-field--full"><span>Diagram source</span><textarea class="block-content-editor block-content-editor--code" rows="16" spellcheck="false" @bind="Diagram" @bind:event="oninput"></textarea></label>
+                </div>
+                break;
+            case "Callout":
+                <div class="form-grid">
+                    <label class="form-field"><span>Kind</span><select @bind="Kind"><option value="info">Info</option><option value="note">Note</option><option value="warning">Warning</option><option value="success">Success</option><option value="danger">Danger</option></select></label>
+                    <label class="form-field form-field--full"><span>Text</span><textarea class="block-content-editor" rows="8" @bind="Text" @bind:event="oninput"></textarea></label>
+                </div>
+                break;
+            case "Summary":
+                <label class="form-field form-field--full"><span>Summary</span><textarea class="block-content-editor" rows="10" @bind="Summary" @bind:event="oninput"></textarea></label>
+                break;
+            case "Table":
+                <div class="form-grid">
+                    <label class="form-field"><span>Style</span><select @bind="TableStyle"><option value="dense-engineering">Dense engineering</option><option value="minimal-reference">Minimal reference</option></select></label>
+                    <label class="form-field"><span>Horizontal alignment</span><select @bind="HorizontalAlignment"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
+                    <label class="check-field"><input type="checkbox" @bind="HasHeaderRow" /><span>Header row</span></label>
+                    <label class="check-field"><input type="checkbox" @bind="HasHeaderColumn" /><span>Header column</span></label>
+                    <label class="check-field"><input type="checkbox" @bind="AutoNumberRows" /><span>Number rows</span></label>
+                    <label class="form-field form-field--full"><span>Rows JSON</span><textarea class="block-content-editor block-content-editor--code" rows="14" spellcheck="false" @bind="RowsJson" @bind:event="oninput"></textarea><small>Use an array of rows, for example [[{"text":"Name"},{"text":"Value"}]].</small></label>
+                </div>
+                break;
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Type { get; set; } = "Markdown";
+    [Parameter] public string Value { get; set; } = "{}";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private string _loadedType = string.Empty;
+    private string _loadedValue = string.Empty;
+    private bool _showAdvanced;
+    private bool _suppressPublish;
+
+    private string _markdown = string.Empty, _code = string.Empty, _language = "csharp", _fileName = string.Empty, _codeTitle = string.Empty;
+    private string _diagram = string.Empty, _diagramTitle = string.Empty, _diagramType = "plantuml", _kind = "info", _text = string.Empty, _summary = string.Empty;
+    private string _tableStyle = "dense-engineering", _horizontalAlignment = "left", _rowsJson = "[]";
+    private bool _showTitleBar = true, _hasHeaderRow = true, _hasHeaderColumn, _autoNumberRows;
+
+    private string Markdown { get => _markdown; set { _markdown = value; Publish(); } }
+    private string Code { get => _code; set { _code = value; Publish(); } }
+    private string Language { get => _language; set { _language = value; Publish(); } }
+    private string FileName { get => _fileName; set { _fileName = value; Publish(); } }
+    private string CodeTitle { get => _codeTitle; set { _codeTitle = value; Publish(); } }
+    private string Diagram { get => _diagram; set { _diagram = value; Publish(); } }
+    private string DiagramTitle { get => _diagramTitle; set { _diagramTitle = value; Publish(); } }
+    private string DiagramType { get => _diagramType; set { _diagramType = value; Publish(); } }
+    private string Kind { get => _kind; set { _kind = value; Publish(); } }
+    private string Text { get => _text; set { _text = value; Publish(); } }
+    private string Summary { get => _summary; set { _summary = value; Publish(); } }
+    private string TableStyle { get => _tableStyle; set { _tableStyle = value; Publish(); } }
+    private string HorizontalAlignment { get => _horizontalAlignment; set { _horizontalAlignment = value; Publish(); } }
+    private string RowsJson { get => _rowsJson; set { _rowsJson = value; Publish(); } }
+    private bool ShowTitleBar { get => _showTitleBar; set { _showTitleBar = value; Publish(); } }
+    private bool HasHeaderRow { get => _hasHeaderRow; set { _hasHeaderRow = value; Publish(); } }
+    private bool HasHeaderColumn { get => _hasHeaderColumn; set { _hasHeaderColumn = value; Publish(); } }
+    private bool AutoNumberRows { get => _autoNumberRows; set { _autoNumberRows = value; Publish(); } }
+
+    private string EditorDescription => Type switch
+    {
+        "Markdown" => "Write article text using Markdown.",
+        "Code" => "Configure the code sample and its optional title bar.",
+        "Diagram" => "Edit PlantUML or Mermaid source and preview it in the portal renderer.",
+        "Table" => "Configure table presentation and row data.",
+        "Callout" => "Create a highlighted note, warning or information block.",
+        "Summary" => "Add a compact article summary block.",
+        _ => "Edit block content."
+    };
+
+    protected override void OnParametersSet()
+    {
+        if (_loadedType == Type && _loadedValue == Value)
+        {
+            return;
+        }
+
+        _loadedType = Type;
+        _loadedValue = Value;
+        LoadValue();
+    }
+
+    private void LoadValue()
+    {
+        _suppressPublish = true;
+        try
+        {
+            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(Value) ? "{}" : Value);
+            var root = document.RootElement;
+            _markdown = String(root, "markdown") ?? String(root, "text") ?? string.Empty;
+            _code = String(root, "code") ?? string.Empty;
+            _language = String(root, "language") ?? "csharp";
+            _fileName = String(root, "fileName") ?? string.Empty;
+            _codeTitle = String(root, "codeTitle") ?? String(root, "title") ?? string.Empty;
+            _diagram = String(root, "diagram") ?? String(root, "plantUml") ?? String(root, "mermaid") ?? string.Empty;
+            _diagramTitle = String(root, "title") ?? string.Empty;
+            _diagramType = String(root, "diagramType") ?? (_diagram.TrimStart().StartsWith("@startuml", StringComparison.OrdinalIgnoreCase) ? "plantuml" : "mermaid");
+            _kind = String(root, "kind") ?? "info";
+            _text = String(root, "text") ?? string.Empty;
+            _summary = String(root, "summary") ?? string.Empty;
+            _showTitleBar = Bool(root, "showCodeTitleBar") ?? Bool(root, "showDiagramTitleBar") ?? true;
+            _tableStyle = String(root, "tableStyle") ?? "dense-engineering";
+            _horizontalAlignment = String(root, "defaultHorizontalAlignment") ?? "left";
+            _hasHeaderRow = Bool(root, "hasHeaderRow") ?? true;
+            _hasHeaderColumn = Bool(root, "hasHeaderColumn") ?? false;
+            _autoNumberRows = Bool(root, "autoNumberRows") ?? false;
+            _rowsJson = root.TryGetProperty("rows", out var rows) ? JsonSerializer.Serialize(rows, JsonOptions) : "[]";
+            _showAdvanced = false;
+        }
+        catch (JsonException)
+        {
+            _showAdvanced = true;
+        }
+        finally
+        {
+            _suppressPublish = false;
+        }
+    }
+
+    private void ToggleAdvanced() => _showAdvanced = !_showAdvanced;
+
+    private async Task OnAdvancedJsonInput(ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString() ?? string.Empty;
+        _loadedValue = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+
+    private void Publish()
+    {
+        if (_suppressPublish) return;
+        var value = SerializeValue();
+        _loadedValue = value;
+        _ = ValueChanged.InvokeAsync(value);
+    }
+
+    private string SerializeValue()
+    {
+        object content = Type switch
+        {
+            "Code" => new { code = _code, language = EmptyToNull(_language), fileName = EmptyToNull(_fileName), codeTitle = EmptyToNull(_codeTitle), showCodeTitleBar = _showTitleBar },
+            "Diagram" => new { diagram = _diagram, title = EmptyToNull(_diagramTitle), showDiagramTitleBar = _showTitleBar, diagramType = _diagramType },
+            "Table" => CreateTableContent(),
+            "Callout" => new { kind = _kind, text = _text },
+            "Summary" => new { summary = _summary },
+            _ => new { markdown = _markdown }
+        };
+        return JsonSerializer.Serialize(content, JsonOptions);
+    }
+
+    private object CreateTableContent()
+    {
+        JsonElement rows;
+        try { using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(_rowsJson) ? "[]" : _rowsJson); rows = document.RootElement.Clone(); }
+        catch (JsonException) { using var document = JsonDocument.Parse("[]"); rows = document.RootElement.Clone(); }
+        return new { hasHeaderRow = _hasHeaderRow, hasHeaderColumn = _hasHeaderColumn, autoNumberRows = _autoNumberRows, tableStyle = _tableStyle, defaultHorizontalAlignment = _horizontalAlignment, defaultVerticalAlignment = "middle", rows };
+    }
+
+    private static string? String(JsonElement root, string name) => root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+    private static bool? Bool(JsonElement root, string name) => root.TryGetProperty(name, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False ? value.GetBoolean() : null;
+    private static string? EmptyToNull(string value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+}

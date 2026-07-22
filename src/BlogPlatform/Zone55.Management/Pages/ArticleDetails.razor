@@ -3,6 +3,7 @@
 @inject ILearnKitManagementClient ManagementClient
 @inject NavigationManager Navigation
 @inject IJSRuntime JavaScript
+@inject IConfiguration Configuration
 
 <PageTitle>@(_article?.Title ?? "Article") | Zone55 Management</PageTitle>
 
@@ -56,6 +57,8 @@ else
         <div class="operation-message operation-message--error" role="alert">@_errorMessage</div>
     }
 
+    <div class="article-workspace article-workspace--@_workspaceMode.ToLowerInvariant()">
+    <div class="article-workspace__editor">
     <section class="editor-card" aria-labelledby="article-editor-title">
         <div class="section-heading editor-heading">
             <div>
@@ -175,10 +178,11 @@ else
                             <span>Position</span>
                             <input type="number" min="1" max="@(_article.Blocks.Count + 1)" @bind="_newBlockSortOrder" disabled="@_isSavingBlock" />
                         </label>
-                        <label class="form-field form-field--full">
-                            <span>Content JSON</span>
-                            <textarea class="block-json-editor" rows="14" spellcheck="false" @bind="_newBlockContentJson" disabled="@_isSavingBlock"></textarea>
-                        </label>
+                        <div class="form-field form-field--full">
+                            <TypedArticleBlockEditor @key="_newBlockType"
+                                                     Type="@_newBlockType"
+                                                     @bind-Value="_newBlockContentJson" />
+                        </div>
                     </div>
                     @if (_blockErrorMessage is not null)
                     {
@@ -242,14 +246,11 @@ else
                                         </select>
                                     </label>
 
-                                    <label class="form-field form-field--full">
-                                        <span>Content JSON</span>
-                                        <textarea class="block-json-editor"
-                                                  rows="14"
-                                                  spellcheck="false"
-                                                  @bind="_editingBlockContentJson"
-                                                  disabled="@_isSavingBlock"></textarea>
-                                    </label>
+                                    <div class="form-field form-field--full">
+                                        <TypedArticleBlockEditor @key="_editingBlockType"
+                                                                 Type="@_editingBlockType"
+                                                                 @bind-Value="_editingBlockContentJson" />
+                                    </div>
                                 </div>
 
                                 @if (_blockErrorMessage is not null)
@@ -282,6 +283,17 @@ else
             </div>
         }
     </section>
+    </div>
+
+    <aside class="article-workspace__preview">
+        <ArticlePreviewWorkspace PreviewUrl="@PreviewUrl"
+                                 Slug="@_slug"
+                                 Title="@_title"
+                                 Summary="@_summary"
+                                 BodyContent="@BuildPreviewBodyContent()"
+                                 @bind-Mode="_workspaceMode" />
+    </aside>
+    </div>
 }
 
 @code {
@@ -313,7 +325,8 @@ else
     private bool _isCreatingBlock;
     private string _newBlockType = ArticleBlockTypes[0];
     private int _newBlockSortOrder = 1;
-    private string _newBlockContentJson = "{}";
+    private string _newBlockContentJson = CreateDefaultBlockJson(ArticleBlockTypes[0]);
+    private string _workspaceMode = "Split";
     private Guid? _editingBlockId;
     private string _editingBlockType = string.Empty;
     private string _editingBlockContentJson = string.Empty;
@@ -420,7 +433,7 @@ else
         _isCreatingBlock = true;
         _newBlockType = ArticleBlockTypes[0];
         _newBlockSortOrder = _article.Blocks.Count + 1;
-        _newBlockContentJson = "{}";
+        _newBlockContentJson = CreateDefaultBlockJson(_newBlockType);
         _blockErrorMessage = null;
         _errorMessage = null;
         _operationMessage = null;
@@ -817,6 +830,120 @@ else
             return contentJson;
         }
     }
+
+    private string PreviewUrl
+    {
+        get
+        {
+            var baseUrl = Configuration["Portal:BaseUrl"] ?? "https://localhost:7252/";
+            return $"{baseUrl.TrimEnd('/')}/preview/article";
+        }
+    }
+
+    private string BuildPreviewBodyContent()
+    {
+        if (_article is null)
+        {
+            return "[]";
+        }
+
+        var blocks = _article.Blocks
+            .OrderBy(block => block.SortOrder)
+            .Select(block => new PreviewBlock(block.Type, block.ContentJson, block.SortOrder))
+            .ToList();
+
+        if (_editingBlockId is not null)
+        {
+            var existing = _article.Blocks.FirstOrDefault(block => block.Id == _editingBlockId.Value);
+            if (existing is not null)
+            {
+                var index = blocks.FindIndex(block => block.SortOrder == existing.SortOrder);
+                if (index >= 0)
+                {
+                    blocks[index] = new PreviewBlock(_editingBlockType, _editingBlockContentJson, existing.SortOrder);
+                }
+            }
+        }
+
+        if (_isCreatingBlock)
+        {
+            blocks.Add(new PreviewBlock(_newBlockType, _newBlockContentJson, _newBlockSortOrder));
+        }
+
+        var content = new List<JsonElement>();
+        foreach (var block in blocks.OrderBy(block => block.SortOrder))
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(block.ContentJson);
+                var values = new Dictionary<string, object?>
+                {
+                    ["type"] = block.Type,
+                    ["sortOrder"] = block.SortOrder
+                };
+
+                foreach (var property in document.RootElement.EnumerateObject())
+                {
+                    values[property.Name] = property.Value.Clone();
+                }
+
+                content.Add(JsonSerializer.SerializeToElement(values));
+            }
+            catch (JsonException)
+            {
+                // Invalid draft JSON is ignored until the editor becomes valid.
+            }
+        }
+
+        return JsonSerializer.Serialize(content);
+    }
+
+    private static string CreateDefaultBlockJson(string type) => type switch
+    {
+        "Code" => """
+        {
+          "code": "",
+          "language": "csharp",
+          "showCodeTitleBar": true
+        }
+        """,
+        "Diagram" => """
+        {
+          "diagram": "@startuml\nAlice -> Bob: Example\n@enduml",
+          "diagramType": "plantuml",
+          "showDiagramTitleBar": true
+        }
+        """,
+        "Table" => """
+        {
+          "hasHeaderRow": true,
+          "hasHeaderColumn": false,
+          "autoNumberRows": false,
+          "tableStyle": "dense-engineering",
+          "defaultHorizontalAlignment": "left",
+          "defaultVerticalAlignment": "middle",
+          "rows": []
+        }
+        """,
+        "Callout" => """
+        {
+          "kind": "info",
+          "text": ""
+        }
+        """,
+        "Summary" => """
+        {
+          "summary": ""
+        }
+        """,
+        _ => """
+        {
+          "markdown": ""
+        }
+        """
+    };
+
+    private sealed record PreviewBlock(string Type, string ContentJson, int SortOrder);
 
     private static bool IsPublished(string status) =>
         string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);

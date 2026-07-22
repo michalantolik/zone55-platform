@@ -1,0 +1,70 @@
+@using System.Text.Json
+@implements IAsyncDisposable
+@inject IJSRuntime JavaScript
+
+<div class="preview-workspace preview-workspace--@Mode.ToLowerInvariant()">
+    <div class="preview-workspace__toolbar">
+        <div>
+            <strong>Live article preview</strong>
+            <span>Rendered by BlogPlatform.App</span>
+        </div>
+        <div class="preview-mode-switcher" role="group" aria-label="Preview mode">
+            @foreach (var mode in Modes)
+            {
+                <button type="button" class="@(Mode == mode ? "active" : null)" @onclick="() => SetMode(mode)">@mode</button>
+            }
+        </div>
+    </div>
+    <div class="preview-frame-shell preview-frame-shell--@Viewport">
+        <iframe @ref="_frame" title="Article preview" src="@PreviewUrl"></iframe>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string PreviewUrl { get; set; } = string.Empty;
+    [Parameter] public string Slug { get; set; } = "preview";
+    [Parameter] public string Title { get; set; } = "Untitled article";
+    [Parameter] public string? Summary { get; set; }
+    [Parameter] public string BodyContent { get; set; } = "[]";
+    [Parameter] public string Mode { get; set; } = "Split";
+    [Parameter] public EventCallback<string> ModeChanged { get; set; }
+
+    private static readonly string[] Modes = ["Editor", "Split", "Preview"];
+    private ElementReference _frame;
+    private string _lastPayload = string.Empty;
+    private string Viewport { get; set; } = "desktop";
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _module ??= await JavaScript.InvokeAsync<IJSObjectReference>("import", "./js/article-preview-workspace.js");
+        await SendPreviewAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_module is not null)
+        {
+            await SendPreviewAsync();
+        }
+    }
+
+    private async Task SendPreviewAsync()
+    {
+        var payload = JsonSerializer.Serialize(new { slug = Slug, title = Title, summary = Summary, bodyHtml = BodyContent });
+        if (payload == _lastPayload) return;
+        _lastPayload = payload;
+        await _module!.InvokeVoidAsync("sendArticlePreview", _frame, JsonSerializer.Deserialize<object>(payload));
+    }
+
+    private async Task SetMode(string mode)
+    {
+        Mode = mode;
+        await ModeChanged.InvokeAsync(mode);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null) await _module.DisposeAsync();
+    }
+}
