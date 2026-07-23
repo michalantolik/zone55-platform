@@ -444,3 +444,195 @@ td code { margin-top: 5px; color: #94a3b8; font-family: ui-monospace, SFMono-Reg
         align-self: flex-start;
     }
 }
+
+.structure-heading-with-action {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.structure-zone__identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.structure-edit-button,
+.structure-step-edit-button {
+    flex: 0 0 auto;
+    border: 1px solid #334155;
+    border-radius: 7px;
+    background: #111827;
+    color: #94a3b8;
+    font-size: .7rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+
+.structure-edit-button {
+    padding: 7px 8px;
+}
+
+.structure-step-edit-button {
+    align-self: center;
+    padding: 7px;
+    margin-right: 7px;
+}
+
+.structure-edit-button:hover,
+.structure-step-edit-button:hover {
+    border-color: #60a5fa;
+    background: #172554;
+    color: #bfdbfe;
+}
+
+.structure-step-row {
+    display: flex;
+    align-items: stretch;
+    border-radius: 8px;
+}
+
+.structure-step-row.is-selected {
+    background: #1e3a5f;
+    box-shadow: inset 3px 0 0 #3b82f6;
+}
+
+.structure-step-row .structure-step {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+.structure-step-row.is-selected .structure-step__order {
+    background: #172554;
+    color: #bfdbfe;
+}
+
+.management-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(2, 6, 23, .78);
+    backdrop-filter: blur(4px);
+}
+
+.management-dialog {
+    width: min(620px, 100%);
+    overflow: hidden;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    background: #111827;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .48);
+}
+
+.management-dialog__header,
+.management-dialog__footer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+}
+
+.management-dialog__header {
+    border-bottom: 1px solid #263244;
+}
+
+.management-dialog__header h2 {
+    margin: 3px 0 5px;
+}
+
+.management-dialog__header p:last-child {
+    margin: 0;
+    color: #94a3b8;
+    font-size: .85rem;
+}
+
+.management-dialog__body {
+    display: grid;
+    gap: 9px;
+    padding: 22px;
+}
+
+.management-dialog__body .field-label:not(:first-child) {
+    margin-top: 9px;
+}
+
+.management-dialog__footer {
+    align-items: center;
+    justify-content: flex-end;
+    border-top: 1px solid #263244;
+    background: #0f172a;
+}
+
+.dialog-close-button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.dialog-close-button:hover {
+    border-color: #64748b;
+    color: #e2e8f0;
+}
+
+.structure-summary-input {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.management-dialog .field-label {
+    color: #cbd5e1;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.management-dialog .text-input,
+.management-dialog .text-area {
+    width: 100%;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    background: #0b1120;
+    color: #f8fafc;
+    font: inherit;
+}
+
+.management-dialog .text-input {
+    min-height: 42px;
+    padding: 9px 11px;
+}
+
+.management-dialog .text-area {
+    padding: 11px;
+    line-height: 1.5;
+}
+
+.management-dialog .text-input:focus,
+.management-dialog .text-area:focus {
+    border-color: #60a5fa;
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+.management-dialog .field-error {
+    margin: 6px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #7f1d1d;
+    border-radius: 8px;
+    background: #3f151b;
+    color: #fecaca;
+    font-size: .84rem;
+}

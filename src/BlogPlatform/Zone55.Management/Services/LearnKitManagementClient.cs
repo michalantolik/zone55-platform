@@ -54,6 +54,45 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
             cancellationToken: cancellationToken);
     }
 
+    public async Task UpdateLearningPathAsync(
+        Guid learningPathId,
+        UpdateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsJsonAsync(
+            $"api/learnkit/admin/roadmaps/paths/{learningPathId}",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task UpdateLearningZoneAsync(
+        Guid learningZoneId,
+        UpdateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsJsonAsync(
+            $"api/learnkit/admin/roadmaps/zones/{learningZoneId}",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task UpdateLearningStepAsync(
+        Guid learningStepId,
+        UpdateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsJsonAsync(
+            $"api/learnkit/admin/roadmaps/steps/{learningStepId}",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
     public async Task<Guid> CreateArticleAsync(
         CreateArticleManagementRequest request,
         CancellationToken cancellationToken = default)

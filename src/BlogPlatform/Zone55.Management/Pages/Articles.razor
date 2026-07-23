@@ -50,13 +50,21 @@ else
 
     <div class="content-structure-layout">
         <aside class="structure-panel" aria-label="Learning path structure">
-            <div class="structure-panel__header">
-                <p class="eyebrow">Learning path</p>
-                <h2>@_learningPath.Title</h2>
-                @if (!string.IsNullOrWhiteSpace(_learningPath.Summary))
-                {
-                    <p>@_learningPath.Summary</p>
-                }
+            <div class="structure-panel__header structure-heading-with-action">
+                <div>
+                    <p class="eyebrow">Learning path</p>
+                    <h2>@_learningPath.Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(_learningPath.Summary))
+                    {
+                        <p>@_learningPath.Summary</p>
+                    }
+                </div>
+                <button class="structure-edit-button"
+                        type="button"
+                        title="Edit learning path"
+                        @onclick="() => BeginEditPath(_learningPath)">
+                    Edit
+                </button>
             </div>
 
             <button class="structure-all-button @(_selectedStepId is null ? "is-selected" : null)"
@@ -73,15 +81,23 @@ else
                 @foreach (var zone in _learningPath.Zones.OrderBy(zone => zone.SortOrder))
                 {
                     <section class="structure-zone">
-                        <div class="structure-zone__heading">
-                            <span class="structure-order">@zone.SortOrder</span>
-                            <div>
-                                <h3>@zone.Title</h3>
-                                @if (!string.IsNullOrWhiteSpace(zone.Summary))
-                                {
-                                    <p>@zone.Summary</p>
-                                }
+                        <div class="structure-zone__heading structure-heading-with-action">
+                            <div class="structure-zone__identity">
+                                <span class="structure-order">@zone.SortOrder</span>
+                                <div>
+                                    <h3>@zone.Title</h3>
+                                    @if (!string.IsNullOrWhiteSpace(zone.Summary))
+                                    {
+                                        <p>@zone.Summary</p>
+                                    }
+                                </div>
                             </div>
+                            <button class="structure-edit-button"
+                                    type="button"
+                                    title="Edit zone"
+                                    @onclick="() => BeginEditZone(zone)">
+                                Edit
+                            </button>
                         </div>
 
                         <div class="structure-steps">
@@ -90,16 +106,25 @@ else
                                 var stepArticles = GetArticlesForStep(step.Id);
                                 var publishedCount = stepArticles.Count(article => IsPublished(article.Status));
 
-                                <button class="structure-step @(_selectedStepId == step.Id ? "is-selected" : null)"
-                                        type="button"
-                                        @onclick="() => SelectStep(step.Id)">
-                                    <span class="structure-step__order">@step.SortOrder</span>
-                                    <span class="structure-step__content">
-                                        <strong>@step.Title</strong>
-                                        <small>@GetStepSummary(step, stepArticles.Count, publishedCount)</small>
-                                    </span>
-                                    <span class="structure-count">@stepArticles.Count</span>
-                                </button>
+                                <div class="structure-step-row @(_selectedStepId == step.Id ? "is-selected" : null)">
+                                    <button class="structure-step"
+                                            type="button"
+                                            @onclick="() => SelectStep(step.Id)">
+                                        <span class="structure-step__order">@step.SortOrder</span>
+                                        <span class="structure-step__content">
+                                            <strong>@step.Title</strong>
+                                            <small>@GetStepSummary(step, stepArticles.Count, publishedCount)</small>
+                                        </span>
+                                        <span class="structure-count">@stepArticles.Count</span>
+                                    </button>
+                                    <button class="structure-step-edit-button"
+                                            type="button"
+                                            title="Edit step"
+                                            aria-label="Edit @step.Title"
+                                            @onclick="() => BeginEditStep(step)">
+                                        Edit
+                                    </button>
+                                </div>
                             }
                         </div>
                     </section>
@@ -170,6 +195,56 @@ else
     </div>
 }
 
+@if (_editTarget is not null)
+{
+    <div class="management-dialog-backdrop" role="presentation" @onclick="CancelEdit">
+        <section class="management-dialog"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="structure-edit-title"
+                 @onclick:stopPropagation="true">
+            <header class="management-dialog__header">
+                <div>
+                    <p class="eyebrow">@_editTarget.Label</p>
+                    <h2 id="structure-edit-title">Edit @_editTarget.Label.ToLowerInvariant()</h2>
+                    <p>The stable key and position are intentionally not changed in this operation.</p>
+                </div>
+                <button class="dialog-close-button" type="button" @onclick="CancelEdit" aria-label="Close">×</button>
+            </header>
+
+            <div class="management-dialog__body">
+                <label class="field-label" for="structure-title">Title</label>
+                <input id="structure-title"
+                       class="text-input"
+                       maxlength="200"
+                       @bind="_editTitle"
+                       disabled="@_isSavingStructure" />
+
+                <label class="field-label" for="structure-summary">Summary</label>
+                <textarea id="structure-summary"
+                          class="text-area structure-summary-input"
+                          maxlength="2000"
+                          @bind="_editSummary"
+                          disabled="@_isSavingStructure"></textarea>
+
+                @if (_editValidationMessage is not null)
+                {
+                    <p class="field-error" role="alert">@_editValidationMessage</p>
+                }
+            </div>
+
+            <footer class="management-dialog__footer">
+                <button class="secondary-button" type="button" @onclick="CancelEdit" disabled="@_isSavingStructure">
+                    Cancel
+                </button>
+                <button class="primary-button" type="button" @onclick="SaveStructureItemAsync" disabled="@_isSavingStructure">
+                    @(_isSavingStructure ? "Saving…" : "Save changes")
+                </button>
+            </footer>
+        </section>
+    </div>
+}
+
 @code {
     private IReadOnlyCollection<ArticleManagementListItem> _articles = [];
     private LearningPathManagementDetails? _learningPath;
@@ -178,6 +253,11 @@ else
     private Guid? _selectedStepId;
     private bool _isLoading = true;
     private string? _errorMessage;
+    private StructureEditTarget? _editTarget;
+    private string _editTitle = string.Empty;
+    private string _editSummary = string.Empty;
+    private string? _editValidationMessage;
+    private bool _isSavingStructure;
 
     private IReadOnlyList<ArticleManagementListItem> FilteredArticles => _articles
         .Where(article => _selectedStepId is null || article.LearningStepId == _selectedStepId)
@@ -229,15 +309,91 @@ else
         }
     }
 
-    private void SelectAllArticles()
+    private void BeginEditPath(LearningPathManagementDetails path) =>
+        BeginEdit(new StructureEditTarget(path.Id, StructureItemKind.Path, "Learning path"), path.Title, path.Summary);
+
+    private void BeginEditZone(LearningZoneManagementDetails zone) =>
+        BeginEdit(new StructureEditTarget(zone.Id, StructureItemKind.Zone, "Zone"), zone.Title, zone.Summary);
+
+    private void BeginEditStep(LearningStepManagementDetails step) =>
+        BeginEdit(new StructureEditTarget(step.Id, StructureItemKind.Step, "Learning step"), step.Title, step.Summary);
+
+    private void BeginEdit(StructureEditTarget target, string title, string summary)
     {
-        _selectedStepId = null;
+        _editTarget = target;
+        _editTitle = title;
+        _editSummary = summary;
+        _editValidationMessage = null;
     }
 
-    private void SelectStep(Guid stepId)
+    private void CancelEdit()
     {
-        _selectedStepId = stepId;
+        if (_isSavingStructure)
+        {
+            return;
+        }
+
+        _editTarget = null;
+        _editValidationMessage = null;
     }
+
+    private async Task SaveStructureItemAsync()
+    {
+        if (_editTarget is null || _isSavingStructure)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_editTitle))
+        {
+            _editValidationMessage = "Title is required.";
+            return;
+        }
+
+        _isSavingStructure = true;
+        _editValidationMessage = null;
+
+        try
+        {
+            var request = new UpdateLearningStructureItemManagementRequest(
+                _editTitle.Trim(),
+                _editSummary);
+
+            switch (_editTarget.Kind)
+            {
+                case StructureItemKind.Path:
+                    await ManagementClient.UpdateLearningPathAsync(_editTarget.Id, request);
+                    break;
+                case StructureItemKind.Zone:
+                    await ManagementClient.UpdateLearningZoneAsync(_editTarget.Id, request);
+                    break;
+                case StructureItemKind.Step:
+                    await ManagementClient.UpdateLearningStepAsync(_editTarget.Id, request);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported learning structure item.");
+            }
+
+            _editTarget = null;
+            await LoadAsync();
+        }
+        catch (HttpRequestException exception)
+        {
+            _editValidationMessage = $"Zone55.Api returned an error: {exception.Message}";
+        }
+        catch (Exception exception)
+        {
+            _editValidationMessage = $"Unexpected error: {exception.Message}";
+        }
+        finally
+        {
+            _isSavingStructure = false;
+        }
+    }
+
+    private void SelectAllArticles() => _selectedStepId = null;
+
+    private void SelectStep(Guid stepId) => _selectedStepId = stepId;
 
     private IReadOnlyList<ArticleManagementListItem> GetArticlesForStep(Guid stepId) =>
         _articles
@@ -334,4 +490,16 @@ else
 
     private static bool IsPublished(string status) =>
         string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
+
+    private enum StructureItemKind
+    {
+        Path,
+        Zone,
+        Step
+    }
+
+    private sealed record StructureEditTarget(
+        Guid Id,
+        StructureItemKind Kind,
+        string Label);
 }

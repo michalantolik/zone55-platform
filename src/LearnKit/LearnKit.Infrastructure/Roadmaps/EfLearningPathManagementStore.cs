@@ -1,6 +1,7 @@
 using LearnKit.Application.Roadmaps.Admin.Contracts;
 using LearnKit.Application.Roadmaps.Admin.Models;
 using LearnKit.Infrastructure.Persistence;
+using LearnKit.Domain.Roadmaps;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearnKit.Infrastructure.Roadmaps;
@@ -45,5 +46,35 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
                             .ToList()))
                     .ToList()))
             .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public Task<LearningPath?> GetTrackedPathByIdAsync(
+        Guid learningPathId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.LearningPaths
+            .SingleOrDefaultAsync(path => path.Id == learningPathId, cancellationToken);
+    }
+
+    public Task<LearningZone?> GetTrackedZoneByIdAsync(
+        Guid learningZoneId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.LearningZones
+            .SingleOrDefaultAsync(zone => zone.Id == learningZoneId, cancellationToken);
+    }
+
+    public Task<LearningStep?> GetTrackedStepByIdAsync(
+        Guid learningStepId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.LearningSteps
+            .SingleOrDefaultAsync(step => step.Id == learningStepId, cancellationToken);
+    }
+
+    public Task SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

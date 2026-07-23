@@ -15,6 +15,21 @@ public interface ILearnKitManagementClient
         string key,
         CancellationToken cancellationToken = default);
 
+    Task UpdateLearningPathAsync(
+        Guid learningPathId,
+        UpdateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task UpdateLearningZoneAsync(
+        Guid learningZoneId,
+        UpdateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task UpdateLearningStepAsync(
+        Guid learningStepId,
+        UpdateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default);
+
     Task<Guid> CreateArticleAsync(
         CreateArticleManagementRequest request,
         CancellationToken cancellationToken = default);
