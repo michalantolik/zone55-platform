@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@inject Zone55.Management.Authentication.ManagementAuthenticationService Authentication
+@inject NavigationManager Navigation
 
 <div class="management-shell">
     <aside class="sidebar">
@@ -14,9 +16,23 @@
             <NavLink href="/" Match="NavLinkMatch.All">Articles</NavLink>
             <NavLink href="/structure">Structure</NavLink>
         </nav>
+
+        <AuthorizeView>
+            <Authorized>
+                <button type="button" class="sidebar-signout" @onclick="SignOutAsync">Sign out</button>
+            </Authorized>
+        </AuthorizeView>
     </aside>
 
     <main class="management-content">
         @Body
     </main>
 </div>
+
+@code {
+    private async Task SignOutAsync()
+    {
+        await Authentication.LogoutAsync();
+        Navigation.NavigateTo("/login", replace: true);
+    }
+}

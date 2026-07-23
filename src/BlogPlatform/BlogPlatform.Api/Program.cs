@@ -77,6 +77,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("BlazorApp");
 app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health", HealthCheckResponseWriter.AllChecks());

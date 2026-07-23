@@ -1,3 +1,5 @@
+using BlogPlatform.Api.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using BlogPlatform.Api.Controllers.LearnKit.Admin.Models;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningStep;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningZone;
@@ -13,6 +15,7 @@ using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathForManagement;
 using Microsoft.AspNetCore.Mvc;
 namespace BlogPlatform.Api.Controllers.LearnKit.Admin;
 [ApiController]
+[Authorize(Policy = LearnKitManagementAuthOptions.PolicyName)]
 [Route("api/learnkit/admin/roadmaps")]
 public sealed class RoadmapsManagementController(
  GetLearningPathForManagementHandler getPath, UpdateLearningPathHandler updatePath, UpdateLearningZoneHandler updateZone, UpdateLearningStepHandler updateStep,

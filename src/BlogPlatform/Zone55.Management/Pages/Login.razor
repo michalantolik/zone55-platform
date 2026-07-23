@@ -1,0 +1,77 @@
+@page "/login"
+@inject Zone55.Management.Authentication.ManagementAuthenticationService Authentication
+@inject NavigationManager Navigation
+
+<PageTitle>Sign in | Zone55 Management</PageTitle>
+
+<div class="login-page">
+    <EditForm Model="_model" OnValidSubmit="SignInAsync" class="login-card">
+        <DataAnnotationsValidator />
+        <h1>Sign in</h1>
+        <p>Use the LearnKit management account.</p>
+
+        <label for="username">Username</label>
+        <InputText id="username" @bind-Value="_model.Username" autocomplete="username" />
+
+        <label for="password">Password</label>
+        <InputText id="password" type="password" @bind-Value="_model.Password" autocomplete="current-password" />
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="validation-message">@_error</div>
+        }
+
+        <button type="submit" class="primary-button" disabled="@_submitting">
+            @(_submitting ? "Signing in..." : "Sign in")
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private readonly LoginModel _model = new();
+    private string? _error;
+    private bool _submitting;
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    private async Task SignInAsync()
+    {
+        _submitting = true;
+        _error = null;
+
+        try
+        {
+            if (await Authentication.LoginAsync(_model.Username, _model.Password))
+            {
+                Navigation.NavigateTo(GetSafeReturnUrl(), replace: true);
+                return;
+            }
+
+            _error = "Invalid username or password.";
+        }
+        catch (HttpRequestException)
+        {
+            _error = "The management API is unavailable.";
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
+
+    private string GetSafeReturnUrl()
+    {
+        return !string.IsNullOrWhiteSpace(ReturnUrl)
+               && ReturnUrl.StartsWith("/", StringComparison.Ordinal)
+               && !ReturnUrl.StartsWith("//", StringComparison.Ordinal)
+            ? ReturnUrl
+            : "/";
+    }
+
+    private sealed class LoginModel
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

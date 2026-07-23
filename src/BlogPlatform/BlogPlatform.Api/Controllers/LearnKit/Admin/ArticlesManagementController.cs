@@ -1,3 +1,5 @@
+using BlogPlatform.Api.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using LearnKit.Application.Articles.Admin.Commands.CreateArticle;
 using LearnKit.Application.Articles.Admin.Commands.CreateArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.DeleteArticle;
@@ -20,6 +22,7 @@ namespace BlogPlatform.Api.Controllers.LearnKit.Admin;
 /// Exposes LearnKit article management endpoints.
 /// </summary>
 [ApiController]
+[Authorize(Policy = LearnKitManagementAuthOptions.PolicyName)]
 [Route("api/learnkit/admin/articles")]
 public sealed class ArticlesManagementController : ControllerBase
 {
