@@ -1,59 +1,50 @@
-@using System.Text.Json
+@implements IAsyncDisposable
 @using Microsoft.AspNetCore.Components
-@using Microsoft.AspNetCore.Components.Rendering
-@using Zone55.Management.Services
+@using Microsoft.JSInterop
+@inject IConfiguration Configuration
+@inject IJSRuntime JS
 
 <div class="preview-workspace">
     <div class="preview-workspace__toolbar">
         <div>
-            <strong>Live article preview</strong>
-            <span>Rendered directly in Zone55 Management from the current draft values.</span>
+            <strong>Portal article preview</strong>
+            <span>Rendered by BlogPlatform.App from the current unsaved draft.</span>
+            <code>@PreviewUrl</code>
         </div>
-        <span class="preview-status">No portal process required</span>
+        <div class="preview-workspace__actions">
+            <span class="preview-status preview-status--@_connectionState.ToString().ToLowerInvariant()">
+                @ConnectionLabel
+            </span>
+            <a class="preview-open-link" href="@PreviewUrl" target="_blank" rel="noopener noreferrer">
+                Open preview page
+            </a>
+        </div>
     </div>
 
-    <div class="preview-document-shell">
-        <article class="preview-article">
-            <header class="preview-article__header">
-                <p class="preview-article__eyebrow">LearnKit article preview</p>
-                <h1>@DisplayTitle</h1>
-                <code>@DisplaySlug</code>
-            </header>
-
-            @if (!string.IsNullOrWhiteSpace(Summary))
-            {
-                <div class="preview-article__summary markdown-content">
-                    @((MarkupString)MarkdownTextRenderer.ToHtml(Summary))
-                </div>
-            }
-
-            @if (_parseError is not null)
-            {
-                <div class="preview-error" role="alert">
-                    <strong>Preview could not render the current draft.</strong>
-                    <span>@_parseError</span>
-                </div>
-            }
-            else if (_blocks.Count == 0)
-            {
-                <div class="preview-empty">
-                    <strong>No article blocks yet</strong>
-                    <p>Add or edit a block to see it here. Unsaved valid block changes are included automatically.</p>
-                </div>
-            }
-            else
-            {
-                <div class="preview-blocks">
-                    @foreach (var block in _blocks)
-                    {
-                        <section class="preview-block preview-block--@block.Type.ToLowerInvariant()" @key="block.Key">
-                            @RenderBlock(block)
-                        </section>
-                    }
-                </div>
-            }
-        </article>
+    <div class="preview-frame-shell">
+        <iframe @ref="_previewFrame"
+                src="@PreviewUrl"
+                title="Article preview"
+                loading="eager"
+                sandbox="allow-scripts allow-same-origin"
+                referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
     </div>
+
+    @if (_connectionState == PreviewConnectionState.Unavailable)
+    {
+        <p class="preview-runtime-note preview-runtime-note--error" role="alert">
+            The portal preview did not become ready. Start BlogPlatform.App and verify the configured
+            <code>Portal:BaseUrl</code> value.
+        </p>
+    }
+    else
+    {
+        <p class="preview-runtime-note">
+            Metadata and valid unsaved block changes are sent directly to the portal renderer. Invalid draft JSON
+            remains in the editor and is omitted until it becomes valid.
+        </p>
+    }
 </div>
 
 @code {
@@ -62,211 +53,136 @@
     [Parameter] public string? Summary { get; set; }
     [Parameter] public string BodyContent { get; set; } = "[]";
 
-    private readonly List<PreviewBlock> _blocks = [];
-    private string? _parseError;
+    private string _portalOrigin = string.Empty;
+    private string _previewUrl = string.Empty;
+    private ElementReference _previewFrame;
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<ArticlePreviewWorkspace>? _objectReference;
+    private PreviewConnectionState _connectionState = PreviewConnectionState.Connecting;
+    private int _payloadVersion;
+    private int _sentPayloadVersion = -1;
+    private bool _connected;
 
-    private string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? "Untitled article" : Title.Trim();
-    private string DisplaySlug => string.IsNullOrWhiteSpace(Slug) ? "preview" : Slug.Trim();
+    private string PreviewUrl => _previewUrl;
+
+    private string ConnectionLabel => _connectionState switch
+    {
+        PreviewConnectionState.Connecting => "Connecting to portal",
+        PreviewConnectionState.Ready => "Portal ready",
+        PreviewConnectionState.Rendered => "Draft rendered",
+        PreviewConnectionState.Unavailable => "Portal unavailable",
+        _ => "Preview status unknown"
+    };
+
+    protected override void OnInitialized()
+    {
+        var configuredBaseUrl = Configuration["Portal:BaseUrl"];
+        if (string.IsNullOrWhiteSpace(configuredBaseUrl))
+        {
+            throw new InvalidOperationException("Portal:BaseUrl is missing.");
+        }
+
+        var portalBaseUri = new Uri(configuredBaseUrl, UriKind.Absolute);
+        _portalOrigin = portalBaseUri.GetLeftPart(UriPartial.Authority);
+        _previewUrl = new Uri(portalBaseUri, "preview/article").AbsoluteUri;
+    }
 
     protected override void OnParametersSet()
     {
-        _blocks.Clear();
-        _parseError = null;
+        _payloadVersion++;
+    }
 
-        try
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(BodyContent) ? "[]" : BodyContent);
-            if (document.RootElement.ValueKind != JsonValueKind.Array)
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./js/article-preview-workspace.js");
+            _objectReference = DotNetObjectReference.Create(this);
+
+            await _module.InvokeVoidAsync(
+                "connectArticlePreview",
+                _previewFrame,
+                _objectReference,
+                _portalOrigin);
+
+            _connected = true;
+        }
+
+        if (_connected && _module is not null && _sentPayloadVersion != _payloadVersion)
+        {
+            _sentPayloadVersion = _payloadVersion;
+            _connectionState = PreviewConnectionState.Connecting;
+
+            await _module.InvokeVoidAsync(
+                "sendArticlePreview",
+                _previewFrame,
+                new PreviewArticlePayload(
+                    Normalize(Slug, "preview"),
+                    Normalize(Title, "Untitled article"),
+                    Summary,
+                    BodyContent));
+        }
+    }
+
+    [JSInvokable]
+    public Task NotifyPreviewReady()
+    {
+        _connectionState = PreviewConnectionState.Ready;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public Task NotifyPreviewRendered()
+    {
+        _connectionState = PreviewConnectionState.Rendered;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public Task NotifyPreviewUnavailable()
+    {
+        if (_connectionState is not PreviewConnectionState.Ready and not PreviewConnectionState.Rendered)
+        {
+            _connectionState = PreviewConnectionState.Unavailable;
+        }
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            try
             {
-                _parseError = "The preview payload must contain an array of article blocks.";
-                return;
+                await _module.InvokeVoidAsync("disconnectArticlePreview", _previewFrame);
+                await _module.DisposeAsync();
             }
-
-            var index = 0;
-            foreach (var element in document.RootElement.EnumerateArray())
+            catch (JSDisconnectedException)
             {
-                var type = GetString(element, "type") ?? "Unknown";
-                var sortOrder = GetInt32(element, "sortOrder", index + 1);
-                _blocks.Add(new PreviewBlock($"{sortOrder}-{index++}", type, sortOrder, element.Clone()));
+                // The browser session has already ended.
             }
+        }
 
-            _blocks.Sort((left, right) => left.SortOrder.CompareTo(right.SortOrder));
-        }
-        catch (JsonException exception)
-        {
-            _parseError = $"Invalid block JSON: {exception.Message}";
-        }
+        _objectReference?.Dispose();
     }
 
-    private RenderFragment RenderBlock(PreviewBlock block) => builder =>
+    private static string Normalize(string? value, string fallback) =>
+        string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+    private sealed record PreviewArticlePayload(
+        string Slug,
+        string Title,
+        string? Summary,
+        string BodyHtml);
+
+    private enum PreviewConnectionState
     {
-        var sequence = 0;
-        switch (block.Type.ToLowerInvariant())
-        {
-            case "markdown":
-                builder.OpenElement(sequence++, "div");
-                builder.AddAttribute(sequence++, "class", "markdown-content");
-                builder.AddMarkupContent(sequence++, MarkdownTextRenderer.ToHtml(GetString(block.Json, "markdown") ?? GetString(block.Json, "text")));
-                builder.CloseElement();
-                break;
-
-            case "summary":
-                builder.OpenElement(sequence++, "div");
-                builder.AddAttribute(sequence++, "class", "preview-summary-block markdown-content");
-                builder.AddMarkupContent(sequence++, MarkdownTextRenderer.ToHtml(GetString(block.Json, "summary") ?? GetString(block.Json, "text")));
-                builder.CloseElement();
-                break;
-
-            case "callout":
-                builder.OpenElement(sequence++, "aside");
-                builder.AddAttribute(sequence++, "class", $"preview-callout preview-callout--{NormalizeCssToken(GetString(block.Json, "kind"), "info")}");
-                builder.OpenElement(sequence++, "strong");
-                builder.AddContent(sequence++, GetString(block.Json, "kind") ?? "info");
-                builder.CloseElement();
-                builder.OpenElement(sequence++, "p");
-                builder.AddContent(sequence++, GetString(block.Json, "text") ?? string.Empty);
-                builder.CloseElement();
-                builder.CloseElement();
-                break;
-
-            case "code":
-                RenderCodeBlock(builder, ref sequence, block.Json);
-                break;
-
-            case "table":
-                RenderTableBlock(builder, ref sequence, block.Json);
-                break;
-
-            case "diagram":
-                RenderDiagramBlock(builder, ref sequence, block.Json);
-                break;
-
-            default:
-                builder.OpenElement(sequence++, "div");
-                builder.AddAttribute(sequence++, "class", "preview-unsupported");
-                builder.AddContent(sequence++, $"Unsupported block type: {block.Type}");
-                builder.CloseElement();
-                break;
-        }
-    };
-
-    private static void RenderCodeBlock(RenderTreeBuilder builder, ref int sequence, JsonElement json)
-    {
-        var code = GetString(json, "code") ?? string.Empty;
-        var title = GetString(json, "codeTitle") ?? GetString(json, "fileName") ?? GetString(json, "language") ?? "Code";
-        var showTitle = GetBoolean(json, "showCodeTitleBar", true);
-
-        builder.OpenElement(sequence++, "figure");
-        builder.AddAttribute(sequence++, "class", "preview-code-block");
-        if (showTitle)
-        {
-            builder.OpenElement(sequence++, "figcaption");
-            builder.AddContent(sequence++, title);
-            builder.CloseElement();
-        }
-        builder.OpenElement(sequence++, "pre");
-        builder.OpenElement(sequence++, "code");
-        builder.AddContent(sequence++, code);
-        builder.CloseElement();
-        builder.CloseElement();
-        builder.CloseElement();
+        Connecting,
+        Ready,
+        Rendered,
+        Unavailable
     }
-
-    private static void RenderDiagramBlock(RenderTreeBuilder builder, ref int sequence, JsonElement json)
-    {
-        var title = GetString(json, "title");
-        var type = GetString(json, "diagramType") ?? "PlantUML";
-        var diagram = GetString(json, "diagram") ?? string.Empty;
-
-        builder.OpenElement(sequence++, "figure");
-        builder.AddAttribute(sequence++, "class", "preview-diagram-block");
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            builder.OpenElement(sequence++, "figcaption");
-            builder.AddContent(sequence++, title);
-            builder.CloseElement();
-        }
-        builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "class", "preview-diagram-placeholder");
-        builder.OpenElement(sequence++, "strong");
-        builder.AddContent(sequence++, type);
-        builder.CloseElement();
-        builder.OpenElement(sequence++, "span");
-        builder.AddContent(sequence++, "Diagram source preview");
-        builder.CloseElement();
-        builder.CloseElement();
-        builder.OpenElement(sequence++, "pre");
-        builder.AddContent(sequence++, diagram);
-        builder.CloseElement();
-        builder.CloseElement();
-    }
-
-    private static void RenderTableBlock(RenderTreeBuilder builder, ref int sequence, JsonElement json)
-    {
-        if (!json.TryGetProperty("rows", out var rows) || rows.ValueKind != JsonValueKind.Array)
-        {
-            builder.OpenElement(sequence++, "div");
-            builder.AddAttribute(sequence++, "class", "preview-empty preview-empty--compact");
-            builder.AddContent(sequence++, "This table has no rows.");
-            builder.CloseElement();
-            return;
-        }
-
-        var hasHeaderRow = GetBoolean(json, "hasHeaderRow");
-        var hasHeaderColumn = GetBoolean(json, "hasHeaderColumn");
-        builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "class", "preview-table-wrap");
-        builder.OpenElement(sequence++, "table");
-        builder.AddAttribute(sequence++, "class", "preview-table");
-        builder.OpenElement(sequence++, "tbody");
-
-        var rowIndex = 0;
-        foreach (var row in rows.EnumerateArray())
-        {
-            if (row.ValueKind != JsonValueKind.Array)
-            {
-                continue;
-            }
-
-            builder.OpenElement(sequence++, "tr");
-            var columnIndex = 0;
-            foreach (var cell in row.EnumerateArray())
-            {
-                var isHeader = hasHeaderRow && rowIndex == 0 || hasHeaderColumn && columnIndex == 0;
-                builder.OpenElement(sequence++, isHeader ? "th" : "td");
-                builder.AddMarkupContent(sequence++, MarkdownTextRenderer.ToHtml(GetString(cell, "text")));
-                builder.CloseElement();
-                columnIndex++;
-            }
-            builder.CloseElement();
-            rowIndex++;
-        }
-
-        builder.CloseElement();
-        builder.CloseElement();
-        builder.CloseElement();
-    }
-
-    private static string? GetString(JsonElement json, string propertyName) =>
-        json.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.String
-            ? value.GetString()
-            : null;
-
-    private static bool GetBoolean(JsonElement json, string propertyName, bool fallback = false) =>
-        json.TryGetProperty(propertyName, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False
-            ? value.GetBoolean()
-            : fallback;
-
-    private static int GetInt32(JsonElement json, string propertyName, int fallback) =>
-        json.TryGetProperty(propertyName, out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var result)
-            ? result
-            : fallback;
-
-    private static string NormalizeCssToken(string? value, string fallback)
-    {
-        var normalized = string.IsNullOrWhiteSpace(value) ? fallback : value.Trim().ToLowerInvariant();
-        return new string(normalized.Where(character => char.IsLetterOrDigit(character) || character == '-').ToArray());
-    }
-
-    private sealed record PreviewBlock(string Key, string Type, int SortOrder, JsonElement Json);
 }

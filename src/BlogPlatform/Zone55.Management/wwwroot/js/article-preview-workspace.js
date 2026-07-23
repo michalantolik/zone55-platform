@@ -1,5 +1,4 @@
 let sequence = 0;
-let listenerRegistered = false;
 const frameStates = new WeakMap();
 
 function postLatest(frame) {
@@ -13,57 +12,82 @@ function postLatest(frame) {
         type: 'BLOG_ARTICLE_PREVIEW',
         sequence: ++sequence,
         article: state.article
-    }, '*');
+    }, state.portalOrigin);
 }
 
-function registerWindowListener() {
-    if (listenerRegistered) {
+function handleMessage(frame, state, event) {
+    if (event.source !== frame.contentWindow || event.origin !== state.portalOrigin || !event.data) {
         return;
     }
 
-    listenerRegistered = true;
-
-    window.addEventListener('message', event => {
-        if (!event.data || event.data.type !== 'BLOG_ARTICLE_PREVIEW_READY') {
-            return;
-        }
-
-        for (const frame of document.querySelectorAll('iframe[title="Article preview"]')) {
-            if (frame.contentWindow === event.source) {
-                postLatest(frame);
-                break;
-            }
-        }
-    });
-}
-
-export function connectArticlePreview(frame) {
-    if (!frame) {
-        return;
-    }
-
-    registerWindowListener();
-
-    if (!frameStates.has(frame)) {
-        frameStates.set(frame, { article: null });
-    }
-
-    frame.addEventListener('load', () => {
+    if (event.data.type === 'BLOG_ARTICLE_PREVIEW_READY') {
+        window.clearTimeout(state.unavailableTimer);
+        state.dotNetObject.invokeMethodAsync('NotifyPreviewReady');
         postLatest(frame);
-        window.setTimeout(() => postLatest(frame), 300);
-        window.setTimeout(() => postLatest(frame), 1000);
-    });
+        return;
+    }
+
+    if (event.data.type === 'BLOG_ARTICLE_PREVIEW_ACK') {
+        window.clearTimeout(state.unavailableTimer);
+        state.dotNetObject.invokeMethodAsync('NotifyPreviewRendered');
+    }
+}
+
+function scheduleUnavailableCheck(state) {
+    window.clearTimeout(state.unavailableTimer);
+    state.unavailableTimer = window.setTimeout(() => {
+        state.dotNetObject.invokeMethodAsync('NotifyPreviewUnavailable');
+    }, 5000);
+}
+
+export function connectArticlePreview(frame, dotNetObject, portalOrigin) {
+    if (!frame || !dotNetObject || !portalOrigin) {
+        return;
+    }
+
+    disconnectArticlePreview(frame);
+
+    const state = {
+        article: null,
+        dotNetObject,
+        portalOrigin,
+        unavailableTimer: null,
+        messageHandler: null,
+        loadHandler: null
+    };
+
+    state.messageHandler = event => handleMessage(frame, state, event);
+    state.loadHandler = () => {
+        scheduleUnavailableCheck(state);
+        postLatest(frame);
+    };
+
+    frameStates.set(frame, state);
+    window.addEventListener('message', state.messageHandler);
+    frame.addEventListener('load', state.loadHandler);
+    scheduleUnavailableCheck(state);
 }
 
 export function sendArticlePreview(frame, article) {
-    if (!frame) {
+    const state = frameStates.get(frame);
+
+    if (!state) {
         return;
     }
 
-    registerWindowListener();
-    frameStates.set(frame, { article });
-
+    state.article = article;
     postLatest(frame);
-    window.setTimeout(() => postLatest(frame), 300);
-    window.setTimeout(() => postLatest(frame), 1000);
+}
+
+export function disconnectArticlePreview(frame) {
+    const state = frameStates.get(frame);
+
+    if (!state) {
+        return;
+    }
+
+    window.clearTimeout(state.unavailableTimer);
+    window.removeEventListener('message', state.messageHandler);
+    frame.removeEventListener('load', state.loadHandler);
+    frameStates.delete(frame);
 }

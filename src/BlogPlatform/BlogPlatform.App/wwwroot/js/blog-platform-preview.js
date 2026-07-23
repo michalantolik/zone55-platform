@@ -1,6 +1,7 @@
-﻿window.blogPlatformPreview = {
+window.blogPlatformPreview = {
     dotNetObject: null,
     registered: false,
+    parentOrigin: '*',
 
     register: (dotNetObject) => {
         window.blogPlatformPreview.dotNetObject = dotNetObject;
@@ -18,6 +19,8 @@
             if (!event.data || event.data.type !== 'BLOG_ARTICLE_PREVIEW') {
                 return;
             }
+
+            window.blogPlatformPreview.parentOrigin = event.origin;
 
             const sequence = event.data.sequence ?? 0;
             const article = event.data.article;
@@ -49,7 +52,7 @@
             sequence,
             title,
             blockCount
-        }, '*');
+        }, window.blogPlatformPreview.parentOrigin);
     },
 
     log: async (level, message) => {

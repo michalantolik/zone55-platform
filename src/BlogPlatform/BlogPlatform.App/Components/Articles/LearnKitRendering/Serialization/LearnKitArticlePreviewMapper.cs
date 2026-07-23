@@ -1,22 +1,21 @@
-using BlogPlatform.App.Models.LearnKit.Articles;
 using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization.PreviewBlocks;
+using BlogPlatform.App.Models.LearnKit;
+using BlogPlatform.App.Models.LearnKit.Articles;
 using System.Text.Json;
 
 namespace BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization;
 
 /// <summary>
-/// Converts the CMS live-preview payload into the article model rendered by the App.
+/// Converts a Zone55 Management live-preview payload into the article model rendered by the App.
 /// </summary>
 public static class LearnKitArticlePreviewMapper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions =
+        new(JsonSerializerDefaults.Web);
 
-    public static LearnKitArticleDetails ToArticle(LearnKitArticlePreviewPayload preview)
+    public static LearnKitArticleDetails ToArticle(
+        LearnKitArticlePreviewPayload preview)
     {
-        var blocks = ParseBlocks(preview.BodyContent)
-            .Select((block, index) => ToLearnKitBlock(block, index + 1))
-            .ToArray();
-
         return new LearnKitArticleDetails
         {
             Id = $"preview-{preview.Slug}",
@@ -24,11 +23,12 @@ public static class LearnKitArticlePreviewMapper
             Title = preview.Title,
             Summary = preview.Summary,
             Status = "Preview",
-            Blocks = blocks
+            Blocks = ParseBlocks(preview.BodyContent)
         };
     }
 
-    private static IReadOnlyCollection<PreviewArticleBlock> ParseBlocks(string? body)
+    private static IReadOnlyList<LearnKitArticleBlockDetails> ParseBlocks(
+        string? body)
     {
         if (string.IsNullOrWhiteSpace(body))
         {
@@ -37,15 +37,100 @@ public static class LearnKitArticlePreviewMapper
 
         try
         {
-            return PreviewArticleBlockParser.Parse(body);
+            using var document = JsonDocument.Parse(body);
+
+            if (document.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                return ParseLearnKitBlocks(document.RootElement);
+            }
+
+            return PreviewArticleBlockParser.Parse(body)
+                .Select((block, index) => ToLearnKitBlock(block, index + 1))
+                .ToArray();
         }
         catch (JsonException)
         {
-            return [new PreviewArticleBlock(PreviewArticleBlockType.Text)
-            {
-                Text = body
-            }];
+            return
+            [
+                new LearnKitArticleBlockDetails
+                {
+                    Id = "preview-block-1",
+                    Type = LearnKitBlockTypes.Markdown,
+                    SortOrder = 1,
+                    ContentJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            markdown = body
+                        },
+                        JsonOptions)
+                }
+            ];
         }
+    }
+
+    private static IReadOnlyList<LearnKitArticleBlockDetails> ParseLearnKitBlocks(
+        JsonElement root)
+    {
+        var blocks = new List<LearnKitArticleBlockDetails>();
+        var index = 0;
+
+        foreach (var element in root.EnumerateArray())
+        {
+            index++;
+
+            if (element.ValueKind != JsonValueKind.Object ||
+                !element.TryGetProperty("type", out var typeElement) ||
+                typeElement.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            var type = typeElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                continue;
+            }
+
+            var sortOrder =
+                element.TryGetProperty("sortOrder", out var sortOrderElement) &&
+                sortOrderElement.TryGetInt32(out var parsedSortOrder)
+                    ? parsedSortOrder
+                    : index;
+
+            blocks.Add(new LearnKitArticleBlockDetails
+            {
+                Id = $"preview-block-{index}",
+                Type = type,
+                SortOrder = sortOrder,
+                ContentJson = BuildContentJson(element)
+            });
+        }
+
+        return blocks
+            .OrderBy(block => block.SortOrder)
+            .ThenBy(block => block.Id, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string BuildContentJson(JsonElement element)
+    {
+        var content =
+            new Dictionary<string, JsonElement>(
+                StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.NameEquals("type") ||
+                property.NameEquals("sortOrder"))
+            {
+                continue;
+            }
+
+            content[property.Name] = property.Value.Clone();
+        }
+
+        return JsonSerializer.Serialize(content, JsonOptions);
     }
 
     private static LearnKitArticleBlockDetails ToLearnKitBlock(
@@ -59,20 +144,35 @@ public static class LearnKitArticlePreviewMapper
             Id = $"preview-block-{sortOrder}",
             Type = type,
             SortOrder = sortOrder,
-            ContentJson = JsonSerializer.Serialize(CreateContent(block), JsonOptions)
+            ContentJson = JsonSerializer.Serialize(
+                CreateContent(block),
+                JsonOptions)
         };
     }
 
-    private static string GetLearnKitBlockType(PreviewArticleBlock block)
+    private static string GetLearnKitBlockType(
+        PreviewArticleBlock block)
     {
         return block.Type switch
         {
-            PreviewArticleBlockType.Code => LearnKitBlockTypes.Code,
-            PreviewArticleBlockType.PlantUml or PreviewArticleBlockType.Mermaid => LearnKitBlockTypes.Diagram,
-            PreviewArticleBlockType.Table => LearnKitBlockTypes.Table,
-            PreviewArticleBlockType.Callout => LearnKitBlockTypes.Callout,
-            PreviewArticleBlockType.Summary => LearnKitBlockTypes.Summary,
-            _ => LearnKitBlockTypes.Markdown
+            PreviewArticleBlockType.Code =>
+                LearnKitBlockTypes.Code,
+
+            PreviewArticleBlockType.PlantUml or
+            PreviewArticleBlockType.Mermaid =>
+                LearnKitBlockTypes.Diagram,
+
+            PreviewArticleBlockType.Table =>
+                LearnKitBlockTypes.Table,
+
+            PreviewArticleBlockType.Callout =>
+                LearnKitBlockTypes.Callout,
+
+            PreviewArticleBlockType.Summary =>
+                LearnKitBlockTypes.Summary,
+
+            _ =>
+                LearnKitBlockTypes.Markdown
         };
     }
 
@@ -85,7 +185,9 @@ public static class LearnKitArticlePreviewMapper
                 type = "heading",
                 level = block.Level,
                 text = block.Text,
-                markdown = ToHeadingMarkdown(block.Level, block.Text),
+                markdown = ToHeadingMarkdown(
+                    block.Level,
+                    block.Text),
                 sourceType = "heading"
             },
 
@@ -138,21 +240,33 @@ public static class LearnKitArticlePreviewMapper
             PreviewArticleBlockType.Table => new
             {
                 type = "table",
-                rows = block.TableRows.Select(row => row.Select(cell => new
-                {
-                    text = cell.Text,
-                    emoji = cell.Emoji,
-                    imageUrl = cell.ImageUrl,
-                    imageAlt = cell.ImageAlt,
-                    horizontalAlignment = cell.HorizontalAlignment,
-                    verticalAlignment = cell.VerticalAlignment
-                }).ToArray()).ToArray(),
-                hasHeaderRow = block.TableOptions.HasHeaderRow,
-                hasHeaderColumn = block.TableOptions.HasHeaderColumn,
-                autoNumberRows = block.TableOptions.AutoNumberRows,
-                tableStyle = block.TableOptions.TableStyle,
-                defaultHorizontalAlignment = block.TableOptions.DefaultHorizontalAlignment,
-                defaultVerticalAlignment = block.TableOptions.DefaultVerticalAlignment,
+                rows = block.TableRows
+                    .Select(row => row
+                        .Select(cell => new
+                        {
+                            text = cell.Text,
+                            emoji = cell.Emoji,
+                            imageUrl = cell.ImageUrl,
+                            imageAlt = cell.ImageAlt,
+                            horizontalAlignment =
+                                cell.HorizontalAlignment,
+                            verticalAlignment =
+                                cell.VerticalAlignment
+                        })
+                        .ToArray())
+                    .ToArray(),
+                hasHeaderRow =
+                    block.TableOptions.HasHeaderRow,
+                hasHeaderColumn =
+                    block.TableOptions.HasHeaderColumn,
+                autoNumberRows =
+                    block.TableOptions.AutoNumberRows,
+                tableStyle =
+                    block.TableOptions.TableStyle,
+                defaultHorizontalAlignment =
+                    block.TableOptions.DefaultHorizontalAlignment,
+                defaultVerticalAlignment =
+                    block.TableOptions.DefaultVerticalAlignment,
                 sourceType = "table"
             },
 
@@ -174,7 +288,9 @@ public static class LearnKitArticlePreviewMapper
         };
     }
 
-    private static string ToHeadingMarkdown(int level, string? text)
+    private static string ToHeadingMarkdown(
+        int level,
+        string? text)
     {
         var normalizedLevel = Math.Clamp(level, 1, 6);
 
