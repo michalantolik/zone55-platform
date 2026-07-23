@@ -25,12 +25,14 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
                 path.Id,
                 path.Key,
                 path.Title,
+                path.Summary,
                 path.Zones
                     .OrderBy(zone => zone.SortOrder)
                     .Select(zone => new LearningZoneManagementDetails(
                         zone.Id,
                         zone.Key,
                         zone.Title,
+                        zone.Summary,
                         zone.SortOrder,
                         zone.Steps
                             .OrderBy(step => step.SortOrder)
@@ -38,6 +40,7 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
                                 step.Id,
                                 step.Key,
                                 step.Title,
+                                step.Summary,
                                 step.SortOrder))
                             .ToList()))
                     .ToList()))

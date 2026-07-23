@@ -6,8 +6,8 @@
 <header class="page-header">
     <div>
         <p class="eyebrow">LearnKit</p>
-        <h1>Articles</h1>
-        <p>Manage articles stored in LearnKit.</p>
+        <h1>Content structure</h1>
+        <p>Browse the learning path and manage the articles assigned to each step.</p>
     </div>
     <div class="button-row page-header-actions">
         <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">
@@ -20,23 +20,23 @@
 @if (_isLoading)
 {
     <div class="state-card" role="status">
-        <strong>Loading articles…</strong>
-        <p>Reading management data from Zone55.Api.</p>
+        <strong>Loading content structure…</strong>
+        <p>Reading the LearnKit learning path and article data from Zone55.Api.</p>
     </div>
 }
 else if (_errorMessage is not null)
 {
     <div class="state-card state-card--error" role="alert">
-        <strong>Could not load articles</strong>
+        <strong>Could not load content structure</strong>
         <p>@_errorMessage</p>
         <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
     </div>
 }
-else if (_articles.Count == 0)
+else if (_learningPath is null)
 {
     <div class="state-card">
-        <strong>No articles found</strong>
-        <p>The LearnKit article management endpoint returned an empty list.</p>
+        <strong>Learning path not found</strong>
+        <p>The LearnKit management endpoint did not return the configured learning path.</p>
     </div>
 }
 else
@@ -44,51 +44,147 @@ else
     <section class="summary-row" aria-label="Article summary">
         <div><strong>@_articles.Count</strong><span>All articles</span></div>
         <div><strong>@_articles.Count(x => IsPublished(x.Status))</strong><span>Published</span></div>
+        <div><strong>@_articles.Count(x => !IsPublished(x.Status))</strong><span>Drafts</span></div>
         <div><strong>@_articles.Sum(x => x.BlockCount)</strong><span>Content blocks</span></div>
     </section>
 
-    <div class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Learning step</th>
-                    <th>Status</th>
-                    <th>Order</th>
-                    <th>Blocks</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var article in _articles
-                    .OrderBy(x => GetStepTitle(x.LearningStepId))
-                    .ThenBy(x => x.SortOrder)
-                    .ThenBy(x => x.Title))
+    <div class="content-structure-layout">
+        <aside class="structure-panel" aria-label="Learning path structure">
+            <div class="structure-panel__header">
+                <p class="eyebrow">Learning path</p>
+                <h2>@_learningPath.Title</h2>
+                @if (!string.IsNullOrWhiteSpace(_learningPath.Summary))
                 {
-                    <tr>
-                        <td>
-                            <a class="article-link" href="@($"/articles/{article.Id}")">@article.Title</a>
-                            <code>@article.Slug</code>
-                        </td>
-                        <td>@GetStepTitle(article.LearningStepId)</td>
-                        <td>
-                            <span class="status-badge @(IsPublished(article.Status) ? "status-badge--published" : "status-badge--draft")">
-                                @article.Status
-                            </span>
-                        </td>
-                        <td>@article.SortOrder</td>
-                        <td>@article.BlockCount</td>
-                    </tr>
+                    <p>@_learningPath.Summary</p>
                 }
-            </tbody>
-        </table>
+            </div>
+
+            <button class="structure-all-button @(_selectedStepId is null ? "is-selected" : null)"
+                    type="button"
+                    @onclick="SelectAllArticles">
+                <span>
+                    <strong>All articles</strong>
+                    <small>Entire learning path</small>
+                </span>
+                <span class="structure-count">@_articles.Count</span>
+            </button>
+
+            <nav class="structure-tree">
+                @foreach (var zone in _learningPath.Zones.OrderBy(zone => zone.SortOrder))
+                {
+                    <section class="structure-zone">
+                        <div class="structure-zone__heading">
+                            <span class="structure-order">@zone.SortOrder</span>
+                            <div>
+                                <h3>@zone.Title</h3>
+                                @if (!string.IsNullOrWhiteSpace(zone.Summary))
+                                {
+                                    <p>@zone.Summary</p>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="structure-steps">
+                            @foreach (var step in zone.Steps.OrderBy(step => step.SortOrder))
+                            {
+                                var stepArticles = GetArticlesForStep(step.Id);
+                                var publishedCount = stepArticles.Count(article => IsPublished(article.Status));
+
+                                <button class="structure-step @(_selectedStepId == step.Id ? "is-selected" : null)"
+                                        type="button"
+                                        @onclick="() => SelectStep(step.Id)">
+                                    <span class="structure-step__order">@step.SortOrder</span>
+                                    <span class="structure-step__content">
+                                        <strong>@step.Title</strong>
+                                        <small>@GetStepSummary(step, stepArticles.Count, publishedCount)</small>
+                                    </span>
+                                    <span class="structure-count">@stepArticles.Count</span>
+                                </button>
+                            }
+                        </div>
+                    </section>
+                }
+            </nav>
+        </aside>
+
+        <main class="articles-workspace">
+            <div class="articles-workspace__header">
+                <div>
+                    <p class="eyebrow">@GetSelectedContextLabel()</p>
+                    <h2>@GetSelectedTitle()</h2>
+                    <p>@GetSelectedSummary()</p>
+                </div>
+                <span class="workspace-result-count">@FilteredArticles.Count article@(FilteredArticles.Count == 1 ? string.Empty : "s")</span>
+            </div>
+
+            @if (FilteredArticles.Count == 0)
+            {
+                <div class="state-card">
+                    <strong>No articles in this step</strong>
+                    <p>Create an article and assign it to this learning step.</p>
+                    <a class="primary-button button-link" href="/articles/new">New article</a>
+                </div>
+            }
+            else
+            {
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                @if (_selectedStepId is null)
+                                {
+                                    <th>Learning step</th>
+                                }
+                                <th>Status</th>
+                                <th>Order</th>
+                                <th>Blocks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var article in FilteredArticles)
+                            {
+                                <tr>
+                                    <td>
+                                        <a class="article-link" href="@($"/articles/{article.Id}")">@article.Title</a>
+                                        <code>@article.Slug</code>
+                                    </td>
+                                    @if (_selectedStepId is null)
+                                    {
+                                        <td>@GetStepTitle(article.LearningStepId)</td>
+                                    }
+                                    <td>
+                                        <span class="status-badge @(IsPublished(article.Status) ? "status-badge--published" : "status-badge--draft")">
+                                            @article.Status
+                                        </span>
+                                    </td>
+                                    <td>@article.SortOrder</td>
+                                    <td>@article.BlockCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </main>
     </div>
 }
 
 @code {
     private IReadOnlyCollection<ArticleManagementListItem> _articles = [];
-    private IReadOnlyDictionary<Guid, string> _stepTitles = new Dictionary<Guid, string>();
+    private LearningPathManagementDetails? _learningPath;
+    private IReadOnlyDictionary<Guid, LearningStepManagementDetails> _steps =
+        new Dictionary<Guid, LearningStepManagementDetails>();
+    private Guid? _selectedStepId;
     private bool _isLoading = true;
     private string? _errorMessage;
+
+    private IReadOnlyList<ArticleManagementListItem> FilteredArticles => _articles
+        .Where(article => _selectedStepId is null || article.LearningStepId == _selectedStepId)
+        .OrderBy(article => GetStepSortKey(article.LearningStepId))
+        .ThenBy(article => article.SortOrder)
+        .ThenBy(article => article.Title, StringComparer.OrdinalIgnoreCase)
+        .ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,12 +204,16 @@ else
             await Task.WhenAll(articlesTask, learningPathTask);
 
             _articles = await articlesTask;
-            var learningPath = await learningPathTask;
-
-            _stepTitles = learningPath?.Zones
+            _learningPath = await learningPathTask;
+            _steps = _learningPath?.Zones
                 .SelectMany(zone => zone.Steps)
-                .ToDictionary(step => step.Id, step => step.Title)
-                ?? new Dictionary<Guid, string>();
+                .ToDictionary(step => step.Id)
+                ?? new Dictionary<Guid, LearningStepManagementDetails>();
+
+            if (_selectedStepId is not null && !_steps.ContainsKey(_selectedStepId.Value))
+            {
+                _selectedStepId = null;
+            }
         }
         catch (HttpRequestException exception)
         {
@@ -129,10 +229,108 @@ else
         }
     }
 
+    private void SelectAllArticles()
+    {
+        _selectedStepId = null;
+    }
+
+    private void SelectStep(Guid stepId)
+    {
+        _selectedStepId = stepId;
+    }
+
+    private IReadOnlyList<ArticleManagementListItem> GetArticlesForStep(Guid stepId) =>
+        _articles
+            .Where(article => article.LearningStepId == stepId)
+            .OrderBy(article => article.SortOrder)
+            .ThenBy(article => article.Title, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
     private string GetStepTitle(Guid learningStepId) =>
-        _stepTitles.TryGetValue(learningStepId, out var title)
-            ? title
+        _steps.TryGetValue(learningStepId, out var step)
+            ? step.Title
             : learningStepId.ToString();
+
+    private int GetStepSortKey(Guid learningStepId)
+    {
+        if (_learningPath is null)
+        {
+            return int.MaxValue;
+        }
+
+        var offset = 0;
+
+        foreach (var zone in _learningPath.Zones.OrderBy(zone => zone.SortOrder))
+        {
+            foreach (var step in zone.Steps.OrderBy(step => step.SortOrder))
+            {
+                offset++;
+
+                if (step.Id == learningStepId)
+                {
+                    return offset;
+                }
+            }
+        }
+
+        return int.MaxValue;
+    }
+
+    private string GetSelectedContextLabel()
+    {
+        if (_selectedStepId is null)
+        {
+            return "All content";
+        }
+
+        var zone = _learningPath?.Zones
+            .FirstOrDefault(candidate => candidate.Steps.Any(step => step.Id == _selectedStepId.Value));
+
+        return zone?.Title ?? "Learning step";
+    }
+
+    private string GetSelectedTitle()
+    {
+        if (_selectedStepId is null)
+        {
+            return "All articles";
+        }
+
+        return _steps.TryGetValue(_selectedStepId.Value, out var step)
+            ? step.Title
+            : "Articles";
+    }
+
+    private string GetSelectedSummary()
+    {
+        if (_selectedStepId is null)
+        {
+            return "Articles from every zone and step in the learning path.";
+        }
+
+        if (_steps.TryGetValue(_selectedStepId.Value, out var step) &&
+            !string.IsNullOrWhiteSpace(step.Summary))
+        {
+            return step.Summary;
+        }
+
+        return "Articles assigned to the selected learning step.";
+    }
+
+    private static string GetStepSummary(
+        LearningStepManagementDetails step,
+        int articleCount,
+        int publishedCount)
+    {
+        if (!string.IsNullOrWhiteSpace(step.Summary))
+        {
+            return step.Summary;
+        }
+
+        return articleCount == 0
+            ? "No articles"
+            : $"{publishedCount} of {articleCount} published";
+    }
 
     private static bool IsPublished(string status) =>
         string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);

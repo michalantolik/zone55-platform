@@ -7,10 +7,6 @@
         "Action": "Start"
       },
       {
-        "Path": "BlogPlatform.App/BlogPlatform.App.csproj",
-        "Action": "Start"
-      },
-      {
         "Path": "Zone55.Management/Zone55.Management.csproj",
         "Action": "Start"
       }
