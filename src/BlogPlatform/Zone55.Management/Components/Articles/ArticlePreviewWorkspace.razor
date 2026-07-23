@@ -164,6 +164,14 @@
             {
                 // The browser session has already ended.
             }
+            catch (JSException)
+            {
+                // The preview frame may already be unloading during client-side navigation.
+            }
+            catch (ObjectDisposedException)
+            {
+                // The imported JavaScript module was disposed as part of navigation.
+            }
         }
 
         _objectReference?.Dispose();

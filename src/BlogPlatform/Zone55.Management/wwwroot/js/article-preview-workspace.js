@@ -1,6 +1,16 @@
 let sequence = 0;
 const frameStates = new WeakMap();
 
+function invokeDotNetSafely(state, methodName) {
+    if (state.disconnected) {
+        return;
+    }
+
+    state.dotNetObject.invokeMethodAsync(methodName).catch(() => {
+        // Navigation can dispose the .NET object before an iframe callback completes.
+    });
+}
+
 function postLatest(frame) {
     const state = frameStates.get(frame);
 
@@ -22,21 +32,21 @@ function handleMessage(frame, state, event) {
 
     if (event.data.type === 'BLOG_ARTICLE_PREVIEW_READY') {
         window.clearTimeout(state.unavailableTimer);
-        state.dotNetObject.invokeMethodAsync('NotifyPreviewReady');
+        invokeDotNetSafely(state, 'NotifyPreviewReady');
         postLatest(frame);
         return;
     }
 
     if (event.data.type === 'BLOG_ARTICLE_PREVIEW_ACK') {
         window.clearTimeout(state.unavailableTimer);
-        state.dotNetObject.invokeMethodAsync('NotifyPreviewRendered');
+        invokeDotNetSafely(state, 'NotifyPreviewRendered');
     }
 }
 
 function scheduleUnavailableCheck(state) {
     window.clearTimeout(state.unavailableTimer);
     state.unavailableTimer = window.setTimeout(() => {
-        state.dotNetObject.invokeMethodAsync('NotifyPreviewUnavailable');
+        invokeDotNetSafely(state, 'NotifyPreviewUnavailable');
     }, 5000);
 }
 
@@ -53,7 +63,8 @@ export function connectArticlePreview(frame, dotNetObject, portalOrigin) {
         portalOrigin,
         unavailableTimer: null,
         messageHandler: null,
-        loadHandler: null
+        loadHandler: null,
+        disconnected: false
     };
 
     state.messageHandler = event => handleMessage(frame, state, event);
@@ -86,6 +97,7 @@ export function disconnectArticlePreview(frame) {
         return;
     }
 
+    state.disconnected = true;
     window.clearTimeout(state.unavailableTimer);
     window.removeEventListener('message', state.messageHandler);
     frame.removeEventListener('load', state.loadHandler);

@@ -8,7 +8,7 @@
 
 <header class="page-header details-header">
     <div>
-        <a class="back-link" href="/">← Articles</a>
+        <NavLink class="back-link" href="/" Match="NavLinkMatch.All">← Articles</NavLink>
         <p class="eyebrow">LearnKit article</p>
         <h1>Create article</h1>
         <p>Create a draft article and continue editing its content blocks.</p>
@@ -44,7 +44,7 @@ else
                 <h2 id="new-article-title">Article details</h2>
             </div>
             <div class="button-row editor-actions">
-                <a class="secondary-button button-link" href="/">Cancel</a>
+                <NavLink class="secondary-button button-link" href="/" Match="NavLinkMatch.All">Cancel</NavLink>
                 <button class="primary-button" type="button" @onclick="CreateAsync" disabled="@_isSaving">
                     @(_isSaving ? "Creating…" : "Create article")
                 </button>

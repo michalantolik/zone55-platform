@@ -22,7 +22,7 @@ else if (_errorMessage is not null && _article is null)
         <p>@_errorMessage</p>
         <div class="button-row">
             <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
-            <a class="secondary-button button-link" href="/">Back to articles</a>
+            <NavLink class="secondary-button button-link" href="/" Match="NavLinkMatch.All">Back to articles</NavLink>
         </div>
     </div>
 }
@@ -31,14 +31,14 @@ else if (_article is null)
     <div class="state-card">
         <strong>Article not found</strong>
         <p>No LearnKit article exists with this identifier.</p>
-        <a class="secondary-button button-link" href="/">Back to articles</a>
+        <NavLink class="secondary-button button-link" href="/" Match="NavLinkMatch.All">Back to articles</NavLink>
     </div>
 }
 else
 {
     <header class="page-header details-header">
         <div>
-            <a class="back-link" href="/">← Articles</a>
+            <NavLink class="back-link" href="/" Match="NavLinkMatch.All">← Articles</NavLink>
             <p class="eyebrow">LearnKit article</p>
             <h1>@_article.Title</h1>
             <code class="article-slug">@_article.Slug</code>

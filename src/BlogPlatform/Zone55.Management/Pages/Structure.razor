@@ -12,7 +12,7 @@
         <p>Organize zones and steps without cluttering the article workspace.</p>
     </div>
     <div class="button-row page-header-actions">
-        <a class="secondary-button button-link" href="/">Back to articles</a>
+        <NavLink class="secondary-button button-link" href="/" Match="NavLinkMatch.All">Back to articles</NavLink>
         <button class="primary-button" type="button" @onclick="BeginCreateZone" disabled="@(_isLoading || _learningPath is null)">Add zone</button>
     </div>
 </header>

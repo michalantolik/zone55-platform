@@ -12,9 +12,9 @@
         <p>Browse the learning path and manage the articles assigned to each step.</p>
     </div>
     <div class="button-row page-header-actions">
-        <a class="secondary-button button-link" href="/structure">Manage structure</a>
+        <NavLink class="secondary-button button-link" href="/structure">Manage structure</NavLink>
         <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">Refresh</button>
-        <a class="primary-button button-link" href="/articles/new">New article</a>
+        <NavLink class="primary-button button-link" href="/articles/new">New article</NavLink>
     </div>
 </header>
 
@@ -123,7 +123,7 @@ else
                 <div class="state-card">
                     <strong>No articles in this step</strong>
                     <p>Create an article and assign it to this learning step.</p>
-                    <a class="primary-button button-link" href="/articles/new">New article</a>
+                    <NavLink class="primary-button button-link" href="/articles/new">New article</NavLink>
                 </div>
             }
             else
