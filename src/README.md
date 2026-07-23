@@ -35,7 +35,7 @@ src/BlogPlatform/
 | Project | Responsibility |
 |---|---|
 | `BlogPlatform.App` | Public Blazor WebAssembly frontend |
-| `Zone55.Management` | Read-only LearnKit management client |
+| `Zone55.Management` | LearnKit content and structure management client |
 | `BlogPlatform.Api` | Public ASP.NET Core API |
 | `BlogPlatform.Cms` | Umbraco CMS and blog administration |
 | `BlogPlatform.Application` | Application services, queries, commands, and interfaces |
@@ -74,7 +74,7 @@ Contracts ---> no project dependencies
 
 ### `Zone55.Management`
 
-Blazor WebAssembly management client. The current slice displays a read-only list of LearnKit articles and resolves their learning step names through `BlogPlatform.Api`.
+Blazor WebAssembly client for managing LearnKit articles, blocks, learning zones, and learning steps through `BlogPlatform.Api`.
 
 Configuration:
 
@@ -153,6 +153,14 @@ Important endpoints:
 ```
 
 ---
+
+## Local startup
+
+Shared Visual Studio launch profiles and troubleshooting are described in:
+
+```text
+docs/local-development.md
+```
 
 ## Build
 

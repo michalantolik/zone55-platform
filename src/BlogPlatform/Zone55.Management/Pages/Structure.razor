@@ -1,0 +1,399 @@
+@page "/structure"
+@inject ILearnKitManagementClient ManagementClient
+@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
+
+<PageTitle>Structure | Zone55 Management</PageTitle>
+
+<header class="page-header">
+    <div>
+        <p class="eyebrow">LearnKit</p>
+        <h1>Learning structure</h1>
+        <p>Organize zones and steps without cluttering the article workspace.</p>
+    </div>
+    <div class="button-row page-header-actions">
+        <a class="secondary-button button-link" href="/">Back to articles</a>
+        <button class="primary-button" type="button" @onclick="BeginCreateZone" disabled="@(_isLoading || _learningPath is null)">Add zone</button>
+    </div>
+</header>
+
+@if (_isLoading)
+{
+    <div class="state-card" role="status">
+        <strong>Loading learning structure…</strong>
+        <p>Reading zones, steps and article assignments from Zone55.Api.</p>
+    </div>
+}
+else if (_errorMessage is not null)
+{
+    <div class="state-card state-card--error" role="alert">
+        <strong>Could not load learning structure</strong>
+        <p>@_errorMessage</p>
+        <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
+    </div>
+}
+else if (_learningPath is null)
+{
+    <div class="state-card">
+        <strong>Learning path not found</strong>
+        <p>The configured LearnKit learning path could not be loaded.</p>
+    </div>
+}
+else
+{
+    @if (_structureMessage is not null)
+    {
+        <div class="structure-notice @(_structureMessageIsError ? "structure-notice--error" : null)" role="status">@_structureMessage</div>
+    }
+
+    <section class="structure-editor-path-card">
+        <div>
+            <p class="eyebrow">Learning path</p>
+            <h2>@_learningPath.Title</h2>
+            <p>@_learningPath.Summary</p>
+        </div>
+        <button class="secondary-button" type="button" @onclick="BeginEditPath">Edit path details</button>
+    </section>
+
+    <section class="structure-editor-toolbar" aria-label="Structure editor instructions">
+        <div>
+            <strong>@_learningPath.Zones.Count zone@(_learningPath.Zones.Count == 1 ? string.Empty : "s")</strong>
+            <span>@GetTotalStepCount() learning steps</span>
+        </div>
+        <p><span class="drag-handle drag-handle--example" aria-hidden="true">⠿</span> Drag zones or steps to change their order. Changes are saved when you drop an item.</p>
+    </section>
+
+    <div class="structure-editor-list" aria-label="Learning zones">
+        @foreach (var zone in _learningPath.Zones.OrderBy(zone => zone.SortOrder))
+        {
+            var orderedSteps = zone.Steps.OrderBy(step => step.SortOrder).ToList();
+            <article class="structure-editor-zone @GetZoneDragClass(zone.Id)"
+                     @ondragover:preventDefault="true"
+                     @ondrop="() => DropZoneAsync(zone.Id)">
+                <header class="structure-editor-zone__header">
+                    <span class="drag-handle" draggable="true" title="Drag to reorder zone" aria-label="Drag to reorder zone" @ondragstart="() => BeginZoneDrag(zone.Id)" @ondragend="EndDrag">⠿</span>
+                    <span class="structure-editor-index">@zone.SortOrder</span>
+                    <div class="structure-editor-zone__identity">
+                        <h2>@zone.Title</h2>
+                        <p>@(string.IsNullOrWhiteSpace(zone.Summary) ? "No summary" : zone.Summary)</p>
+                    </div>
+                    <span class="structure-editor-meta">@orderedSteps.Count step@(orderedSteps.Count == 1 ? string.Empty : "s")</span>
+                    <div class="structure-overflow">
+                        <button class="overflow-button" type="button" aria-label="Actions for @zone.Title" aria-expanded="@IsMenuOpen(zone.Id, StructureItemKind.Zone)" @onclick="() => ToggleMenu(zone.Id, StructureItemKind.Zone)">•••</button>
+                        @if (IsMenuOpen(zone.Id, StructureItemKind.Zone))
+                        {
+                            <div class="overflow-menu" role="menu">
+                                <button type="button" role="menuitem" @onclick="() => BeginEditZone(zone)">Edit zone</button>
+                                <button class="overflow-menu__danger" type="button" role="menuitem" @onclick="() => BeginDeleteZone(zone)">Delete zone</button>
+                            </div>
+                        }
+                    </div>
+                </header>
+
+                <div class="structure-editor-steps">
+                    @if (orderedSteps.Count == 0)
+                    {
+                        <div class="structure-editor-empty">
+                            <div><strong>No learning steps yet</strong><p>Add the first step to begin organizing articles in this zone.</p></div>
+                            <button class="secondary-button" type="button" @onclick="() => BeginCreateStep(zone)">Add first step</button>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var step in orderedSteps)
+                        {
+                            <div class="structure-editor-step @GetStepDragClass(zone.Id, step.Id)"
+                                 @ondragover:preventDefault="true"
+                                 @ondrop="() => DropStepAsync(zone.Id, step.Id)">
+                                <span class="drag-handle" draggable="true" title="Drag to reorder step" aria-label="Drag to reorder step" @ondragstart="() => BeginStepDrag(zone.Id, step.Id)" @ondragstart:stopPropagation="true" @ondragend="EndDrag">⠿</span>
+                                <span class="structure-editor-index structure-editor-index--step">@step.SortOrder</span>
+                                <div class="structure-editor-step__identity">
+                                    <strong>@step.Title</strong>
+                                    <small>@GetStepCaption(step)</small>
+                                </div>
+                                <span class="structure-editor-meta">@GetArticleCount(step.Id) article@(GetArticleCount(step.Id) == 1 ? string.Empty : "s")</span>
+                                <div class="structure-overflow">
+                                    <button class="overflow-button" type="button" aria-label="Actions for @step.Title" aria-expanded="@IsMenuOpen(step.Id, StructureItemKind.Step)" @onclick="() => ToggleMenu(step.Id, StructureItemKind.Step)">•••</button>
+                                    @if (IsMenuOpen(step.Id, StructureItemKind.Step))
+                                    {
+                                        <div class="overflow-menu" role="menu">
+                                            <button type="button" role="menuitem" @onclick="() => BeginEditStep(step)">Edit step</button>
+                                            <button class="overflow-menu__danger" type="button" role="menuitem" @onclick="() => BeginDeleteStep(zone.Id, step)">Delete step</button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <button class="structure-editor-add-step" type="button" @onclick="() => BeginCreateStep(zone)">
+                            <span aria-hidden="true">＋</span> Add learning step
+                        </button>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+}
+
+@if (_createTarget is not null)
+{
+    <div class="management-dialog-backdrop" role="presentation">
+        <section class="management-dialog" role="dialog" aria-modal="true" aria-labelledby="structure-create-title">
+            <header class="management-dialog__header">
+                <div><p class="eyebrow">@_createTarget.Label</p><h2 id="structure-create-title">Add @_createTarget.Label.ToLowerInvariant()</h2><p>Use a stable lowercase key. It cannot be edited later.</p></div>
+                <button class="dialog-close-button" type="button" @onclick="CancelCreate" aria-label="Close">×</button>
+            </header>
+            <div class="management-dialog__body">
+                <label class="field-label" for="create-key">Key</label>
+                <input id="create-key" class="text-input" maxlength="100" placeholder="for example cloud-fundamentals" @bind="_createKey" />
+                <label class="field-label" for="create-title">Title</label>
+                <input id="create-title" class="text-input" maxlength="200" @bind="_createTitle" />
+                <label class="field-label" for="create-summary">Summary</label>
+                <textarea id="create-summary" class="text-area structure-summary-input" maxlength="2000" @bind="_createSummary"></textarea>
+                @if (_dialogValidationMessage is not null) { <p class="field-error" role="alert">@_dialogValidationMessage</p> }
+            </div>
+            <footer class="management-dialog__footer">
+                <button class="secondary-button" type="button" @onclick="CancelCreate" disabled="@_isChangingStructure">Cancel</button>
+                <button class="primary-button" type="button" @onclick="CreateStructureItemAsync" disabled="@_isChangingStructure">@(_isChangingStructure ? "Adding…" : "Add")</button>
+            </footer>
+        </section>
+    </div>
+}
+
+@if (_editTarget is not null)
+{
+    <div class="management-dialog-backdrop" role="presentation">
+        <section class="management-dialog" role="dialog" aria-modal="true" aria-labelledby="structure-edit-title">
+            <header class="management-dialog__header">
+                <div><p class="eyebrow">@_editTarget.Label</p><h2 id="structure-edit-title">Edit @_editTarget.Label.ToLowerInvariant()</h2><p>The stable key and position are not changed here.</p></div>
+                <button class="dialog-close-button" type="button" @onclick="CancelEdit" aria-label="Close">×</button>
+            </header>
+            <div class="management-dialog__body">
+                <label class="field-label" for="edit-title">Title</label>
+                <input id="edit-title" class="text-input" maxlength="200" @bind="_editTitle" />
+                <label class="field-label" for="edit-summary">Summary</label>
+                <textarea id="edit-summary" class="text-area structure-summary-input" maxlength="2000" @bind="_editSummary"></textarea>
+                @if (_dialogValidationMessage is not null) { <p class="field-error" role="alert">@_dialogValidationMessage</p> }
+            </div>
+            <footer class="management-dialog__footer">
+                <button class="secondary-button" type="button" @onclick="CancelEdit" disabled="@_isChangingStructure">Cancel</button>
+                <button class="primary-button" type="button" @onclick="SaveStructureItemAsync" disabled="@_isChangingStructure">@(_isChangingStructure ? "Saving…" : "Save changes")</button>
+            </footer>
+        </section>
+    </div>
+}
+
+@if (_deleteTarget is not null)
+{
+    <div class="management-dialog-backdrop" role="presentation">
+        <section class="management-dialog management-dialog--compact" role="alertdialog" aria-modal="true" aria-labelledby="structure-delete-title">
+            <header class="management-dialog__header">
+                <div><p class="eyebrow">Delete @_deleteTarget.Label.ToLowerInvariant()</p><h2 id="structure-delete-title">Delete “@_deleteTarget.Title”?</h2><p>@_deleteTarget.Warning</p></div>
+            </header>
+            <footer class="management-dialog__footer">
+                <button class="secondary-button" type="button" @onclick="CancelDelete" disabled="@_isChangingStructure">Cancel</button>
+                <button class="danger-button" type="button" @onclick="DeleteStructureItemAsync" disabled="@_isChangingStructure">@(_isChangingStructure ? "Deleting…" : "Delete")</button>
+            </footer>
+        </section>
+    </div>
+}
+
+@code {
+    private LearningPathManagementDetails? _learningPath;
+    private IReadOnlyCollection<ArticleManagementListItem> _articles = [];
+    private bool _isLoading = true;
+    private bool _isChangingStructure;
+    private string? _errorMessage;
+    private string? _structureMessage;
+    private bool _structureMessageIsError;
+    private StructureCreateTarget? _createTarget;
+    private StructureEditTarget? _editTarget;
+    private StructureDeleteTarget? _deleteTarget;
+    private string _createKey = string.Empty;
+    private string _createTitle = string.Empty;
+    private string _createSummary = string.Empty;
+    private string _editTitle = string.Empty;
+    private string _editSummary = string.Empty;
+    private string? _dialogValidationMessage;
+    private Guid? _openMenuId;
+    private StructureItemKind? _openMenuKind;
+    private Guid? _draggedZoneId;
+    private Guid? _draggedStepId;
+    private Guid? _draggedStepZoneId;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        try
+        {
+            var pathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
+            var articlesTask = ManagementClient.GetArticlesAsync();
+            await Task.WhenAll(pathTask, articlesTask);
+            _learningPath = await pathTask;
+            _articles = await articlesTask;
+        }
+        catch (Exception exception)
+        {
+            _errorMessage = exception.Message;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private int GetTotalStepCount() => _learningPath?.Zones.Sum(zone => zone.Steps.Count) ?? 0;
+    private int GetArticleCount(Guid stepId) => _articles.Count(article => article.LearningStepId == stepId);
+    private static string GetStepCaption(LearningStepManagementDetails step) => string.IsNullOrWhiteSpace(step.Summary) ? step.Key : step.Summary;
+
+    private void ToggleMenu(Guid id, StructureItemKind kind)
+    {
+        if (_openMenuId == id && _openMenuKind == kind) { CloseMenu(); return; }
+        _openMenuId = id;
+        _openMenuKind = kind;
+    }
+
+    private bool IsMenuOpen(Guid id, StructureItemKind kind) => _openMenuId == id && _openMenuKind == kind;
+    private void CloseMenu() { _openMenuId = null; _openMenuKind = null; }
+
+    private void BeginCreateZone()
+    {
+        if (_learningPath is null) return;
+        BeginCreate(new StructureCreateTarget(_learningPath.Id, StructureItemKind.Zone, "Zone"));
+    }
+
+    private void BeginCreateStep(LearningZoneManagementDetails zone) => BeginCreate(new StructureCreateTarget(zone.Id, StructureItemKind.Step, "Learning step"));
+    private void BeginCreate(StructureCreateTarget target) { CloseMenu(); _createTarget = target; _createKey = string.Empty; _createTitle = string.Empty; _createSummary = string.Empty; _dialogValidationMessage = null; }
+    private void CancelCreate() { if (!_isChangingStructure) { _createTarget = null; _dialogValidationMessage = null; } }
+
+    private async Task CreateStructureItemAsync()
+    {
+        if (_createTarget is null || _isChangingStructure) return;
+        if (string.IsNullOrWhiteSpace(_createKey) || string.IsNullOrWhiteSpace(_createTitle)) { _dialogValidationMessage = "Key and title are required."; return; }
+        _isChangingStructure = true;
+        try
+        {
+            var request = new CreateLearningStructureItemManagementRequest(_createKey.Trim(), _createTitle.Trim(), _createSummary);
+            if (_createTarget.Kind == StructureItemKind.Zone) await ManagementClient.CreateLearningZoneAsync(_createTarget.ParentId, request);
+            else await ManagementClient.CreateLearningStepAsync(_createTarget.ParentId, request);
+            var label = _createTarget.Label;
+            _createTarget = null;
+            await LoadAsync();
+            ShowMessage($"{label} added.");
+        }
+        catch (Exception exception) { _dialogValidationMessage = exception.Message; }
+        finally { _isChangingStructure = false; }
+    }
+
+    private void BeginEditPath()
+    {
+        if (_learningPath is null) return;
+        BeginEdit(new StructureEditTarget(_learningPath.Id, StructureItemKind.Path, "Learning path"), _learningPath.Title, _learningPath.Summary);
+    }
+
+    private void BeginEditZone(LearningZoneManagementDetails zone) => BeginEdit(new StructureEditTarget(zone.Id, StructureItemKind.Zone, "Zone"), zone.Title, zone.Summary);
+    private void BeginEditStep(LearningStepManagementDetails step) => BeginEdit(new StructureEditTarget(step.Id, StructureItemKind.Step, "Learning step"), step.Title, step.Summary);
+    private void BeginEdit(StructureEditTarget target, string title, string summary) { CloseMenu(); _editTarget = target; _editTitle = title; _editSummary = summary; _dialogValidationMessage = null; }
+    private void CancelEdit() { if (!_isChangingStructure) { _editTarget = null; _dialogValidationMessage = null; } }
+
+    private async Task SaveStructureItemAsync()
+    {
+        if (_editTarget is null || _isChangingStructure) return;
+        if (string.IsNullOrWhiteSpace(_editTitle)) { _dialogValidationMessage = "Title is required."; return; }
+        _isChangingStructure = true;
+        try
+        {
+            var request = new UpdateLearningStructureItemManagementRequest(_editTitle.Trim(), _editSummary);
+            switch (_editTarget.Kind)
+            {
+                case StructureItemKind.Path: await ManagementClient.UpdateLearningPathAsync(_editTarget.Id, request); break;
+                case StructureItemKind.Zone: await ManagementClient.UpdateLearningZoneAsync(_editTarget.Id, request); break;
+                case StructureItemKind.Step: await ManagementClient.UpdateLearningStepAsync(_editTarget.Id, request); break;
+            }
+            _editTarget = null;
+            await LoadAsync();
+            ShowMessage("Changes saved.");
+        }
+        catch (Exception exception) { _dialogValidationMessage = exception.Message; }
+        finally { _isChangingStructure = false; }
+    }
+
+    private void BeginDeleteZone(LearningZoneManagementDetails zone)
+    {
+        CloseMenu();
+        _deleteTarget = new StructureDeleteTarget(_learningPath!.Id, zone.Id, StructureItemKind.Zone, "Zone", zone.Title, "Only an empty zone can be deleted. Remove its learning steps first.");
+    }
+
+    private void BeginDeleteStep(Guid zoneId, LearningStepManagementDetails step)
+    {
+        CloseMenu();
+        _deleteTarget = new StructureDeleteTarget(zoneId, step.Id, StructureItemKind.Step, "Learning step", step.Title, "Only a step without articles can be deleted. Move or delete its articles first.");
+    }
+
+    private void CancelDelete() { if (!_isChangingStructure) _deleteTarget = null; }
+
+    private async Task DeleteStructureItemAsync()
+    {
+        if (_deleteTarget is null || _isChangingStructure) return;
+        _isChangingStructure = true;
+        try
+        {
+            if (_deleteTarget.Kind == StructureItemKind.Zone) await ManagementClient.DeleteLearningZoneAsync(_deleteTarget.ParentId, _deleteTarget.Id);
+            else await ManagementClient.DeleteLearningStepAsync(_deleteTarget.ParentId, _deleteTarget.Id);
+            _deleteTarget = null;
+            await LoadAsync();
+            ShowMessage("Structure item deleted.");
+        }
+        catch (Exception exception) { _deleteTarget = null; ShowMessage(exception.Message, true); }
+        finally { _isChangingStructure = false; }
+    }
+
+    private void BeginZoneDrag(Guid zoneId) { if (_isChangingStructure) return; CloseMenu(); _draggedZoneId = zoneId; _draggedStepId = null; _draggedStepZoneId = null; }
+    private void BeginStepDrag(Guid zoneId, Guid stepId) { if (_isChangingStructure) return; CloseMenu(); _draggedZoneId = null; _draggedStepZoneId = zoneId; _draggedStepId = stepId; }
+    private void EndDrag() { _draggedZoneId = null; _draggedStepId = null; _draggedStepZoneId = null; }
+
+    private async Task DropZoneAsync(Guid targetZoneId)
+    {
+        if (_learningPath is null || _draggedZoneId is null || _draggedZoneId == targetZoneId || _isChangingStructure) { EndDrag(); return; }
+        var ids = _learningPath.Zones.OrderBy(zone => zone.SortOrder).Select(zone => zone.Id).ToList();
+        MoveBefore(ids, _draggedZoneId.Value, targetZoneId);
+        EndDrag();
+        await RunReorderAsync(() => ManagementClient.ReorderLearningZonesAsync(_learningPath.Id, new ReorderLearningStructureItemsManagementRequest(ids)), "Zone order updated.");
+    }
+
+    private async Task DropStepAsync(Guid zoneId, Guid targetStepId)
+    {
+        if (_learningPath is null || _draggedStepId is null || _draggedStepZoneId != zoneId || _draggedStepId == targetStepId || _isChangingStructure) { EndDrag(); return; }
+        var zone = _learningPath.Zones.Single(candidate => candidate.Id == zoneId);
+        var ids = zone.Steps.OrderBy(step => step.SortOrder).Select(step => step.Id).ToList();
+        MoveBefore(ids, _draggedStepId.Value, targetStepId);
+        EndDrag();
+        await RunReorderAsync(() => ManagementClient.ReorderLearningStepsAsync(zoneId, new ReorderLearningStructureItemsManagementRequest(ids)), "Step order updated.");
+    }
+
+    private async Task RunReorderAsync(Func<Task> action, string successMessage)
+    {
+        _isChangingStructure = true;
+        try { await action(); await LoadAsync(); ShowMessage(successMessage); }
+        catch (Exception exception) { ShowMessage(exception.Message, true); }
+        finally { _isChangingStructure = false; }
+    }
+
+    private static void MoveBefore(List<Guid> ids, Guid draggedId, Guid targetId)
+    {
+        ids.Remove(draggedId);
+        var targetIndex = ids.IndexOf(targetId);
+        ids.Insert(targetIndex < 0 ? ids.Count : targetIndex, draggedId);
+    }
+
+    private string? GetZoneDragClass(Guid zoneId) => _draggedZoneId == zoneId ? "is-dragging" : null;
+    private string? GetStepDragClass(Guid zoneId, Guid stepId) => _draggedStepZoneId == zoneId && _draggedStepId == stepId ? "is-dragging" : null;
+    private void ShowMessage(string message, bool error = false) { _structureMessage = message; _structureMessageIsError = error; }
+
+    private enum StructureItemKind { Path, Zone, Step }
+    private sealed record StructureCreateTarget(Guid ParentId, StructureItemKind Kind, string Label);
+    private sealed record StructureEditTarget(Guid Id, StructureItemKind Kind, string Label);
+    private sealed record StructureDeleteTarget(Guid ParentId, Guid Id, StructureItemKind Kind, string Label, string Title, string Warning);
+}

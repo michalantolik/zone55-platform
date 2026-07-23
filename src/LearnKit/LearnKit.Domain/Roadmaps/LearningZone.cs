@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Domain.Roadmaps;
+namespace LearnKit.Domain.Roadmaps;
 
 /// <summary>
 /// Represents a major area inside a learning path.
@@ -95,10 +95,50 @@ public sealed class LearningZone
         ArgumentNullException.ThrowIfNull(step);
 
         _steps.Add(step);
-        ReorderSteps();
+        NormalizeStepOrder();
     }
 
-    private void ReorderSteps()
+    public bool RemoveStep(Guid stepId)
+    {
+        var step = _steps.SingleOrDefault(candidate => candidate.Id == stepId);
+
+        if (step is null)
+        {
+            return false;
+        }
+
+        if (step.Articles.Count > 0)
+        {
+            throw new InvalidOperationException("A learning step containing articles cannot be removed.");
+        }
+
+        _steps.Remove(step);
+        NormalizeStepOrder();
+        return true;
+    }
+
+    public void ReorderSteps(IReadOnlyCollection<Guid> orderedStepIds)
+    {
+        ArgumentNullException.ThrowIfNull(orderedStepIds);
+
+        var current = _steps.Select(step => step.Id).ToHashSet();
+        var proposed = orderedStepIds.ToHashSet();
+
+        if (orderedStepIds.Count != proposed.Count || !current.SetEquals(proposed))
+        {
+            throw new ArgumentException("The order must contain every step identifier exactly once.", nameof(orderedStepIds));
+        }
+
+        var stepsById = _steps.ToDictionary(step => step.Id);
+        var sortOrder = 1;
+
+        foreach (var stepId in orderedStepIds)
+        {
+            stepsById[stepId].MoveTo(sortOrder++);
+        }
+    }
+
+    private void NormalizeStepOrder()
     {
         var sortOrder = 1;
 

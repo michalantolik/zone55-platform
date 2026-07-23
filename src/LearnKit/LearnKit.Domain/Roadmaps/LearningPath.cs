@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Domain.Roadmaps;
+namespace LearnKit.Domain.Roadmaps;
 
 /// <summary>
 /// Represents one complete learning path.
@@ -77,16 +77,63 @@ public sealed class LearningPath
         ArgumentNullException.ThrowIfNull(zone);
 
         _zones.Add(zone);
-        ReorderZones();
+        NormalizeZoneOrder();
     }
 
-    private void ReorderZones()
+    public bool RemoveZone(Guid zoneId)
+    {
+        var zone = _zones.SingleOrDefault(candidate => candidate.Id == zoneId);
+
+        if (zone is null)
+        {
+            return false;
+        }
+
+        if (zone.Steps.Count > 0)
+        {
+            throw new InvalidOperationException("A zone containing learning steps cannot be removed.");
+        }
+
+        _zones.Remove(zone);
+        NormalizeZoneOrder();
+        return true;
+    }
+
+    public void ReorderZones(IReadOnlyCollection<Guid> orderedZoneIds)
+    {
+        ArgumentNullException.ThrowIfNull(orderedZoneIds);
+        ValidateCompleteOrder(_zones.Select(zone => zone.Id), orderedZoneIds, "zones");
+
+        var zonesById = _zones.ToDictionary(zone => zone.Id);
+        var sortOrder = 1;
+
+        foreach (var zoneId in orderedZoneIds)
+        {
+            zonesById[zoneId].MoveTo(sortOrder++);
+        }
+    }
+
+    private void NormalizeZoneOrder()
     {
         var sortOrder = 1;
 
         foreach (var zone in _zones.OrderBy(zone => zone.SortOrder))
         {
             zone.MoveTo(sortOrder++);
+        }
+    }
+
+    private static void ValidateCompleteOrder(
+        IEnumerable<Guid> currentIds,
+        IReadOnlyCollection<Guid> orderedIds,
+        string itemName)
+    {
+        var current = currentIds.ToHashSet();
+        var proposed = orderedIds.ToHashSet();
+
+        if (orderedIds.Count != proposed.Count || !current.SetEquals(proposed))
+        {
+            throw new ArgumentException($"The order must contain every {itemName} identifier exactly once.", nameof(orderedIds));
         }
     }
 

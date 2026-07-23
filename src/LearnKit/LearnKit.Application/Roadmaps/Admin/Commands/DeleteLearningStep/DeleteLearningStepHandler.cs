@@ -1,0 +1,4 @@
+using LearnKit.Application.Roadmaps.Admin.Contracts; using LearnKit.Application.Roadmaps.Admin.Models;
+namespace LearnKit.Application.Roadmaps.Admin.Commands.DeleteLearningStep;
+public sealed class DeleteLearningStepHandler(ILearningPathManagementStore store)
+{ public async Task<LearningStructureOperationResult> HandleAsync(DeleteLearningStepCommand command,CancellationToken cancellationToken=default) { var zone=await store.GetTrackedZoneByIdAsync(command.LearningZoneId,cancellationToken); if(zone is null || zone.Steps.All(x=>x.Id!=command.LearningStepId)) return LearningStructureOperationResult.NotFound; try { zone.RemoveStep(command.LearningStepId); } catch(InvalidOperationException){ return LearningStructureOperationResult.Conflict; } await store.SaveChangesAsync(cancellationToken); return LearningStructureOperationResult.Success; } }

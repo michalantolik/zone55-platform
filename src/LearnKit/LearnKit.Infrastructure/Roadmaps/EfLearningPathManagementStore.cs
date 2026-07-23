@@ -53,6 +53,8 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
         CancellationToken cancellationToken = default)
     {
         return _dbContext.LearningPaths
+            .Include(path => path.Zones)
+                .ThenInclude(zone => zone.Steps)
             .SingleOrDefaultAsync(path => path.Id == learningPathId, cancellationToken);
     }
 
@@ -61,6 +63,8 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
         CancellationToken cancellationToken = default)
     {
         return _dbContext.LearningZones
+            .Include(zone => zone.Steps)
+                .ThenInclude(step => step.Articles)
             .SingleOrDefaultAsync(zone => zone.Id == learningZoneId, cancellationToken);
     }
 
@@ -69,6 +73,7 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
         CancellationToken cancellationToken = default)
     {
         return _dbContext.LearningSteps
+            .Include(step => step.Articles)
             .SingleOrDefaultAsync(step => step.Id == learningStepId, cancellationToken);
     }
 

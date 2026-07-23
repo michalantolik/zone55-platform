@@ -1,0 +1,4 @@
+using LearnKit.Application.Roadmaps.Admin.Contracts; using LearnKit.Application.Roadmaps.Admin.Models;
+namespace LearnKit.Application.Roadmaps.Admin.Commands.DeleteLearningZone;
+public sealed class DeleteLearningZoneHandler(ILearningPathManagementStore store)
+{ public async Task<LearningStructureOperationResult> HandleAsync(DeleteLearningZoneCommand command,CancellationToken cancellationToken=default) { var path=await store.GetTrackedPathByIdAsync(command.LearningPathId,cancellationToken); if(path is null || path.Zones.All(x=>x.Id!=command.LearningZoneId)) return LearningStructureOperationResult.NotFound; try { path.RemoveZone(command.LearningZoneId); } catch(InvalidOperationException){ return LearningStructureOperationResult.Conflict; } await store.SaveChangesAsync(cancellationToken); return LearningStructureOperationResult.Success; } }

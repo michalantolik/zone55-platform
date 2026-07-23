@@ -1,5 +1,6 @@
 @page "/articles/new"
 @inject ILearnKitManagementClient ManagementClient
+@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 @inject NavigationManager Navigation
 
 <PageTitle>New article | Zone55 Management</PageTitle>
@@ -109,7 +110,7 @@ else
 
         try
         {
-            var learningPath = await ManagementClient.GetLearningPathAsync("dotnet");
+            var learningPath = await ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
             _stepGroups = learningPath?.Zones
                 .OrderBy(zone => zone.SortOrder)
                 .Select(zone => new StepGroup(

@@ -19,6 +19,7 @@ builder.Services.AddScoped(_ => new HttpClient
 {
     BaseAddress = new Uri(apiBaseUrl, UriKind.Absolute)
 });
+builder.Services.Configure<LearnKitManagementOptions>(builder.Configuration.GetSection("LearnKit"));
 builder.Services.AddScoped<ILearnKitManagementClient, LearnKitManagementClient>();
 
 await builder.Build().RunAsync();

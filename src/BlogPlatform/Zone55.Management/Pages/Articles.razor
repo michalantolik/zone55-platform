@@ -1,18 +1,18 @@
 @page "/"
 @inject ILearnKitManagementClient ManagementClient
+@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 
 <PageTitle>Articles | Zone55 Management</PageTitle>
 
 <header class="page-header">
     <div>
         <p class="eyebrow">LearnKit</p>
-        <h1>Content structure</h1>
+        <h1>Content</h1>
         <p>Browse the learning path and manage the articles assigned to each step.</p>
     </div>
     <div class="button-row page-header-actions">
-        <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">
-            Refresh
-        </button>
+        <a class="secondary-button button-link" href="/structure">Manage structure</a>
+        <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">Refresh</button>
         <a class="primary-button button-link" href="/articles/new">New article</a>
     </div>
 </header>
@@ -20,14 +20,14 @@
 @if (_isLoading)
 {
     <div class="state-card" role="status">
-        <strong>Loading content structure…</strong>
+        <strong>Loading content…</strong>
         <p>Reading the LearnKit learning path and article data from Zone55.Api.</p>
     </div>
 }
 else if (_errorMessage is not null)
 {
     <div class="state-card state-card--error" role="alert">
-        <strong>Could not load content structure</strong>
+        <strong>Could not load content</strong>
         <p>@_errorMessage</p>
         <button class="primary-button" type="button" @onclick="LoadAsync">Try again</button>
     </div>
@@ -49,22 +49,14 @@ else
     </section>
 
     <div class="content-structure-layout">
-        <aside class="structure-panel" aria-label="Learning path structure">
-            <div class="structure-panel__header structure-heading-with-action">
-                <div>
-                    <p class="eyebrow">Learning path</p>
-                    <h2>@_learningPath.Title</h2>
-                    @if (!string.IsNullOrWhiteSpace(_learningPath.Summary))
-                    {
-                        <p>@_learningPath.Summary</p>
-                    }
-                </div>
-                <button class="structure-edit-button"
-                        type="button"
-                        title="Edit learning path"
-                        @onclick="() => BeginEditPath(_learningPath)">
-                    Edit
-                </button>
+        <aside class="structure-panel structure-panel--navigation" aria-label="Learning path navigation">
+            <div class="structure-panel__header">
+                <p class="eyebrow">Learning path</p>
+                <h2>@_learningPath.Title</h2>
+                @if (!string.IsNullOrWhiteSpace(_learningPath.Summary))
+                {
+                    <p>@_learningPath.Summary</p>
+                }
             </div>
 
             <button class="structure-all-button @(_selectedStepId is null ? "is-selected" : null)"
@@ -77,27 +69,19 @@ else
                 <span class="structure-count">@_articles.Count</span>
             </button>
 
-            <nav class="structure-tree">
+            <nav class="structure-tree structure-tree--navigation">
                 @foreach (var zone in _learningPath.Zones.OrderBy(zone => zone.SortOrder))
                 {
-                    <section class="structure-zone">
-                        <div class="structure-zone__heading structure-heading-with-action">
-                            <div class="structure-zone__identity">
-                                <span class="structure-order">@zone.SortOrder</span>
-                                <div>
-                                    <h3>@zone.Title</h3>
-                                    @if (!string.IsNullOrWhiteSpace(zone.Summary))
-                                    {
-                                        <p>@zone.Summary</p>
-                                    }
-                                </div>
+                    <section class="structure-zone structure-zone--navigation">
+                        <div class="structure-zone__heading structure-zone__heading--navigation">
+                            <span class="structure-order">@zone.SortOrder</span>
+                            <div>
+                                <h3>@zone.Title</h3>
+                                @if (!string.IsNullOrWhiteSpace(zone.Summary))
+                                {
+                                    <p>@zone.Summary</p>
+                                }
                             </div>
-                            <button class="structure-edit-button"
-                                    type="button"
-                                    title="Edit zone"
-                                    @onclick="() => BeginEditZone(zone)">
-                                Edit
-                            </button>
                         </div>
 
                         <div class="structure-steps">
@@ -106,25 +90,16 @@ else
                                 var stepArticles = GetArticlesForStep(step.Id);
                                 var publishedCount = stepArticles.Count(article => IsPublished(article.Status));
 
-                                <div class="structure-step-row @(_selectedStepId == step.Id ? "is-selected" : null)">
-                                    <button class="structure-step"
-                                            type="button"
-                                            @onclick="() => SelectStep(step.Id)">
-                                        <span class="structure-step__order">@step.SortOrder</span>
-                                        <span class="structure-step__content">
-                                            <strong>@step.Title</strong>
-                                            <small>@GetStepSummary(step, stepArticles.Count, publishedCount)</small>
-                                        </span>
-                                        <span class="structure-count">@stepArticles.Count</span>
-                                    </button>
-                                    <button class="structure-step-edit-button"
-                                            type="button"
-                                            title="Edit step"
-                                            aria-label="Edit @step.Title"
-                                            @onclick="() => BeginEditStep(step)">
-                                        Edit
-                                    </button>
-                                </div>
+                                <button class="structure-step @(_selectedStepId == step.Id ? "is-selected" : null)"
+                                        type="button"
+                                        @onclick="() => SelectStep(step.Id)">
+                                    <span class="structure-step__order">@step.SortOrder</span>
+                                    <span class="structure-step__content">
+                                        <strong>@step.Title</strong>
+                                        <small>@GetStepSummary(step, stepArticles.Count, publishedCount)</small>
+                                    </span>
+                                    <span class="structure-count">@stepArticles.Count</span>
+                                </button>
                             }
                         </div>
                     </section>
@@ -179,9 +154,7 @@ else
                                         <td>@GetStepTitle(article.LearningStepId)</td>
                                     }
                                     <td>
-                                        <span class="status-badge @(IsPublished(article.Status) ? "status-badge--published" : "status-badge--draft")">
-                                            @article.Status
-                                        </span>
+                                        <span class="status-badge @(IsPublished(article.Status) ? "status-badge--published" : "status-badge--draft")">@article.Status</span>
                                     </td>
                                     <td>@article.SortOrder</td>
                                     <td>@article.BlockCount</td>
@@ -195,69 +168,13 @@ else
     </div>
 }
 
-@if (_editTarget is not null)
-{
-    <div class="management-dialog-backdrop" role="presentation" @onclick="CancelEdit">
-        <section class="management-dialog"
-                 role="dialog"
-                 aria-modal="true"
-                 aria-labelledby="structure-edit-title"
-                 @onclick:stopPropagation="true">
-            <header class="management-dialog__header">
-                <div>
-                    <p class="eyebrow">@_editTarget.Label</p>
-                    <h2 id="structure-edit-title">Edit @_editTarget.Label.ToLowerInvariant()</h2>
-                    <p>The stable key and position are intentionally not changed in this operation.</p>
-                </div>
-                <button class="dialog-close-button" type="button" @onclick="CancelEdit" aria-label="Close">×</button>
-            </header>
-
-            <div class="management-dialog__body">
-                <label class="field-label" for="structure-title">Title</label>
-                <input id="structure-title"
-                       class="text-input"
-                       maxlength="200"
-                       @bind="_editTitle"
-                       disabled="@_isSavingStructure" />
-
-                <label class="field-label" for="structure-summary">Summary</label>
-                <textarea id="structure-summary"
-                          class="text-area structure-summary-input"
-                          maxlength="2000"
-                          @bind="_editSummary"
-                          disabled="@_isSavingStructure"></textarea>
-
-                @if (_editValidationMessage is not null)
-                {
-                    <p class="field-error" role="alert">@_editValidationMessage</p>
-                }
-            </div>
-
-            <footer class="management-dialog__footer">
-                <button class="secondary-button" type="button" @onclick="CancelEdit" disabled="@_isSavingStructure">
-                    Cancel
-                </button>
-                <button class="primary-button" type="button" @onclick="SaveStructureItemAsync" disabled="@_isSavingStructure">
-                    @(_isSavingStructure ? "Saving…" : "Save changes")
-                </button>
-            </footer>
-        </section>
-    </div>
-}
-
 @code {
     private IReadOnlyCollection<ArticleManagementListItem> _articles = [];
     private LearningPathManagementDetails? _learningPath;
-    private IReadOnlyDictionary<Guid, LearningStepManagementDetails> _steps =
-        new Dictionary<Guid, LearningStepManagementDetails>();
+    private IReadOnlyDictionary<Guid, LearningStepManagementDetails> _steps = new Dictionary<Guid, LearningStepManagementDetails>();
     private Guid? _selectedStepId;
     private bool _isLoading = true;
     private string? _errorMessage;
-    private StructureEditTarget? _editTarget;
-    private string _editTitle = string.Empty;
-    private string _editSummary = string.Empty;
-    private string? _editValidationMessage;
-    private bool _isSavingStructure;
 
     private IReadOnlyList<ArticleManagementListItem> FilteredArticles => _articles
         .Where(article => _selectedStepId is null || article.LearningStepId == _selectedStepId)
@@ -266,10 +183,7 @@ else
         .ThenBy(article => article.Title, StringComparer.OrdinalIgnoreCase)
         .ToList();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadAsync();
-    }
+    protected override async Task OnInitializedAsync() => await LoadAsync();
 
     private async Task LoadAsync()
     {
@@ -279,15 +193,12 @@ else
         try
         {
             var articlesTask = ManagementClient.GetArticlesAsync();
-            var learningPathTask = ManagementClient.GetLearningPathAsync("dotnet");
-
+            var learningPathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
             await Task.WhenAll(articlesTask, learningPathTask);
 
             _articles = await articlesTask;
             _learningPath = await learningPathTask;
-            _steps = _learningPath?.Zones
-                .SelectMany(zone => zone.Steps)
-                .ToDictionary(step => step.Id)
+            _steps = _learningPath?.Zones.SelectMany(zone => zone.Steps).ToDictionary(step => step.Id)
                 ?? new Dictionary<Guid, LearningStepManagementDetails>();
 
             if (_selectedStepId is not null && !_steps.ContainsKey(_selectedStepId.Value))
@@ -309,197 +220,55 @@ else
         }
     }
 
-    private void BeginEditPath(LearningPathManagementDetails path) =>
-        BeginEdit(new StructureEditTarget(path.Id, StructureItemKind.Path, "Learning path"), path.Title, path.Summary);
-
-    private void BeginEditZone(LearningZoneManagementDetails zone) =>
-        BeginEdit(new StructureEditTarget(zone.Id, StructureItemKind.Zone, "Zone"), zone.Title, zone.Summary);
-
-    private void BeginEditStep(LearningStepManagementDetails step) =>
-        BeginEdit(new StructureEditTarget(step.Id, StructureItemKind.Step, "Learning step"), step.Title, step.Summary);
-
-    private void BeginEdit(StructureEditTarget target, string title, string summary)
-    {
-        _editTarget = target;
-        _editTitle = title;
-        _editSummary = summary;
-        _editValidationMessage = null;
-    }
-
-    private void CancelEdit()
-    {
-        if (_isSavingStructure)
-        {
-            return;
-        }
-
-        _editTarget = null;
-        _editValidationMessage = null;
-    }
-
-    private async Task SaveStructureItemAsync()
-    {
-        if (_editTarget is null || _isSavingStructure)
-        {
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(_editTitle))
-        {
-            _editValidationMessage = "Title is required.";
-            return;
-        }
-
-        _isSavingStructure = true;
-        _editValidationMessage = null;
-
-        try
-        {
-            var request = new UpdateLearningStructureItemManagementRequest(
-                _editTitle.Trim(),
-                _editSummary);
-
-            switch (_editTarget.Kind)
-            {
-                case StructureItemKind.Path:
-                    await ManagementClient.UpdateLearningPathAsync(_editTarget.Id, request);
-                    break;
-                case StructureItemKind.Zone:
-                    await ManagementClient.UpdateLearningZoneAsync(_editTarget.Id, request);
-                    break;
-                case StructureItemKind.Step:
-                    await ManagementClient.UpdateLearningStepAsync(_editTarget.Id, request);
-                    break;
-                default:
-                    throw new InvalidOperationException("Unsupported learning structure item.");
-            }
-
-            _editTarget = null;
-            await LoadAsync();
-        }
-        catch (HttpRequestException exception)
-        {
-            _editValidationMessage = $"Zone55.Api returned an error: {exception.Message}";
-        }
-        catch (Exception exception)
-        {
-            _editValidationMessage = $"Unexpected error: {exception.Message}";
-        }
-        finally
-        {
-            _isSavingStructure = false;
-        }
-    }
-
     private void SelectAllArticles() => _selectedStepId = null;
-
     private void SelectStep(Guid stepId) => _selectedStepId = stepId;
 
-    private IReadOnlyList<ArticleManagementListItem> GetArticlesForStep(Guid stepId) =>
-        _articles
-            .Where(article => article.LearningStepId == stepId)
-            .OrderBy(article => article.SortOrder)
-            .ThenBy(article => article.Title, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+    private IReadOnlyList<ArticleManagementListItem> GetArticlesForStep(Guid stepId) => _articles
+        .Where(article => article.LearningStepId == stepId)
+        .OrderBy(article => article.SortOrder)
+        .ThenBy(article => article.Title, StringComparer.OrdinalIgnoreCase)
+        .ToList();
 
-    private string GetStepTitle(Guid learningStepId) =>
-        _steps.TryGetValue(learningStepId, out var step)
-            ? step.Title
-            : learningStepId.ToString();
+    private string GetStepTitle(Guid learningStepId) => _steps.TryGetValue(learningStepId, out var step)
+        ? step.Title
+        : learningStepId.ToString();
 
     private int GetStepSortKey(Guid learningStepId)
     {
-        if (_learningPath is null)
-        {
-            return int.MaxValue;
-        }
-
+        if (_learningPath is null) return int.MaxValue;
         var offset = 0;
-
         foreach (var zone in _learningPath.Zones.OrderBy(zone => zone.SortOrder))
+        foreach (var step in zone.Steps.OrderBy(step => step.SortOrder))
         {
-            foreach (var step in zone.Steps.OrderBy(step => step.SortOrder))
-            {
-                offset++;
-
-                if (step.Id == learningStepId)
-                {
-                    return offset;
-                }
-            }
+            offset++;
+            if (step.Id == learningStepId) return offset;
         }
-
         return int.MaxValue;
     }
 
     private string GetSelectedContextLabel()
     {
-        if (_selectedStepId is null)
-        {
-            return "All content";
-        }
-
-        var zone = _learningPath?.Zones
-            .FirstOrDefault(candidate => candidate.Steps.Any(step => step.Id == _selectedStepId.Value));
-
+        if (_selectedStepId is null) return "All content";
+        var zone = _learningPath?.Zones.FirstOrDefault(candidate => candidate.Steps.Any(step => step.Id == _selectedStepId.Value));
         return zone?.Title ?? "Learning step";
     }
 
-    private string GetSelectedTitle()
-    {
-        if (_selectedStepId is null)
-        {
-            return "All articles";
-        }
-
-        return _steps.TryGetValue(_selectedStepId.Value, out var step)
-            ? step.Title
-            : "Articles";
-    }
+    private string GetSelectedTitle() => _selectedStepId is null
+        ? "All articles"
+        : _steps.TryGetValue(_selectedStepId.Value, out var step) ? step.Title : "Articles";
 
     private string GetSelectedSummary()
     {
-        if (_selectedStepId is null)
-        {
-            return "Articles from every zone and step in the learning path.";
-        }
-
-        if (_steps.TryGetValue(_selectedStepId.Value, out var step) &&
-            !string.IsNullOrWhiteSpace(step.Summary))
-        {
-            return step.Summary;
-        }
-
+        if (_selectedStepId is null) return "Articles from every zone and step in the learning path.";
+        if (_steps.TryGetValue(_selectedStepId.Value, out var step) && !string.IsNullOrWhiteSpace(step.Summary)) return step.Summary;
         return "Articles assigned to the selected learning step.";
     }
 
-    private static string GetStepSummary(
-        LearningStepManagementDetails step,
-        int articleCount,
-        int publishedCount)
+    private static string GetStepSummary(LearningStepManagementDetails step, int articleCount, int publishedCount)
     {
-        if (!string.IsNullOrWhiteSpace(step.Summary))
-        {
-            return step.Summary;
-        }
-
-        return articleCount == 0
-            ? "No articles"
-            : $"{publishedCount} of {articleCount} published";
+        if (!string.IsNullOrWhiteSpace(step.Summary)) return step.Summary;
+        return articleCount == 0 ? "No articles" : $"{publishedCount} of {articleCount} published";
     }
 
-    private static bool IsPublished(string status) =>
-        string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
-
-    private enum StructureItemKind
-    {
-        Path,
-        Zone,
-        Step
-    }
-
-    private sealed record StructureEditTarget(
-        Guid Id,
-        StructureItemKind Kind,
-        string Label);
+    private static bool IsPublished(string status) => string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
 }

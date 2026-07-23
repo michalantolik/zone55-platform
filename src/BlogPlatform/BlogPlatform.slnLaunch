@@ -1,18 +1,56 @@
 [
   {
-    "Name": "API, portal and management",
+    "Name": "Management development",
     "Projects": [
       {
         "Path": "BlogPlatform.Api/BlogPlatform.Api.csproj",
         "Action": "Start"
       },
       {
-        "Path": "BlogPlatform.App\\BlogPlatform.App.csproj",
+        "Path": "BlogPlatform.Cms\\BlogPlatform.Cms.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "BlogPlatform.App/BlogPlatform.App.csproj",
+        "Action": "StartWithoutDebugging"
       },
       {
         "Path": "Zone55.Management/Zone55.Management.csproj",
         "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Portal development",
+    "Projects": [
+      {
+        "Path": "BlogPlatform.Api/BlogPlatform.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "BlogPlatform.App/BlogPlatform.App.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Zone55.Management/Zone55.Management.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  },
+  {
+    "Name": "Run platform without debugging",
+    "Projects": [
+      {
+        "Path": "BlogPlatform.Api/BlogPlatform.Api.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "BlogPlatform.App/BlogPlatform.App.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "Zone55.Management/Zone55.Management.csproj",
+        "Action": "StartWithoutDebugging"
       }
     ]
   }

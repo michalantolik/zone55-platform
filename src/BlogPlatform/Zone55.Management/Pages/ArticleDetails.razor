@@ -1,6 +1,7 @@
 @page "/articles/{ArticleId:guid}"
 @using System.Text.Json
 @inject ILearnKitManagementClient ManagementClient
+@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 @inject NavigationManager Navigation
 @inject IJSRuntime JavaScript
 
@@ -365,7 +366,7 @@ else
         try
         {
             var articleTask = ManagementClient.GetArticleAsync(ArticleId);
-            var learningPathTask = ManagementClient.GetLearningPathAsync("dotnet");
+            var learningPathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
 
             await Task.WhenAll(articleTask, learningPathTask);
 
