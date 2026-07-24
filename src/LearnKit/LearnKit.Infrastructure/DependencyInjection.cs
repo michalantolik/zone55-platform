@@ -36,6 +36,8 @@ public static class DependencyInjection
         services.AddScoped<LearnKitContentSeedLoader>();
         services.AddScoped<LearnKitContentImporter>();
         services.AddScoped<LearnKitDatabaseSeeder>();
+        services.AddScoped<LearnKitDatabaseInitializer>();
+        services.AddSingleton<TimeProvider>(TimeProvider.System);
 
         return services;
     }

@@ -1,5 +1,6 @@
-﻿using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles;
 using LearnKit.Domain.Roadmaps;
+using LearnKit.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearnKit.Infrastructure.Persistence;
@@ -20,6 +21,8 @@ public sealed class LearnKitDbContext : DbContext
     public DbSet<Article> Articles => Set<Article>();
 
     public DbSet<ArticleBlock> ArticleBlocks => Set<ArticleBlock>();
+
+    public DbSet<LearnKitInitializationRecord> LearnKitInitializations => Set<LearnKitInitializationRecord>();
 
     /// <summary>
     /// Applies entity configurations from this assembly.

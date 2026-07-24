@@ -1,8 +1,6 @@
 using BlogPlatform.Api;
 using BlogPlatform.Api.Health;
-using LearnKit.Infrastructure.Persistence;
 using LearnKit.Infrastructure.Seed;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -55,15 +53,10 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider
-        .GetRequiredService<LearnKitDbContext>();
+    var databaseInitializer = scope.ServiceProvider
+        .GetRequiredService<LearnKitDatabaseInitializer>();
 
-    await dbContext.Database.MigrateAsync();
-
-    var seeder = scope.ServiceProvider
-        .GetRequiredService<LearnKitDatabaseSeeder>();
-
-    await seeder.SeedAsync();
+    await databaseInitializer.InitializeAsync();
 }
 
 app.UseSerilogRequestLogging();

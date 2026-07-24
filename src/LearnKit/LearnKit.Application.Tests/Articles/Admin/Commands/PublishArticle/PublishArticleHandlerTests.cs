@@ -76,6 +76,18 @@ public sealed class PublishArticleHandlerTests
             throw new NotSupportedException();
         }
 
+        public Task<IReadOnlyCollection<Article>> GetTrackedByStepIdAsync(
+            Guid learningStepId,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Remove(Article article)
+        {
+            throw new NotSupportedException();
+        }
+
         public Task SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {

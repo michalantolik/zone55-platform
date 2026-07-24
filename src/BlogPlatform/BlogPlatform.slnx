@@ -4,6 +4,7 @@
     <Project Path="../LearnKit/LearnKit.Application.Tests/LearnKit.Application.Tests.csproj" />
     <Project Path="../LearnKit/LearnKit.Domain/LearnKit.Domain.csproj" Id="87ff92b7-897c-405f-ac46-5d9fecd0e4e5" />
     <Project Path="../LearnKit/LearnKit.Infrastructure/LearnKit.Infrastructure.csproj" Id="76c3fdbf-30d6-4944-adfd-6614a0394f50" />
+    <Project Path="../LearnKit/LearnKit.Infrastructure.Tests/LearnKit.Infrastructure.Tests.csproj" />
   </Folder>
   <Project Path="BlogPlatform.Api/BlogPlatform.Api.csproj" />
   <Project Path="BlogPlatform.App/BlogPlatform.App.csproj" Id="c06c1de6-2f0e-488f-8be9-a43faefd2448" />
