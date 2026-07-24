@@ -1,0 +1,53 @@
+@implements IDisposable
+@inject Zone55.Management.Themes.ThemeService ThemeService
+@inject Zone55.Management.Localization.ManagementLocalizer Localizer
+
+<div class="appearance-controls">
+    <div class="language-switcher" role="group" aria-label="@Localizer["Language.Label"]">
+        @foreach (var language in Localizer.Languages)
+        {
+            <button type="button"
+                    class="@(Localizer.CurrentLanguage == language ? "active" : null)"
+                    @onclick="() => Localizer.SetLanguageAsync(language)">
+                @language.ToUpperInvariant()
+            </button>
+        }
+    </div>
+
+    <details class="theme-menu">
+        <summary title="@Localizer["Theme.Label"]" aria-label="@Localizer["Theme.Label"]">
+            <span class="theme-current-dot"></span>
+            <span>@ThemeService.CurrentTheme.DisplayName</span>
+        </summary>
+        <div class="theme-menu__panel">
+            @foreach (var theme in Zone55.Management.Themes.ThemeCatalog.All)
+            {
+                <button type="button"
+                        class="theme-option @(ThemeService.CurrentThemeKey == theme.Key ? "active" : null)"
+                        @onclick="() => ThemeService.SetThemeAsync(theme.Key)">
+                    <span class="theme-preview @theme.PreviewClass"></span>
+                    <span>
+                        <strong>@theme.DisplayName</strong>
+                        <small>@theme.Description</small>
+                    </span>
+                </button>
+            }
+        </div>
+    </details>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ThemeService.Changed += Refresh;
+        Localizer.Changed += Refresh;
+    }
+
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        ThemeService.Changed -= Refresh;
+        Localizer.Changed -= Refresh;
+    }
+}

@@ -4,6 +4,8 @@ public sealed class ArticlePreviewSession
 {
     private ArticlePreviewDraft _draft = ArticlePreviewDraft.Empty;
     private string _mode = "Editor";
+    private string _viewport = "Desktop";
+    private bool _isExpanded;
     private bool _isInitialized;
     private bool _isArticleActive;
 
@@ -11,6 +13,8 @@ public sealed class ArticlePreviewSession
 
     public bool IsInitialized => _isInitialized;
     public bool IsVisible => _isArticleActive && _mode is "Split" or "Preview";
+    public bool IsExpanded => _isExpanded;
+    public string Viewport => _viewport;
     public string TargetElementId => "persistent-article-preview-slot";
     public ArticlePreviewDraft Draft => _draft;
 
@@ -32,20 +36,27 @@ public sealed class ArticlePreviewSession
         _mode = mode;
         _draft = nextDraft;
 
-        if (changed)
-        {
-            Changed?.Invoke();
-        }
+        if (changed) Changed?.Invoke();
+    }
+
+    public void SetViewport(string viewport)
+    {
+        if (viewport is not ("Desktop" or "Tablet" or "Phone") || string.Equals(_viewport, viewport, StringComparison.Ordinal)) return;
+        _viewport = viewport;
+        Changed?.Invoke();
+    }
+
+    public void ToggleExpanded()
+    {
+        _isExpanded = !_isExpanded;
+        Changed?.Invoke();
     }
 
     public void HideArticle()
     {
-        if (!_isArticleActive)
-        {
-            return;
-        }
-
+        if (!_isArticleActive) return;
         _isArticleActive = false;
+        _isExpanded = false;
         Changed?.Invoke();
     }
 
@@ -59,9 +70,5 @@ public sealed record ArticlePreviewDraft(
     string? Summary,
     string BodyHtml)
 {
-    public static ArticlePreviewDraft Empty { get; } = new(
-        "preview",
-        "Untitled article",
-        null,
-        "[]");
+    public static ArticlePreviewDraft Empty { get; } = new("preview", "Untitled article", null, "[]");
 }

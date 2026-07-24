@@ -1,40 +1,60 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject Zone55.Management.Authentication.ManagementAuthenticationService Authentication
 @inject NavigationManager Navigation
+@inject ManagementLocalizer Localizer
 
 <div class="management-shell">
     <aside class="sidebar">
-        <NavLink class="brand" href="/" Match="NavLinkMatch.All">
-            <span class="brand-mark">Z55</span>
-            <span>
-                <strong>Zone55</strong>
-                <small>Management</small>
-            </span>
-        </NavLink>
+        <div>
+            <NavLink class="brand" href="/" Match="NavLinkMatch.All">
+                <span class="brand-mark">Z55</span>
+                <span>
+                    <strong>Zone55</strong>
+                    <small>Management</small>
+                </span>
+            </NavLink>
 
-        <nav aria-label="Management navigation">
-            <NavLink href="/" Match="NavLinkMatch.All">Articles</NavLink>
-            <NavLink href="/structure">Structure</NavLink>
-        </nav>
+            <nav aria-label="Management navigation">
+                <NavLink href="/" Match="NavLinkMatch.All"><span class="nav-icon">▤</span>@Localizer["Nav.Articles"]</NavLink>
+                <NavLink href="/structure"><span class="nav-icon">⌘</span>@Localizer["Nav.Structure"]</NavLink>
+            </nav>
+        </div>
 
         <AuthorizeView>
             <Authorized>
-                <button type="button" class="sidebar-signout" @onclick="SignOutAsync">Sign out</button>
+                <button type="button" class="sidebar-signout" @onclick="SignOutAsync">@Localizer["Nav.SignOut"]</button>
             </Authorized>
         </AuthorizeView>
     </aside>
 
-    <main class="management-content">
-        @Body
-    </main>
+    <section class="application-column">
+        <header class="topbar">
+            <div class="topbar__context">
+                <span class="topbar__product">LearnKit</span>
+                <span class="topbar__separator"></span>
+                <span>Content management</span>
+            </div>
+            <AppearanceControls />
+        </header>
+
+        <main class="management-content">
+            @Body
+        </main>
+    </section>
 
     <PersistentArticlePreviewHost />
 </div>
 
 @code {
+    protected override void OnInitialized() => Localizer.Changed += Refresh;
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+
     private async Task SignOutAsync()
     {
         await Authentication.LogoutAsync();
         Navigation.NavigateTo("/login", replace: true);
     }
+
+    public void Dispose() => Localizer.Changed -= Refresh;
 }

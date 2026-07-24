@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Zone55.Management.Authentication;
 using Zone55.Management;
 using Zone55.Management.Services;
+using Zone55.Management.Localization;
+using Zone55.Management.Themes;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -41,8 +43,12 @@ builder.Services.AddScoped<ILearnKitManagementClient, LearnKitManagementClient>(
 builder.Services.AddScoped<PreviewDiagnosticsClient>();
 builder.Services.AddScoped<ClientCrashDiagnostics>();
 builder.Services.AddScoped<ArticlePreviewSession>();
+builder.Services.AddScoped<ThemeService>();
+builder.Services.AddScoped<ManagementLocalizer>();
 
 var host = builder.Build();
+await host.Services.GetRequiredService<ThemeService>().InitializeAsync();
+await host.Services.GetRequiredService<ManagementLocalizer>().InitializeAsync();
 var crashDiagnostics = host.Services.GetRequiredService<ClientCrashDiagnostics>();
 var crashSession = await crashDiagnostics.InitializeAsync(apiBaseUrl, "MANAGEMENT_GLOBAL");
 await crashDiagnostics.RecordAsync("BlazorHostBuilt", "WebAssemblyHost was built and diagnostics initialized.", new { application = "MANAGEMENT", crashSession });
