@@ -54,6 +54,25 @@ public sealed class CreateArticleHandlerTests
         Assert.Equal(0, store.SaveChangesCallCount);
     }
 
+
+    [Fact]
+    public async Task HandleAsync_ShouldRejectDuplicateSlugWithoutSaving()
+    {
+        var store = new ArticleManagementStoreStub { SlugExists = true };
+        var handler = new CreateArticleHandler(store);
+
+        await Assert.ThrowsAsync<LearnKit.Application.Articles.Admin.ArticleSlugConflictException>(
+            () => handler.HandleAsync(new CreateArticleCommand(
+                Guid.NewGuid(),
+                "clean-architecture",
+                "Clean Architecture",
+                null,
+                1)));
+
+        Assert.Null(store.AddedArticle);
+        Assert.Equal(0, store.SaveChangesCallCount);
+    }
+
     private sealed class ArticleManagementStoreStub : IArticleManagementStore
     {
         public Article? AddedArticle { get; private set; }
@@ -61,6 +80,8 @@ public sealed class CreateArticleHandlerTests
         public int AddCallCount { get; private set; }
 
         public int SaveChangesCallCount { get; private set; }
+
+        public bool SlugExists { get; init; }
 
         public Task<IReadOnlyCollection<ArticleManagementListItem>> GetAllAsync(
             CancellationToken cancellationToken = default)
@@ -81,6 +102,11 @@ public sealed class CreateArticleHandlerTests
         {
             throw new NotSupportedException();
         }
+
+        public Task<bool> SlugExistsAsync(
+            string slug,
+            Guid? excludingArticleId = null,
+            CancellationToken cancellationToken = default) => Task.FromResult(SlugExists);
 
         public Task AddAsync(
             Article article,

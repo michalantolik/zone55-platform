@@ -27,7 +27,14 @@ public sealed class ReorderArticleBlocksHandler
             return false;
         }
 
-        article.ReorderBlocks(command.OrderedBlockIds);
+        try
+        {
+            article.ReorderBlocks(command.OrderedBlockIds);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
         await _articleManagementStore.SaveChangesAsync(cancellationToken);
         return true;
     }

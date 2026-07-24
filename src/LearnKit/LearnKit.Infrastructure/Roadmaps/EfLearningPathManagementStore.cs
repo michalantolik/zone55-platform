@@ -77,6 +77,26 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
             .SingleOrDefaultAsync(step => step.Id == learningStepId, cancellationToken);
     }
 
+    public Task<bool> ZoneKeyExistsAsync(
+        string key,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedKey = key.Trim();
+        return _dbContext.LearningZones.AnyAsync(
+            zone => zone.Key == normalizedKey,
+            cancellationToken);
+    }
+
+    public Task<bool> StepKeyExistsAsync(
+        string key,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedKey = key.Trim();
+        return _dbContext.LearningSteps.AnyAsync(
+            step => step.Key == normalizedKey,
+            cancellationToken);
+    }
+
     public Task SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {

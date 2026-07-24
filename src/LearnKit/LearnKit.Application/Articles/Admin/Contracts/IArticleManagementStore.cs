@@ -52,6 +52,16 @@ public interface IArticleManagementStore
         Guid articleId,
         CancellationToken cancellationToken = default);
 
+
+    /// <summary>
+    /// Indicates whether a slug is already used by another article.
+    /// </summary>
+    Task<bool> SlugExistsAsync(
+        string slug,
+        Guid? excludingArticleId = null,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
     /// <summary>
     /// Adds a new article to the management store.
     /// </summary>

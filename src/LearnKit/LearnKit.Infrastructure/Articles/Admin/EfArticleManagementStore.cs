@@ -83,6 +83,20 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
     }
 
     /// <inheritdoc />
+    public Task<bool> SlugExistsAsync(
+        string slug,
+        Guid? excludingArticleId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedSlug = slug.Trim();
+
+        return _dbContext.Articles.AnyAsync(
+            article => article.Slug == normalizedSlug
+                && (!excludingArticleId.HasValue || article.Id != excludingArticleId.Value),
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task AddAsync(
         Article article,
         CancellationToken cancellationToken = default)

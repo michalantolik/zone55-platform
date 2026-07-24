@@ -15,6 +15,7 @@ using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
 using LearnKit.Domain.Articles;
+using LearnKit.Application.Articles.Admin;
 
 namespace BlogPlatform.Api.Controllers.LearnKit.Admin;
 
@@ -125,9 +126,18 @@ public sealed class ArticlesManagementController : ControllerBase
             request.Summary,
             request.SortOrder);
 
-        var articleId = await _createArticleHandler.HandleAsync(
-            command,
-            cancellationToken);
+        Guid articleId;
+
+        try
+        {
+            articleId = await _createArticleHandler.HandleAsync(command, cancellationToken);
+        }
+        catch (ArticleSlugConflictException)
+        {
+            return ManagementErrors.Conflict(
+                "article_slug_conflict",
+                "Another article already uses this slug.");
+        }
 
         return CreatedAtAction(
             nameof(GetById),
@@ -152,9 +162,18 @@ public sealed class ArticlesManagementController : ControllerBase
             request.Summary,
             request.SortOrder);
 
-        var updated = await _updateArticleHandler.HandleAsync(
-            command,
-            cancellationToken);
+        bool updated;
+
+        try
+        {
+            updated = await _updateArticleHandler.HandleAsync(command, cancellationToken);
+        }
+        catch (ArticleSlugConflictException)
+        {
+            return ManagementErrors.Conflict(
+                "article_slug_conflict",
+                "Another article already uses this slug.");
+        }
 
         if (!updated)
         {
@@ -340,9 +359,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!reordered)
         {
-            return ManagementErrors.NotFound(
-                "article_not_found",
-                "The requested article does not exist.");
+            return ManagementErrors.BadRequest(
+                "article_block_order_invalid",
+                "The block order must contain every article block exactly once.");
         }
 
         return NoContent();

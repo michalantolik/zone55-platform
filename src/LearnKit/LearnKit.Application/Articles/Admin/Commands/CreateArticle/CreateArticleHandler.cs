@@ -1,4 +1,5 @@
 using LearnKit.Application.Articles.Admin.Contracts;
+using LearnKit.Application.Articles.Admin;
 using LearnKit.Domain.Articles;
 
 namespace LearnKit.Application.Articles.Admin.Commands.CreateArticle;
@@ -29,6 +30,13 @@ public sealed class CreateArticleHandler
         CreateArticleCommand command,
         CancellationToken cancellationToken = default)
     {
+        if (await _articleManagementStore.SlugExistsAsync(
+                command.Slug,
+                cancellationToken: cancellationToken))
+        {
+            throw new ArticleSlugConflictException(command.Slug.Trim());
+        }
+
         var article = new Article(
             command.LearningStepId,
             command.Slug,

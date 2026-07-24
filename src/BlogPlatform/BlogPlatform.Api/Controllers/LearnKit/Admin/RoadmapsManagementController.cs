@@ -10,6 +10,7 @@ using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningPath;
 using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningStep;
 using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningZone;
 using LearnKit.Application.Roadmaps.Admin.Models;
+using LearnKit.Application.Roadmaps.Admin;
 using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathForManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -107,9 +108,20 @@ public sealed class RoadmapsManagementController(
         CreateLearningStructureItemRequest request,
         CancellationToken cancellationToken)
     {
-        var id = await createZone.HandleAsync(
-            new CreateLearningZoneCommand(pathId, request.Key, request.Title, request.Summary),
-            cancellationToken);
+        Guid? id;
+
+        try
+        {
+            id = await createZone.HandleAsync(
+                new CreateLearningZoneCommand(pathId, request.Key, request.Title, request.Summary),
+                cancellationToken);
+        }
+        catch (LearningStructureKeyConflictException)
+        {
+            return ManagementErrors.Conflict(
+                "learning_zone_key_conflict",
+                "Another learning zone already uses this key.");
+        }
 
         return id is null
             ? ManagementErrors.NotFound(
@@ -159,9 +171,20 @@ public sealed class RoadmapsManagementController(
         CreateLearningStructureItemRequest request,
         CancellationToken cancellationToken)
     {
-        var id = await createStep.HandleAsync(
-            new CreateLearningStepCommand(zoneId, request.Key, request.Title, request.Summary),
-            cancellationToken);
+        Guid? id;
+
+        try
+        {
+            id = await createStep.HandleAsync(
+                new CreateLearningStepCommand(zoneId, request.Key, request.Title, request.Summary),
+                cancellationToken);
+        }
+        catch (LearningStructureKeyConflictException)
+        {
+            return ManagementErrors.Conflict(
+                "learning_step_key_conflict",
+                "Another learning step already uses this key.");
+        }
 
         return id is null
             ? ManagementErrors.NotFound(

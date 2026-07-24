@@ -71,10 +71,10 @@ public sealed class ManageLearningStructureHandlersTests
         zone.AddStep(second);
         var store = new StoreStub(zone: zone);
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            new ReorderLearningStepsHandler(store).HandleAsync(
-                new ReorderLearningStepsCommand(zone.Id, [first.Id, first.Id])));
+        var updated = await new ReorderLearningStepsHandler(store).HandleAsync(
+            new ReorderLearningStepsCommand(zone.Id, [first.Id, first.Id]));
 
+        Assert.False(updated);
         Assert.Equal(0, store.SaveChangesCallCount);
     }
 

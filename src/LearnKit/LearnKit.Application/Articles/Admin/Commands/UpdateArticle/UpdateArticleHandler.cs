@@ -1,4 +1,5 @@
 using LearnKit.Application.Articles.Admin.Contracts;
+using LearnKit.Application.Articles.Admin;
 
 namespace LearnKit.Application.Articles.Admin.Commands.UpdateArticle;
 
@@ -36,6 +37,14 @@ public sealed class UpdateArticleHandler
         if (article is null)
         {
             return false;
+        }
+
+        if (await _articleManagementStore.SlugExistsAsync(
+                command.Slug,
+                command.ArticleId,
+                cancellationToken))
+        {
+            throw new ArticleSlugConflictException(command.Slug.Trim());
         }
 
         article.MoveToStep(command.LearningStepId);

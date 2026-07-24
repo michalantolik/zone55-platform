@@ -21,6 +21,16 @@ public interface ILearningPathManagementStore
         Guid learningStepId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ZoneKeyExistsAsync(
+        string key,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
+    Task<bool> StepKeyExistsAsync(
+        string key,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
     Task SaveChangesAsync(
         CancellationToken cancellationToken = default);
 }

@@ -39,9 +39,10 @@ public sealed class ReorderArticleBlocksHandlerTests
         var store = new ArticleManagementStoreStub(article);
         var handler = new ReorderArticleBlocksHandler(store);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => handler.HandleAsync(
-            new ReorderArticleBlocksCommand(article.Id, new[] { first.Id })));
+        var reordered = await handler.HandleAsync(
+            new ReorderArticleBlocksCommand(article.Id, new[] { first.Id }));
 
+        Assert.False(reordered);
         Assert.Equal(0, store.SaveChangesCallCount);
     }
 
