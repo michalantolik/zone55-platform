@@ -3,6 +3,9 @@ using BlogPlatform.Application.Roadmap;
 using BlogPlatform.Cms.Controllers;
 using BlogPlatform.Domain.Entities;
 using BlogPlatform.Infrastructure.Roadmap;
+using LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
+using LearnKit.Domain.Articles;
+using LearnKit.Infrastructure.Persistence;
 using NetArchTest.Rules;
 using System.Reflection;
 using System.Xml.Linq;
@@ -240,6 +243,66 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
+    public void LearnKit_Domain_Should_Not_Depend_On_Outer_Layers()
+    {
+        var result = Types
+            .InAssembly(typeof(Article).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "LearnKit.Application",
+                "LearnKit.Infrastructure",
+                "BlogPlatform.Api",
+                "BlogPlatform.Cms",
+                "BlogPlatform.App",
+                "Zone55.Management",
+                "Microsoft.Extensions",
+                "Microsoft.AspNetCore",
+                "Microsoft.EntityFrameworkCore",
+                "Umbraco.Cms")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void LearnKit_Application_Should_Not_Depend_On_Hosts_Or_Infrastructure()
+    {
+        var result = Types
+            .InAssembly(typeof(GetArticleBySlugHandler).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "LearnKit.Infrastructure",
+                "BlogPlatform.Api",
+                "BlogPlatform.Cms",
+                "BlogPlatform.App",
+                "Zone55.Management",
+                "Umbraco.Cms")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
+    public void LearnKit_Infrastructure_Should_Not_Depend_On_Hosts_Or_Legacy_Content()
+    {
+        var result = Types
+            .InAssembly(typeof(LearnKitDbContext).Assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "BlogPlatform.Api",
+                "BlogPlatform.Cms",
+                "BlogPlatform.App",
+                "BlogPlatform.Application",
+                "BlogPlatform.Domain",
+                "BlogPlatform.Infrastructure",
+                "Zone55.Management",
+                "Umbraco.Cms")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, BuildMessage(result));
+    }
+
+    [Fact]
     public void Project_References_Should_Follow_Clean_Architecture_Direction()
     {
         var root = FindSolutionRoot();
@@ -289,6 +352,26 @@ public sealed class CleanArchitectureDependencyTests
                 "LearnKit.Application",
                 "LearnKit.Infrastructure"
             ]);
+
+        AssertProjectReferences(
+            root,
+            "Zone55.Management",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "LearnKit.Domain",
+            []);
+
+        AssertProjectReferences(
+            root,
+            "LearnKit.Application",
+            ["LearnKit.Domain"]);
+
+        AssertProjectReferences(
+            root,
+            "LearnKit.Infrastructure",
+            ["LearnKit.Application"]);
     }
 
     [Fact]
@@ -346,17 +429,24 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     private static void AssertProjectReferences(
-        DirectoryInfo solutionRoot,
+        DirectoryInfo sourceRoot,
         string projectName,
         IReadOnlyCollection<string> allowedReferences)
     {
-        var projectFile = Directory
+        var projectFiles = Directory
             .EnumerateFiles(
-                solutionRoot.FullName,
+                sourceRoot.FullName,
                 $"{projectName}.csproj",
                 SearchOption.AllDirectories)
-            .Single();
+            .ToList();
 
+        Assert.True(
+            projectFiles.Count == 1,
+            $"Expected exactly one project file named '{projectName}.csproj' " +
+            $"under '{sourceRoot.FullName}', but found {projectFiles.Count}: " +
+            string.Join(", ", projectFiles));
+
+        var projectFile = projectFiles[0];
         var document = XDocument.Load(projectFile);
 
         var actualReferences = document
@@ -385,7 +475,9 @@ public sealed class CleanArchitectureDependencyTests
                         directory.FullName,
                         "BlogPlatform.slnx")))
             {
-                return directory;
+                return directory.Parent
+                    ?? throw new DirectoryNotFoundException(
+                        "Could not determine the source root above BlogPlatform.slnx.");
             }
 
             directory = directory.Parent;

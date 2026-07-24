@@ -11,6 +11,8 @@ This folder contains project documentation for BlogPlatform.
 | `../README.md` | Main project overview |
 | `../AZURE.md` | Azure deployment roadmap and current status |
 | `adr/README.md` | Architecture Decision Records |
+| `architecture/learnkit-content-ownership.md` | Active and legacy content ownership boundaries |
+| `architecture/umbraco-retirement-checklist.md` | Evidence required before removing Umbraco |
 | `secrets-and-configuration.md` | Secrets and configuration flow |
 | `../infra/README.md` | Terraform infrastructure documentation |
 | `../src/README.md` | Source code structure |

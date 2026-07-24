@@ -58,6 +58,8 @@ Key architectural decisions:
 See also:
 - [Detailed Azure Architecture (Deployment, Security, Observability)](docs/architecture/azure-architecture-detailed-v5.svg)
 - [C4 Architecture View](docs/architecture/c4-architecture.svg)
+- [LearnKit content ownership](docs/architecture/learnkit-content-ownership.md)
+- [Umbraco retirement checklist](docs/architecture/umbraco-retirement-checklist.md)
 
 ---
 

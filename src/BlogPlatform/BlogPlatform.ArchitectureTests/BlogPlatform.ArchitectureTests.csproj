@@ -25,6 +25,9 @@
     <ProjectReference Include="..\BlogPlatform.Cms\BlogPlatform.Cms.csproj" />
     <ProjectReference Include="..\BlogPlatform.Domain\BlogPlatform.Domain.csproj" />
     <ProjectReference Include="..\BlogPlatform.Infrastructure\BlogPlatform.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\LearnKit\LearnKit.Application\LearnKit.Application.csproj" />
+    <ProjectReference Include="..\..\LearnKit\LearnKit.Domain\LearnKit.Domain.csproj" />
+    <ProjectReference Include="..\..\LearnKit\LearnKit.Infrastructure\LearnKit.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
