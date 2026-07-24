@@ -61,6 +61,9 @@
     [Parameter] public string BodyContent { get; set; } = "[]";
 
     private const string PreviewSlugFallback = "preview";
+    private readonly CancellationTokenSource _lifetimeCancellation = new();
+    private readonly SemaphoreSlim _interopLock = new(1, 1);
+    private readonly string _sessionId = Guid.NewGuid().ToString("N");
     private string _portalOrigin = string.Empty;
     private string _previewUrl = string.Empty;
     private ElementReference _previewFrame;
@@ -70,9 +73,9 @@
     private int _payloadVersion;
     private int _sentPayloadVersion = -1;
     private bool _connected;
+    private bool _disposed;
     private string? _lastError;
     private int _lastBlockFailureCount;
-    private readonly string _sessionId = Guid.NewGuid().ToString("N");
 
     private string PreviewUrl => _previewUrl;
 
@@ -104,53 +107,115 @@
 
     protected override void OnParametersSet()
     {
+        if (_disposed) return;
+
         _payloadVersion++;
         Track("Management.ParametersChanged", _payloadVersion, $"Slug={Normalize(Slug, PreviewSlugFallback)}; TitleLength={Title?.Length ?? 0}; SummaryLength={Summary?.Length ?? 0}; BodyLength={BodyContent?.Length ?? 0}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (_disposed) return;
+
+        var lockTaken = false;
+        try
         {
-            _module = await JS.InvokeAsync<IJSObjectReference>(
-                "import",
-                "./js/article-preview-workspace.js");
-            _objectReference = DotNetObjectReference.Create(this);
+            Track("Management.AfterRenderStarted", _payloadVersion, $"FirstRender={firstRender}; Connected={_connected}; SentVersion={_sentPayloadVersion}");
+            await _interopLock.WaitAsync(_lifetimeCancellation.Token);
+            lockTaken = true;
 
-            await _module.InvokeVoidAsync(
-                "connectArticlePreview",
-                _previewFrame,
-                _objectReference,
-                _portalOrigin,
-                Diagnostics.Enabled,
-                _sessionId);
+            if (_disposed) return;
 
-            Track("Management.Connected", 0, "Preview iframe bridge connected.");
+            if (firstRender)
+            {
+                Track("Management.ModuleImportStarted", 0, "Importing article-preview-workspace.js.");
+                _module = await JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    _lifetimeCancellation.Token,
+                    "./js/article-preview-workspace.js");
 
-            _connected = true;
-        }
+                if (_disposed) return;
+                Track("Management.ModuleImportCompleted", 0, "Preview JavaScript module imported.");
 
-        if (_connected && _module is not null && _sentPayloadVersion != _payloadVersion)
-        {
-            _sentPayloadVersion = _payloadVersion;
+                _objectReference = DotNetObjectReference.Create(this);
+                Track("Management.ConnectStarted", 0, $"PortalOrigin={_portalOrigin}; PreviewUrl={_previewUrl}");
+
+                await _module.InvokeVoidAsync(
+                    "connectArticlePreview",
+                    _lifetimeCancellation.Token,
+                    _previewFrame,
+                    _objectReference,
+                    _portalOrigin,
+                    Diagnostics.Enabled,
+                    _sessionId);
+
+                if (_disposed) return;
+
+                _connected = true;
+                Track("Management.ConnectCompleted", 0, "Preview iframe bridge connected.");
+            }
+
+            if (!_connected || _module is null || _sentPayloadVersion == _payloadVersion)
+            {
+                return;
+            }
+
+            var versionToSend = _payloadVersion;
+            var payload = new PreviewArticlePayload(
+                Normalize(Slug, PreviewSlugFallback),
+                Normalize(Title, "Untitled article"),
+                Summary,
+                BodyContent);
+
             _connectionState = PreviewConnectionState.Connecting;
-
-            Track("Management.PayloadDispatch", _payloadVersion, $"Slug={Normalize(Slug, PreviewSlugFallback)}; TitleLength={Title?.Length ?? 0}; SummaryLength={Summary?.Length ?? 0}; BodyLength={BodyContent?.Length ?? 0}");
+            Track("Management.SendStarted", versionToSend, $"Slug={payload.Slug}; TitleLength={payload.Title.Length}; SummaryLength={payload.Summary?.Length ?? 0}; BodyLength={payload.BodyHtml?.Length ?? 0}");
 
             await _module.InvokeVoidAsync(
                 "sendArticlePreview",
+                _lifetimeCancellation.Token,
                 _previewFrame,
-                new PreviewArticlePayload(
-                    Normalize(Slug, PreviewSlugFallback),
-                    Normalize(Title, "Untitled article"),
-                    Summary,
-                    BodyContent));
+                payload);
+
+            if (_disposed) return;
+
+            _sentPayloadVersion = versionToSend;
+            Track("Management.SendCompleted", versionToSend, $"CurrentPayloadVersion={_payloadVersion}");
+
+            if (_payloadVersion != versionToSend)
+            {
+                Track("Management.NewerPayloadPending", _payloadVersion, $"SentVersion={versionToSend}");
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) when (_disposed || _lifetimeCancellation.IsCancellationRequested)
+        {
+            Track("Management.InteropCancelledDuringDispose", _payloadVersion, "Preview interop operation was cancelled during disposal.");
+        }
+        catch (JSDisconnectedException ex)
+        {
+            HandleInteropLifecycleException("Management.JsDisconnected", ex);
+        }
+        catch (JSException ex)
+        {
+            HandleInteropLifecycleException("Management.JsInteropFailed", ex);
+        }
+        catch (ObjectDisposedException ex)
+        {
+            HandleInteropLifecycleException("Management.InteropObjectDisposed", ex);
+        }
+        finally
+        {
+            if (lockTaken)
+            {
+                _interopLock.Release();
+            }
         }
     }
 
     [JSInvokable]
     public Task NotifyPreviewReady()
     {
+        if (_disposed) return Task.CompletedTask;
         _connectionState = PreviewConnectionState.Ready;
         Track("Management.PreviewReady", 0, "Portal reported ready.");
         return InvokeAsync(StateHasChanged);
@@ -159,6 +224,7 @@
     [JSInvokable]
     public Task NotifyPreviewRendered(int blockFailureCount)
     {
+        if (_disposed) return Task.CompletedTask;
         _lastError = null;
         _lastBlockFailureCount = Math.Max(0, blockFailureCount);
         _connectionState = PreviewConnectionState.Rendered;
@@ -169,6 +235,7 @@
     [JSInvokable]
     public Task NotifyPreviewFailed(string? message)
     {
+        if (_disposed) return Task.CompletedTask;
         _lastError = string.IsNullOrWhiteSpace(message)
             ? "Unknown preview error. Check the App and API logs for LIVE_PREVIEW entries."
             : message;
@@ -180,6 +247,8 @@
     [JSInvokable]
     public Task NotifyPreviewUnavailable()
     {
+        if (_disposed) return Task.CompletedTask;
+
         if (_connectionState is not PreviewConnectionState.Ready and not PreviewConnectionState.Rendered)
         {
             _connectionState = PreviewConnectionState.Unavailable;
@@ -192,8 +261,20 @@
     [JSInvokable]
     public Task NotifyPreviewDiagnostic(string eventName, int sequence, string message)
     {
+        if (_disposed) return Task.CompletedTask;
         Track($"Management.Js.{eventName}", sequence, message);
         return Task.CompletedTask;
+    }
+
+    private void HandleInteropLifecycleException(string eventName, Exception exception)
+    {
+        Track(eventName, _payloadVersion, FormatException(exception));
+        if (_disposed) return;
+
+        _connected = false;
+        _lastError = "The preview connection was interrupted. Reopen the preview or switch back to this article to reconnect.";
+        _connectionState = PreviewConnectionState.Failed;
+        _ = InvokeAsync(StateHasChanged);
     }
 
     private void Track(string eventName, int sequence, string? message)
@@ -206,32 +287,70 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (_module is not null)
-        {
-            try
-            {
-                await _module.InvokeVoidAsync("disconnectArticlePreview", _previewFrame);
-                await _module.DisposeAsync();
-            }
-            catch (JSDisconnectedException)
-            {
-                // The browser session has already ended.
-            }
-            catch (JSException)
-            {
-                // The preview frame may already be unloading during client-side navigation.
-            }
-            catch (ObjectDisposedException)
-            {
-                // The imported JavaScript module was disposed as part of navigation.
-            }
-        }
+        if (_disposed) return;
 
-        _objectReference?.Dispose();
+        _disposed = true;
+        Track("Management.DisposeStarted", _sentPayloadVersion, $"Connected={_connected}; PayloadVersion={_payloadVersion}");
+        _lifetimeCancellation.Cancel();
+
+        await _interopLock.WaitAsync();
+        try
+        {
+            if (_module is not null)
+            {
+                try
+                {
+                    Track("Management.DisconnectStarted", _sentPayloadVersion, "Disconnecting preview bridge.");
+                    await _module.InvokeVoidAsync("disconnectArticlePreview", _previewFrame);
+                    Track("Management.DisconnectCompleted", _sentPayloadVersion, "Preview bridge disconnected.");
+                }
+                catch (JSDisconnectedException ex)
+                {
+                    Track("Management.DisconnectSkippedJsDisconnected", _sentPayloadVersion, FormatException(ex));
+                }
+                catch (JSException ex)
+                {
+                    Track("Management.DisconnectJsException", _sentPayloadVersion, FormatException(ex));
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    Track("Management.DisconnectObjectDisposed", _sentPayloadVersion, FormatException(ex));
+                }
+
+                try
+                {
+                    await _module.DisposeAsync();
+                    Track("Management.ModuleDisposed", _sentPayloadVersion, "Preview JavaScript module disposed.");
+                }
+                catch (JSDisconnectedException ex)
+                {
+                    Track("Management.ModuleDisposeSkippedJsDisconnected", _sentPayloadVersion, FormatException(ex));
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    Track("Management.ModuleAlreadyDisposed", _sentPayloadVersion, FormatException(ex));
+                }
+            }
+
+            _objectReference?.Dispose();
+            _objectReference = null;
+            _module = null;
+            _connected = false;
+            Track("Management.DisposeCompleted", _sentPayloadVersion, "Preview workspace disposed.");
+        }
+        finally
+        {
+            _interopLock.Release();
+            _interopLock.Dispose();
+            _lifetimeCancellation.Dispose();
+        }
     }
 
     private static string Normalize(string? value, string fallback) =>
         string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+    private static string FormatException(Exception exception) =>
+        $"{exception.GetType().FullName}: {exception.Message}";
 
     private sealed record PreviewArticlePayload(
         string Slug,

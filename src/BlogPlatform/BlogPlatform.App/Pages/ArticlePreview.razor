@@ -1,6 +1,6 @@
 @page "/preview/article"
 @layout PreviewLayout
-@implements IDisposable
+@implements IAsyncDisposable
 
 @using System.Text.Json
 @using BlogPlatform.App.Components.Articles.LearnKitRendering
@@ -90,42 +90,68 @@
     private int _failedSequence;
     private int _blockFailureCount;
     private string _sessionId = "unknown";
+    private bool _disposed;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (_disposed) return;
+
+        try
         {
-            _objectReference = DotNetObjectReference.Create(this);
+            if (firstRender)
+            {
+                Track("ArticlePreview.RegisterStarted", 0, "Registering preview JS listener.");
+                _objectReference = DotNetObjectReference.Create(this);
 
-            await JS.InvokeVoidAsync("blogPlatformPreview.register", _objectReference);
-            Track("ArticlePreview.Registered", 0, "Preview JS listener registered.");
-            return;
+                await JS.InvokeVoidAsync("blogPlatformPreview.register", _objectReference);
+                if (_disposed) return;
+
+                Track("ArticlePreview.Registered", 0, "Preview JS listener registered.");
+                return;
+            }
+
+            var sequence = _pendingAckSequence;
+            if (sequence <= 0 || sequence == _failedSequence)
+            {
+                return;
+            }
+
+            _pendingAckSequence = 0;
+            Track("ArticlePreview.AckStarted", sequence, $"RenderKey={_renderKey}; BlockFailures={_blockFailureCount}");
+
+            await JS.InvokeVoidAsync(
+                "blogPlatformPreview.sendAck",
+                sequence,
+                _article?.Title ?? "Untitled article",
+                _article?.Blocks.Count ?? 0,
+                _blockFailureCount);
+
+            if (_disposed) return;
+
+            Track(
+                "ArticlePreview.RenderCompleted",
+                sequence,
+                $"RenderKey={_renderKey}; Title={_article?.Title}; Blocks={_article?.Blocks.Count ?? 0}; BlockFailures={_blockFailureCount}");
         }
-
-        var sequence = _pendingAckSequence;
-        if (sequence <= 0 || sequence == _failedSequence)
+        catch (JSDisconnectedException ex)
         {
-            return;
+            Track("ArticlePreview.JsDisconnected", _lastSequence, FormatException(ex));
         }
-
-        _pendingAckSequence = 0;
-
-        await JS.InvokeVoidAsync(
-            "blogPlatformPreview.sendAck",
-            sequence,
-            _article?.Title ?? "Untitled article",
-            _article?.Blocks.Count ?? 0,
-            _blockFailureCount);
-
-        Track(
-            "ArticlePreview.RenderCompleted",
-            sequence,
-            $"RenderKey={_renderKey}; Title={_article?.Title}; Blocks={_article?.Blocks.Count ?? 0}; BlockFailures={_blockFailureCount}");
+        catch (JSException ex)
+        {
+            Track("ArticlePreview.JsInteropFailed", _lastSequence, FormatException(ex));
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Track("ArticlePreview.InteropObjectDisposed", _lastSequence, FormatException(ex));
+        }
     }
 
     [JSInvokable]
     public async Task LoadPreviewArticle(string json, int sequence, string? sessionId)
     {
+        if (_disposed) return;
+
         try
         {
             _sessionId = string.IsNullOrWhiteSpace(sessionId) ? "unknown" : sessionId;
@@ -166,6 +192,8 @@
 
     private Task HandleBlockRenderFailureAsync(BlockRenderFailure failure)
     {
+        if (_disposed) return Task.CompletedTask;
+
         _blockFailureCount++;
 
         Track(
@@ -178,6 +206,8 @@
 
     private async Task HandlePageRenderErrorAsync(Exception exception)
     {
+        if (_disposed) return;
+
         _failedSequence = _lastSequence;
         _pendingAckSequence = 0;
         await ReportFailureAsync(_lastSequence, "Article preview render failed.", exception);
@@ -195,9 +225,17 @@
         {
             await JS.InvokeVoidAsync("blogPlatformPreview.sendError", sequence, details);
         }
+        catch (JSDisconnectedException jsException)
+        {
+            Track("ArticlePreview.ErrorNotificationDisconnected", sequence, FormatException(jsException));
+        }
         catch (JSException jsException)
         {
             Track("ArticlePreview.ErrorNotificationFailed", sequence, FormatException(jsException));
+        }
+        catch (ObjectDisposedException disposedException)
+        {
+            Track("ArticlePreview.ErrorNotificationDisposed", sequence, FormatException(disposedException));
         }
     }
 
@@ -213,8 +251,35 @@
         return $"{exception.GetType().FullName}: {exception.Message} | {exception.StackTrace}";
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        _objectReference?.Dispose();
+        if (_disposed) return;
+
+        _disposed = true;
+        Track("ArticlePreview.DisposeStarted", _lastSequence, $"PendingAck={_pendingAckSequence}; RenderKey={_renderKey}");
+
+        try
+        {
+            await JS.InvokeVoidAsync("blogPlatformPreview.unregister");
+            Track("ArticlePreview.Unregistered", _lastSequence, "Preview JS listener unregistered.");
+        }
+        catch (JSDisconnectedException ex)
+        {
+            Track("ArticlePreview.UnregisterDisconnected", _lastSequence, FormatException(ex));
+        }
+        catch (JSException ex)
+        {
+            Track("ArticlePreview.UnregisterFailed", _lastSequence, FormatException(ex));
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Track("ArticlePreview.UnregisterDisposed", _lastSequence, FormatException(ex));
+        }
+        finally
+        {
+            _objectReference?.Dispose();
+            _objectReference = null;
+            Track("ArticlePreview.DisposeCompleted", _lastSequence, "Preview page disposed.");
+        }
     }
 }
