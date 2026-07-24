@@ -24,10 +24,14 @@ builder.Logging.AddProvider(
     new ApiClientLoggerProvider(apiHttpClient));
 
 builder.Services.AddAppPresentation(apiHttpClient);
+builder.Services.AddScoped<ClientCrashDiagnostics>();
 
 var host = builder.Build();
 
+var crashDiagnostics = host.Services.GetRequiredService<ClientCrashDiagnostics>();
+var crashSession = await crashDiagnostics.InitializeAsync(apiBaseUrl, "APP_GLOBAL");
+await crashDiagnostics.RecordAsync("BlazorHostBuilt", "WebAssemblyHost was built and diagnostics initialized.", new { application = "APP", crashSession });
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
-logger.LogWarning("APP starting. API base URL: {ApiBaseUrl}", apiBaseUrl);
+logger.LogWarning("APP starting. API base URL: {ApiBaseUrl}; CrashSession={CrashSession}", apiBaseUrl, crashSession);
 
 await host.RunAsync();

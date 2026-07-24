@@ -1,10 +1,13 @@
 @page "/articles/{ArticleId:guid}"
 @attribute [Authorize]
+@implements IDisposable
 @using System.Text.Json
 @inject ILearnKitManagementClient ManagementClient
 @inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 @inject NavigationManager Navigation
 @inject IJSRuntime JavaScript
+@inject ClientCrashDiagnostics CrashDiagnostics
+@inject ArticlePreviewSession PreviewSession
 
 <PageTitle>@(_article?.Title ?? "Article") | Zone55 Management</PageTitle>
 
@@ -304,11 +307,11 @@ else
     </section>
     </div>
 
-    <aside class="article-workspace__preview">
-        <ArticlePreviewWorkspace Slug="@_slug"
-                                 Title="@_title"
-                                 Summary="@_summary"
-                                 BodyContent="@BuildPreviewBodyContent()" />
+    <aside class="article-workspace__preview" aria-hidden="@(!IsPreviewVisible)">
+        <div id="persistent-article-preview-slot"
+             class="persistent-preview-slot"
+             aria-label="Portal article preview">
+        </div>
     </aside>
     </div>
 }
@@ -345,7 +348,7 @@ else
     private string _newBlockType = ArticleBlockTypes[0];
     private int _newBlockSortOrder = 1;
     private string _newBlockContentJson = CreateDefaultBlockJson(ArticleBlockTypes[0]);
-    private string _workspaceMode = "Split";
+    private string _workspaceMode = "Editor";
     private Guid? _editingBlockId;
     private string _editingBlockType = string.Empty;
     private string _editingBlockContentJson = string.Empty;
@@ -353,9 +356,44 @@ else
     private string? _errorMessage;
     private string? _operationMessage;
 
+    private bool IsPreviewVisible => _workspaceMode is "Split" or "Preview";
+
     protected override async Task OnParametersSetAsync()
     {
+        await CrashDiagnostics.SetContextAsync(new
+        {
+            page = "ArticleDetails",
+            articleId = ArticleId,
+            workspaceMode = _workspaceMode,
+            phase = "ParametersSet"
+        });
+        await CrashDiagnostics.RecordAsync("Management.ArticleDetails.ParametersSet", $"ArticleId={ArticleId}; Mode={_workspaceMode}");
         await LoadAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_article is not null)
+        {
+            PreviewSession.UpdateArticle(
+                _workspaceMode,
+                _slug,
+                _title,
+                _summary,
+                BuildPreviewBodyContent());
+        }
+
+        await CrashDiagnostics.SetContextAsync(new
+        {
+            page = "ArticleDetails",
+            articleId = ArticleId,
+            workspaceMode = _workspaceMode,
+            phase = "AfterRender",
+            firstRender,
+            isLoading = _isLoading,
+            hasArticle = _article is not null,
+            blockCount = _article?.Blocks.Count ?? 0
+        });
     }
 
     private async Task LoadAsync()
@@ -852,10 +890,30 @@ else
 
     private void SetWorkspaceMode(string mode)
     {
-        if (WorkspaceModes.Contains(mode, StringComparer.Ordinal))
+        if (!WorkspaceModes.Contains(mode, StringComparer.Ordinal))
         {
-            _workspaceMode = mode;
+            return;
         }
+
+        var previous = _workspaceMode;
+        if (string.Equals(previous, mode, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _workspaceMode = mode;
+
+        CrashDiagnostics.RecordCritical(
+            "Management.ArticleDetails.WorkspaceModeChanged",
+            $"Previous={previous}; Current={mode}; PreviewVisible={IsPreviewVisible}; ArticleId={ArticleId}");
+
+        _ = CrashDiagnostics.SetContextAsync(new
+        {
+            page = "ArticleDetails",
+            articleId = ArticleId,
+            workspaceMode = _workspaceMode,
+            phase = "WorkspaceModeChanged"
+        });
     }
 
     private string BuildPreviewBodyContent()
@@ -965,4 +1023,14 @@ else
 
     private static bool IsPublished(string status) =>
         string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
+
+    public void Dispose()
+    {
+        PreviewSession.HideArticle();
+
+        CrashDiagnostics.RecordCritical(
+            "Management.ArticleDetails.Dispose",
+            $"ArticleId={ArticleId}; Mode={_workspaceMode}; PreviewVisible={IsPreviewVisible}; Loading={_isLoading}; HasArticle={_article is not null}; Blocks={_article?.Blocks.Count ?? 0}");
+    }
+
 }

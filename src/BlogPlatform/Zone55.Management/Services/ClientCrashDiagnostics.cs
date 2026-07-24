@@ -1,0 +1,44 @@
+using Microsoft.JSInterop;
+
+namespace Zone55.Management.Services;
+
+public sealed class ClientCrashDiagnostics(IJSRuntime js)
+{
+    public async Task<string?> InitializeAsync(string apiBaseUrl, string source)
+    {
+        try
+        {
+            return await js.InvokeAsync<string?>("zone55CrashDiagnostics.initialize", apiBaseUrl, source,
+                new { application = source, startedAtUtc = DateTimeOffset.UtcNow });
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Crash diagnostics initialization failed: {ex}");
+            return null;
+        }
+    }
+
+    public ValueTask SetContextAsync(object context) =>
+        js.InvokeVoidAsync("zone55CrashDiagnostics.setContext", context);
+
+    public ValueTask RecordAsync(string eventName, string message, object? extra = null) =>
+        js.InvokeVoidAsync("zone55CrashDiagnostics.record", eventName, message, extra);
+
+    public void RecordCritical(string eventName, string message, object? extra = null)
+    {
+        try
+        {
+            if (js is IJSInProcessRuntime inProcess)
+            {
+                inProcess.InvokeVoid("zone55CrashDiagnostics.recordCritical", eventName, message, extra);
+                return;
+            }
+
+            _ = js.InvokeVoidAsync("zone55CrashDiagnostics.recordCritical", eventName, message, extra);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Critical crash marker failed: {eventName}; {ex.Message}");
+        }
+    }
+}

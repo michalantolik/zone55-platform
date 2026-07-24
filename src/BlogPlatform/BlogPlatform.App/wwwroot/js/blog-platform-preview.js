@@ -1,3 +1,7 @@
+const previewDiag = (eventName, message, extra) => window.zone55CrashDiagnostics?.record(eventName, message, extra);
+
+previewDiag('PreviewBridgeScriptLoaded', 'blog-platform-preview.js loaded.');
+
 window.blogPlatformPreview = {
     dotNetObject: null,
     registered: false,
@@ -7,6 +11,7 @@ window.blogPlatformPreview = {
     rejectionHandler: null,
 
     register: (dotNetObject) => {
+        previewDiag('PreviewBridgeRegisterStarted', 'Register called from Blazor.', { parentOrigin: window.blogPlatformPreview.parentOrigin });
         window.blogPlatformPreview.dotNetObject = dotNetObject;
 
         if (!window.blogPlatformPreview.registered) {
@@ -30,6 +35,7 @@ window.blogPlatformPreview = {
                 window.blogPlatformPreview.parentOrigin = event.origin;
                 const sequence = event.data.sequence ?? 0;
                 const sessionId = event.data.sessionId || 'unknown';
+                previewDiag('PreviewPayloadMessageReceived', `Sequence=${sequence}; Origin=${event.origin}; Session=${sessionId}`);
                 const currentDotNetObject = window.blogPlatformPreview.dotNetObject;
 
                 if (!currentDotNetObject) {
@@ -66,10 +72,12 @@ window.blogPlatformPreview = {
             window.addEventListener('unhandledrejection', window.blogPlatformPreview.rejectionHandler);
         }
 
+        previewDiag('PreviewBridgeRegistered', 'Message/error handlers registered.', { parentOrigin: window.blogPlatformPreview.parentOrigin });
         window.blogPlatformPreview.signalReady();
     },
 
     unregister: () => {
+        previewDiag('PreviewBridgeUnregisterStarted', 'Unregister called.');
         window.blogPlatformPreview.dotNetObject = null;
 
         if (!window.blogPlatformPreview.registered) return;
@@ -88,11 +96,15 @@ window.blogPlatformPreview = {
         window.blogPlatformPreview.errorHandler = null;
         window.blogPlatformPreview.rejectionHandler = null;
         window.blogPlatformPreview.registered = false;
+        previewDiag('PreviewBridgeUnregistered', 'Preview bridge handlers removed.');
     },
 
-    signalReady: () => window.parent.postMessage(
-        { type: 'BLOG_ARTICLE_PREVIEW_READY' },
-        window.blogPlatformPreview.parentOrigin || '*'),
+    signalReady: () => {
+        const targetOrigin = window.blogPlatformPreview.parentOrigin || '*';
+        previewDiag('PreviewReadySending', `TargetOrigin=${targetOrigin}`);
+        window.parent.postMessage({ type: 'BLOG_ARTICLE_PREVIEW_READY' }, targetOrigin);
+        previewDiag('PreviewReadySent', `TargetOrigin=${targetOrigin}`);
+    },
 
     sendAck: (sequence, title, blockCount, blockFailureCount) => window.parent.postMessage({
         type: 'BLOG_ARTICLE_PREVIEW_ACK',

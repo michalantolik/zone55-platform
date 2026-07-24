@@ -21,6 +21,7 @@ public sealed class PreviewDiagnosticsController : ControllerBase
 
     [HttpPost]
     [RequestSizeLimit(8192)]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public IActionResult Write([FromBody] PreviewDiagnosticEntry entry)
     {
         if (!_options.Enabled)
@@ -28,6 +29,30 @@ public sealed class PreviewDiagnosticsController : ControllerBase
             return NotFound();
         }
 
+        WriteEntry(entry);
+        return Accepted();
+    }
+
+    [HttpPost("batch")]
+    [RequestSizeLimit(524288)]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public IActionResult WriteBatch([FromBody] PreviewDiagnosticBatch batch)
+    {
+        if (!_options.Enabled)
+        {
+            return NotFound();
+        }
+
+        foreach (var entry in batch.Entries.Take(100))
+        {
+            WriteEntry(entry);
+        }
+
+        return Accepted();
+    }
+
+    private void WriteEntry(PreviewDiagnosticEntry entry)
+    {
         var source = Normalize(entry.Source, 40);
         var sessionId = Normalize(entry.SessionId, 80);
         var eventName = Normalize(entry.Event, 120);
@@ -43,8 +68,6 @@ public sealed class PreviewDiagnosticsController : ControllerBase
                 eventName,
                 message);
         }
-
-        return Accepted();
     }
 
     private static string Normalize(string? value, int maxLength)
@@ -74,4 +97,9 @@ public sealed class PreviewDiagnosticEntry
     public string Event { get; set; } = "unknown";
     public int Sequence { get; set; }
     public string? Message { get; set; }
+}
+
+public sealed class PreviewDiagnosticBatch
+{
+    public List<PreviewDiagnosticEntry> Entries { get; set; } = [];
 }

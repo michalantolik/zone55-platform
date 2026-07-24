@@ -17,6 +17,9 @@ if (string.IsNullOrWhiteSpace(apiBaseUrl))
     throw new InvalidOperationException("Api:BaseUrl is missing.");
 }
 
+var diagnosticsHttpClient = new HttpClient { BaseAddress = new Uri(apiBaseUrl, UriKind.Absolute) };
+builder.Logging.AddProvider(new ApiClientLoggerProvider(diagnosticsHttpClient));
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<ManagementAuthenticationService>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
@@ -36,5 +39,13 @@ builder.Services.AddScoped(provider =>
 builder.Services.Configure<LearnKitManagementOptions>(builder.Configuration.GetSection("LearnKit"));
 builder.Services.AddScoped<ILearnKitManagementClient, LearnKitManagementClient>();
 builder.Services.AddScoped<PreviewDiagnosticsClient>();
+builder.Services.AddScoped<ClientCrashDiagnostics>();
+builder.Services.AddScoped<ArticlePreviewSession>();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+var crashDiagnostics = host.Services.GetRequiredService<ClientCrashDiagnostics>();
+var crashSession = await crashDiagnostics.InitializeAsync(apiBaseUrl, "MANAGEMENT_GLOBAL");
+await crashDiagnostics.RecordAsync("BlazorHostBuilt", "WebAssemblyHost was built and diagnostics initialized.", new { application = "MANAGEMENT", crashSession });
+var logger = host.Services.GetRequiredService<ILogger<Program>>();
+logger.LogWarning("MANAGEMENT starting. API base URL: {ApiBaseUrl}; CrashSession={CrashSession}", apiBaseUrl, crashSession);
+await host.RunAsync();

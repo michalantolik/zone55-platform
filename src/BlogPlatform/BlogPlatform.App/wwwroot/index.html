@@ -19,6 +19,7 @@
 </head>
 
 <body>
+    <script src="js/client-crash-diagnostics.js"></script>
     <div id="app">
         <div class="loading-screen">
             <div class="loading-card">
@@ -68,7 +69,10 @@
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js"></script>
     <script src="js/blog-platform-preview.js"></script>
     <script src="js/blog-code-highlighting.js"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script>window.zone55CrashDiagnostics?.mark('BlazorLoaderRequested', { application: 'APP' });</script>
+    <script src="_framework/blazor.webassembly.js"
+            onload="window.zone55CrashDiagnostics?.mark('BlazorLoaderScriptLoaded', { application: 'APP' })"
+            onerror="window.zone55CrashDiagnostics?.record('BlazorLoaderScriptFailed', 'Failed to load _framework/blazor.webassembly.js', { application: 'APP' })"></script>
 
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';

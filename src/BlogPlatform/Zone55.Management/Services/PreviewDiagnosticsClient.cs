@@ -27,14 +27,11 @@ public sealed class PreviewDiagnosticsClient
                 new { Source = "MANAGEMENT", SessionId = sessionId, Event = eventName, Sequence = sequence, Message = message },
                 cts.Token);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"[LIVE_PREVIEW] Diagnostics endpoint failed. Status={(int)response.StatusCode}; Session={sessionId}; Event={eventName}; Sequence={sequence}");
-            }
+            _ = response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"[LIVE_PREVIEW] Diagnostics transport failed. Session={sessionId}; Event={eventName}; {ex.GetType().Name}: {ex.Message}");
+            // Diagnostics transport is best-effort and must never affect the application.
         }
     }
 }

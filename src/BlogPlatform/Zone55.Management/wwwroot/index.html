@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
+    <script src="js/client-crash-diagnostics.js"></script>
     <div id="app">
         <div class="boot-screen">Loading Zone55 Management…</div>
     </div>
@@ -19,6 +20,9 @@
     </div>
 
     <script src="js/auth.js"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script>window.zone55CrashDiagnostics?.mark('BlazorLoaderRequested', { application: 'MANAGEMENT' });</script>
+    <script src="_framework/blazor.webassembly.js"
+            onload="window.zone55CrashDiagnostics?.mark('BlazorLoaderScriptLoaded', { application: 'MANAGEMENT' })"
+            onerror="window.zone55CrashDiagnostics?.record('BlazorLoaderScriptFailed', 'Failed to load _framework/blazor.webassembly.js', { application: 'MANAGEMENT' })"></script>
 </body>
 </html>

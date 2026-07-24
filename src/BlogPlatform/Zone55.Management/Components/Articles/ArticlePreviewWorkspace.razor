@@ -1,9 +1,8 @@
-@implements IAsyncDisposable
+@implements IDisposable
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @inject IConfiguration Configuration
 @inject IJSRuntime JS
-@inject PreviewDiagnosticsClient Diagnostics
 
 <div class="preview-workspace">
     <div class="preview-workspace__toolbar">
@@ -13,9 +12,7 @@
             <code>@PreviewUrl</code>
         </div>
         <div class="preview-workspace__actions">
-            <span class="preview-status preview-status--@_connectionState.ToString().ToLowerInvariant()">
-                @ConnectionLabel
-            </span>
+            <span class="preview-status preview-status--ready">Preview active</span>
             <a class="preview-open-link" href="@PreviewUrl" target="_blank" rel="noopener noreferrer">
                 Open preview page
             </a>
@@ -32,26 +29,10 @@
         </iframe>
     </div>
 
-    @if (_connectionState == PreviewConnectionState.Unavailable)
-    {
-        <p class="preview-runtime-note preview-runtime-note--error" role="alert">
-            The portal preview did not become ready. Start BlogPlatform.App and verify the configured
-            <code>Portal:BaseUrl</code> value.
-        </p>
-    }
-    else if (_connectionState == PreviewConnectionState.Failed)
-    {
-        <p class="preview-runtime-note preview-runtime-note--error" role="alert">
-            The portal caught a preview error. @_lastError
-        </p>
-    }
-    else
-    {
-        <p class="preview-runtime-note">
-            Metadata and valid unsaved block changes are sent directly to the portal renderer. Invalid draft JSON
-            remains in the editor and is omitted until it becomes valid.
-        </p>
-    }
+    <p class="preview-runtime-note">
+        The preview iframe stays mounted while this article is open. Editor, Split, and Preview modes only change
+        the workspace layout, so the portal renderer is not restarted when switching modes.
+    </p>
 </div>
 
 @code {
@@ -61,35 +42,15 @@
     [Parameter] public string BodyContent { get; set; } = "[]";
 
     private const string PreviewSlugFallback = "preview";
-    private readonly CancellationTokenSource _lifetimeCancellation = new();
-    private readonly SemaphoreSlim _interopLock = new(1, 1);
-    private readonly string _sessionId = Guid.NewGuid().ToString("N");
     private string _portalOrigin = string.Empty;
     private string _previewUrl = string.Empty;
     private ElementReference _previewFrame;
     private IJSObjectReference? _module;
-    private DotNetObjectReference<ArticlePreviewWorkspace>? _objectReference;
-    private PreviewConnectionState _connectionState = PreviewConnectionState.Connecting;
-    private int _payloadVersion;
-    private int _sentPayloadVersion = -1;
+    private string? _lastPayloadSignature;
     private bool _connected;
     private bool _disposed;
-    private string? _lastError;
-    private int _lastBlockFailureCount;
 
     private string PreviewUrl => _previewUrl;
-
-    private string ConnectionLabel => _connectionState switch
-    {
-        PreviewConnectionState.Connecting => "Connecting to portal",
-        PreviewConnectionState.Ready => "Portal ready",
-        PreviewConnectionState.Rendered => _lastBlockFailureCount > 0
-            ? $"Rendered with {_lastBlockFailureCount} block error(s)"
-            : "Draft rendered",
-        PreviewConnectionState.Failed => "Render failed",
-        PreviewConnectionState.Unavailable => "Portal unavailable",
-        _ => "Preview status unknown"
-    };
 
     protected override void OnInitialized()
     {
@@ -102,268 +63,93 @@
         var portalBaseUri = new Uri(configuredBaseUrl, UriKind.Absolute);
         _portalOrigin = portalBaseUri.GetLeftPart(UriPartial.Authority);
         _previewUrl = new Uri(portalBaseUri, "preview/article").AbsoluteUri;
-        Track("Management.Initialized", 0, $"PortalOrigin={_portalOrigin}; PreviewUrl={_previewUrl}; DiagnosticsEnabled={Diagnostics.Enabled}");
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (_disposed) return;
-
-        _payloadVersion++;
-        Track("Management.ParametersChanged", _payloadVersion, $"Slug={Normalize(Slug, PreviewSlugFallback)}; TitleLength={Title?.Length ?? 0}; SummaryLength={Summary?.Length ?? 0}; BodyLength={BodyContent?.Length ?? 0}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_disposed) return;
+        if (_disposed)
+        {
+            return;
+        }
 
-        var lockTaken = false;
         try
         {
-            Track("Management.AfterRenderStarted", _payloadVersion, $"FirstRender={firstRender}; Connected={_connected}; SentVersion={_sentPayloadVersion}");
-            await _interopLock.WaitAsync(_lifetimeCancellation.Token);
-            lockTaken = true;
-
-            if (_disposed) return;
-
             if (firstRender)
             {
-                Track("Management.ModuleImportStarted", 0, "Importing article-preview-workspace.js.");
                 _module = await JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    _lifetimeCancellation.Token,
                     "./js/article-preview-workspace.js");
 
-                if (_disposed) return;
-                Track("Management.ModuleImportCompleted", 0, "Preview JavaScript module imported.");
-
-                _objectReference = DotNetObjectReference.Create(this);
-                Track("Management.ConnectStarted", 0, $"PortalOrigin={_portalOrigin}; PreviewUrl={_previewUrl}");
+                if (_disposed)
+                {
+                    return;
+                }
 
                 await _module.InvokeVoidAsync(
                     "connectArticlePreview",
-                    _lifetimeCancellation.Token,
                     _previewFrame,
-                    _objectReference,
-                    _portalOrigin,
-                    Diagnostics.Enabled,
-                    _sessionId);
-
-                if (_disposed) return;
+                    _portalOrigin);
 
                 _connected = true;
-                Track("Management.ConnectCompleted", 0, "Preview iframe bridge connected.");
             }
 
-            if (!_connected || _module is null || _sentPayloadVersion == _payloadVersion)
+            if (!_connected || _module is null)
             {
                 return;
             }
 
-            var versionToSend = _payloadVersion;
+            var signature = BuildPayloadSignature();
+            if (string.Equals(signature, _lastPayloadSignature, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastPayloadSignature = signature;
+
             var payload = new PreviewArticlePayload(
                 Normalize(Slug, PreviewSlugFallback),
                 Normalize(Title, "Untitled article"),
                 Summary,
-                BodyContent);
-
-            _connectionState = PreviewConnectionState.Connecting;
-            Track("Management.SendStarted", versionToSend, $"Slug={payload.Slug}; TitleLength={payload.Title.Length}; SummaryLength={payload.Summary?.Length ?? 0}; BodyLength={payload.BodyHtml?.Length ?? 0}");
+                BodyContent ?? "[]");
 
             await _module.InvokeVoidAsync(
                 "sendArticlePreview",
-                _lifetimeCancellation.Token,
                 _previewFrame,
                 payload);
-
-            if (_disposed) return;
-
-            _sentPayloadVersion = versionToSend;
-            Track("Management.SendCompleted", versionToSend, $"CurrentPayloadVersion={_payloadVersion}");
-
-            if (_payloadVersion != versionToSend)
-            {
-                Track("Management.NewerPayloadPending", _payloadVersion, $"SentVersion={versionToSend}");
-                await InvokeAsync(StateHasChanged);
-            }
         }
-        catch (OperationCanceledException) when (_disposed || _lifetimeCancellation.IsCancellationRequested)
+        catch (JSDisconnectedException)
         {
-            Track("Management.InteropCancelledDuringDispose", _payloadVersion, "Preview interop operation was cancelled during disposal.");
+            // The page is being closed or navigated away from. Preview must not block navigation.
         }
-        catch (JSDisconnectedException ex)
+        catch (ObjectDisposedException)
         {
-            HandleInteropLifecycleException("Management.JsDisconnected", ex);
+            // The component was removed while JavaScript interop was completing.
         }
-        catch (JSException ex)
+        catch (JSException)
         {
-            HandleInteropLifecycleException("Management.JsInteropFailed", ex);
-        }
-        catch (ObjectDisposedException ex)
-        {
-            HandleInteropLifecycleException("Management.InteropObjectDisposed", ex);
-        }
-        finally
-        {
-            if (lockTaken)
-            {
-                _interopLock.Release();
-            }
+            // Preview transport is best effort and must never crash the article editor.
         }
     }
 
-    [JSInvokable]
-    public Task NotifyPreviewReady()
+    public void Dispose()
     {
-        if (_disposed) return Task.CompletedTask;
-        _connectionState = PreviewConnectionState.Ready;
-        Track("Management.PreviewReady", 0, "Portal reported ready.");
-        return InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public Task NotifyPreviewRendered(int blockFailureCount)
-    {
-        if (_disposed) return Task.CompletedTask;
-        _lastError = null;
-        _lastBlockFailureCount = Math.Max(0, blockFailureCount);
-        _connectionState = PreviewConnectionState.Rendered;
-        Track("Management.PreviewRendered", _sentPayloadVersion, $"BlockFailures={_lastBlockFailureCount}");
-        return InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public Task NotifyPreviewFailed(string? message)
-    {
-        if (_disposed) return Task.CompletedTask;
-        _lastError = string.IsNullOrWhiteSpace(message)
-            ? "Unknown preview error. Check the App and API logs for LIVE_PREVIEW entries."
-            : message;
-        _connectionState = PreviewConnectionState.Failed;
-        Track("Management.PreviewFailed", _sentPayloadVersion, _lastError);
-        return InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public Task NotifyPreviewUnavailable()
-    {
-        if (_disposed) return Task.CompletedTask;
-
-        if (_connectionState is not PreviewConnectionState.Ready and not PreviewConnectionState.Rendered)
-        {
-            _connectionState = PreviewConnectionState.Unavailable;
-            Track("Management.PreviewUnavailable", 0, "Portal did not report ready before timeout.");
-        }
-
-        return InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public Task NotifyPreviewDiagnostic(string eventName, int sequence, string message)
-    {
-        if (_disposed) return Task.CompletedTask;
-        Track($"Management.Js.{eventName}", sequence, message);
-        return Task.CompletedTask;
-    }
-
-    private void HandleInteropLifecycleException(string eventName, Exception exception)
-    {
-        Track(eventName, _payloadVersion, FormatException(exception));
-        if (_disposed) return;
-
-        _connected = false;
-        _lastError = "The preview connection was interrupted. Reopen the preview or switch back to this article to reconnect.";
-        _connectionState = PreviewConnectionState.Failed;
-        _ = InvokeAsync(StateHasChanged);
-    }
-
-    private void Track(string eventName, int sequence, string? message)
-    {
-        if (!Diagnostics.Enabled) return;
-        var safeMessage = string.IsNullOrWhiteSpace(message) ? "-" : message;
-        Console.WriteLine($"[LIVE_PREVIEW] Session={_sessionId}; Event={eventName}; Sequence={sequence}; {safeMessage}");
-        _ = Diagnostics.WriteAsync(_sessionId, eventName, sequence, safeMessage);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_disposed) return;
-
         _disposed = true;
-        Track("Management.DisposeStarted", _sentPayloadVersion, $"Connected={_connected}; PayloadVersion={_payloadVersion}");
-        _lifetimeCancellation.Cancel();
-
-        await _interopLock.WaitAsync();
-        try
-        {
-            if (_module is not null)
-            {
-                try
-                {
-                    Track("Management.DisconnectStarted", _sentPayloadVersion, "Disconnecting preview bridge.");
-                    await _module.InvokeVoidAsync("disconnectArticlePreview", _previewFrame);
-                    Track("Management.DisconnectCompleted", _sentPayloadVersion, "Preview bridge disconnected.");
-                }
-                catch (JSDisconnectedException ex)
-                {
-                    Track("Management.DisconnectSkippedJsDisconnected", _sentPayloadVersion, FormatException(ex));
-                }
-                catch (JSException ex)
-                {
-                    Track("Management.DisconnectJsException", _sentPayloadVersion, FormatException(ex));
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    Track("Management.DisconnectObjectDisposed", _sentPayloadVersion, FormatException(ex));
-                }
-
-                try
-                {
-                    await _module.DisposeAsync();
-                    Track("Management.ModuleDisposed", _sentPayloadVersion, "Preview JavaScript module disposed.");
-                }
-                catch (JSDisconnectedException ex)
-                {
-                    Track("Management.ModuleDisposeSkippedJsDisconnected", _sentPayloadVersion, FormatException(ex));
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    Track("Management.ModuleAlreadyDisposed", _sentPayloadVersion, FormatException(ex));
-                }
-            }
-
-            _objectReference?.Dispose();
-            _objectReference = null;
-            _module = null;
-            _connected = false;
-            Track("Management.DisposeCompleted", _sentPayloadVersion, "Preview workspace disposed.");
-        }
-        finally
-        {
-            _interopLock.Release();
-            _interopLock.Dispose();
-            _lifetimeCancellation.Dispose();
-        }
+        _connected = false;
+        _module = null;
     }
+
+    private string BuildPayloadSignature() => string.Concat(
+        Normalize(Slug, PreviewSlugFallback), "\n",
+        Normalize(Title, "Untitled article"), "\n",
+        Summary ?? string.Empty, "\n",
+        BodyContent ?? string.Empty);
 
     private static string Normalize(string? value, string fallback) =>
         string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
-
-    private static string FormatException(Exception exception) =>
-        $"{exception.GetType().FullName}: {exception.Message}";
 
     private sealed record PreviewArticlePayload(
         string Slug,
         string Title,
         string? Summary,
         string BodyHtml);
-
-    private enum PreviewConnectionState
-    {
-        Connecting,
-        Ready,
-        Rendered,
-        Failed,
-        Unavailable
-    }
 }

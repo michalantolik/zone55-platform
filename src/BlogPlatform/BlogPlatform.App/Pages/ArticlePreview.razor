@@ -242,8 +242,10 @@
     private void Track(string eventName, int sequence, string message)
     {
         if (!Diagnostics.Enabled) return;
-        Console.WriteLine($"[LIVE_PREVIEW] Session={_sessionId}; {eventName}; Sequence={sequence}; {message}");
-        _ = Diagnostics.WriteAsync("APP", _sessionId, eventName, sequence, message);
+        if (eventName is "ArticlePreview.RenderFailed" or "ArticlePreview.InvalidPayload" or "ArticlePreview.ErrorNotificationFailed")
+        {
+            Console.WriteLine($"[LIVE_PREVIEW] Session={_sessionId}; {eventName}; Sequence={sequence}; {message}");
+        }
     }
 
     private static string FormatException(Exception exception)

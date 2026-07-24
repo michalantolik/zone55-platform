@@ -10,10 +10,26 @@
 
 @inject ILearnKitApiClient LearnKitApi
 @inject IConfiguration Configuration
+@inject ILogger<Home> Logger
 
 <PageTitle>@PageTitleText</PageTitle>
 
-@if (IsLearningPathView)
+@if (_loadErrorMessage is not null)
+{
+    <section class="content-frame container-xl" role="alert">
+        <div class="blog-loading-panel">
+            <div class="blog-loading-copy">
+                <div class="section-kicker">TEMPORARILY UNAVAILABLE</div>
+                <h2>Zone55 could not reach the API</h2>
+                <p>@_loadErrorMessage</p>
+                <button class="btn btn-primary" type="button" @onclick="RetryLoadAsync" disabled="@_isRetrying">
+                    @(_isRetrying ? "Retrying…" : "Try again")
+                </button>
+            </div>
+        </div>
+    </section>
+}
+else if (IsLearningPathView)
 {
     @if (_isInitialPageLoading)
     {
@@ -460,15 +476,74 @@ else
     private string SelectedStepUrl =>
         GetStepPath(SelectedZoneKey, SelectedStepKey);
 
+    private string? _loadErrorMessage;
+    private bool _isRetrying;
+
     protected override async Task OnParametersSetAsync()
     {
-        if (!_hasCompletedInitialLoad)
+        try
         {
-            await LoadInitialPageAsync();
+            _loadErrorMessage = null;
+
+            if (!_hasCompletedInitialLoad)
+            {
+                await LoadInitialPageAsync();
+                return;
+            }
+
+            await RefreshArticleAreaAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+    }
+
+    private async Task RetryLoadAsync()
+    {
+        if (_isRetrying)
+        {
             return;
         }
 
-        await RefreshArticleAreaAsync();
+        _isRetrying = true;
+        _loadErrorMessage = null;
+
+        try
+        {
+            if (_hasCompletedInitialLoad)
+            {
+                await RefreshArticleAreaAsync();
+            }
+            else
+            {
+                await LoadInitialPageAsync();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+        finally
+        {
+            _isRetrying = false;
+        }
+    }
+
+    private void HandleApiUnavailable(Exception exception)
+    {
+        Logger.LogWarning(exception, "APP could not load page data because the API is unavailable.");
+        _loadErrorMessage = "The API is still starting or temporarily unavailable. Retry in a moment; the page no longer needs to be refreshed.";
+        _isInitialPageLoading = false;
+        _isArticleAreaLoading = false;
     }
 
     private async Task LoadInitialPageAsync()

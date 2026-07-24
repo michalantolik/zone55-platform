@@ -4,7 +4,7 @@ namespace BlogPlatform.App.Services;
 
 public sealed class ApiClientLogger : ILogger
 {
-    private const int MaxMessageLength = 3000;
+    private const int MaxMessageLength = 12000;
 
     private readonly HttpClient _httpClient;
     private readonly string _categoryName;
@@ -59,7 +59,7 @@ public sealed class ApiClientLogger : ILogger
         {
             var fullMessage = exception is null
                 ? $"[{_categoryName}] {message}"
-                : $"[{_categoryName}] {message}. Exception: {exception.GetType().Name}: {exception.Message}";
+                : $"[{_categoryName}] {message}\nException={exception}";
 
             if (fullMessage.Length > MaxMessageLength)
             {
