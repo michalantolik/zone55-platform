@@ -102,7 +102,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (article is null)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return Ok(article);
@@ -156,7 +158,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!updated)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();
@@ -178,7 +182,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!deleted)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();
@@ -202,7 +208,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!reordered)
         {
-            return BadRequest();
+            return ManagementErrors.BadRequest(
+                "article_order_invalid",
+                "The article order must contain every article assigned to the learning step exactly once.");
         }
 
         return NoContent();
@@ -238,7 +246,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (blockId is null)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return CreatedAtAction(
@@ -278,7 +288,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!updated)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();
@@ -301,7 +313,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!deleted)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();
@@ -326,7 +340,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!reordered)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();
@@ -348,7 +364,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!published)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();
@@ -370,7 +388,9 @@ public sealed class ArticlesManagementController : ControllerBase
 
         if (!unpublished)
         {
-            return NotFound();
+            return ManagementErrors.NotFound(
+                "article_not_found",
+                "The requested article does not exist.");
         }
 
         return NoContent();

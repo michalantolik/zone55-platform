@@ -277,11 +277,41 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
         }
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        var details = string.IsNullOrWhiteSpace(responseBody)
-            ? response.ReasonPhrase
-            : responseBody;
+        var error = TryReadManagementError(responseBody);
+        var details = error is null
+            ? GetFallbackError(response, responseBody)
+            : $"{error.Message} ({error.Code})";
 
         throw new HttpRequestException(
             $"Zone55.Api returned {(int)response.StatusCode} ({response.StatusCode}). {details}");
     }
+
+    private static ManagementErrorResponse? TryReadManagementError(
+        string responseBody)
+    {
+        if (string.IsNullOrWhiteSpace(responseBody))
+        {
+            return null;
+        }
+
+        try
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<ManagementErrorResponse>(
+                responseBody,
+                new System.Text.Json.JsonSerializerOptions(
+                    System.Text.Json.JsonSerializerDefaults.Web));
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static string? GetFallbackError(
+        HttpResponseMessage response,
+        string responseBody) =>
+        string.IsNullOrWhiteSpace(responseBody)
+            ? response.ReasonPhrase
+            : responseBody;
+
 }
