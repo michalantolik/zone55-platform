@@ -3,6 +3,7 @@
 @using Microsoft.JSInterop
 @inject IConfiguration Configuration
 @inject IJSRuntime JS
+@inject PreviewDiagnosticsClient Diagnostics
 
 <div class="preview-workspace">
     <div class="preview-workspace__toolbar">
@@ -59,6 +60,7 @@
     [Parameter] public string? Summary { get; set; }
     [Parameter] public string BodyContent { get; set; } = "[]";
 
+    private const string PreviewSlugFallback = "preview";
     private string _portalOrigin = string.Empty;
     private string _previewUrl = string.Empty;
     private ElementReference _previewFrame;
@@ -70,6 +72,7 @@
     private bool _connected;
     private string? _lastError;
     private int _lastBlockFailureCount;
+    private readonly string _sessionId = Guid.NewGuid().ToString("N");
 
     private string PreviewUrl => _previewUrl;
 
@@ -96,11 +99,13 @@
         var portalBaseUri = new Uri(configuredBaseUrl, UriKind.Absolute);
         _portalOrigin = portalBaseUri.GetLeftPart(UriPartial.Authority);
         _previewUrl = new Uri(portalBaseUri, "preview/article").AbsoluteUri;
+        Track("Management.Initialized", 0, $"PortalOrigin={_portalOrigin}; PreviewUrl={_previewUrl}; DiagnosticsEnabled={Diagnostics.Enabled}");
     }
 
     protected override void OnParametersSet()
     {
         _payloadVersion++;
+        Track("Management.ParametersChanged", _payloadVersion, $"Slug={Normalize(Slug, PreviewSlugFallback)}; TitleLength={Title?.Length ?? 0}; SummaryLength={Summary?.Length ?? 0}; BodyLength={BodyContent?.Length ?? 0}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -116,7 +121,11 @@
                 "connectArticlePreview",
                 _previewFrame,
                 _objectReference,
-                _portalOrigin);
+                _portalOrigin,
+                Diagnostics.Enabled,
+                _sessionId);
+
+            Track("Management.Connected", 0, "Preview iframe bridge connected.");
 
             _connected = true;
         }
@@ -126,11 +135,13 @@
             _sentPayloadVersion = _payloadVersion;
             _connectionState = PreviewConnectionState.Connecting;
 
+            Track("Management.PayloadDispatch", _payloadVersion, $"Slug={Normalize(Slug, PreviewSlugFallback)}; TitleLength={Title?.Length ?? 0}; SummaryLength={Summary?.Length ?? 0}; BodyLength={BodyContent?.Length ?? 0}");
+
             await _module.InvokeVoidAsync(
                 "sendArticlePreview",
                 _previewFrame,
                 new PreviewArticlePayload(
-                    Normalize(Slug, "preview"),
+                    Normalize(Slug, PreviewSlugFallback),
                     Normalize(Title, "Untitled article"),
                     Summary,
                     BodyContent));
@@ -141,6 +152,7 @@
     public Task NotifyPreviewReady()
     {
         _connectionState = PreviewConnectionState.Ready;
+        Track("Management.PreviewReady", 0, "Portal reported ready.");
         return InvokeAsync(StateHasChanged);
     }
 
@@ -150,6 +162,7 @@
         _lastError = null;
         _lastBlockFailureCount = Math.Max(0, blockFailureCount);
         _connectionState = PreviewConnectionState.Rendered;
+        Track("Management.PreviewRendered", _sentPayloadVersion, $"BlockFailures={_lastBlockFailureCount}");
         return InvokeAsync(StateHasChanged);
     }
 
@@ -160,6 +173,7 @@
             ? "Unknown preview error. Check the App and API logs for LIVE_PREVIEW entries."
             : message;
         _connectionState = PreviewConnectionState.Failed;
+        Track("Management.PreviewFailed", _sentPayloadVersion, _lastError);
         return InvokeAsync(StateHasChanged);
     }
 
@@ -169,9 +183,25 @@
         if (_connectionState is not PreviewConnectionState.Ready and not PreviewConnectionState.Rendered)
         {
             _connectionState = PreviewConnectionState.Unavailable;
+            Track("Management.PreviewUnavailable", 0, "Portal did not report ready before timeout.");
         }
 
         return InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public Task NotifyPreviewDiagnostic(string eventName, int sequence, string message)
+    {
+        Track($"Management.Js.{eventName}", sequence, message);
+        return Task.CompletedTask;
+    }
+
+    private void Track(string eventName, int sequence, string? message)
+    {
+        if (!Diagnostics.Enabled) return;
+        var safeMessage = string.IsNullOrWhiteSpace(message) ? "-" : message;
+        Console.WriteLine($"[LIVE_PREVIEW] Session={_sessionId}; Event={eventName}; Sequence={sequence}; {safeMessage}");
+        _ = Diagnostics.WriteAsync(_sessionId, eventName, sequence, safeMessage);
     }
 
     public async ValueTask DisposeAsync()

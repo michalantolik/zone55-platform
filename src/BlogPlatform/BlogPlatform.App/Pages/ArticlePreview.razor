@@ -89,6 +89,7 @@
     private int _pendingAckSequence;
     private int _failedSequence;
     private int _blockFailureCount;
+    private string _sessionId = "unknown";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -123,10 +124,11 @@
     }
 
     [JSInvokable]
-    public async Task LoadPreviewArticle(string json, int sequence)
+    public async Task LoadPreviewArticle(string json, int sequence, string? sessionId)
     {
         try
         {
+            _sessionId = string.IsNullOrWhiteSpace(sessionId) ? "unknown" : sessionId;
             Track("LoadPreviewArticle.Start", sequence, $"JsonLength={json?.Length ?? 0}");
 
             var previewArticle = JsonSerializer.Deserialize<LearnKitArticlePreviewPayload>(
@@ -201,8 +203,9 @@
 
     private void Track(string eventName, int sequence, string message)
     {
-        Console.WriteLine($"[LIVE_PREVIEW] {eventName}; Sequence={sequence}; {message}");
-        _ = Diagnostics.WriteAsync("APP", eventName, sequence, message);
+        if (!Diagnostics.Enabled) return;
+        Console.WriteLine($"[LIVE_PREVIEW] Session={_sessionId}; {eventName}; Sequence={sequence}; {message}");
+        _ = Diagnostics.WriteAsync("APP", _sessionId, eventName, sequence, message);
     }
 
     private static string FormatException(Exception exception)

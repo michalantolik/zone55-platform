@@ -1,7 +1,7 @@
-﻿namespace BlogPlatform.App.Services
+namespace BlogPlatform.App.Services;
+
+public interface IPreviewDiagnosticsClient
 {
-    public interface IPreviewDiagnosticsClient
-    {
-        Task WriteAsync(string source, string eventName, int sequence, string message);
-    }
+    bool Enabled { get; }
+    Task WriteAsync(string source, string sessionId, string eventName, int sequence, string message);
 }

@@ -68,6 +68,9 @@ public static class DependencyInjection
         services.Configure<ClientLoggingOptions>(
             configuration.GetSection("ClientLogging"));
 
+        services.Configure<PreviewDiagnosticsOptions>(
+            configuration.GetSection("Features:PreviewDiagnostics"));
+
         services.AddRateLimiter(options =>
         {
             options.AddPolicy("ClientLogs", httpContext =>
