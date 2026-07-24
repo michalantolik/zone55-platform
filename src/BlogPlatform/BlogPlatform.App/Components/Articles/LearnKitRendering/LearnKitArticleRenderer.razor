@@ -28,7 +28,9 @@
                 <CascadingValue Value="CopyToClipboardDelegate">
                     @foreach (var block in Article.Blocks.OrderBy(block => block.SortOrder))
                     {
-                        <LearnKitBlockRenderer Block="block" />
+                        <SafeLearnKitBlockRenderer Block="block"
+                                                   OnRenderFailure="HandleBlockRenderFailureAsync"
+                                                   @key="block.Id + block.ContentJson" />
                     }
                 </CascadingValue>
             </CascadingValue>
@@ -39,6 +41,9 @@
 @code {
     [Parameter]
     public LearnKitArticleDetails? Article { get; set; }
+
+    [Parameter]
+    public EventCallback<BlockRenderFailure> OnBlockRenderFailure { get; set; }
 
     private Func<string?, Task> CopyToClipboardDelegate => CopyToClipboardAsync;
 
@@ -53,22 +58,34 @@
     {
         if (firstRender)
         {
-            _plantUmlTheme = await JS.InvokeAsync<PlantUmlThemeValues>(
-                "blogPlatformArticle.getPlantUmlThemeValues");
+            try
+            {
+                _plantUmlTheme = await JS.InvokeAsync<PlantUmlThemeValues>(
+                    "blogPlatformArticle.getPlantUmlThemeValues");
 
-            StateHasChanged();
+                StateHasChanged();
+            }
+            catch (JSException ex)
+            {
+                Console.Error.WriteLine($"LearnKit PlantUML theme lookup failed: {ex}");
+            }
         }
 
         try
         {
-            await JS.InvokeVoidAsync(
-                "blogPlatformArticle.renderDiagrams");
+            await JS.InvokeVoidAsync("blogPlatformArticle.renderDiagrams");
         }
         catch (JSException ex)
         {
-            Console.WriteLine(
-                $"LearnKit diagram rendering failed: {ex.Message}");
+            Console.Error.WriteLine($"LearnKit diagram rendering failed: {ex}");
         }
+    }
+
+    private Task HandleBlockRenderFailureAsync(BlockRenderFailure failure)
+    {
+        return OnBlockRenderFailure.HasDelegate
+            ? OnBlockRenderFailure.InvokeAsync(failure)
+            : Task.CompletedTask;
     }
 
     private async Task CopyToClipboardAsync(string? value)

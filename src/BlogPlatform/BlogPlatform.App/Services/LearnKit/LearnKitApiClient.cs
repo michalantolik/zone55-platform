@@ -89,30 +89,64 @@ public sealed class LearnKitApiClient : ILearnKitApiClient
         CancellationToken cancellationToken = default)
     {
         var url = $"api/learnkit/roadmaps/{Uri.EscapeDataString(key)}";
-
-        try
+        var retryDelays = new[]
         {
-            using var response = await _httpClient.GetAsync(url, cancellationToken);
+            TimeSpan.FromMilliseconds(300),
+            TimeSpan.FromMilliseconds(700),
+            TimeSpan.FromSeconds(1.5),
+            TimeSpan.FromSeconds(3),
+            TimeSpan.FromSeconds(5)
+        };
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+        for (var attempt = 0; ; attempt++)
+        {
+            try
             {
-                return null;
+                using var response = await _httpClient.GetAsync(url, cancellationToken);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadFromJsonAsync<LearnKitLearningPathDetails>(
+                    cancellationToken: cancellationToken);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex) when (attempt < retryDelays.Length && IsTransient(ex))
+            {
+                var delay = retryDelays[attempt];
 
-            response.EnsureSuccessStatusCode();
+                _logger.LogWarning(
+                    ex,
+                    "APP API is not ready while loading the LearnKit roadmap. Attempt {Attempt}/{TotalAttempts}; retrying in {DelayMs} ms. Url: {Url}",
+                    attempt + 1,
+                    retryDelays.Length + 1,
+                    delay.TotalMilliseconds,
+                    url);
 
-            return await response.Content.ReadFromJsonAsync<LearnKitLearningPathDetails>(
-                cancellationToken: cancellationToken);
+                await Task.Delay(delay, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "APP failed to get LearnKit learning path from API after startup retries. Url: {Url}",
+                    url);
+
+                throw;
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "APP failed to get LearnKit learning path from API. Url: {Url}",
-                url);
+    }
 
-            throw;
-        }
+    private static bool IsTransient(Exception exception)
+    {
+        return exception is HttpRequestException or TaskCanceledException;
     }
 
     private sealed record LearnKitArticleDetailsCacheEntry(

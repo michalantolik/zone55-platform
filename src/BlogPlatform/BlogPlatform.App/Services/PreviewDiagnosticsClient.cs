@@ -4,6 +4,9 @@ namespace BlogPlatform.App.Services;
 
 public sealed class PreviewDiagnosticsClient : IPreviewDiagnosticsClient
 {
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(2);
+    private const int MaxMessageLength = 2500;
+
     private readonly HttpClient _httpClient;
 
     public PreviewDiagnosticsClient(HttpClient httpClient)
@@ -19,13 +22,15 @@ public sealed class PreviewDiagnosticsClient : IPreviewDiagnosticsClient
     {
         try
         {
+            using var timeoutCancellation = new CancellationTokenSource(RequestTimeout);
             using var response = await _httpClient.PostAsJsonAsync(
                 "api/preview-diagnostics",
                 new PreviewDiagnosticEntry(
-                    source,
-                    eventName,
+                    Normalize(source, 40),
+                    Normalize(eventName, 120),
                     sequence,
-                    message));
+                    Normalize(message, MaxMessageLength)),
+                timeoutCancellation.Token);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -38,6 +43,19 @@ public sealed class PreviewDiagnosticsClient : IPreviewDiagnosticsClient
             Console.WriteLine(
                 $"PREVIEW DIAGNOSTICS FAILED: {ex.GetType().Name}: {ex.Message}");
         }
+    }
+
+    private static string Normalize(string? value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var normalized = value.Trim();
+        return normalized.Length <= maxLength
+            ? normalized
+            : normalized[..maxLength] + " [truncated]";
     }
 }
 

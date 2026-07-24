@@ -209,6 +209,7 @@ td code { margin-top: 5px; color: #94a3b8; font-family: ui-monospace, SFMono-Reg
 .preview-status--connecting { border-color: #4b5563; background: #172033; color: #cbd5e1; }
 .preview-status--ready { border-color: #315f8f; background: #10243a; color: #93c5fd; }
 .preview-status--rendered { border-color: #28543d; background: #10271d; color: #86efac; }
+.preview-status--failed { border-color: #7f3038; background: #281216; color: #fda4af; }
 .preview-status--unavailable { border-color: #7f3038; background: #281216; color: #fda4af; }
 .preview-runtime-note--error { border-top-color: #7f3038; background: #251217; color: #fda4af; }
 

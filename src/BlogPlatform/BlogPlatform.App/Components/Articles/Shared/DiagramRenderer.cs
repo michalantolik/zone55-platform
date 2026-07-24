@@ -1,4 +1,3 @@
-﻿using System.IO.Compression;
 using System.Text;
 using Microsoft.AspNetCore.Components;
 
@@ -165,34 +164,16 @@ public static class DiagramRenderer
 
     private static string EncodePlantUml(string source)
     {
+        // PlantUML supports raw UTF-8 hexadecimal payloads prefixed with ~h.
+        // This avoids loading the compression runtime on demand in Blazor WebAssembly,
+        // which is especially fragile while the development server is rebuilding assets.
         var bytes = Encoding.UTF8.GetBytes(source);
+        var result = new StringBuilder(bytes.Length * 2 + 2);
+        result.Append("~h");
 
-        using var output = new MemoryStream();
-
-        using (var deflate = new DeflateStream(output, CompressionLevel.SmallestSize, leaveOpen: true))
+        foreach (var value in bytes)
         {
-            deflate.Write(bytes, 0, bytes.Length);
-        }
-
-        return EncodePlantUmlBytes(output.ToArray());
-    }
-
-    private static string EncodePlantUmlBytes(byte[] data)
-    {
-        const string alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
-
-        var result = new StringBuilder();
-
-        for (var i = 0; i < data.Length; i += 3)
-        {
-            var b1 = data[i];
-            var b2 = i + 1 < data.Length ? data[i + 1] : 0;
-            var b3 = i + 2 < data.Length ? data[i + 2] : 0;
-
-            result.Append(alphabet[b1 >> 2]);
-            result.Append(alphabet[((b1 & 0x3) << 4) | (b2 >> 4)]);
-            result.Append(alphabet[((b2 & 0xF) << 2) | (b3 >> 6)]);
-            result.Append(alphabet[b3 & 0x3F]);
+            result.Append(value.ToString("x2", System.Globalization.CultureInfo.InvariantCulture));
         }
 
         return result.ToString();

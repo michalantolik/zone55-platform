@@ -38,6 +38,12 @@
             <code>Portal:BaseUrl</code> value.
         </p>
     }
+    else if (_connectionState == PreviewConnectionState.Failed)
+    {
+        <p class="preview-runtime-note preview-runtime-note--error" role="alert">
+            The portal caught a preview error. @_lastError
+        </p>
+    }
     else
     {
         <p class="preview-runtime-note">
@@ -62,6 +68,8 @@
     private int _payloadVersion;
     private int _sentPayloadVersion = -1;
     private bool _connected;
+    private string? _lastError;
+    private int _lastBlockFailureCount;
 
     private string PreviewUrl => _previewUrl;
 
@@ -69,7 +77,10 @@
     {
         PreviewConnectionState.Connecting => "Connecting to portal",
         PreviewConnectionState.Ready => "Portal ready",
-        PreviewConnectionState.Rendered => "Draft rendered",
+        PreviewConnectionState.Rendered => _lastBlockFailureCount > 0
+            ? $"Rendered with {_lastBlockFailureCount} block error(s)"
+            : "Draft rendered",
+        PreviewConnectionState.Failed => "Render failed",
         PreviewConnectionState.Unavailable => "Portal unavailable",
         _ => "Preview status unknown"
     };
@@ -134,9 +145,21 @@
     }
 
     [JSInvokable]
-    public Task NotifyPreviewRendered()
+    public Task NotifyPreviewRendered(int blockFailureCount)
     {
+        _lastError = null;
+        _lastBlockFailureCount = Math.Max(0, blockFailureCount);
         _connectionState = PreviewConnectionState.Rendered;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public Task NotifyPreviewFailed(string? message)
+    {
+        _lastError = string.IsNullOrWhiteSpace(message)
+            ? "Unknown preview error. Check the App and API logs for LIVE_PREVIEW entries."
+            : message;
+        _connectionState = PreviewConnectionState.Failed;
         return InvokeAsync(StateHasChanged);
     }
 
@@ -191,6 +214,7 @@
         Connecting,
         Ready,
         Rendered,
+        Failed,
         Unavailable
     }
 }
