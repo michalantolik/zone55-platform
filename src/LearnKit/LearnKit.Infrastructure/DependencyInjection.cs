@@ -2,12 +2,14 @@ using LearnKit.Application.Articles.Admin.Contracts;
 using LearnKit.Application.Articles.Public.Contracts;
 using LearnKit.Application.Roadmaps.Public.Contracts;
 using LearnKit.Application.Roadmaps.Admin.Contracts;
+using LearnKit.Application.Content.Admin.Contracts;
 using LearnKit.Infrastructure.Articles;
 using LearnKit.Infrastructure.Articles.Public;
 using LearnKit.Infrastructure.Persistence;
 using LearnKit.Infrastructure.Roadmaps;
 using LearnKit.Infrastructure.Seed;
 using LearnKit.Infrastructure.Seed.Content;
+using LearnKit.Infrastructure.Content;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,6 +34,7 @@ public static class DependencyInjection
 
         services.AddScoped<ILearningPathStore, EfLearningPathStore>();
         services.AddScoped<ILearningPathManagementStore, EfLearningPathManagementStore>();
+        services.AddScoped<ILearnKitContentPortabilityStore, EfLearnKitContentPortabilityStore>();
 
         services.AddScoped<LearnKitContentSeedLoader>();
         services.AddScoped<LearnKitContentImporter>();

@@ -273,3 +273,7 @@ blog-content.seed.json
 Its only purpose is reproducing Umbraco CMS content.
 
 The LearnKit seed file is responsible only for LearnKit.
+
+## Operational source of truth
+
+The seed file initializes an empty LearnKit database. After content is managed through Zone55 Management, the database is the operational source of truth. The initializer must not overwrite a populated database with the embedded seed. See [Content portability](content-portability.md) for export and validation procedures.
