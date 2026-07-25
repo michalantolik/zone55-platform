@@ -1,0 +1,18 @@
+@using Zone55.Portal.Components.Articles.LearnKitRendering.Serialization
+@using Zone55.Portal.Components.Articles.Shared
+@using Zone55.Portal.Models.LearnKit
+@using Zone55.Portal.Models.LearnKit.Articles
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToSummaryBlock(Block);
+
+    <div class="article-summary article-summary-block">
+        @MarkdownRenderer.Render(model.Summary)
+    </div>
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+}

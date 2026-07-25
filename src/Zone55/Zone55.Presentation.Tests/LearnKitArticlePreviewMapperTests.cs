@@ -1,7 +1,7 @@
-using Zone55.App.Components.Articles.LearnKitRendering.Blocks;
-using Zone55.App.Components.Articles.LearnKitRendering.Provider;
-using Zone55.App.Components.Articles.LearnKitRendering.Serialization;
-using Zone55.App.Models.LearnKit.Articles;
+using Zone55.Portal.Components.Articles.LearnKitRendering.Blocks;
+using Zone55.Portal.Components.Articles.LearnKitRendering.Provider;
+using Zone55.Portal.Components.Articles.LearnKitRendering.Serialization;
+using Zone55.Portal.Models.LearnKit.Articles;
 using System.Text.Json;
 using Zone55.Management.Services;
 

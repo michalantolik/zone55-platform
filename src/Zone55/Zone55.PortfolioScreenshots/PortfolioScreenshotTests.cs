@@ -7,7 +7,7 @@ namespace Zone55.PortfolioScreenshots;
 [TestFixture]
 public sealed class PortfolioScreenshotTests
 {
-    private const string DefaultAppUrl = "https://zone55.dev";
+    private const string DefaultPortalUrl = "https://zone55.dev";
     private const int DefaultViewportWidth = 1920;
     private const int DefaultViewportHeight = 1080;
     private const float DefaultDeviceScaleFactor = 1;
@@ -124,11 +124,11 @@ public sealed class PortfolioScreenshotTests
     {
         Directory.CreateDirectory(OutputDirectory);
 
-        var appUrl = GetAppUrl();
+        var portalUrl = GetPortalUrl();
         var viewport = GetViewportSettings();
         var edgeCropWidth = GetEdgeCropWidth();
 
-        TestContext.Out.WriteLine($"Portfolio screenshots URL: {appUrl}");
+        TestContext.Out.WriteLine($"Portfolio screenshots URL: {portalUrl}");
         TestContext.Out.WriteLine(
             $"Portfolio screenshots viewport: {viewport.Width}x{viewport.Height}, device scale factor: {viewport.DeviceScaleFactor}");
         TestContext.Out.WriteLine($"Portfolio screenshots output: {OutputDirectory}");
@@ -145,17 +145,17 @@ public sealed class PortfolioScreenshotTests
 
         var screenshotNumber = 1;
 
-        await CaptureHomeMapAsync(screenshotNumber++, page, appUrl, edgeCropWidth);
+        await CaptureHomeMapAsync(screenshotNumber++, page, portalUrl, edgeCropWidth);
 
         foreach (var zone in GetZones())
         {
             foreach (var step in GetSteps(zone))
             {
-                await CaptureZoneStepPageAsync(page, appUrl, edgeCropWidth, screenshotNumber++, zone, step);
+                await CaptureZoneStepPageAsync(page, portalUrl, edgeCropWidth, screenshotNumber++, zone, step);
 
                 foreach (var article in GetArticles(zone, step))
                 {
-                    await CaptureArticlePageAsync(page, appUrl, edgeCropWidth, screenshotNumber++, zone, step, article);
+                    await CaptureArticlePageAsync(page, portalUrl, edgeCropWidth, screenshotNumber++, zone, step, article);
                 }
             }
         }
@@ -189,11 +189,11 @@ public sealed class PortfolioScreenshotTests
         IReadOnlyCollection<LandingPageUiValidationSetup> setups,
         string outputFolderName)
     {
-        var appUrl = GetAppUrl();
+        var portalUrl = GetPortalUrl();
         var outputDirectory = Path.Combine(OutputDirectory, outputFolderName);
         Directory.CreateDirectory(outputDirectory);
 
-        TestContext.Out.WriteLine($"Landing page URL: {appUrl}");
+        TestContext.Out.WriteLine($"Landing page URL: {portalUrl}");
         TestContext.Out.WriteLine($"Landing page output: {outputDirectory}");
 
         using var playwright = await Playwright.CreateAsync();
@@ -212,7 +212,7 @@ public sealed class PortfolioScreenshotTests
 
             try
             {
-                await NavigateAsync(page, appUrl);
+                await NavigateAsync(page, portalUrl);
                 await WaitForLearningPathLandingPageReadyAsync(page);
 
                 var screenshotFileName = CreateLandingPageScreenshotFileName(screenshotNumber++, setup);
@@ -434,9 +434,9 @@ public sealed class PortfolioScreenshotTests
         return await context.NewPageAsync();
     }
 
-    private static async Task CaptureHomeMapAsync(int number, IPage page, string appUrl, int edgeCropWidth)
+    private static async Task CaptureHomeMapAsync(int number, IPage page, string portalUrl, int edgeCropWidth)
     {
-        await NavigateAsync(page, appUrl);
+        await NavigateAsync(page, portalUrl);
         await WaitForLearningPathLandingPageReadyAsync(page);
 
         await CaptureVisibleViewportAsync(page, $"{number:00}-home-map-desktop.png", edgeCropWidth);
@@ -444,27 +444,27 @@ public sealed class PortfolioScreenshotTests
 
     private static async Task CaptureZoneStepPageAsync(
         IPage page,
-        string appUrl,
+        string portalUrl,
         int edgeCropWidth,
         int number,
         string zone,
         string step)
     {
-        await NavigateAsync(page, $"{appUrl}/{zone}/{step}");
+        await NavigateAsync(page, $"{portalUrl}/{zone}/{step}");
 
         await CaptureVisibleViewportAsync(page, $"{number:00}-{zone}-{step}-desktop.png", edgeCropWidth);
     }
 
     private static async Task CaptureArticlePageAsync(
         IPage page,
-        string appUrl,
+        string portalUrl,
         int edgeCropWidth,
         int number,
         string zone,
         string step,
         string article)
     {
-        await NavigateAsync(page, $"{appUrl}/{zone}/{step}/articles/{article}");
+        await NavigateAsync(page, $"{portalUrl}/{zone}/{step}/articles/{article}");
 
         await CaptureVisibleViewportAsync(page, $"{number:00}-{zone}-{step}-{article}-desktop.png", edgeCropWidth);
     }
@@ -518,13 +518,13 @@ public sealed class PortfolioScreenshotTests
         };
     }
 
-    private static string GetAppUrl()
+    private static string GetPortalUrl()
     {
-        var appUrl = Environment.GetEnvironmentVariable("APP_URL");
+        var portalUrl = Environment.GetEnvironmentVariable("PORTAL_URL");
 
-        return string.IsNullOrWhiteSpace(appUrl)
-            ? DefaultAppUrl
-            : appUrl.TrimEnd('/');
+        return string.IsNullOrWhiteSpace(portalUrl)
+            ? DefaultPortalUrl
+            : portalUrl.TrimEnd('/');
     }
 
     private static ScreenshotViewport GetViewportSettings()

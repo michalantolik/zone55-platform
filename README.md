@@ -59,7 +59,7 @@ src/
 | `LearnKit.Application` | Commands, queries, handlers, and application contracts |
 | `LearnKit.Infrastructure` | EF Core persistence, initialization, seeding, and export |
 | `Zone55.Api` | LearnKit public and management HTTP API |
-| `Zone55.App` | Public Blazor WebAssembly portal |
+| `Zone55.Portal` | Public Blazor WebAssembly portal |
 | `Zone55.Management` | Blazor WebAssembly content management application |
 | `Zone55.ArchitectureTests` | Architecture dependency tests |
 | `Zone55.Presentation.Tests` | Portal and management presentation tests |
@@ -81,7 +81,7 @@ LearnKit.Infrastructure
 Zone55Db
 ```
 
-The API applies LearnKit migrations and performs an idempotent content bootstrap on startup. The Portal and the persistent Management live preview use the same `Zone55.App` renderer. No separate CMS seed workflow is required.
+The API applies LearnKit migrations and performs an idempotent content bootstrap on startup. The Portal and the persistent Management live preview use the same `Zone55.Portal` renderer. No separate CMS seed workflow is required.
 
 ## Local development
 

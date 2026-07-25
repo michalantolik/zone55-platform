@@ -39,11 +39,11 @@ jobs:
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
             -backend-config="key=${{ secrets.TF_STATE_KEY }}"
           echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
-          echo "APP_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
+          echo "PORTAL_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
       - name: Verify API, LearnKit and Portal
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/learnkit/roadmaps/dotnet" "LearnKit roadmap"
-          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Portal"
+          bash .github/workflows/scripts/check-url.sh "${PORTAL_PUBLIC_URL}" "Portal"

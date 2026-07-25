@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Zone55.Api\Zone55.Api.csproj" />
-    <ProjectReference Include="..\Zone55.App\Zone55.App.csproj" />
+    <ProjectReference Include="..\Zone55.Portal\Zone55.Portal.csproj" />
     <ProjectReference Include="..\..\LearnKit\LearnKit.Application\LearnKit.Application.csproj" />
     <ProjectReference Include="..\..\LearnKit\LearnKit.Domain\LearnKit.Domain.csproj" />
     <ProjectReference Include="..\..\LearnKit\LearnKit.Infrastructure\LearnKit.Infrastructure.csproj" />

@@ -7,7 +7,7 @@
         "Action": "Start"
       },
       {
-        "Path": "src/Zone55/Zone55.App/Zone55.App.csproj",
+        "Path": "src/Zone55/Zone55.Portal/Zone55.Portal.csproj",
         "Action": "Start"
       },
       {
@@ -24,7 +24,7 @@
         "Action": "StartWithoutDebugging"
       },
       {
-        "Path": "src/Zone55/Zone55.App/Zone55.App.csproj",
+        "Path": "src/Zone55/Zone55.Portal/Zone55.Portal.csproj",
         "Action": "StartWithoutDebugging"
       },
       {

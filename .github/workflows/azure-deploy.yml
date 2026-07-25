@@ -55,11 +55,11 @@ jobs:
           echo "API_APP_NAME=$(terraform output -raw api_app_service_name)" >> "$GITHUB_ENV"
           echo "STATIC_WEB_APP_NAME=$(terraform output -raw static_web_app_name)" >> "$GITHUB_ENV"
           echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
-          echo "APP_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
+          echo "PORTAL_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
       - name: Configure production API URL
         shell: bash
         run: |
-          cat > src/Zone55/Zone55.App/wwwroot/appsettings.Production.json <<JSON
+          cat > src/Zone55/Zone55.Portal/wwwroot/appsettings.Production.json <<JSON
           { "Api": { "BaseUrl": "${API_PUBLIC_URL}" } }
           JSON
       - uses: actions/setup-dotnet@v5
@@ -73,7 +73,7 @@ jobs:
       - name: Publish API and clients
         run: |
           dotnet publish src/Zone55/Zone55.Api/Zone55.Api.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/api
-          dotnet publish src/Zone55/Zone55.App/Zone55.App.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/app
+          dotnet publish src/Zone55/Zone55.Portal/Zone55.Portal.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/portal
           dotnet publish src/Zone55/Zone55.Management/Zone55.Management.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/management
       - name: Deploy API
         uses: azure/webapps-deploy@v3
@@ -94,7 +94,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          app_location: artifacts/app/wwwroot
+          app_location: artifacts/portal/wwwroot
           api_location: ""
           output_location: ""
           skip_app_build: true
@@ -104,4 +104,4 @@ jobs:
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/learnkit/roadmaps/dotnet" "LearnKit roadmap"
-          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Portal"
+          bash .github/workflows/scripts/check-url.sh "${PORTAL_PUBLIC_URL}" "Portal"

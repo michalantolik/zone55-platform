@@ -8,7 +8,7 @@ locals {
   sql_connection_string = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.main.name};Persist Security Info=False;User ID=${var.sql_admin_login};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
   api_url = "https://${local.api_app_name}.azurewebsites.net"
-  app_url = "https://${azurerm_static_web_app.app.default_host_name}"
+  portal_url = "https://${azurerm_static_web_app.portal.default_host_name}"
 }
 
 
@@ -87,7 +87,7 @@ resource "azurerm_key_vault_secret" "sql_connection_string" {
 }
 
 
-resource "azurerm_static_web_app" "app" {
+resource "azurerm_static_web_app" "portal" {
   name                = "stapp-${local.name_prefix}"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
@@ -133,10 +133,15 @@ resource "azurerm_linux_web_app" "api" {
     "ApplicationInsights__ConnectionString" = azurerm_application_insights.main.connection_string
     "ConnectionStrings__Zone55Connection"   = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_connection_string.versionless_id})"
 
-    "Cors__AllowedOrigins__0" = local.app_url
+    "Cors__AllowedOrigins__0" = local.portal_url
 
 
   }
+}
+
+moved {
+  from = azurerm_static_web_app.app
+  to   = azurerm_static_web_app.portal
 }
 
 
@@ -145,4 +150,3 @@ resource "azurerm_role_assignment" "api_key_vault_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_linux_web_app.api.identity[0].principal_id
 }
-

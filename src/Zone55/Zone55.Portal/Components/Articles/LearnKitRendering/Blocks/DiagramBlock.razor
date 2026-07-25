@@ -1,0 +1,31 @@
+@using Zone55.Portal.Components.Articles.LearnKitRendering.Serialization
+@using Zone55.Portal.Components.Articles.Shared
+@using Zone55.Portal.Models.LearnKit
+@using Zone55.Portal.Models.LearnKit.Articles
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToDiagramBlock(Block);
+
+    if (string.Equals(model.DiagramType, "Mermaid", StringComparison.OrdinalIgnoreCase))
+    {
+        @DiagramRenderer.RenderMermaid(model.Diagram, model.Title, model.ShowDiagramTitleBar)
+    }
+    else
+    {
+        @DiagramRenderer.RenderPlantUml(model.Diagram, model.Title, model.ShowDiagramTitleBar, PlantUmlTheme)
+    }
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+
+    [CascadingParameter]
+    public PlantUmlThemeValues PlantUmlTheme { get; set; } = new(
+        "#a7b4c8",
+        "#E5E7EB",
+        "#7d8ca3",
+        "#374151",
+        "SansSerif");
+}

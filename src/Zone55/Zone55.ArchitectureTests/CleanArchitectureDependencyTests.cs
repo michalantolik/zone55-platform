@@ -19,7 +19,7 @@ public sealed class CleanArchitectureDependencyTests
                 "LearnKit.Application",
                 "LearnKit.Infrastructure",
                 "Zone55.Api",
-                "Zone55.App",
+                "Zone55.Portal",
                 "Zone55.Management",
                 "Microsoft.AspNetCore",
                 "Microsoft.EntityFrameworkCore")
@@ -36,7 +36,7 @@ public sealed class CleanArchitectureDependencyTests
             .HaveDependencyOnAny(
                 "LearnKit.Infrastructure",
                 "Zone55.Api",
-                "Zone55.App",
+                "Zone55.Portal",
                 "Zone55.Management",
                 "Microsoft.AspNetCore",
                 "Microsoft.EntityFrameworkCore")
@@ -52,7 +52,7 @@ public sealed class CleanArchitectureDependencyTests
             .ShouldNot()
             .HaveDependencyOnAny(
                 "Zone55.Api",
-                "Zone55.App",
+                "Zone55.Portal",
                 "Zone55.Management")
             .GetResult();
 
@@ -64,7 +64,7 @@ public sealed class CleanArchitectureDependencyTests
     {
         var result = Types.InAssembly(typeof(ArticlesController).Assembly)
             .ShouldNot()
-            .HaveDependencyOnAny("Zone55.App", "Zone55.Management")
+            .HaveDependencyOnAny("Zone55.Portal", "Zone55.Management")
             .GetResult();
 
         Assert.True(result.IsSuccessful, BuildMessage(result));

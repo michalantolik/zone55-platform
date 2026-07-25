@@ -1,0 +1,1040 @@
+@page "/"
+@page "/articles"
+@page "/{RouteZone}/{RouteStep}"
+@page "/{RouteZone}/{RouteStep}/articles/{RouteArticleSlug}"
+
+@using Zone55.Portal.Components.Articles.LearnKitRendering
+@using Zone55.Portal.Models.LearnKit
+@using Zone55.Portal.Models.LearnKit.Articles
+@using Zone55.Portal.Services.LearnKit
+
+@inject ILearnKitApiClient LearnKitApi
+@inject IConfiguration Configuration
+@inject ILogger<Home> Logger
+
+<PageTitle>@PageTitleText</PageTitle>
+
+@if (_loadErrorMessage is not null)
+{
+    <section class="content-frame container-xl" role="alert">
+        <div class="blog-loading-panel">
+            <div class="blog-loading-copy">
+                <div class="section-kicker">TEMPORARILY UNAVAILABLE</div>
+                <h2>Zone55 could not reach the API</h2>
+                <p>@_loadErrorMessage</p>
+                <button class="btn btn-primary" type="button" @onclick="RetryLoadAsync" disabled="@_isRetrying">
+                    @(_isRetrying ? "Retrying…" : "Try again")
+                </button>
+            </div>
+        </div>
+    </section>
+}
+else if (IsLearningPathView)
+{
+    @if (_isInitialPageLoading)
+    {
+        <section class="content-frame content-frame-learning-path loading-content-frame container-xl"
+                 aria-live="polite"
+                 aria-busy="true">
+            <div class="blog-loading-panel">
+                <div class="blog-loading-orb" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <div class="blog-loading-copy">
+                    <div class="section-kicker">LOADING ZONES</div>
+                    <h2>Zone55</h2>
+                    <p>Software • Cloud • Platform</p>
+                </div>
+
+                <div class="blog-loading-skeleton" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="content-frame content-frame-learning-path container-xl">
+            <LearningPathView Levels="@_learningPathLevels"
+                              DisplayStepArticleCounts="@DisplayStepArticleCounts" />
+        </section>
+    }
+}
+else
+{
+    <section class="hero container-xl dotnet-standard-hero">
+        <div class="hero-main dotnet-standard-hero-main">
+            <h1>
+                @if (DisplayStepIcons && !string.IsNullOrWhiteSpace(SelectedStep?.Icon))
+                {
+                    <span class="dotnet-hero-step-icon" aria-hidden="true">@SelectedStep.Icon</span>
+                }
+
+                <span>@SelectedStepTitle</span>
+            </h1>
+            <p>@SelectedStepDescription</p>
+        </div>
+    </section>
+
+    @if (_isInitialPageLoading)
+    {
+        <section class="content-frame loading-content-frame container-xl"
+                 aria-live="polite"
+                 aria-busy="true">
+            <div class="blog-loading-panel">
+                <div class="blog-loading-orb" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <div class="blog-loading-copy">
+                    <div class="section-kicker">LOADING ZONES</div>
+                    <h2>Zone55</h2>
+                    <p>Software • Cloud • Platform</p>
+                </div>
+
+                <div class="blog-loading-skeleton" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="content-frame container-xl dotnet-standard-frame">
+            <aside class="sidebar dotnet-step-sidebar">
+                <DotnetStepSidebar SelectedLevel="@SelectedLevel"
+                                   SelectedStep="@SelectedStep"
+                                   DisplayStepIcons="@DisplayStepIcons" />
+            </aside>
+
+            <section class="posts-area dotnet-standard-posts-area"
+                     aria-live="polite"
+                     aria-busy="@_isArticleAreaLoading">
+                <div class="dotnet-article-content-shell @ArticleContentShellCssClass">
+                    <div class="dotnet-article-content" @key="_articleContentVersion">
+                        @if (IsArticleReaderMode)
+                        {
+                            <div class="dotnet-inline-article-reader">
+                                <div class="dotnet-inline-article-reader-top">
+                                    <a class="dotnet-inline-article-back" href="@SelectedStepUrl">
+                                        <span aria-hidden="true">←</span> Back to @SelectedStepTitle
+                                    </a>
+
+                                    <div class="dotnet-inline-article-navigation" aria-label="Article navigation">
+                                        <span class="dotnet-inline-article-pill">
+                                            Article @SelectedArticleOrder of @TotalArticlesInStep
+                                        </span>
+
+                                        @if (PreviousArticle is null)
+                                        {
+                                            <span class="dotnet-inline-article-nav-button is-disabled" aria-disabled="true">
+                                                <span aria-hidden="true">‹</span> Previous
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a class="dotnet-inline-article-nav-button" href="@GetInlineArticleUrl(PreviousArticle.Slug)">
+                                                <span aria-hidden="true">‹</span> Previous
+                                            </a>
+                                        }
+
+                                        @if (NextArticle is null)
+                                        {
+                                            <span class="dotnet-inline-article-nav-button dotnet-inline-article-nav-button-primary is-disabled" aria-disabled="true">
+                                                Next <span aria-hidden="true">›</span>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a class="dotnet-inline-article-nav-button dotnet-inline-article-nav-button-primary" href="@GetInlineArticleUrl(NextArticle.Slug)">
+                                                Next <span aria-hidden="true">›</span>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+
+                                <LearnKitArticleRenderer Article="_selectedLearnKitArticle" />
+
+                                <nav class="dotnet-inline-article-reader-bottom" aria-label="Article navigation bottom">
+                                    @if (PreviousArticle is null)
+                                    {
+                                        <span class="dotnet-inline-article-nav-button is-disabled" aria-disabled="true">
+                                            <span aria-hidden="true">‹</span> Previous
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a class="dotnet-inline-article-nav-button" href="@GetInlineArticleUrl(PreviousArticle.Slug)">
+                                            <span aria-hidden="true">‹</span> Previous
+                                        </a>
+                                    }
+
+                                    <span class="dotnet-inline-article-pill dotnet-inline-article-bottom-status">
+                                        Article @SelectedArticleOrder of @TotalArticlesInStep
+                                    </span>
+
+                                    @if (NextArticle is null)
+                                    {
+                                        <span class="dotnet-inline-article-nav-button dotnet-inline-article-nav-button-primary is-disabled" aria-disabled="true">
+                                            Next <span aria-hidden="true">›</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a class="dotnet-inline-article-nav-button dotnet-inline-article-nav-button-primary" href="@GetInlineArticleUrl(NextArticle.Slug)">
+                                            Next <span aria-hidden="true">›</span>
+                                        </a>
+                                    }
+                                </nav>
+                            </div>
+                        }
+                        else if (_articles.Count == 0)
+                        {
+                            <div class="dotnet-empty-step-card">
+                                <strong>No articles yet</strong>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="post-grid">
+                                @foreach (var article in PagedArticles.Select((article, index) => new
+                                {
+                                    Article = article,
+                                    Order = ((_currentArticlePage - 1) * ArticlesPerStepPage) + index + 1
+                                }))
+                                {
+                                    <ArticleCard Title="@article.Article.Title"
+                                              Summary="@article.Article.Summary"
+                                              StepTitle="@SelectedStepTitle"
+                                              Level="@article.Article.Level"
+                                              Focus="@article.Article.Focus"
+                                              Url="@GetInlineArticleUrl(article.Article.Slug)"
+                                              TechStack="@article.Article.Tags"
+                                              ArticleOrder="@(article.Article.Order > 0 ? article.Article.Order : article.Order)" />
+                                }
+                            </div>
+
+                            @if (ShouldShowArticlePager)
+                            {
+                                <nav class="dotnet-article-pager" aria-label="Step articles pages">
+                                    <button type="button"
+                                            class="dotnet-article-pager-button"
+                                            disabled="@IsFirstArticlePage"
+                                            @onclick="GoToPreviousArticlePage">
+                                        <span aria-hidden="true">‹</span> Previous
+                                    </button>
+
+                                    <span class="dotnet-article-pager-status">
+                                        Page @_currentArticlePage of @TotalArticlePages
+                                    </span>
+
+                                    <button type="button"
+                                            class="dotnet-article-pager-button"
+                                            disabled="@IsLastArticlePage"
+                                            @onclick="GoToNextArticlePage">
+                                        Next <span aria-hidden="true">›</span>
+                                    </button>
+                                </nav>
+                            }
+                        }
+                    </div>
+
+                    @if (_isArticleAreaLoading)
+                    {
+                        <div class="dotnet-article-loading-overlay"
+                             role="status"
+                             aria-label="Loading articles">
+                            <div class="dotnet-article-skeleton-card">
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-short"></span>
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-title"></span>
+                                <span class="dotnet-article-skeleton-line"></span>
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-medium"></span>
+                            </div>
+
+                            <div class="dotnet-article-skeleton-card dotnet-article-skeleton-card-muted">
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-short"></span>
+                                <span class="dotnet-article-skeleton-line dotnet-article-skeleton-line-title"></span>
+                                <span class="dotnet-article-skeleton-line"></span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        </section>
+    }
+}
+
+@code {
+    private const string DotnetStandardView = "DotnetStandard";
+    private const string DotnetRoadmapView = "DotnetRoadmap";
+
+    [Parameter]
+    public string? RouteZone { get; set; }
+
+    [Parameter]
+    public string? RouteStep { get; set; }
+
+    [Parameter]
+    public string? RouteArticleSlug { get; set; }
+
+    [SupplyParameterFromQuery(Name = "view")]
+    public string? View { get; set; }
+
+    [SupplyParameterFromQuery(Name = "zone")]
+    public string? Zone { get; set; }
+
+    [SupplyParameterFromQuery(Name = "step")]
+    public string? Step { get; set; }
+
+    [SupplyParameterFromQuery(Name = "article")]
+    public string? ArticleSlug { get; set; }
+
+    private IReadOnlyCollection<ArticleListItem> _articles = [];
+    private IReadOnlyCollection<LearningPathLevel> _learningPathLevels = [];
+    private LearnKitArticleDetails? _selectedLearnKitArticle;
+    private bool _hasCompletedInitialLoad;
+    private bool _isInitialPageLoading = true;
+    private bool _isArticleAreaLoading;
+    private int _articleContentVersion;
+    private int _currentArticlePage = 1;
+
+    private bool IsLearningPathView =>
+        !HasSelectedStepRoute ||
+        string.Equals(CurrentView, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase);
+
+    private bool HasSelectedStepRoute =>
+        !string.IsNullOrWhiteSpace(EffectiveZone) &&
+        !string.IsNullOrWhiteSpace(EffectiveStep);
+
+    private bool IsArticleReaderMode =>
+        _selectedLearnKitArticle is not null;
+
+    private bool DisplayStepIcons =>
+        Configuration.GetValue<bool?>("Features:DisplayStepIcons") ?? false;
+
+    private bool DisplayStepArticleCounts =>
+        Configuration.GetValue<bool?>("Features:DisplayStepArticleCounts") ?? false;
+
+    private string ArticleContentShellCssClass =>
+        _isArticleAreaLoading ? "is-loading" : "is-loaded";
+
+    private string CurrentView =>
+        HasPathRoute
+            ? DotnetStandardView
+            : NormalizeBlogDisplayMode(View)
+                ?? NormalizeBlogDisplayMode(Configuration["Features:EnableBlogDisplayMode"])
+                ?? DotnetRoadmapView;
+
+    private bool HasPathRoute =>
+        !string.IsNullOrWhiteSpace(RouteZone) ||
+        !string.IsNullOrWhiteSpace(RouteStep) ||
+        !string.IsNullOrWhiteSpace(RouteArticleSlug);
+
+    private string? EffectiveZone =>
+        !string.IsNullOrWhiteSpace(RouteZone)
+            ? RouteZone
+            : Zone;
+
+    private string? EffectiveStep =>
+        !string.IsNullOrWhiteSpace(RouteStep)
+            ? RouteStep
+            : Step;
+
+    private string? EffectiveArticleSlug =>
+        !string.IsNullOrWhiteSpace(RouteArticleSlug)
+            ? RouteArticleSlug
+            : ArticleSlug;
+
+    private string PageTitleText =>
+        CurrentArticleTitle is null
+            ? "Zone55"
+            : $"{CurrentArticleTitle} | Zone55";
+
+    private string? CurrentArticleSlug =>
+        _selectedLearnKitArticle?.Slug;
+
+    private string? CurrentArticleTitle =>
+        _selectedLearnKitArticle?.Title;
+
+    private LearningPathLevel? SelectedLevel =>
+        _learningPathLevels.FirstOrDefault(level =>
+            string.Equals(level.Key, SelectedZoneKey, StringComparison.OrdinalIgnoreCase))
+        ?? _learningPathLevels.FirstOrDefault();
+
+    private LearningPathStep? SelectedStep =>
+        SelectedLevel?.Steps.FirstOrDefault(step =>
+            string.Equals(step.Key, SelectedStepKey, StringComparison.OrdinalIgnoreCase))
+        ?? SelectedLevel?.Steps.OrderBy(step => step.StepOrder).FirstOrDefault();
+
+    private string SelectedZoneKey
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(EffectiveZone) &&
+                _learningPathLevels.Any(level =>
+                    string.Equals(level.Key, EffectiveZone, StringComparison.OrdinalIgnoreCase)))
+            {
+                return EffectiveZone!;
+            }
+
+            return _learningPathLevels
+                .OrderBy(level => level.Number)
+                .FirstOrDefault()
+                ?.Key ?? string.Empty;
+        }
+    }
+
+    private int ArticlesPerStepPage =>
+        Math.Max(1, Configuration.GetValue<int?>("LearningPath:ArticlesPerStepPage") ?? 3);
+
+    private int TotalArticlePages =>
+        Math.Max(1, (int)Math.Ceiling(_articles.Count / (double)ArticlesPerStepPage));
+
+    private bool ShouldShowArticlePager =>
+        _articles.Count > ArticlesPerStepPage;
+
+    private bool IsFirstArticlePage =>
+        _currentArticlePage <= 1;
+
+    private bool IsLastArticlePage =>
+        _currentArticlePage >= TotalArticlePages;
+
+    private IEnumerable<ArticleListItem> PagedArticles =>
+        OrderedStepArticles
+            .Skip((_currentArticlePage - 1) * ArticlesPerStepPage)
+            .Take(ArticlesPerStepPage);
+
+    private string SelectedStepKey
+    {
+        get
+        {
+            var selectedLevel = _learningPathLevels.FirstOrDefault(level =>
+                string.Equals(level.Key, SelectedZoneKey, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(EffectiveStep) &&
+                selectedLevel?.Steps.Any(step =>
+                    string.Equals(step.Key, EffectiveStep, StringComparison.OrdinalIgnoreCase)) == true)
+            {
+                return EffectiveStep!;
+            }
+
+            return selectedLevel?.Steps
+                .OrderBy(step => step.StepOrder)
+                .FirstOrDefault()
+                ?.Key ?? string.Empty;
+        }
+    }
+
+    private string SelectedStepTitle => SelectedStep?.Title ?? "Basic Syntax";
+
+    private string SelectedStepDescription =>
+        SelectedStep?.Description ?? "Understand the fundamental syntax rules of C# and how to write your first lines of code.";
+
+    private int SelectedArticleOrder =>
+        CurrentArticleIndex >= 0
+            ? CurrentArticleIndex + 1
+            : 0;
+
+    private int TotalArticlesInStep =>
+        OrderedStepArticles.Count;
+
+    private IReadOnlyList<ArticleListItem> OrderedStepArticles =>
+        _articles
+            .Select((Article, Index) => new { Article, Index })
+            .OrderBy(item => item.Article.Order > 0 ? item.Article.Order : int.MaxValue)
+            .ThenBy(item => item.Index)
+            .Select(item => item.Article)
+            .ToList();
+
+    private int CurrentArticleIndex =>
+        CurrentArticleSlug is null
+            ? -1
+            : OrderedStepArticles
+                .Select((Article, Index) => new { Article, Index })
+                .FirstOrDefault(item => string.Equals(item.Article.Slug, CurrentArticleSlug, StringComparison.OrdinalIgnoreCase))
+                ?.Index ?? -1;
+
+    private ArticleListItem? PreviousArticle =>
+        CurrentArticleIndex > 0
+            ? OrderedStepArticles[CurrentArticleIndex - 1]
+            : null;
+
+    private ArticleListItem? NextArticle =>
+        CurrentArticleIndex >= 0 && CurrentArticleIndex < OrderedStepArticles.Count - 1
+            ? OrderedStepArticles[CurrentArticleIndex + 1]
+            : null;
+
+    private string SelectedStepUrl =>
+        GetStepPath(SelectedZoneKey, SelectedStepKey);
+
+    private string? _loadErrorMessage;
+    private bool _isRetrying;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _loadErrorMessage = null;
+
+            if (!_hasCompletedInitialLoad)
+            {
+                await LoadInitialPageAsync();
+                return;
+            }
+
+            await RefreshArticleAreaAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+    }
+
+    private async Task RetryLoadAsync()
+    {
+        if (_isRetrying)
+        {
+            return;
+        }
+
+        _isRetrying = true;
+        _loadErrorMessage = null;
+
+        try
+        {
+            if (_hasCompletedInitialLoad)
+            {
+                await RefreshArticleAreaAsync();
+            }
+            else
+            {
+                await LoadInitialPageAsync();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            HandleApiUnavailable(ex);
+        }
+        finally
+        {
+            _isRetrying = false;
+        }
+    }
+
+    private void HandleApiUnavailable(Exception exception)
+    {
+        Logger.LogWarning(exception, "Portal could not load page data because the API is unavailable.");
+        _loadErrorMessage = "The API is still starting or temporarily unavailable. Retry in a moment; the page no longer needs to be refreshed.";
+        _isInitialPageLoading = false;
+        _isArticleAreaLoading = false;
+    }
+
+    private async Task LoadInitialPageAsync()
+    {
+        _isInitialPageLoading = true;
+        _isArticleAreaLoading = false;
+        _selectedLearnKitArticle = null;
+
+        var learningPath =
+            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+
+        _learningPathLevels = learningPath is null
+            ? []
+            : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
+
+        _articles = IsLearningPathView
+            ? []
+            : SelectedStep?.Articles ?? [];
+
+        _currentArticlePage = 1;
+
+        await LoadSelectedArticleIfNeededAsync();
+
+        _hasCompletedInitialLoad = true;
+        _isInitialPageLoading = false;
+        _articleContentVersion++;
+    }
+
+    private async Task RefreshArticleAreaAsync()
+    {
+        _isArticleAreaLoading = true;
+        StateHasChanged();
+
+        var learningPath =
+            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("dotnet");
+
+        _learningPathLevels = learningPath is null
+            ? []
+            : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
+
+        _articles = IsLearningPathView
+            ? []
+            : SelectedStep?.Articles ?? [];
+
+        _currentArticlePage = 1;
+        _selectedLearnKitArticle = null;
+
+        await LoadSelectedArticleIfNeededAsync();
+
+        _articleContentVersion++;
+        _isArticleAreaLoading = false;
+    }
+
+    private async Task LoadSelectedArticleIfNeededAsync()
+    {
+        if (IsLearningPathView || string.IsNullOrWhiteSpace(EffectiveArticleSlug))
+        {
+            return;
+        }
+
+        var articleBelongsToSelectedStep = _articles.Any(article =>
+            string.Equals(article.Slug, EffectiveArticleSlug, StringComparison.OrdinalIgnoreCase));
+
+        if (articleBelongsToSelectedStep)
+        {
+            _selectedLearnKitArticle = await LearnKitApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
+        }
+    }
+
+    private void GoToPreviousArticlePage()
+    {
+        if (!IsFirstArticlePage)
+        {
+            _currentArticlePage--;
+            _articleContentVersion++;
+        }
+    }
+
+    private void GoToNextArticlePage()
+    {
+        if (!IsLastArticlePage)
+        {
+            _currentArticlePage++;
+            _articleContentVersion++;
+        }
+    }
+
+    private string GetInlineArticleUrl(string slug)
+    {
+        return $"{GetStepPath(SelectedZoneKey, SelectedStepKey)}/articles/{Uri.EscapeDataString(slug)}";
+    }
+
+    private static string GetStepPath(string zoneKey, string stepKey)
+    {
+        return $"/{Uri.EscapeDataString(zoneKey)}/{Uri.EscapeDataString(stepKey)}";
+    }
+
+    private static string? NormalizeBlogDisplayMode(string? value)
+    {
+        if (string.Equals(value, DotnetRoadmapView, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Roadmap", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Path", StringComparison.OrdinalIgnoreCase))
+        {
+            return DotnetRoadmapView;
+        }
+
+        if (string.Equals(value, DotnetStandardView, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Standard", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Latest", StringComparison.OrdinalIgnoreCase))
+        {
+            return DotnetStandardView;
+        }
+
+        return null;
+    }
+}
+
+<style>
+    .dotnet-article-content-shell {
+        position: relative;
+        min-height: 160px;
+    }
+
+    .dotnet-article-content {
+        animation: dotnetArticleContentFadeIn .2s ease-out both;
+        transition: opacity .2s ease, transform .2s ease, filter .2s ease;
+    }
+
+    .dotnet-article-content-shell.is-loading .dotnet-article-content {
+        opacity: .42;
+        transform: translateY(2px);
+        filter: saturate(.92);
+        pointer-events: none;
+    }
+
+    .dotnet-article-loading-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: grid;
+        align-content: start;
+        gap: 14px;
+        min-height: 160px;
+        padding: 0;
+        pointer-events: none;
+    }
+
+    .dotnet-article-skeleton-card {
+        position: relative;
+        display: grid;
+        gap: 12px;
+        padding: 18px 20px;
+        overflow: hidden;
+        border: 1px solid rgba(125, 211, 252, .18);
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .03)), rgba(10, 28, 52, .92);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 16px 42px rgba(0, 0, 0, .18);
+    }
+
+        .dotnet-article-skeleton-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(125, 211, 252, .12), transparent);
+            transform: translateX(-100%);
+            animation: dotnetArticleSkeletonSweep 1.45s ease-in-out infinite;
+        }
+
+    .dotnet-article-skeleton-card-muted {
+        opacity: .72;
+    }
+
+    .dotnet-article-skeleton-line {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 100%;
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(125, 211, 252, .12), rgba(125, 211, 252, .32), rgba(125, 211, 252, .12));
+        background-size: 220% 100%;
+        animation: dotnetArticleSkeletonLine 1.35s ease-in-out infinite;
+    }
+
+    .dotnet-article-skeleton-line-short {
+        width: 22%;
+        height: 9px;
+    }
+
+    .dotnet-article-skeleton-line-title {
+        width: 68%;
+        height: 18px;
+    }
+
+    .dotnet-article-skeleton-line-medium {
+        width: 54%;
+    }
+
+    .dotnet-inline-article-reader {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        min-width: 0;
+    }
+
+    .dotnet-inline-article-reader-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border: 1px solid rgba(117, 154, 197, .18);
+        border-radius: 18px;
+        background: radial-gradient(circle at 18% 0%, rgba(125, 211, 252, .08), transparent 38%), rgba(4, 13, 26, .28);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .dotnet-inline-article-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 36px;
+        color: rgba(238, 246, 255, .94);
+        font-size: .9rem;
+        font-weight: 850;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .dotnet-inline-article-back:hover,
+        .dotnet-inline-article-back:focus-visible {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+    .dotnet-inline-article-navigation {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .dotnet-inline-article-pill {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border: 1px solid rgba(125, 211, 252, .24);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .05);
+        color: rgba(238, 246, 255, .95);
+        font-size: .82rem;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .dotnet-inline-article-nav-button {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 104px;
+        min-height: 38px;
+        padding: 0 18px;
+        border: 1px solid rgba(125, 211, 252, .24);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .05);
+        color: rgba(238, 246, 255, .95);
+        font-size: .88rem;
+        font-weight: 850;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+    }
+
+        .dotnet-inline-article-nav-button:hover:not(.is-disabled),
+        .dotnet-inline-article-nav-button:focus-visible:not(.is-disabled) {
+            transform: translateY(-1px);
+            border-color: rgba(125, 211, 252, .46);
+            background: rgba(14, 47, 78, .30);
+            color: #ffffff;
+            box-shadow: 0 10px 26px rgba(7, 18, 35, .22);
+        }
+
+    .dotnet-inline-article-nav-button-primary {
+        border-color: rgba(110, 231, 183, .34);
+        background: linear-gradient(135deg, rgba(16, 185, 129, .54), rgba(20, 124, 96, .36));
+        box-shadow: 0 12px 30px rgba(16, 185, 129, .12), inset 0 1px 0 rgba(255, 255, 255, .12);
+    }
+
+        .dotnet-inline-article-nav-button-primary:hover:not(.is-disabled),
+        .dotnet-inline-article-nav-button-primary:focus-visible:not(.is-disabled) {
+            border-color: rgba(110, 231, 183, .58);
+            background: linear-gradient(135deg, rgba(16, 185, 129, .64), rgba(20, 124, 96, .46));
+            box-shadow: 0 14px 32px rgba(16, 185, 129, .17), inset 0 1px 0 rgba(255, 255, 255, .15);
+        }
+
+    .dotnet-inline-article-nav-button.is-disabled {
+        cursor: not-allowed;
+        opacity: .36;
+        filter: saturate(.72);
+        pointer-events: none;
+        box-shadow: none;
+    }
+
+    .dotnet-inline-article-reader-bottom {
+        display: grid;
+        grid-template-columns: minmax(136px, 1fr) auto minmax(136px, 1fr);
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+        border: 1px solid rgba(117, 154, 197, .18);
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .018)), rgba(4, 13, 26, .34);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+        .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button {
+            justify-self: start;
+            width: 136px;
+            min-width: 136px;
+        }
+
+            .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button:last-child {
+                justify-self: end;
+            }
+
+    .dotnet-inline-article-bottom-status {
+        justify-self: center;
+        min-width: 0;
+    }
+
+    .dotnet-inline-article-reader .article-card {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    .dotnet-article-pager {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border: 1px solid rgba(117, 154, 197, .18);
+        border-radius: 18px;
+        background: rgba(4, 13, 26, .28);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .dotnet-article-pager-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: fit-content;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid rgba(125, 211, 252, .24);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .05);
+        color: rgba(238, 246, 255, .95);
+        font-size: .9rem;
+        font-weight: 850;
+        cursor: pointer;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+    }
+
+        .dotnet-article-pager-button:last-child {
+            justify-self: end;
+        }
+
+        .dotnet-article-pager-button:hover:not(:disabled),
+        .dotnet-article-pager-button:focus-visible:not(:disabled) {
+            transform: translateY(-1px);
+            border-color: rgba(125, 211, 252, .52);
+            background: rgba(14, 47, 78, .34);
+            color: #ffffff;
+        }
+
+        .dotnet-article-pager-button:disabled {
+            cursor: not-allowed;
+            opacity: .38;
+        }
+
+    .dotnet-article-pager-status {
+        color: rgba(238, 246, 255, .96);
+        font-size: .9rem;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    @@keyframes dotnetArticleContentFadeIn {
+        from {
+            opacity: .72;
+            transform: translateY(3px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes dotnetArticleSkeletonSweep {
+        0% {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        35% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    @@keyframes dotnetArticleSkeletonLine {
+        0% {
+            background-position: 120% 0;
+        }
+
+        100% {
+            background-position: -120% 0;
+        }
+    }
+
+    @@media (max-width: 820px) {
+        .dotnet-inline-article-reader-top {
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-items: stretch;
+        }
+
+        .dotnet-inline-article-navigation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .dotnet-inline-article-pill {
+            grid-column: 1 / -1;
+            width: 100%;
+        }
+
+        .dotnet-inline-article-nav-button {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 680px) {
+        .dotnet-article-pager,
+        .dotnet-inline-article-reader-bottom {
+            grid-template-columns: 1fr;
+            justify-items: stretch;
+        }
+
+            .dotnet-article-pager-button,
+            .dotnet-article-pager-button:last-child,
+            .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button,
+            .dotnet-inline-article-reader-bottom .dotnet-inline-article-nav-button:last-child {
+                width: 100%;
+                justify-self: stretch;
+            }
+
+        .dotnet-article-pager-status,
+        .dotnet-inline-article-bottom-status {
+            text-align: center;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .dotnet-article-content,
+        .dotnet-article-skeleton-card::after,
+        .dotnet-article-skeleton-line {
+            animation: none;
+            transition: none;
+        }
+
+        .dotnet-article-content-shell.is-loading .dotnet-article-content {
+            transform: none;
+        }
+    }
+</style>

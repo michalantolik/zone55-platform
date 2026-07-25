@@ -1,0 +1,518 @@
+/* src/Zone55/Zone55.Portal/wwwroot/css/themes/blog-theme-engineering-blue.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================
+   Blog Platform Theme: Engineering Blue
+   ========================================================= */
+
+:root,
+html[data-blog-theme="engineering-blue"] {
+    --font-sans: 'Inter', Arial, sans-serif;
+    /* App shell */
+    --bg-main: #07111f;
+    --bg-deep: #020817;
+    --surface: #f4f7fb;
+    --surface-white: #ffffff;
+    --text-main: #e6edf7;
+    --text-soft: #bfd0e7;
+    --text-muted: #8fa2bd;
+    --text-dark: #0b1f3a;
+    --text-dark-soft: #53657f;
+    --primary: #4ea1ff;
+    --primary-strong: #2f6fd6;
+    --accent: #22c55e;
+    --accent-cyan: #56d4ff;
+    --border: #24344f;
+    --border-light: #dbe4ef;
+    --shadow-soft: 0 18px 44px rgba(0, 0, 0, .24);
+    --shadow-card: 0 10px 24px rgba(15, 23, 42, .08);
+    --shell-width: 1260px;
+    /* Main layout / home page */
+    --body-bg-radial: rgba(78, 161, 255, .16);
+    --body-bg-radial-stop: 32%;
+    --body-bg-gradient-start: var(--bg-deep);
+    --body-bg-gradient-end: var(--bg-main);
+    --top-nav-bg: rgba(10, 20, 38, .86);
+    --top-nav-border: rgba(255, 255, 255, .08);
+    --brand-icon-text: #06111f;
+    --brand-icon-bg-start: var(--accent-cyan);
+    --brand-icon-bg-end: #9db7ff;
+    --menu-link-text: #d9e7ff;
+    --menu-link-active-text: #ffffff;
+    --menu-link-active-bg: rgba(78, 161, 255, .15);
+    --menu-link-active-border: rgba(78, 161, 255, .24);
+    --hero-bg-start: #071426;
+    --hero-bg-middle: #11264a;
+    --hero-bg-end: #12223e;
+    --hero-border: rgba(255, 255, 255, .08);
+    --hero-title-text: #ffffff;
+    --hero-text: #d8e6fa;
+    --hero-eyebrow-text: #a7f3ff;
+    --hero-eyebrow-bg: rgba(86, 212, 255, .09);
+    --hero-eyebrow-border: rgba(86, 212, 255, .22);
+    --hero-title-gradient-start: var(--accent-cyan);
+    --hero-title-gradient-middle: var(--primary);
+    --hero-title-gradient-end: #a8b6ff;
+    --tag-text-on-dark: #dff4ff;
+    --tag-bg-on-dark: rgba(255, 255, 255, .06);
+    --tag-border-on-dark: rgba(255, 255, 255, .10);
+    --signal-card-bg: rgba(255, 255, 255, .06);
+    --signal-card-border: rgba(255, 255, 255, .10);
+    --signal-card-title: #ffffff;
+    --signal-card-muted: #9fb4d7;
+    --intro-strip-bg: #091427;
+    --intro-strip-border: rgba(255,255,255,.08);
+    --intro-strip-title: #ffffff;
+    --content-frame-bg: #071228;
+    --content-frame-border: rgba(255, 255, 255, .08);
+    --sidebar-bg: #071228;
+    --sidebar-title: #ffffff;
+    --sidebar-text: #c4d4eb;
+    --zone-pill-text: #f4f8ff;
+    --zone-pill-bg: rgba(255, 255, 255, .045);
+    --zone-pill-border: rgba(255, 255, 255, .08);
+    --zone-pill-active-bg: rgba(78, 161, 255, .18);
+    --zone-pill-active-border: rgba(78, 161, 255, .35);
+    --zone-count-text: #cfe3ff;
+    --zone-count-bg: rgba(78, 161, 255, .18);
+    --author-card-bg-start: rgba(78, 161, 255, .18);
+    --author-card-bg-end: rgba(34, 197, 94, .10);
+    --author-card-border: rgba(86, 212, 255, .18);
+    --author-card-small: #d7e7ff;
+    --author-card-title: #ffffff;
+    --posts-area-bg: var(--surface);
+    --section-kicker-text: #607aa7;
+    --browse-link-text: #4b35b8;
+    --post-card-bg: var(--surface-white);
+    --post-card-text: var(--text-dark);
+    --post-card-border: var(--border-light);
+    --post-card-hover-border: rgba(78, 161, 255, .45);
+    --post-card-hover-shadow: 0 18px 34px rgba(15, 23, 42, .12);
+    --badge-text: #28506f;
+    --badge-bg: #eef6ff;
+    --badge-border: #d8e9fb;
+    --badge-primary-text: #075985;
+    --badge-primary-bg: #e0f7ff;
+    --badge-primary-border: #b8edff;
+    --post-title-text: var(--text-dark);
+    --post-title-hover: var(--primary-strong);
+    --post-summary-text: var(--text-dark-soft);
+    --post-tech-text: #075985;
+    --post-tech-bg: #e9f8ff;
+    --post-tech-border: #c6ecfb;
+    --post-footer-border: #edf1f6;
+    --post-footer-text: #697b95;
+    --read-button-text: var(--primary-strong);
+    --pagination-text: #52698d;
+    --pagination-button-bg: #ffffff;
+    --pagination-button-border: #dbe4ef;
+    --pagination-button-text: var(--text-dark);
+    --pagination-button-active-bg: var(--text-dark);
+    --pagination-button-active-text: #ffffff;
+    --pagination-button-active-border: var(--text-dark);
+    --pagination-button-active-shadow: 0 12px 24px rgba(15, 23, 42, .18);
+    --pagination-button-disabled-bg: #f7f9fc;
+    --pagination-button-disabled-text: #9ca9ba;
+    /* Article */
+    --article-post-bg: #FAFCFE;
+    --article-post-border: #dbe7f5;
+    --article-post-title: #081a33;
+    --article-post-text: #4a5f7a;
+    --article-post-muted: #6d7f98;
+    --article-summary-bg: #f1f7ff;
+    --article-summary-border: #d8e8fa;
+    --article-summary-text: #234460;
+    /* Shared diagram panel */
+    --diagram-border: #26364d;
+    --diagram-header-bg: #111827;
+    --diagram-header-text: #E5E7EB;
+    --diagram-font-family: SansSerif, sans-serif, Arial;
+    --diagram-line-color: #a7b4c8;
+    --diagram-node-text-color: var(--diagram-header-text);
+    --diagram-node-border-color: #7d8ca3;
+    --diagram-node-bg-color: #374151;
+    --diagram-bg-color: #1F2937;
+    /* PlantUML diagram */
+    --diagram-plantuml-bg: var(--diagram-bg-color);
+    --diagram-plantuml-inner-bg: var(--diagram-bg-color);
+    --diagram-plantuml-node-bg: var(--diagram-node-bg-color);
+    --diagram-plantuml-node-border: var(--diagram-node-border-color);
+    --diagram-plantuml-node-text: var(--diagram-node-text-color);
+    --diagram-plantuml-line: var(--diagram-line-color);
+    --diagram-plantuml-font-family: var(--diagram-font-family);
+    /* Mermaid diagram */
+    --diagram-mermaid-bg: var(--diagram-bg-color);
+    --diagram-mermaid-node-bg: var(--diagram-node-bg-color);
+    --diagram-mermaid-node-border: var(--diagram-node-border-color);
+    --diagram-mermaid-node-text: var(--diagram-node-text-color);
+    --diagram-mermaid-line: var(--diagram-line-color);
+    --diagram-mermaid-font-family: var(--diagram-font-family);
+    /* Code snippets */
+    --code-bg: #1F2937;
+    --code-text: #E5E7EB;
+    --code-line-number: #9ca3af;
+    --code-line-number-border: rgba(229, 231, 235, .10);
+    --code-copy-bg: rgba(229, 231, 235, .08);
+    --code-copy-bg-hover: rgba(229, 231, 235, .14);
+    --code-copy-text: #E5E7EB;
+    --code-copy-border: rgba(229, 231, 235, .26);
+    /* Article detail theme tokens */
+    --article-breadcrumb-text: var(--text-soft);
+    --article-breadcrumb-link: var(--primary);
+    --article-breadcrumb-current: var(--menu-link-active-text);
+    --article-browse-link-text: var(--browse-link-text);
+    --article-card-bg: var(--article-post-bg);
+    --article-card-shadow: 0 24px 70px rgba(2, 8, 23, .22);
+    --article-summary-shadow: inset 0 1px 0 rgba(255, 255, 255, .70);
+    --diagram-panel-bg: var(--diagram-bg-color);
+    --diagram-panel-shadow: 0 18px 44px rgba(15, 23, 42, .16);
+    --diagram-header-border: rgba(229, 231, 235, .08);
+    --mermaid-canvas-bg: var(--diagram-mermaid-bg);
+    --callout-border: #b9e6ff;
+    --callout-bg: linear-gradient(180deg, #effaff, #eaf6ff);
+    --callout-shadow: 0 12px 30px rgba(14, 116, 144, .10);
+    --callout-title: #075985;
+    --callout-text: #075985;
+}
+
+    /* =========================================================
+   Article surface
+   ========================================================= */
+
+    html[data-blog-theme="engineering-blue"] .article-card {
+        background: var(--article-post-bg);
+        border-color: var(--article-post-border);
+        box-shadow: var(--article-card-shadow);
+    }
+
+    html[data-blog-theme="engineering-blue"] .article-summary {
+        background: var(--article-summary-bg);
+        border-color: var(--article-summary-border);
+    }
+
+    /* =========================================================
+   Shared code and diagram panels
+   ========================================================= */
+
+    html[data-blog-theme="engineering-blue"] .code-block,
+    html[data-blog-theme="engineering-blue"] .diagram-block,
+    html[data-blog-theme="engineering-blue"] .plantuml-block,
+    html[data-blog-theme="engineering-blue"] .mermaid-block {
+        background: var(--diagram-panel-bg);
+        border-color: var(--diagram-border);
+        box-shadow: var(--diagram-panel-shadow);
+    }
+
+        html[data-blog-theme="engineering-blue"] .snippet-toolbar,
+        html[data-blog-theme="engineering-blue"] .code-block > figcaption,
+        html[data-blog-theme="engineering-blue"] .diagram-block > figcaption {
+            color: var(--diagram-header-text);
+            background: var(--diagram-header-bg);
+            border-bottom-color: var(--diagram-header-border);
+        }
+
+        html[data-blog-theme="engineering-blue"] .code-block pre {
+            color: var(--diagram-header-text);
+            background: var(--diagram-panel-bg);
+        }
+
+        /* =========================================================
+   PlantUML diagram styles
+   ========================================================= */
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block details pre,
+        html[data-blog-theme="engineering-blue"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details {
+            color: var(--diagram-header-text);
+            background: var(--diagram-plantuml-bg);
+        }
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block img,
+        html[data-blog-theme="engineering-blue"] .plantuml-block details {
+            font-family: var(--diagram-plantuml-font-family) !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .plantuml-block summary,
+        html[data-blog-theme="engineering-blue"] .plantuml-block .plantuml-source-summary {
+            color: var(--diagram-plantuml-node-text);
+            font-family: var(--diagram-plantuml-font-family) !important;
+        }
+
+        /* =========================================================
+   Mermaid diagram styles
+   ========================================================= */
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid {
+            color: var(--diagram-header-text);
+            background: var(--diagram-panel-bg);
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .mermaid,
+        html[data-blog-theme="engineering-blue"] .mermaid-block svg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject div,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject span,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject p {
+            font-family: var(--diagram-mermaid-font-family) !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node rect,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node polygon,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node circle,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .node ellipse {
+            fill: var(--diagram-mermaid-node-bg) !important;
+            stroke: var(--diagram-mermaid-node-border) !important;
+        }
+
+        html[data-blog-theme="engineering-blue"] .mermaid-block .nodeLabel,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .label,
+        html[data-blog-theme="engineering-blue"] .mermaid-block text,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject,
+        html[data-blog-theme="engineering-blue"] .mermaid-block foreignObject *,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .labelBkg,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .edgeLabel *,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label,
+        html[data-blog-theme="engineering-blue"] .mermaid-block .cluster-label * {
+            color: #E5E7EB !important;
+            fill: var(--diagram-mermaid-node-text) !important;
+        }
+
+.article-table-wrap {
+    margin: 28px 0;
+    overflow-x: auto;
+    border: 1px solid rgba(37, 99, 235, 0.20);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.10);
+}
+
+.article-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 560px;
+}
+
+    .article-table th,
+    .article-table td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(37, 99, 235, 0.14);
+        border-right: 1px solid rgba(37, 99, 235, 0.14);
+        color: var(--article-text, #1e293b);
+        line-height: 1.55;
+    }
+
+    .article-table th {
+        font-weight: 900;
+        color: #0f172a;
+        background: rgba(37, 99, 235, 0.08);
+    }
+
+    .article-table tr:last-child th,
+    .article-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .article-table th:last-child,
+    .article-table td:last-child {
+        border-right: 0;
+    }
+
+.table-cell-emoji {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 1.25rem;
+    vertical-align: middle;
+}
+
+.table-cell-image {
+    display: block;
+    max-width: 180px;
+    max-height: 130px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 0 0 10px 0;
+    border: 1px solid rgba(37, 99, 235, 0.18);
+}
+
+.table-row-number {
+    display: inline-flex;
+    justify-content: center;
+    min-width: 24px;
+    margin-right: 8px;
+    font-weight: 900;
+    color: #2563eb;
+}
+
+/* =========================================================
+   Article Table Block styles
+   ========================================================= */
+
+.article-table-wrap {
+    width: 100%;
+    margin: 22px 0;
+    overflow-x: auto;
+}
+
+.article-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+    .article-table th,
+    .article-table td {
+        vertical-align: middle;
+    }
+
+    .article-table .table-cell-markdown {
+        color: var(--article-text, #d6e3f5);
+        line-height: 1.42;
+    }
+
+        .article-table .table-cell-markdown p {
+            margin: 0;
+        }
+
+            .article-table .table-cell-markdown p + p {
+                margin-top: 6px;
+            }
+
+        .article-table .table-cell-markdown ul,
+        .article-table .table-cell-markdown ol {
+            margin: 7px 0 0 1rem;
+            padding: 0;
+        }
+
+        .article-table .table-cell-markdown li {
+            margin: 3px 0;
+        }
+
+        .article-table .table-cell-markdown code {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 6px;
+            color: #ff4fb3;
+            background: rgba(255, 79, 179, 0.10);
+            border: 1px solid rgba(255, 79, 179, 0.16);
+            font-size: 0.86em;
+        }
+
+/* Dense Engineering Table */
+
+.article-table-style-dense-engineering {
+    border: 1px solid rgba(132, 187, 255, 0.24);
+    border-radius: 14px;
+    background: rgba(8, 28, 54, 0.78);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.20);
+}
+
+    .article-table-style-dense-engineering .article-table th {
+        padding: 10px 12px;
+        text-align: left;
+        color: #f8fafc;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        background: rgba(96, 165, 250, 0.09);
+        border-bottom: 1px solid rgba(132, 187, 255, 0.18);
+    }
+
+    .article-table-style-dense-engineering .article-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(132, 187, 255, 0.12);
+        border-right: 1px solid rgba(132, 187, 255, 0.10);
+    }
+
+    .article-table-style-dense-engineering .article-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .article-table-style-dense-engineering .article-table th:last-child,
+    .article-table-style-dense-engineering .article-table td:last-child {
+        border-right: 0;
+    }
+
+/* Minimal Reference Table */
+
+.article-table-style-minimal-reference {
+    border-top: 1px solid rgba(132, 187, 255, 0.22);
+    border-bottom: 1px solid rgba(132, 187, 255, 0.22);
+    background: transparent;
+}
+
+    .article-table-style-minimal-reference .article-table {
+        border-collapse: collapse;
+    }
+
+        .article-table-style-minimal-reference .article-table th {
+            width: 118px;
+            padding: 9px 12px 9px 0;
+            color: #93c5fd;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(132, 187, 255, 0.12);
+            background: transparent;
+        }
+
+        .article-table-style-minimal-reference .article-table td {
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(132, 187, 255, 0.12);
+        }
+
+        .article-table-style-minimal-reference .article-table tr:last-child th,
+        .article-table-style-minimal-reference .article-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+.table-row-number {
+    display: inline-flex;
+    min-width: 22px;
+    height: 22px;
+    margin-right: 8px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #bfdbfe;
+    background: rgba(96, 165, 250, 0.14);
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.table-cell-emoji {
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.table-cell-image {
+    display: block;
+    max-width: 100%;
+    max-height: 180px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+}
+
+
+.code-block-title-hidden {
+    position: relative;
+}
+
+.code-block-title-hidden pre {
+    border-top-left-radius: var(--radius-lg, 18px);
+    border-top-right-radius: var(--radius-lg, 18px);
+}
+
+.copy-button-floating {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    opacity: 0.9;
+    backdrop-filter: blur(10px);
+}

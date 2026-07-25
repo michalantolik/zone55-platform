@@ -13,11 +13,11 @@ output "api_app_service_url" {
 
 
 output "static_web_app_url" {
-  value = local.app_url
+  value = local.portal_url
 }
 
 output "static_web_app_name" {
-  value = azurerm_static_web_app.app.name
+  value = azurerm_static_web_app.portal.name
 }
 
 output "sql_server_name" {

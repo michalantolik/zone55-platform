@@ -1,4 +1,4 @@
-using Zone55.App.Components.Articles.Shared;
+using Zone55.Portal.Components.Articles.Shared;
 
 namespace Zone55.Presentation.Tests;
 

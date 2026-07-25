@@ -1,0 +1,42 @@
+@using Zone55.Portal.Models.LearnKit.Articles
+
+<PreviewRenderErrorBoundary @ref="_errorBoundary" OnError="HandleErrorAsync">
+    <ChildContent>
+        <LearnKitBlockRenderer Block="Block" />
+    </ChildContent>
+    <ErrorContent Context="exception">
+        <div class="article-unsupported-block" role="alert">
+            Preview could not render block <strong>@Block.Type</strong>.
+            The rest of the article remains available.
+        </div>
+    </ErrorContent>
+</PreviewRenderErrorBoundary>
+
+@code {
+    [Parameter, EditorRequired]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+
+    [Parameter]
+    public EventCallback<BlockRenderFailure> OnRenderFailure { get; set; }
+
+    private PreviewRenderErrorBoundary? _errorBoundary;
+    private string? _lastBlockSignature;
+
+    protected override void OnParametersSet()
+    {
+        var signature = $"{Block.Id}|{Block.Type}|{Block.SortOrder}|{Block.ContentJson}";
+
+        if (!string.Equals(signature, _lastBlockSignature, StringComparison.Ordinal))
+        {
+            _lastBlockSignature = signature;
+            _errorBoundary?.Recover();
+        }
+    }
+
+    private Task HandleErrorAsync(Exception exception)
+    {
+        return OnRenderFailure.HasDelegate
+            ? OnRenderFailure.InvokeAsync(new BlockRenderFailure(Block.Id, Block.Type, exception))
+            : Task.CompletedTask;
+    }
+}

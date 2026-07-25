@@ -15,7 +15,7 @@
     <PackageReference Include="xunit.v3.core" Version="3.2.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Zone55.App\Zone55.App.csproj" />
+    <ProjectReference Include="..\Zone55.Portal\Zone55.Portal.csproj" />
     <ProjectReference Include="..\Zone55.Management\Zone55.Management.csproj" />
   </ItemGroup>
   <ItemGroup>
