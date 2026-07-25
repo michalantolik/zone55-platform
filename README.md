@@ -4,6 +4,47 @@ Zone55 is a learning-content platform built with .NET 10. LearnKit owns the cont
 
 ## Solution structure
 
+```mermaid
+flowchart TB
+
+subgraph Domain["LearnKit.Domain"]
+    direction TB
+
+    subgraph DRow2[" "]
+        direction LR
+        D3[Exceptions]
+        D4[Business Rules]
+    end
+
+    subgraph DRow1[" "]
+        direction LR
+        D1[Entities]
+        D2[Enums]
+    end
+
+end
+
+subgraph Application["LearnKit.Application"]
+    direction TB
+
+    subgraph ARow1[" "]
+        direction LR
+        A1[Commands]
+        A2[Queries]
+        A3[Handlers]
+    end
+
+    subgraph ARow2[" "]
+        direction LR
+        A4[Models]
+        A5[Interfaces]
+        A6[Exceptions]
+    end
+end
+
+Application --> Domain
+```
+
 The physical source folders match the two top-level Visual Studio solution folders:
 
 ```text
