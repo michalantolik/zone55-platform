@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text;
 using Microsoft.AspNetCore.Components;
 
@@ -26,11 +27,22 @@ public static class DiagramRenderer
             builder.CloseElement();
         }
 
-        builder.OpenElement(sequence++, "img");
-        builder.AddAttribute(sequence++, "src", CreatePlantUmlUrl(diagram, theme));
-        builder.AddAttribute(sequence++, "alt", "PlantUML diagram");
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "class", "diagram-render-surface");
+
+        builder.OpenElement(sequence++, "object");
+        builder.AddAttribute(sequence++, "class", "plantuml-diagram-object");
+        builder.AddAttribute(sequence++, "data", CreatePlantUmlUrl(diagram, theme));
+        builder.AddAttribute(sequence++, "type", "image/svg+xml");
+        builder.AddAttribute(sequence++, "aria-label", "PlantUML diagram");
+
+        builder.OpenElement(sequence++, "p");
+        builder.AddAttribute(sequence++, "class", "diagram-render-error");
+        builder.AddContent(sequence++, "PlantUML diagram could not be loaded. Check the diagram source and network access to the PlantUML server.");
         builder.CloseElement();
 
+        builder.CloseElement();
+        builder.CloseElement();
         builder.CloseElement();
     };
 
@@ -162,21 +174,94 @@ public static class DiagramRenderer
         return normalizedSource.Insert(firstLineBreakIndex + 1, $"{skinparams}\n");
     }
 
-    private static string EncodePlantUml(string source)
+    internal static string EncodePlantUml(string source)
     {
-        // PlantUML supports raw UTF-8 hexadecimal payloads prefixed with ~h.
-        // This avoids loading the compression runtime on demand in Blazor WebAssembly,
-        // which is especially fragile while the development server is rebuilding assets.
-        var bytes = Encoding.UTF8.GetBytes(source);
-        var result = new StringBuilder(bytes.Length * 2 + 2);
-        result.Append("~h");
+        ArgumentNullException.ThrowIfNull(source);
 
-        foreach (var value in bytes)
+        var sourceBytes = Encoding.UTF8.GetBytes(source);
+        using var output = new MemoryStream();
+
+        // PlantUML server URLs use raw DEFLATE followed by PlantUML's own
+        // URL-safe 6-bit alphabet. This is substantially shorter than ~h HEX
+        // payloads and matches the encoding expected by the public server.
+        using (var deflate = new DeflateStream(output, CompressionLevel.SmallestSize, leaveOpen: true))
         {
-            result.Append(value.ToString("x2", System.Globalization.CultureInfo.InvariantCulture));
+            deflate.Write(sourceBytes, 0, sourceBytes.Length);
+        }
+
+        return Encode64(output.ToArray());
+    }
+
+    private static string Encode64(byte[] data)
+    {
+        var result = new StringBuilder((data.Length * 4 + 2) / 3);
+
+        for (var index = 0; index < data.Length; index += 3)
+        {
+            var remaining = data.Length - index;
+            Append3Bytes(
+                result,
+                data[index],
+                remaining > 1 ? data[index + 1] : (byte)0,
+                remaining > 2 ? data[index + 2] : (byte)0,
+                Math.Min(remaining, 3));
         }
 
         return result.ToString();
+    }
+
+    private static void Append3Bytes(
+        StringBuilder result,
+        byte first,
+        byte second,
+        byte third,
+        int count)
+    {
+        var c1 = first >> 2;
+        var c2 = ((first & 0x3) << 4) | (second >> 4);
+        var c3 = ((second & 0xF) << 2) | (third >> 6);
+        var c4 = third & 0x3F;
+
+        result.Append(Encode6Bit(c1));
+        result.Append(Encode6Bit(c2));
+
+        if (count > 1)
+        {
+            result.Append(Encode6Bit(c3));
+        }
+
+        if (count > 2)
+        {
+            result.Append(Encode6Bit(c4));
+        }
+    }
+
+    private static char Encode6Bit(int value)
+    {
+        if (value < 10)
+        {
+            return (char)('0' + value);
+        }
+
+        value -= 10;
+        if (value < 26)
+        {
+            return (char)('A' + value);
+        }
+
+        value -= 26;
+        if (value < 26)
+        {
+            return (char)('a' + value);
+        }
+
+        value -= 26;
+        return value switch
+        {
+            0 => '-',
+            1 => '_',
+            _ => '?'
+        };
     }
 
     private static string RemoveProtectedPlantUmlSkinParams(string source)

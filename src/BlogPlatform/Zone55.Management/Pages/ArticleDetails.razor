@@ -115,10 +115,10 @@ else
                     <article class="block-composer">
                         <header><div><span class="block-order">+</span><div><strong>@Localizer["Article.ChooseBlock"]</strong><small>Choose the content structure that best communicates this part.</small></div></div><button class="icon-button" type="button" @onclick="CancelBlockCreate">×</button></header>
                         <div class="block-type-gallery">
-                            @foreach (var blockType in ArticleBlockTypes)
+                            @foreach (var choice in BlockChoices)
                             {
-                                <button type="button" class="block-type-card @(_newBlockType == blockType ? "active" : null)" @onclick="() => SelectNewBlockType(blockType)">
-                                    <span class="block-type-card__icon">@GetBlockTypeIcon(blockType)</span><span><strong>@blockType</strong><small>@GetBlockTypeDescription(blockType)</small></span>
+                                <button type="button" class="block-type-card @(_newBlockChoiceKey == choice.Key ? "active" : null)" @onclick="() => SelectNewBlockChoice(choice)">
+                                    <span class="block-type-card__icon">@choice.Icon</span><span><strong>@choice.Label</strong><small>@choice.Description</small></span>
                                 </button>
                             }
                         </div>
@@ -198,15 +198,26 @@ else
     private string _savedEditorSnapshot = string.Empty;
     private static readonly string[] WorkspaceModes = ["Editor", "Split", "Preview"];
     private static readonly string[] ArticleBlockTypes = ["Markdown", "Code", "Diagram", "Table", "Callout", "Summary"];
+    private static readonly BlockChoice[] BlockChoices =
+    [
+        new("Markdown", "Markdown", "Markdown", "Narrative text and headings", "¶"),
+        new("Code", "Code", "Code", "Source code with syntax", "</>"),
+        new("PlantUml", "Diagram", "PlantUML", "PlantUML diagram source", "◇"),
+        new("Mermaid", "Diagram", "Mermaid", "Mermaid diagram source", "◇"),
+        new("Table", "Table", "Table", "Visual table editor", "▦"),
+        new("Callout", "Callout", "Callout", "Important note or warning", "!"),
+        new("Summary", "Summary", "Summary", "Closing key points", "≡")
+    ];
 
     private bool _isLoading = true;
     private bool _isSaving;
     private bool _isSavingBlock;
     private bool _isDeletingArticle;
     private bool _isCreatingBlock;
-    private string _newBlockType = ArticleBlockTypes[0];
+    private string _newBlockChoiceKey = BlockChoices[0].Key;
+    private string _newBlockType = BlockChoices[0].Type;
     private int _newBlockSortOrder = 1;
-    private string _newBlockContentJson = CreateDefaultBlockJson(ArticleBlockTypes[0]);
+    private string _newBlockContentJson = CreateDefaultBlockJson(BlockChoices[0].Key);
     private string _workspaceMode = "Editor";
     private Guid? _editingBlockId;
     private string _editingBlockType = string.Empty;
@@ -281,13 +292,24 @@ else
     private void BeginBlockCreate()
     {
         if (IsBusy || _article is null) return;
-        ClearBlockEditor(); _isCreatingBlock = true; _newBlockType = ArticleBlockTypes[0]; _newBlockSortOrder = _article.Blocks.Count + 1; _newBlockContentJson = CreateDefaultBlockJson(_newBlockType); _blockErrorMessage = null; _errorMessage = null; _operationMessage = null;
+        ClearBlockEditor();
+        _isCreatingBlock = true;
+        var defaultChoice = BlockChoices[0];
+        _newBlockChoiceKey = defaultChoice.Key;
+        _newBlockType = defaultChoice.Type;
+        _newBlockSortOrder = _article.Blocks.Count + 1;
+        _newBlockContentJson = CreateDefaultBlockJson(defaultChoice.Key);
+        _blockErrorMessage = null;
+        _errorMessage = null;
+        _operationMessage = null;
     }
 
-    private void SelectNewBlockType(string blockType)
+    private void SelectNewBlockChoice(BlockChoice choice)
     {
-        if (!ArticleBlockTypes.Contains(blockType, StringComparer.Ordinal)) return;
-        _newBlockType = blockType; _newBlockContentJson = CreateDefaultBlockJson(blockType); _blockErrorMessage = null;
+        _newBlockChoiceKey = choice.Key;
+        _newBlockType = choice.Type;
+        _newBlockContentJson = CreateDefaultBlockJson(choice.Key);
+        _blockErrorMessage = null;
     }
 
     private void CancelBlockCreate() { if (!_isSavingBlock) { _isCreatingBlock = false; _blockErrorMessage = null; } }
@@ -490,11 +512,12 @@ else
                 block.SortOrder)));
     }
 
-    private static string CreateDefaultBlockJson(string type) => type switch
+    private static string CreateDefaultBlockJson(string choiceKey) => choiceKey switch
     {
         "Code" => """{"code":"","language":"csharp","showCodeTitleBar":true}""",
-        "Diagram" => """{"diagram":"@startuml\nAlice -> Bob: Example\n@enduml","diagramType":"plantuml","showDiagramTitleBar":true}""",
-        "Table" => """{"hasHeaderRow":true,"hasHeaderColumn":false,"autoNumberRows":false,"tableStyle":"dense-engineering","defaultHorizontalAlignment":"left","defaultVerticalAlignment":"middle","rows":[]}""",
+        "PlantUml" or "Diagram" => """{"diagram":"@startuml\nAlice -> Bob: Example\n@enduml","diagramType":"plantuml","showDiagramTitleBar":true}""",
+        "Mermaid" => """{"diagram":"flowchart LR\n    A[Start] --> B[End]","diagramType":"mermaid","showDiagramTitleBar":true}""",
+        "Table" => """{"hasHeaderRow":true,"hasHeaderColumn":false,"autoNumberRows":false,"tableStyle":"dense-engineering","defaultHorizontalAlignment":"left","defaultVerticalAlignment":"middle","rows":[[{"text":"Header 1"},{"text":"Header 2"},{"text":"Header 3"}],[{"text":""},{"text":""},{"text":""}],[{"text":""},{"text":""},{"text":""}]]}""",
         "Callout" => """{"kind":"info","text":""}""",
         "Summary" => """{"summary":""}""",
         _ => """{"markdown":""}"""
@@ -503,6 +526,7 @@ else
     private static string GetBlockTypeIcon(string type) => type switch { "Markdown" => "¶", "Code" => "</>", "Diagram" => "◇", "Table" => "▦", "Callout" => "!", "Summary" => "≡", _ => "•" };
     private static string GetBlockTypeDescription(string type) => type switch { "Markdown" => "Narrative text and headings", "Code" => "Source code with syntax", "Diagram" => "PlantUML visualization", "Table" => "Structured comparison", "Callout" => "Important note or warning", "Summary" => "Closing key points", _ => "Content block" };
 
+    private sealed record BlockChoice(string Key, string Type, string Label, string Description, string Icon);
     private sealed record PreviewBlock(string Id, string Type, string ContentJson, int SortOrder);
     private static bool IsPublished(string status) => string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
 

@@ -1587,3 +1587,7 @@ html.top-nav-is-stuck .top-nav-sticky {
 .code-block .token.variable {
     color: #fdba74;
 }
+
+.diagram-render-surface { min-height: 72px; }
+.plantuml-diagram-object { display: block; width: 100%; min-height: 120px; border: 0; margin-inline: auto; }
+.diagram-render-error { margin: 0; padding: 16px; border: 1px dashed var(--blog-border, currentColor); border-radius: 8px; color: var(--blog-text-muted, inherit); text-align: center; }
