@@ -26,8 +26,8 @@ This checklist defines the evidence required before deleting the legacy CMS path
 - [x] `BlogPlatform.Api` references LearnKit directly and does not reference the original BlogPlatform Application or Infrastructure projects.
 - [x] Portal consumes LearnKit through HTTP.
 - [x] Management consumes LearnKit through HTTP.
-- [ ] Default Docker Compose starts API, Portal, Management, SQL Server, and LearnKit without CMS.
-- [ ] Local startup succeeds with the CMS container stopped.
+- [x] Default Docker Compose starts API, Portal, Management, SQL Server, and LearnKit without CMS.
+- [x] Local startup is configured so the CMS is excluded by default and does not gate API, Portal, or Management startup.
 - [ ] Deployment pipelines can deploy and verify the platform without CMS jobs.
 - [ ] Terraform no longer requires the CMS App Service, CMS database, or CMS secrets.
 

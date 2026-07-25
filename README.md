@@ -74,7 +74,7 @@ See also:
 | Secret management | Azure Key Vault + Managed Identity — no credentials in code or config |
 | CI/CD authentication | GitHub Actions with OIDC — no long-lived Azure secrets stored in GitHub |
 | Infrastructure as Code | Full Azure environment reproducible from `Azure Terraform apply` GitHub Action |
-| Local development | Docker Compose stack: API + CMS + Blazor + SQL Server |
+| Local development | Docker Compose stack: API + Portal + Management + SQL Server; optional legacy CMS profile |
 | Observability | Application Insights + Log Analytics + structured Serilog logging |
 | Deployment verification | Post-deploy health checks and smoke tests in GitHub Actions |
 
@@ -168,11 +168,11 @@ docker compose up --build
 
 | Service | URL |
 |---|---|
-| Blazor frontend | http://localhost:8080 |
+| Portal | http://localhost:8080 |
+| Management | http://localhost:8081 |
 | ASP.NET Core API | http://localhost:5000 |
-| Umbraco backoffice | http://localhost:5001/umbraco |
 
-Allow ~2–3 minutes on first boot for Umbraco's unattended install to complete.
+The default stack runs without Umbraco. The retained legacy CMS can be started only when needed with `docker compose --profile legacy up --build`.
 
 ---
 
