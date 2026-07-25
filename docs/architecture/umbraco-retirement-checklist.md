@@ -1,42 +1,25 @@
 # Umbraco retirement checklist
 
-This checklist defines the evidence required before deleting the legacy CMS path.
+## Content
 
-## Content ownership
+- [x] Required seed content migrated to LearnKit.
+- [x] Slugs, hierarchy, ordering, status, blocks, and meaningful block content compared automatically.
+- [x] The one empty legacy placeholder is explicitly documented and excluded from meaningful-content totals.
+- [x] Editorial create, preview, publish, unpublish, persistence, and delete flow documented.
 
-- [x] LearnKit has its own domain model for paths, zones, steps, articles, and blocks.
-- [x] LearnKit has independent EF Core persistence and migrations.
-- [x] Public LearnKit article and roadmap endpoints exist.
-- [x] Management endpoints exist for article and structure editing.
-- [x] Content export and validation are available.
-- [x] All required Umbraco seed content has been migrated to LearnKit and is covered by an automated comparison.
-- [x] Migrated content is compared for slugs, location, ordering, publication status, block payloads, and renderer-compatible contracts.
+## Runtime
 
-## Editorial workflow
+- [x] API, Portal, and Management use LearnKit only.
+- [x] Local Docker startup contains no CMS service or CMS volume.
+- [x] Deployment and verification workflows contain no CMS job.
+- [x] Terraform contains no CMS App Service, CMS secret, CMS variable, or CMS output.
 
-- [x] Management can list and edit articles through the API.
-- [x] Draft and published states are represented by LearnKit.
-- [x] Preview uses the Portal renderer.
-- [ ] The article workspace clearly separates save, publish, unpublish, and delete actions.
-- [ ] Unsaved changes and preview refresh state are visible.
-- [x] The complete create-to-publish workflow has a documented smoke test.
+## Source removal
 
-## Runtime independence
+- [x] Removed `BlogPlatform.Cms`.
+- [x] Removed the original `BlogPlatform.Domain`, `BlogPlatform.Application`, `BlogPlatform.Infrastructure`, and `BlogPlatform.Contracts` projects.
+- [x] Removed CMS Docker and seed workflow files.
+- [x] Updated solution and architecture tests.
+- [x] Retained the former seed only as an immutable migration-test fixture.
 
-- [x] `BlogPlatform.Api` references LearnKit directly and does not reference the original BlogPlatform Application or Infrastructure projects.
-- [x] Portal consumes LearnKit through HTTP.
-- [x] Management consumes LearnKit through HTTP.
-- [x] Default Docker Compose starts API, Portal, Management, SQL Server, and LearnKit without CMS.
-- [x] Local startup is configured so the CMS is excluded by default and does not gate API, Portal, or Management startup.
-- [ ] Deployment pipelines can deploy and verify the platform without CMS jobs.
-- [ ] Terraform no longer requires the CMS App Service, CMS database, or CMS secrets.
-
-## Removal
-
-- [ ] Remove the original BlogPlatform post and roadmap application path.
-- [ ] Remove the Umbraco Delivery API repository and configuration.
-- [ ] Remove `BlogPlatform.Cms` from the solution.
-- [ ] Remove CMS Docker, workflow, Terraform, Key Vault, and documentation entries.
-- [ ] Run full build, tests, local smoke tests, and deployed verification.
-
-Unchecked items are intentionally reserved for later commits. This file should be updated as each separation step is completed.
+The retirement is complete. Historical migration documentation may still name Umbraco to explain the source of the retained verification fixture.

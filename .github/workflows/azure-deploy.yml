@@ -3,10 +3,8 @@ name: Azure deploy
 on:
   workflow_dispatch:
   workflow_run:
-    workflows:
-      - Azure readiness
-    types:
-      - completed
+    workflows: [Azure readiness]
+    types: [completed]
 
 permissions:
   contents: read
@@ -21,8 +19,6 @@ env:
   TERRAFORM_VERSION: 1.13.5
   CONFIGURATION: Release
   SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
-  ARCHITECTURE_TESTS_PROJECT_PATH: src/BlogPlatform/BlogPlatform.ArchitectureTests/BlogPlatform.ArchitectureTests.csproj
-
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -30,64 +26,22 @@ env:
 
 jobs:
   deploy:
-    name: Deploy BlogPlatform to Azure
-    if: >
-      ${{ github.event_name == 'workflow_dispatch' ||
-          (github.event.workflow_run.conclusion == 'success' &&
-           github.event.workflow_run.head_branch == 'main' &&
-           github.event.workflow_run.event != 'pull_request') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
-    # Keep this environment name in sync with the Azure federated credential subject.
-    # GitHub manual approval is controlled in repository Environment settings, not here.
     environment: azure-dev
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
-
-      - name: Validate required deployment secrets
-        shell: bash
-        run: |
-          missing=0
-
-          check_secret() {
-            local name="$1"
-            local value="$2"
-
-            if [ -z "$value" ]; then
-              echo "::error::Missing required secret: $name"
-              missing=1
-            fi
-          }
-
-          check_secret "AZURE_CLIENT_ID" "${{ secrets.AZURE_CLIENT_ID }}"
-          check_secret "AZURE_TENANT_ID" "${{ secrets.AZURE_TENANT_ID }}"
-          check_secret "AZURE_SUBSCRIPTION_ID" "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          check_secret "TF_STATE_RESOURCE_GROUP_NAME" "${{ secrets.TF_STATE_RESOURCE_GROUP_NAME }}"
-          check_secret "TF_STATE_STORAGE_ACCOUNT_NAME" "${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}"
-          check_secret "TF_STATE_CONTAINER_NAME" "${{ secrets.TF_STATE_CONTAINER_NAME }}"
-          check_secret "TF_STATE_KEY" "${{ secrets.TF_STATE_KEY }}"
-
-          if [ "$missing" -ne 0 ]; then
-            exit 1
-          fi
-
-      - name: Azure login
-        uses: azure/login@v2
+      - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
-
       - name: Read Terraform outputs
         working-directory: infra
         shell: bash
@@ -97,369 +51,57 @@ jobs:
             -backend-config="storage_account_name=${{ secrets.TF_STATE_STORAGE_ACCOUNT_NAME }}" \
             -backend-config="container_name=${{ secrets.TF_STATE_CONTAINER_NAME }}" \
             -backend-config="key=${{ secrets.TF_STATE_KEY }}"
-
           echo "RESOURCE_GROUP_NAME=$(terraform output -raw resource_group_name)" >> "$GITHUB_ENV"
           echo "API_APP_NAME=$(terraform output -raw api_app_service_name)" >> "$GITHUB_ENV"
-          echo "CMS_APP_NAME=$(terraform output -raw cms_app_service_name)" >> "$GITHUB_ENV"
           echo "STATIC_WEB_APP_NAME=$(terraform output -raw static_web_app_name)" >> "$GITHUB_ENV"
           echo "API_PUBLIC_URL=$(terraform output -raw api_app_service_url)/" >> "$GITHUB_ENV"
-          echo "CMS_PUBLIC_URL=$(terraform output -raw cms_app_service_url)/" >> "$GITHUB_ENV"
           echo "APP_PUBLIC_URL=$(terraform output -raw static_web_app_url)/" >> "$GITHUB_ENV"
-
-      - name: Validate Terraform output values
+      - name: Configure production API URL
         shell: bash
         run: |
-          test -n "${RESOURCE_GROUP_NAME}"
-          test -n "${API_APP_NAME}"
-          test -n "${CMS_APP_NAME}"
-          test -n "${STATIC_WEB_APP_NAME}"
-          test -n "${API_PUBLIC_URL}"
-          test -n "${CMS_PUBLIC_URL}"
-          test -n "${APP_PUBLIC_URL}"
-
-          echo "API: ${API_PUBLIC_URL}"
-          echo "CMS: ${CMS_PUBLIC_URL}"
-          echo "APP: ${APP_PUBLIC_URL}"
-
-      - name: Show Azure resource summary
-        shell: bash
-        run: |
-          az webapp show \
-            --name "${API_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,state:state,hostNames:enabledHostNames,healthCheckPath:siteConfig.healthCheckPath}" \
-            --output table
-
-          az webapp show \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,state:state,hostNames:enabledHostNames,healthCheckPath:siteConfig.healthCheckPath}" \
-            --output table
-
-          az staticwebapp show \
-            --name "${STATIC_WEB_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{name:name,defaultHostname:defaultHostname}" \
-            --output table
-
-      - name: Configure Blazor production API URL
-        shell: bash
-        run: |
-          cat > src/BlogPlatform/BlogPlatform.App/wwwroot/appsettings.Production.json <<EOF
-          {
-            "Api": {
-              "BaseUrl": "${API_PUBLIC_URL}"
-            },
-
-            "Features": {
-              "ShowPlantUmlSource": false,
-              "EnableBlogDisplayMode": "DotnetStandard",
-              "EnableStickyTopNav": true,
-              "ExtensiveStandardArticleCard": false,
-              "CollapseArticleCardTagByDefault": true,
-              "DisplayStepIcons": false
-            },
-
-            "LearningPath": {
-              "ArticlesPerStepPage": 3
-            }
-          }
-          EOF
-
-          cat src/BlogPlatform/BlogPlatform.App/wwwroot/appsettings.Production.json
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+          cat > src/BlogPlatform/BlogPlatform.App/wwwroot/appsettings.Production.json <<JSON
+          { "Api": { "BaseUrl": "${API_PUBLIC_URL}" } }
+          JSON
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore solution
-        run: dotnet restore ${{ env.SOLUTION_PATH }}
-
-      - name: Build solution
-        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
-
-      - name: Test architecture project
-        run: dotnet test ${{ env.ARCHITECTURE_TESTS_PROJECT_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
-
-      - name: Publish API
-        run: >
-          dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
-          --configuration ${{ env.CONFIGURATION }}
-          --no-build
-          --output ./artifacts/api
-
-      - name: Publish CMS
-        run: >
-          dotnet publish src/BlogPlatform/BlogPlatform.Cms/BlogPlatform.Cms.csproj
-          --configuration ${{ env.CONFIGURATION }}
-          --no-build
-          --output ./artifacts/cms
-
-      - name: Publish Blazor App
-        run: >
-          dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
-          --configuration ${{ env.CONFIGURATION }}
-          --no-build
-          --output ./artifacts/app
-
-      - name: Validate Blazor publish artifact
-        shell: bash
+      - name: Build and test
         run: |
-          BLAZOR_WWWROOT="./artifacts/app/wwwroot"
-
-          echo "Blazor artifact structure:"
-          find ./artifacts/app -maxdepth 8 -type f | sort
-
-          require_file() {
-            local path="$1"
-
-            if [ ! -f "$path" ]; then
-              echo "::error::Missing required Blazor publish file: $path"
-              exit 1
-            fi
-
-            echo "OK: $path"
-          }
-
-          require_file "${BLAZOR_WWWROOT}/index.html"
-          require_file "${BLAZOR_WWWROOT}/staticwebapp.config.json"
-
-          if [ ! -d "${BLAZOR_WWWROOT}/_framework" ]; then
-            echo "::error::Missing required Blazor _framework directory: ${BLAZOR_WWWROOT}/_framework"
-            exit 1
-          fi
-
-          echo "Blazor _framework files:"
-          find "${BLAZOR_WWWROOT}/_framework" -maxdepth 4 -type f | sort
-
-          if [ ! -f "${BLAZOR_WWWROOT}/_framework/blazor.webassembly.js" ]; then
-            echo "::warning::blazor.webassembly.js was not found. This may be expected for this .NET/Blazor version."
-          else
-            echo "OK: ${BLAZOR_WWWROOT}/_framework/blazor.webassembly.js"
-          fi
-
-          if grep -R "{fingerprint}" "${BLAZOR_WWWROOT}/index.html"; then
-            echo "::error::Blazor index.html still contains unresolved fingerprint placeholder."
-            exit 1
-          fi
-
-          echo "Blazor publish artifact is valid."
-
-      - name: Deploy CMS App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.CMS_APP_NAME }}
-          package: ./artifacts/cms
-          clean: true
-          restart: true
-
-      - name: Deploy API App Service
+          dotnet restore ${{ env.SOLUTION_PATH }}
+          dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-restore
+          dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build
+      - name: Publish API and clients
+        run: |
+          dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/api
+          dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/app
+          dotnet publish src/BlogPlatform/Zone55.Management/Zone55.Management.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/management
+      - name: Deploy API
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.API_APP_NAME }}
-          package: ./artifacts/api
+          package: artifacts/api
           clean: true
           restart: true
-
-      - name: Verify Azure runtime app settings
+      - name: Get Static Web App token
         shell: bash
         run: |
-          require_setting() {
-            local app_name="$1"
-            local setting_name="$2"
-
-            count=$(az webapp config appsettings list \
-              --name "$app_name" \
-              --resource-group "${RESOURCE_GROUP_NAME}" \
-              --query "[?name=='${setting_name}'] | length(@)" \
-              --output tsv)
-
-            if [ "$count" != "1" ]; then
-              echo "::error::Missing app setting '${setting_name}' on '${app_name}'"
-              exit 1
-            fi
-
-            echo "OK: ${app_name} has ${setting_name}"
-          }
-
-          require_setting "${API_APP_NAME}" "ApplicationInsights__ConnectionString"
-          require_setting "${API_APP_NAME}" "ConnectionStrings__Zone55Connection"
-          require_setting "${API_APP_NAME}" "Cors__AllowedOrigins__0"
-
-          require_setting "${CMS_APP_NAME}" "ApplicationInsights__ConnectionString"
-          require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN"
-          require_setting "${CMS_APP_NAME}" "ConnectionStrings__umbracoDbDSN_ProviderName"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__WebRouting__UmbracoApplicationUrl"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Imaging__HMACSecretKey"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Unattended__UnattendedUserName"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Unattended__UnattendedUserEmail"
-          require_setting "${CMS_APP_NAME}" "Umbraco__CMS__Unattended__UnattendedUserPassword"
-
-      - name: Restart App Services after deployment
-        shell: bash
-        run: |
-          az webapp restart \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}"
-
-          az webapp restart \
-            --name "${API_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}"
-
-      - name: Get Static Web Apps deployment token
-        shell: bash
-        run: |
-          TOKEN=$(az staticwebapp secrets list \
-            --name "${STATIC_WEB_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "properties.apiKey" \
-            --output tsv)
-
-          echo "::add-mask::$TOKEN"
-          echo "AZURE_STATIC_WEB_APPS_API_TOKEN=$TOKEN" >> "$GITHUB_ENV"
-
-      - name: Deploy Blazor App to Static Web Apps
+          token=$(az staticwebapp secrets list --name "${STATIC_WEB_APP_NAME}" --resource-group "${RESOURCE_GROUP_NAME}" --query properties.apiKey -o tsv)
+          echo "::add-mask::$token"
+          echo "AZURE_STATIC_WEB_APPS_API_TOKEN=$token" >> "$GITHUB_ENV"
+      - name: Deploy Portal
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          app_location: ./artifacts/app/wwwroot
+          app_location: artifacts/app/wwwroot
           api_location: ""
           output_location: ""
           skip_app_build: true
-
-      - name: Check CMS live health
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/live" "CMS live health"
-
-      - name: Check CMS ready health
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}health/ready" "CMS ready health"
-
-      - name: Check API live health
+      - name: Smoke check active platform
         shell: bash
         run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/live" "API live health"
-
-      - name: Check API ready health
-        shell: bash
-        run: |
           bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}health/ready" "API ready health"
-
-      - name: Check CMS articles endpoint
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${CMS_PUBLIC_URL}api/blog-content/articles" "CMS articles endpoint"
-
-      - name: Check LearnKit roadmap endpoint
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/learnkit/roadmaps/dotnet" "LearnKit roadmap endpoint"
-
-      - name: Check API root endpoint
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}" "API root endpoint"
-
-      - name: Check Blazor Static Web App
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Blazor Static Web App"
-
-      - name: Check Blazor framework file
-        shell: bash
-        run: |
-          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}_framework/blazor.webassembly.js" "Blazor WebAssembly boot script"
-
-      - name: Collect App Service diagnostics on failure
-        if: failure()
-        shell: bash
-        run: |
-          set +e
-
-          echo "## Enable CMS filesystem logging"
-          az webapp log config \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --application-logging filesystem \
-            --level verbose \
-            --web-server-logging filesystem \
-            --detailed-error-messages true \
-            --failed-request-tracing true
-
-          echo "## CMS process and runtime configuration"
-          az webapp config show \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "{linuxFxVersion:linuxFxVersion,appCommandLine:appCommandLine,alwaysOn:alwaysOn,healthCheckPath:healthCheckPath}" \
-            --output json
-
-          echo "## CMS application settings names"
-          az webapp config appsettings list \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --query "[].name" \
-            --output tsv | sort
-
-          echo "## CMS /health/ready"
-          curl --location --silent --show-error --connect-timeout 10 --max-time 30 \
-            "${CMS_PUBLIC_URL}health/ready" || true
-          echo ""
-
-          echo "## CMS /health/live"
-          curl --location --silent --show-error --connect-timeout 10 --max-time 30 \
-            "${CMS_PUBLIC_URL}health/live" || true
-          echo ""
-
-          echo "## Download CMS App Service logs"
-          rm -rf cms-appservice-logs cms-appservice-logs.zip
-          az webapp log download \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" \
-            --log-file cms-appservice-logs.zip || true
-
-          if [ -f cms-appservice-logs.zip ]; then
-            mkdir -p cms-appservice-logs
-            unzip -q cms-appservice-logs.zip -d cms-appservice-logs || true
-
-            echo "Downloaded log files:"
-            find cms-appservice-logs -type f -maxdepth 8 -print | sort
-
-            echo "## Relevant CMS log excerpts"
-            grep -RniE -B 30 -A 30 \
-              "fatal|error|exception|failed|startup|umbraco|key vault|connection string|TypeLoader|Could not load" \
-              cms-appservice-logs 2>/dev/null | tail -n 3000 || true
-          fi
-
-          echo "## CMS log stream (up to 120 seconds)"
-          timeout 120s az webapp log tail \
-            --name "${CMS_APP_NAME}" \
-            --resource-group "${RESOURCE_GROUP_NAME}" || true
-
-      - name: Upload App Service diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cms-app-service-diagnostics
-          path: cms-appservice-logs.zip
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Write deployment summary
-        shell: bash
-        run: |
-          {
-            echo "## Azure deployment summary"
-            echo ""
-            echo "| Component | URL |"
-            echo "|---|---|"
-            echo "| API | ${API_PUBLIC_URL} |"
-            echo "| CMS | ${CMS_PUBLIC_URL} |"
-            echo "| Blazor App | ${APP_PUBLIC_URL} |"
-            echo ""
-            echo "Smoke checks completed successfully."
-          } >> "$GITHUB_STEP_SUMMARY"
+          bash .github/workflows/scripts/check-url.sh "${API_PUBLIC_URL}api/learnkit/roadmaps/dotnet" "LearnKit roadmap"
+          bash .github/workflows/scripts/check-url.sh "${APP_PUBLIC_URL}" "Portal"

@@ -24,8 +24,8 @@
     <None Include="..\LearnKit.Infrastructure\Seed\Content\learnkit-content.seed.json"
           Link="Seed\Content\learnkit-content.seed.json"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\BlogPlatform\BlogPlatform.Cms\Seeding\blog-content.seed.json"
-          Link="Migration\blog-content.seed.json"
+    <None Include="Migration\Fixtures\legacy-blog-content.seed.json"
+          Link="Migration\legacy-blog-content.seed.json"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

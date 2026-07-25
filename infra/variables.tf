@@ -28,23 +28,6 @@ variable "sql_admin_password" {
   sensitive   = true
 }
 
-variable "umbraco_admin_name" {
-  type      = string
-  sensitive = true
-}
 
-variable "umbraco_admin_email" {
-  type      = string
-  sensitive = true
-}
 
-variable "umbraco_admin_password" {
-  type      = string
-  sensitive = true
-}
 
-variable "blog_content_seed_api_key" {
-  description = "Secret key used by GitHub Actions to trigger protected blog seed import."
-  type        = string
-  sensitive   = true
-}

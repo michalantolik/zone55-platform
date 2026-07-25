@@ -4,19 +4,13 @@ locals {
   name_prefix = "${var.project_name}-${var.environment}"
 
   api_app_name = "app-${local.name_prefix}-api"
-  cms_app_name = "app-${local.name_prefix}-cms"
 
   sql_connection_string = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.main.name};Persist Security Info=False;User ID=${var.sql_admin_login};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
   api_url = "https://${local.api_app_name}.azurewebsites.net"
-  cms_url = "https://${local.cms_app_name}.azurewebsites.net"
   app_url = "https://${azurerm_static_web_app.app.default_host_name}"
 }
 
-resource "random_password" "umbraco_hmac_secret_key" {
-  length  = 64
-  special = false
-}
 
 resource "azurerm_resource_group" "main" {
   name     = "rg-${local.name_prefix}"
@@ -92,11 +86,6 @@ resource "azurerm_key_vault_secret" "sql_connection_string" {
   key_vault_id = azurerm_key_vault.main.id
 }
 
-resource "azurerm_key_vault_secret" "umbraco_hmac_secret_key" {
-  name         = "umbraco-hmac-secret-key"
-  value        = random_password.umbraco_hmac_secret_key.result
-  key_vault_id = azurerm_key_vault.main.id
-}
 
 resource "azurerm_static_web_app" "app" {
   name                = "stapp-${local.name_prefix}"
@@ -150,64 +139,6 @@ resource "azurerm_linux_web_app" "api" {
   }
 }
 
-resource "azurerm_linux_web_app" "cms" {
-  name                = local.cms_app_name
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  service_plan_id     = azurerm_service_plan.main.id
-
-  https_only = true
-
-  identity {
-    type = "SystemAssigned"
-  }
-
-  site_config {
-    application_stack {
-      dotnet_version = "10.0"
-    }
-
-    always_on                         = true
-    app_command_line                  = "dotnet BlogPlatform.Cms.dll"
-    health_check_path                 = "/health/live"
-    health_check_eviction_time_in_min = 10
-  }
-
-  app_settings = {
-    "ASPNETCORE_ENVIRONMENT" = "Production"
-    "ASPNETCORE_URLS"        = "http://+:8080"
-    "WEBSITES_PORT"          = "8080"
-
-    "ApplicationInsights__ConnectionString"        = azurerm_application_insights.main.connection_string
-    "ConnectionStrings__umbracoDbDSN"              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_connection_string.versionless_id})"
-    "ConnectionStrings__umbracoDbDSN_ProviderName" = "Microsoft.Data.SqlClient"
-
-    "Umbraco__CMS__Global__UseHttps"                  = "true"
-    "Umbraco__CMS__Global__InstallMissingDatabase"    = "true"
-    "Umbraco__CMS__Runtime__Mode"                     = "Production"
-    "Umbraco__CMS__WebRouting__UmbracoApplicationUrl" = "${local.cms_url}/"
-    "Umbraco__CMS__ModelsBuilder__ModelsMode"         = "Nothing"
-    "Umbraco__CMS__Imaging__HMACSecretKey"            = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.umbraco_hmac_secret_key.versionless_id})"
-
-    "Umbraco__CMS__Unattended__InstallUnattended"      = "true"
-    "Umbraco__CMS__Unattended__UpgradeUnattended"      = "true"
-    "Umbraco__CMS__Unattended__UnattendedUserName"     = var.umbraco_admin_name
-    "Umbraco__CMS__Unattended__UnattendedUserEmail"    = var.umbraco_admin_email
-    "Umbraco__CMS__Unattended__UnattendedUserPassword" = var.umbraco_admin_password
-
-    "UmbracoDeliveryApi__BaseUrl"                = local.cms_url
-    "UmbracoDeliveryApi__PostsEndpoint"          = "api/blog-content/articles"
-    "UmbracoDeliveryApi__RetryCount"             = "3"
-    "UmbracoDeliveryApi__RetryDelayMilliseconds" = "1500"
-    "UmbracoDeliveryApi__TimeoutSeconds"         = "30"
-    "UmbracoDeliveryApi__FreshCacheSeconds"      = "600"
-    "UmbracoDeliveryApi__StaleCacheSeconds"      = "3600"
-
-    "BlogPreview__AppPreviewUrl" = "${local.app_url}/preview/article"
-
-    "BlogContentSeedOperations__ApiKey" = var.blog_content_seed_api_key
-  }
-}
 
 resource "azurerm_role_assignment" "api_key_vault_secrets_user" {
   scope                = azurerm_key_vault.main.id
@@ -215,8 +146,3 @@ resource "azurerm_role_assignment" "api_key_vault_secrets_user" {
   principal_id         = azurerm_linux_web_app.api.identity[0].principal_id
 }
 
-resource "azurerm_role_assignment" "cms_key_vault_secrets_user" {
-  scope                = azurerm_key_vault.main.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_linux_web_app.cms.identity[0].principal_id
-}

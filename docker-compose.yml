@@ -1,11 +1,8 @@
 # =============================================================================
 # Zone55 local platform
 #
-# Default stack (no Umbraco):
+# Default stack:
 #   docker compose up --build
-#
-# Optional legacy CMS:
-#   docker compose --profile legacy up --build
 #
 # Startup order:
 #   sqlserver -> api (LearnKit database ready) -> app + management
@@ -123,51 +120,6 @@ services:
       start_period: 10s
     restart: unless-stopped
 
-  cms:
-    profiles: ["legacy"]
-    build:
-      context: .
-      dockerfile: Dockerfile.cms
-    container_name: blogplatform-cms
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__umbracoDbDSN: >-
-        Server=sqlserver,1433;
-        Database=BlogPlatformCms;
-        User Id=sa;
-        Password=${SQL_SA_PASSWORD:-BlogPlatform_Dev#2024};
-        TrustServerCertificate=True;
-        MultipleActiveResultSets=True;
-      ConnectionStrings__umbracoDbDSN_ProviderName: "Microsoft.Data.SqlClient"
-      Umbraco__CMS__Imaging__HMACSecretKey: "${UMBRACO_HMAC_SECRET_KEY:-0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF}"
-      Umbraco__CMS__Unattended__InstallUnattended: "true"
-      Umbraco__CMS__Unattended__UpgradeUnattended: "true"
-      Umbraco__CMS__Unattended__UnattendedUserName: "${UMBRACO_ADMIN_NAME:-Blog Admin}"
-      Umbraco__CMS__Unattended__UnattendedUserEmail: "${UMBRACO_ADMIN_EMAIL:-admin@blogplatform.local}"
-      Umbraco__CMS__Unattended__UnattendedUserPassword: "${UMBRACO_ADMIN_PASSWORD:-BlogPlatform_Admin#2024}"
-      Umbraco__CMS__Global__UseHttps: "false"
-      Umbraco__CMS__Global__InstallMissingDatabase: "true"
-      Umbraco__CMS__Runtime__Mode: BackofficeDevelopment
-      Umbraco__CMS__ModelsBuilder__ModelsMode: Nothing
-      BlogContentSeedOperations__ApiKey: "${BLOG_CONTENT_SEED_API_KEY:-local-dev-seed-key}"
-    ports:
-      - "5001:8080"
-    volumes:
-      - umbraco-data:/app/umbraco
-      - umbraco-media:/app/wwwroot/media
-    networks:
-      - blogplatform-net
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
-    restart: unless-stopped
 
 networks:
   blogplatform-net:
@@ -175,8 +127,4 @@ networks:
 
 volumes:
   sqlserver-data:
-    driver: local
-  umbraco-data:
-    driver: local
-  umbraco-media:
     driver: local

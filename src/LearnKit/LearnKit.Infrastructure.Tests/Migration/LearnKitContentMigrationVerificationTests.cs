@@ -9,7 +9,7 @@ public sealed class LearnKitContentMigrationVerificationTests
     [Fact]
     public void LearnKitSeed_ShouldMatchLegacyUmbracoSeed()
     {
-        using var legacyDocument = ReadSeed("Migration", "blog-content.seed.json");
+        using var legacyDocument = ReadSeed("Migration", "legacy-blog-content.seed.json");
         using var learnKitDocument = ReadSeed("Seed", "Content", "learnkit-content.seed.json");
 
         var report = Compare(legacyDocument.RootElement, learnKitDocument.RootElement);

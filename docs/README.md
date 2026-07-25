@@ -1,51 +1,8 @@
 # Documentation
 
-This folder contains project documentation for BlogPlatform.
-
----
-
-## Documentation Index
-
-| File | Purpose |
+| Area | Documents |
 |---|---|
-| `../README.md` | Main project overview |
-| `../AZURE.md` | Azure deployment roadmap and current status |
-| `adr/README.md` | Architecture Decision Records |
-| `architecture/learnkit-content-ownership.md` | Active and legacy content ownership boundaries |
-| `architecture/umbraco-retirement-checklist.md` | Evidence required before removing Umbraco |
-| `secrets-and-configuration.md` | Secrets and configuration flow |
-| `../infra/README.md` | Terraform infrastructure documentation |
-| `../src/README.md` | Source code structure |
-| `../src/BlogPlatform/BlogPlatform.Cms/README.md` | CMS-specific documentation |
-| `../tests/README.md` | Test documentation |
-
----
-
-## Recommended Reading Order
-
-1. `../README.md`
-2. `../AZURE.md`
-3. `adr/README.md`
-4. `secrets-and-configuration.md`
-5. `../infra/README.md`
-6. `../src/README.md`
-
----
-
-## Notes
-
-Some configuration values are intentionally not stored in the repository.
-
-Do not commit:
-
-* `infra/terraform.tfvars`
-* Any `*.tfvars` file except `*.tfvars.example`
-* Azure publish profiles
-* Local secrets
-* Local environment files
-* Terraform state files
-
-## LearnKit verification
-
-- [Content migration verification](learnkit/content-migration-verification.md)
-- [Editorial smoke test](management/editorial-smoke-test.md)
+| Architecture | `architecture/learnkit-content-ownership.md`, `architecture/umbraco-retirement-checklist.md` |
+| LearnKit | content model, seed, portability, migration verification, API errors, authentication |
+| Management | editorial workspace and smoke test |
+| Operations | `DOCKER.md`, `../AZURE.md`, `../infra/README.md` |

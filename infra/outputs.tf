@@ -6,17 +6,11 @@ output "api_app_service_name" {
   value = azurerm_linux_web_app.api.name
 }
 
-output "cms_app_service_name" {
-  value = azurerm_linux_web_app.cms.name
-}
 
 output "api_app_service_url" {
   value = local.api_url
 }
 
-output "cms_app_service_url" {
-  value = local.cms_url
-}
 
 output "static_web_app_url" {
   value = local.app_url
