@@ -2,7 +2,7 @@ using System.Globalization;
 using Microsoft.Playwright;
 using NUnit.Framework;
 
-namespace BlogPlatform.PortfolioScreenshots;
+namespace Zone55.PortfolioScreenshots;
 
 [TestFixture]
 public sealed class PortfolioScreenshotTests

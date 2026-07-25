@@ -1,6 +1,6 @@
 # Zone55 Platform
 
-Zone55 is a learning-content platform built with .NET 10. LearnKit owns the content model, persistence, public API, and editorial operations.
+Zone55 is a learning-content platform built with .NET 10. LearnKit owns the content model, persistence, public API, and editorial operations. The active platform has no Umbraco runtime, package, project, database, or deployment dependency.
 
 ## Solution structure
 
@@ -63,8 +63,25 @@ src/
 | `Zone55.Management` | Blazor WebAssembly content management application |
 | `Zone55.ArchitectureTests` | Architecture dependency tests |
 | `Zone55.Presentation.Tests` | Portal and management presentation tests |
+| `Zone55.PortfolioScreenshots` | Workflow-only Playwright screenshot tests |
 
 Open `Zone55.slnx` from the repository root. Visual Studio displays two top-level solution folders: `LearnKit` and `Zone55`.
+
+## Content lifecycle
+
+```text
+Zone55.Management
+        ↓
+Zone55.Api
+        ↓
+LearnKit.Application
+        ↓
+LearnKit.Infrastructure
+        ↓
+Zone55Db
+```
+
+The API applies LearnKit migrations and performs an idempotent content bootstrap on startup. The Portal and the persistent Management live preview use the same `Zone55.App` renderer. No separate CMS seed workflow is required.
 
 ## Local development
 

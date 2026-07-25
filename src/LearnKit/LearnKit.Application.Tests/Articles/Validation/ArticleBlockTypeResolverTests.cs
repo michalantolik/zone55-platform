@@ -17,7 +17,7 @@ public sealed class ArticleBlockTypeResolverTests
     [InlineData("Table", ArticleBlockType.Table)]
     [InlineData("Callout", ArticleBlockType.Callout)]
     [InlineData("Summary", ArticleBlockType.Summary)]
-    public void TryResolve_ShouldMapCanonicalAndLegacyNames(
+    public void TryResolve_ShouldMapCanonicalAndCompatibleNames(
         string value,
         ArticleBlockType expected)
     {

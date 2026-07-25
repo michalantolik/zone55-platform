@@ -71,30 +71,36 @@ public sealed class CleanArchitectureDependencyTests
     }
 
     [Fact]
-    public void Active_Projects_Should_Not_Reference_Retired_Projects()
+    public void Retired_Content_Pipeline_Should_Not_Return()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var activeSourceRoots = new[]
+
+        var retiredPaths = new[]
         {
-            Path.Combine(repositoryRoot, "src", "LearnKit"),
-            Path.Combine(repositoryRoot, "src", "Zone55")
+            Path.Combine(repositoryRoot, "Dockerfile.cms"),
+            Path.Combine(repositoryRoot, ".github", "workflows", "azure-seed-content.yml"),
+            Path.Combine(repositoryRoot, "src", "BlogPlatform", "BlogPlatform.Application"),
+            Path.Combine(repositoryRoot, "src", "BlogPlatform", "BlogPlatform.Cms"),
+            Path.Combine(repositoryRoot, "src", "BlogPlatform", "BlogPlatform.Contracts"),
+            Path.Combine(repositoryRoot, "src", "BlogPlatform", "BlogPlatform.Domain"),
+            Path.Combine(repositoryRoot, "src", "BlogPlatform", "BlogPlatform.Infrastructure"),
+            Path.Combine(repositoryRoot, "src", "Shared", "Zone55.Ui")
         };
 
-        var projectFiles = activeSourceRoots
-            .SelectMany(path => Directory.EnumerateFiles(path, "*.csproj", SearchOption.AllDirectories))
+        var existingRetiredPaths = retiredPaths
+            .Where(path => File.Exists(path) || Directory.Exists(path))
+            .Select(path => Path.GetRelativePath(repositoryRoot, path))
+            .ToArray();
+
+        var projectFiles = Directory
+            .EnumerateFiles(
+                Path.Combine(repositoryRoot, "src"),
+                "*.csproj",
+                SearchOption.AllDirectories)
             .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
             .ToArray();
 
-        var retiredNames = new[]
-        {
-            "BlogPlatform.Cms",
-            "BlogPlatform.Application",
-            "BlogPlatform.Contracts",
-            "BlogPlatform.Domain",
-            "BlogPlatform.Infrastructure"
-        };
-
-        var violations = projectFiles
+        var retiredProjectReferences = projectFiles
             .Select(path => new { Path = path, Xml = XDocument.Load(path) })
             .SelectMany(project => project.Xml.Descendants("ProjectReference")
                 .Select(reference => new
@@ -102,13 +108,39 @@ public sealed class CleanArchitectureDependencyTests
                     project.Path,
                     Include = reference.Attribute("Include")?.Value ?? string.Empty
                 }))
-            .Where(reference => retiredNames.Any(name =>
-                reference.Include.Contains(name, StringComparison.Ordinal)))
+            .Where(reference =>
+                reference.Include.Contains("BlogPlatform.", StringComparison.Ordinal) ||
+                reference.Include.Contains("Zone55.Ui", StringComparison.Ordinal))
             .Select(reference => $"{reference.Path}: {reference.Include}")
             .ToArray();
 
-        Assert.True(violations.Length == 0,
-            "Active projects reference retired projects: " + string.Join(", ", violations));
+        var umbracoPackages = projectFiles
+            .Select(path => new { Path = path, Xml = XDocument.Load(path) })
+            .SelectMany(project => project.Xml.Descendants("PackageReference")
+                .Select(reference => new
+                {
+                    project.Path,
+                    Include = reference.Attribute("Include")?.Value ?? string.Empty
+                }))
+            .Where(reference =>
+                reference.Include.StartsWith("Umbraco.", StringComparison.OrdinalIgnoreCase))
+            .Select(reference => $"{reference.Path}: {reference.Include}")
+            .ToArray();
+
+        Assert.True(
+            existingRetiredPaths.Length == 0,
+            "Retired content pipeline paths returned: " +
+            string.Join(", ", existingRetiredPaths));
+
+        Assert.True(
+            retiredProjectReferences.Length == 0,
+            "Projects reference retired content pipeline projects: " +
+            string.Join(", ", retiredProjectReferences));
+
+        Assert.True(
+            umbracoPackages.Length == 0,
+            "Projects reference retired Umbraco packages: " +
+            string.Join(", ", umbracoPackages));
     }
 
     private static string FindRepositoryRoot()

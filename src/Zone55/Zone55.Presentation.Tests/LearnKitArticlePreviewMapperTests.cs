@@ -18,7 +18,7 @@ public sealed class LearnKitArticlePreviewMapperTests
     [InlineData("table", "Table", typeof(TableBlock))]
     [InlineData("callout", "Callout", typeof(CalloutBlock))]
     [InlineData("summary", "Summary", typeof(SummaryBlock))]
-    public void ToArticle_ShouldNormalizeLegacyBlockAliases(
+    public void ToArticle_ShouldNormalizeCompatibleBlockAliases(
         string sourceType,
         string expectedType,
         Type expectedComponent)
@@ -38,7 +38,7 @@ public sealed class LearnKitArticlePreviewMapperTests
     }
 
     [Fact]
-    public void ToArticle_ShouldKeepCanonicalEnvelopeType_WhenContentContainsLegacyType()
+    public void ToArticle_ShouldKeepCanonicalEnvelopeType_WhenContentUsesCompatibleAlias()
     {
         var body = ArticlePreviewBlockPayloadBuilder.Build(
         [

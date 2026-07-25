@@ -1,0 +1,16 @@
+﻿@Zone55.Api_HostAddress = https://localhost:7246
+
+GET {{Zone55.Api_HostAddress}}/health/ready
+Accept: application/json
+
+###
+
+GET {{Zone55.Api_HostAddress}}/api/learnkit/roadmaps/dotnet
+Accept: application/json
+
+###
+
+GET {{Zone55.Api_HostAddress}}/api/learnkit/articles/components-of-the-dotnet-framework
+Accept: application/json
+
+###

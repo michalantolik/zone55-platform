@@ -38,8 +38,11 @@ jobs:
           terraform fmt -check -recursive
           terraform init -backend=false
           terraform validate
-      - name: Verify retired CMS is excluded
+      - name: Verify retired content pipeline is absent
         shell: bash
         run: |
-          ! grep -q "BlogPlatform.Cms" "${SOLUTION_PATH}"
-          ! grep -RIn "BlogPlatform.Cms\|Umbraco.Cms" src/LearnKit src/Zone55 --include='*.csproj'
+          test ! -e Dockerfile.cms
+          test ! -e .github/workflows/azure-seed-content.yml
+          test ! -d src/BlogPlatform
+          test ! -d src/Shared/Zone55.Ui
+          ! grep -RIn "Umbraco\\." src --include='*.csproj'
