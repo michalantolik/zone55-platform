@@ -446,31 +446,48 @@ else
     private string BuildPreviewBodyContent()
     {
         if (_article is null) return "[]";
-        var blocks = _article.Blocks.OrderBy(block => block.SortOrder).Select(block => new PreviewBlock(block.Type, block.ContentJson, block.SortOrder)).ToList();
+
+        var blocks = _article.Blocks
+            .OrderBy(block => block.SortOrder)
+            .Select(block => new PreviewBlock(
+                block.Id.ToString(),
+                block.Type,
+                block.ContentJson,
+                block.SortOrder))
+            .ToList();
+
         if (_editingBlockId is not null)
         {
             var existing = _article.Blocks.FirstOrDefault(block => block.Id == _editingBlockId.Value);
             if (existing is not null)
             {
-                var index = blocks.FindIndex(block => block.SortOrder == existing.SortOrder);
-                if (index >= 0) blocks[index] = new PreviewBlock(_editingBlockType, _editingBlockContentJson, existing.SortOrder);
+                var index = blocks.FindIndex(block => block.Id == existing.Id.ToString());
+                if (index >= 0)
+                {
+                    blocks[index] = new PreviewBlock(
+                        existing.Id.ToString(),
+                        _editingBlockType,
+                        _editingBlockContentJson,
+                        existing.SortOrder);
+                }
             }
         }
-        if (_isCreatingBlock) blocks.Add(new PreviewBlock(_newBlockType, _newBlockContentJson, _newBlockSortOrder));
 
-        var content = new List<JsonElement>();
-        foreach (var block in blocks.OrderBy(block => block.SortOrder))
+        if (_isCreatingBlock)
         {
-            try
-            {
-                using var document = JsonDocument.Parse(block.ContentJson);
-                var values = new Dictionary<string, object?> { ["type"] = block.Type, ["sortOrder"] = block.SortOrder };
-                foreach (var property in document.RootElement.EnumerateObject()) values[property.Name] = property.Value.Clone();
-                content.Add(JsonSerializer.SerializeToElement(values));
-            }
-            catch (JsonException) { }
+            blocks.Add(new PreviewBlock(
+                "preview-new-block",
+                _newBlockType,
+                _newBlockContentJson,
+                _newBlockSortOrder));
         }
-        return JsonSerializer.Serialize(content);
+
+        return ArticlePreviewBlockPayloadBuilder.Build(
+            blocks.Select(block => new ArticlePreviewBlockPayload(
+                block.Id,
+                block.Type,
+                block.ContentJson,
+                block.SortOrder)));
     }
 
     private static string CreateDefaultBlockJson(string type) => type switch
@@ -486,7 +503,7 @@ else
     private static string GetBlockTypeIcon(string type) => type switch { "Markdown" => "¶", "Code" => "</>", "Diagram" => "◇", "Table" => "▦", "Callout" => "!", "Summary" => "≡", _ => "•" };
     private static string GetBlockTypeDescription(string type) => type switch { "Markdown" => "Narrative text and headings", "Code" => "Source code with syntax", "Diagram" => "PlantUML visualization", "Table" => "Structured comparison", "Callout" => "Important note or warning", "Summary" => "Closing key points", _ => "Content block" };
 
-    private sealed record PreviewBlock(string Type, string ContentJson, int SortOrder);
+    private sealed record PreviewBlock(string Id, string Type, string ContentJson, int SortOrder);
     private static bool IsPublished(string status) => string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
 
     public void Dispose()

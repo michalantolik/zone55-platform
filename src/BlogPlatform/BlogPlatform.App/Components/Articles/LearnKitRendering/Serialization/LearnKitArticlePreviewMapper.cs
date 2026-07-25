@@ -1,3 +1,4 @@
+using LearnKit.Domain.Articles;
 using BlogPlatform.App.Components.Articles.LearnKitRendering.Serialization.PreviewBlocks;
 using BlogPlatform.App.Models.LearnKit;
 using BlogPlatform.App.Models.LearnKit.Articles;
@@ -87,21 +88,19 @@ public static class LearnKitArticlePreviewMapper
 
             var type = typeElement.GetString();
 
-            if (string.IsNullOrWhiteSpace(type))
+            if (!ArticleBlockTypeResolver.TryResolve(type, out var blockType))
             {
+                blocks.Add(CreateUnsupportedBlock(element, index, type));
                 continue;
             }
 
-            var sortOrder =
-                element.TryGetProperty("sortOrder", out var sortOrderElement) &&
-                sortOrderElement.TryGetInt32(out var parsedSortOrder)
-                    ? parsedSortOrder
-                    : index;
+            var sortOrder = GetSortOrder(element, index);
+            var id = GetBlockId(element, index);
 
             blocks.Add(new LearnKitArticleBlockDetails
             {
-                Id = $"preview-block-{index}",
-                Type = type,
+                Id = id,
+                Type = blockType.ToString(),
                 SortOrder = sortOrder,
                 ContentJson = BuildContentJson(element)
             });
@@ -115,14 +114,44 @@ public static class LearnKitArticlePreviewMapper
 
     private static string BuildContentJson(JsonElement element)
     {
+        if (element.TryGetProperty("contentJson", out var nestedContent))
+        {
+            if (nestedContent.ValueKind == JsonValueKind.String)
+            {
+                var serializedContent = nestedContent.GetString();
+
+                if (!string.IsNullOrWhiteSpace(serializedContent))
+                {
+                    try
+                    {
+                        using var document = JsonDocument.Parse(serializedContent);
+                        return document.RootElement.GetRawText();
+                    }
+                    catch (JsonException)
+                    {
+                        return JsonSerializer.Serialize(
+                            new { markdown = serializedContent },
+                            JsonOptions);
+                    }
+                }
+            }
+
+            if (nestedContent.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            {
+                return nestedContent.GetRawText();
+            }
+        }
+
         var content =
             new Dictionary<string, JsonElement>(
                 StringComparer.OrdinalIgnoreCase);
 
         foreach (var property in element.EnumerateObject())
         {
-            if (property.NameEquals("type") ||
-                property.NameEquals("sortOrder"))
+            if (property.NameEquals("id") ||
+                property.NameEquals("type") ||
+                property.NameEquals("sortOrder") ||
+                property.NameEquals("contentJson"))
             {
                 continue;
             }
@@ -131,6 +160,38 @@ public static class LearnKitArticlePreviewMapper
         }
 
         return JsonSerializer.Serialize(content, JsonOptions);
+    }
+
+    private static int GetSortOrder(JsonElement element, int fallback) =>
+        element.TryGetProperty("sortOrder", out var sortOrderElement) &&
+        sortOrderElement.TryGetInt32(out var parsedSortOrder)
+            ? parsedSortOrder
+            : fallback;
+
+    private static string GetBlockId(JsonElement element, int fallback) =>
+        element.TryGetProperty("id", out var idElement) &&
+        idElement.ValueKind == JsonValueKind.String &&
+        !string.IsNullOrWhiteSpace(idElement.GetString())
+            ? idElement.GetString()!
+            : $"preview-block-{fallback}";
+
+    private static LearnKitArticleBlockDetails CreateUnsupportedBlock(
+        JsonElement element,
+        int index,
+        string? sourceType)
+    {
+        return new LearnKitArticleBlockDetails
+        {
+            Id = GetBlockId(element, index),
+            Type = LearnKitBlockTypes.Markdown,
+            SortOrder = GetSortOrder(element, index),
+            ContentJson = JsonSerializer.Serialize(
+                new
+                {
+                    markdown = $"Preview is unavailable for unsupported block type `{sourceType ?? "unknown"}`."
+                },
+                JsonOptions)
+        };
     }
 
     private static LearnKitArticleBlockDetails ToLearnKitBlock(

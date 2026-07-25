@@ -41,8 +41,7 @@ public sealed class UpdateArticleBlockHandler
 
     private static ArticleBlockType ParseType(string type)
     {
-        if (!Enum.TryParse<ArticleBlockType>(type, true, out var parsedType)
-            || !Enum.IsDefined(parsedType))
+        if (!ArticleBlockTypeResolver.TryResolve(type, out var parsedType))
         {
             throw new ArgumentException("Article block type is invalid.", nameof(type));
         }

@@ -1,3 +1,4 @@
+using LearnKit.Domain.Articles;
 using BlogPlatform.App.Components.Articles.LearnKitRendering.Blocks;
 using BlogPlatform.App.Models.LearnKit.Articles;
 
@@ -7,14 +8,19 @@ public sealed class LearnKitBlockComponentTypeProvider
 {
     public Type? GetComponentType(LearnKitArticleBlockDetails block)
     {
-        return block.Type switch
+        if (!ArticleBlockTypeResolver.TryResolve(block.Type, out var blockType))
         {
-            LearnKitBlockTypes.Markdown => typeof(MarkdownBlock),
-            LearnKitBlockTypes.Summary => typeof(SummaryBlock),
-            LearnKitBlockTypes.Diagram => typeof(DiagramBlock),
-            LearnKitBlockTypes.Code => typeof(CodeBlock),
-            LearnKitBlockTypes.Table => typeof(TableBlock),
-            LearnKitBlockTypes.Callout => typeof(CalloutBlock),
+            return null;
+        }
+
+        return blockType switch
+        {
+            ArticleBlockType.Markdown => typeof(MarkdownBlock),
+            ArticleBlockType.Summary => typeof(SummaryBlock),
+            ArticleBlockType.Diagram => typeof(DiagramBlock),
+            ArticleBlockType.Code => typeof(CodeBlock),
+            ArticleBlockType.Table => typeof(TableBlock),
+            ArticleBlockType.Callout => typeof(CalloutBlock),
             _ => null
         };
     }

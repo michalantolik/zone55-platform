@@ -10,4 +10,9 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
   </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\LearnKit\LearnKit.Domain\LearnKit.Domain.csproj" />
+	</ItemGroup>
+
 </Project>
