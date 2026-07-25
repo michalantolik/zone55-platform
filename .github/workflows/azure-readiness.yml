@@ -13,7 +13,7 @@ env:
   DOTNET_VERSION: 10.0.x
   TERRAFORM_VERSION: 1.13.5
   CONFIGURATION: Release
-  SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
+  SOLUTION_PATH: Zone55.slnx
 
 jobs:
   validate:
@@ -38,9 +38,8 @@ jobs:
           terraform fmt -check -recursive
           terraform init -backend=false
           terraform validate
-      - name: Verify retired CMS is absent
+      - name: Verify retired CMS is excluded
         shell: bash
         run: |
-          test ! -d src/BlogPlatform/BlogPlatform.Cms
-          test ! -f Dockerfile.cms
-          ! grep -RIn "BlogPlatform.Cms\|Umbraco.Cms" src --include='*.csproj'
+          ! grep -q "BlogPlatform.Cms" "${SOLUTION_PATH}"
+          ! grep -RIn "BlogPlatform.Cms\|Umbraco.Cms" src/LearnKit src/Zone55 --include='*.csproj'

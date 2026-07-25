@@ -1,0 +1,18 @@
+@using Zone55.App.Components.Articles.LearnKitRendering.Serialization
+@using Zone55.App.Models.LearnKit
+@using Zone55.App.Models.LearnKit.Articles
+
+@if (Block is not null)
+{
+    var model = LearnKitBlockDeserializer.ToCalloutBlock(Block);
+
+    <aside class="callout callout-@model.Kind">
+        <strong>@model.Kind</strong>
+        <p>@model.Text</p>
+    </aside>
+}
+
+@code {
+    [Parameter]
+    public required LearnKitArticleBlockDetails Block { get; set; }
+}

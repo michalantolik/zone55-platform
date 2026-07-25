@@ -1,0 +1,121 @@
+@implements IDisposable
+@inject ArticlePreviewSession PreviewSession
+@inject IConfiguration Configuration
+@inject IJSRuntime JS
+@inject ManagementLocalizer Localizer
+
+<div @ref="_hostElement"
+     class="persistent-preview-host @(!PreviewSession.IsVisible ? "persistent-preview-host--hidden" : null) @(PreviewSession.IsExpanded ? "persistent-preview-host--expanded" : null)"
+     aria-hidden="@(!PreviewSession.IsVisible)">
+    @if (PreviewSession.IsInitialized)
+    {
+        <div class="preview-workspace persistent-preview-host__workspace">
+            <div class="preview-workspace__toolbar">
+                <div class="preview-heading">
+                    <span class="live-indicator"></span>
+                    <div>
+                        <strong>Portal preview</strong>
+                        <span>Zone55.App · current unsaved draft</span>
+                    </div>
+                </div>
+                <div class="preview-workspace__actions">
+                    <div class="viewport-switcher" role="group" aria-label="Preview viewport">
+                        @foreach (var viewport in Viewports)
+                        {
+                            <button type="button"
+                                    class="@(PreviewSession.Viewport == viewport ? "active" : null)"
+                                    @onclick="() => PreviewSession.SetViewport(viewport)">
+                                @Localizer[$"Preview.{viewport}"]
+                            </button>
+                        }
+                    </div>
+                    <span class="preview-status preview-status--ready">@Localizer["Preview.Live"]</span>
+                    <button class="icon-button preview-expand-button" type="button" @onclick="PreviewSession.ToggleExpanded">
+                        @(PreviewSession.IsExpanded ? "↙" : "↗")
+                        <span>@Localizer[PreviewSession.IsExpanded ? "Preview.Collapse" : "Preview.Expand"]</span>
+                    </button>
+                    <a class="preview-open-link" href="@_previewUrl" target="_blank" rel="noopener noreferrer">Open ↗</a>
+                </div>
+            </div>
+
+            <div class="preview-frame-stage">
+                <div class="preview-device preview-device--@PreviewSession.Viewport.ToLowerInvariant()">
+                    <div class="preview-frame-shell persistent-preview-host__frame-shell">
+                        <iframe @ref="_previewFrame"
+                                src="@_previewUrl"
+                                title="Article preview"
+                                loading="eager"
+                                sandbox="allow-scripts allow-same-origin"
+                                referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private static readonly string[] Viewports = ["Desktop", "Tablet", "Phone"];
+    private ElementReference _hostElement;
+    private ElementReference _previewFrame;
+    private IJSObjectReference? _module;
+    private string _portalOrigin = string.Empty;
+    private string _previewUrl = string.Empty;
+    private string? _lastPayloadSignature;
+    private bool _connected;
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        var configuredBaseUrl = Configuration["Portal:BaseUrl"];
+        if (string.IsNullOrWhiteSpace(configuredBaseUrl)) throw new InvalidOperationException("Portal:BaseUrl is missing.");
+
+        var portalBaseUri = new Uri(configuredBaseUrl, UriKind.Absolute);
+        _portalOrigin = portalBaseUri.GetLeftPart(UriPartial.Authority);
+        _previewUrl = new Uri(portalBaseUri, "preview/article").AbsoluteUri;
+        PreviewSession.Changed += OnSessionChanged;
+        Localizer.Changed += OnSessionChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_disposed) return;
+
+        try
+        {
+            _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/article-preview-workspace.js");
+            await _module.InvokeVoidAsync("setPersistentPreviewHost", _hostElement, PreviewSession.TargetElementId, PreviewSession.IsVisible);
+
+            if (!PreviewSession.IsInitialized) return;
+            if (!_connected)
+            {
+                await _module.InvokeVoidAsync("connectArticlePreview", _previewFrame, _portalOrigin);
+                _connected = true;
+            }
+
+            var draft = PreviewSession.Draft;
+            var signature = string.Concat(draft.Slug, "\n", draft.Title, "\n", draft.Summary ?? string.Empty, "\n", draft.BodyHtml);
+            if (string.Equals(signature, _lastPayloadSignature, StringComparison.Ordinal)) return;
+
+            _lastPayloadSignature = signature;
+            await _module.InvokeVoidAsync("sendArticlePreview", _previewFrame, draft);
+        }
+        catch (JSDisconnectedException) { }
+        catch (ObjectDisposedException) { }
+        catch (JSException) { }
+    }
+
+    private void OnSessionChanged()
+    {
+        if (!_disposed) _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        PreviewSession.Changed -= OnSessionChanged;
+        Localizer.Changed -= OnSessionChanged;
+        _module = null;
+    }
+}

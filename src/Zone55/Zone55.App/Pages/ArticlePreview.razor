@@ -1,0 +1,287 @@
+@page "/preview/article"
+@layout PreviewLayout
+@implements IAsyncDisposable
+
+@using System.Text.Json
+@using Zone55.App.Components.Articles.LearnKitRendering
+@using Zone55.App.Components.Articles.LearnKitRendering.Serialization
+@using Zone55.App.Models.LearnKit
+@using Zone55.App.Models.LearnKit.Articles
+@using Zone55.App.Services
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JS
+@inject IPreviewDiagnosticsClient Diagnostics
+
+<PageTitle>Article preview</PageTitle>
+
+<style>
+    html {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(132, 187, 255, 0.75) rgba(6, 19, 37, 0.9);
+    }
+
+    body::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    body::-webkit-scrollbar-track {
+        background: rgba(6, 19, 37, 0.95);
+        border-radius: 999px;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        min-height: 80px;
+        border: 3px solid rgba(6, 19, 37, 0.95);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #84bbff, #1677ff);
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #b7d8ff, #4ea1ff);
+    }
+
+    body::-webkit-scrollbar-corner {
+        background: rgba(6, 19, 37, 0.95);
+    }
+</style>
+
+<PreviewRenderErrorBoundary @ref="_pageErrorBoundary" OnError="HandlePageRenderErrorAsync">
+    <ChildContent>
+        <section class="article-shell container-xl" @key="_renderKey">
+            @if (_article is null)
+            {
+                <article class="article-card">
+                    <h1>Waiting for preview data...</h1>
+                    <p>Open this page inside the Zone55 Management preview iframe.</p>
+                </article>
+            }
+            else
+            {
+                <LearnKitArticleRenderer Article="_article"
+                                         OnBlockRenderFailure="HandleBlockRenderFailureAsync"
+                                         @key="_renderKey" />
+            }
+        </section>
+    </ChildContent>
+    <ErrorContent Context="exception">
+        <section class="article-shell container-xl">
+            <article class="article-card" role="alert">
+                <h1>Preview render failed</h1>
+                <p>The preview renderer caught an unexpected error. Edit the draft to retry.</p>
+                <pre>@exception.GetType().Name: @exception.Message</pre>
+            </article>
+        </section>
+    </ErrorContent>
+</PreviewRenderErrorBoundary>
+
+@code {
+    private static readonly JsonSerializerOptions PreviewJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private LearnKitArticleDetails? _article;
+    private DotNetObjectReference<ArticlePreview>? _objectReference;
+    private PreviewRenderErrorBoundary? _pageErrorBoundary;
+    private int _renderKey;
+    private int _lastSequence;
+    private int _pendingAckSequence;
+    private int _failedSequence;
+    private int _blockFailureCount;
+    private string _sessionId = "unknown";
+    private bool _disposed;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_disposed) return;
+
+        try
+        {
+            if (firstRender)
+            {
+                Track("ArticlePreview.RegisterStarted", 0, "Registering preview JS listener.");
+                _objectReference = DotNetObjectReference.Create(this);
+
+                await JS.InvokeVoidAsync("blogPlatformPreview.register", _objectReference);
+                if (_disposed) return;
+
+                Track("ArticlePreview.Registered", 0, "Preview JS listener registered.");
+                return;
+            }
+
+            var sequence = _pendingAckSequence;
+            if (sequence <= 0 || sequence == _failedSequence)
+            {
+                return;
+            }
+
+            _pendingAckSequence = 0;
+            Track("ArticlePreview.AckStarted", sequence, $"RenderKey={_renderKey}; BlockFailures={_blockFailureCount}");
+
+            await JS.InvokeVoidAsync(
+                "blogPlatformPreview.sendAck",
+                sequence,
+                _article?.Title ?? "Untitled article",
+                _article?.Blocks.Count ?? 0,
+                _blockFailureCount);
+
+            if (_disposed) return;
+
+            Track(
+                "ArticlePreview.RenderCompleted",
+                sequence,
+                $"RenderKey={_renderKey}; Title={_article?.Title}; Blocks={_article?.Blocks.Count ?? 0}; BlockFailures={_blockFailureCount}");
+        }
+        catch (JSDisconnectedException ex)
+        {
+            Track("ArticlePreview.JsDisconnected", _lastSequence, FormatException(ex));
+        }
+        catch (JSException ex)
+        {
+            Track("ArticlePreview.JsInteropFailed", _lastSequence, FormatException(ex));
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Track("ArticlePreview.InteropObjectDisposed", _lastSequence, FormatException(ex));
+        }
+    }
+
+    [JSInvokable]
+    public async Task LoadPreviewArticle(string json, int sequence, string? sessionId)
+    {
+        if (_disposed) return;
+
+        try
+        {
+            _sessionId = string.IsNullOrWhiteSpace(sessionId) ? "unknown" : sessionId;
+            Track("LoadPreviewArticle.Start", sequence, $"JsonLength={json?.Length ?? 0}");
+
+            var previewArticle = JsonSerializer.Deserialize<LearnKitArticlePreviewPayload>(
+                json,
+                PreviewJsonOptions);
+
+            if (previewArticle is null)
+            {
+                await ReportFailureAsync(sequence, "Preview payload deserialized to null.", null);
+                return;
+            }
+
+            var article = LearnKitArticlePreviewMapper.ToArticle(previewArticle);
+
+            _pageErrorBoundary?.Recover();
+            _failedSequence = 0;
+            _blockFailureCount = 0;
+            _article = article;
+            _lastSequence = sequence;
+            _pendingAckSequence = sequence;
+            _renderKey++;
+
+            Track(
+                "LoadPreviewArticle.Accepted",
+                sequence,
+                $"Title={article.Title}; SummaryLength={article.Summary?.Length ?? 0}; Blocks={article.Blocks.Count}; RenderKey={_renderKey}");
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            await ReportFailureAsync(sequence, "Preview payload processing failed.", ex);
+        }
+    }
+
+    private Task HandleBlockRenderFailureAsync(BlockRenderFailure failure)
+    {
+        if (_disposed) return Task.CompletedTask;
+
+        _blockFailureCount++;
+
+        Track(
+            "ArticlePreview.BlockRenderFailure",
+            _lastSequence,
+            $"BlockId={failure.BlockId}; BlockType={failure.BlockType}; Exception={FormatException(failure.Exception)}");
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandlePageRenderErrorAsync(Exception exception)
+    {
+        if (_disposed) return;
+
+        _failedSequence = _lastSequence;
+        _pendingAckSequence = 0;
+        await ReportFailureAsync(_lastSequence, "Article preview render failed.", exception);
+    }
+
+    private async Task ReportFailureAsync(int sequence, string message, Exception? exception)
+    {
+        var details = exception is null
+            ? message
+            : $"{message} {FormatException(exception)}";
+
+        Track("ArticlePreview.Failure", sequence, details);
+
+        try
+        {
+            await JS.InvokeVoidAsync("blogPlatformPreview.sendError", sequence, details);
+        }
+        catch (JSDisconnectedException jsException)
+        {
+            Track("ArticlePreview.ErrorNotificationDisconnected", sequence, FormatException(jsException));
+        }
+        catch (JSException jsException)
+        {
+            Track("ArticlePreview.ErrorNotificationFailed", sequence, FormatException(jsException));
+        }
+        catch (ObjectDisposedException disposedException)
+        {
+            Track("ArticlePreview.ErrorNotificationDisposed", sequence, FormatException(disposedException));
+        }
+    }
+
+    private void Track(string eventName, int sequence, string message)
+    {
+        if (!Diagnostics.Enabled) return;
+        if (eventName is "ArticlePreview.RenderFailed" or "ArticlePreview.InvalidPayload" or "ArticlePreview.ErrorNotificationFailed")
+        {
+            Console.WriteLine($"[LIVE_PREVIEW] Session={_sessionId}; {eventName}; Sequence={sequence}; {message}");
+        }
+    }
+
+    private static string FormatException(Exception exception)
+    {
+        return $"{exception.GetType().FullName}: {exception.Message} | {exception.StackTrace}";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+
+        _disposed = true;
+        Track("ArticlePreview.DisposeStarted", _lastSequence, $"PendingAck={_pendingAckSequence}; RenderKey={_renderKey}");
+
+        try
+        {
+            await JS.InvokeVoidAsync("blogPlatformPreview.unregister");
+            Track("ArticlePreview.Unregistered", _lastSequence, "Preview JS listener unregistered.");
+        }
+        catch (JSDisconnectedException ex)
+        {
+            Track("ArticlePreview.UnregisterDisconnected", _lastSequence, FormatException(ex));
+        }
+        catch (JSException ex)
+        {
+            Track("ArticlePreview.UnregisterFailed", _lastSequence, FormatException(ex));
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Track("ArticlePreview.UnregisterDisposed", _lastSequence, FormatException(ex));
+        }
+        finally
+        {
+            _objectReference?.Dispose();
+            _objectReference = null;
+            Track("ArticlePreview.DisposeCompleted", _lastSequence, "Preview page disposed.");
+        }
+    }
+}

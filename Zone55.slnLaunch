@@ -1,0 +1,36 @@
+[
+  {
+    "Name": "Portal development",
+    "Projects": [
+      {
+        "Path": "src/Zone55/Zone55.Api/Zone55.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src/Zone55/Zone55.App/Zone55.App.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src/Zone55/Zone55.Management/Zone55.Management.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  },
+  {
+    "Name": "Run platform without debugging",
+    "Projects": [
+      {
+        "Path": "src/Zone55/Zone55.Api/Zone55.Api.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "src/Zone55/Zone55.App/Zone55.App.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "src/Zone55/Zone55.Management/Zone55.Management.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  }
+]

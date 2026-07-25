@@ -1,0 +1,96 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+@inject ILearnKitApiClient LearnKitApi
+@inject ILogger<MainLayout> Logger
+
+@using Zone55.App.Services.LearnKit
+
+<div class="site-shell">
+    @if (EnableStickyTopNav)
+    {
+        <div class="top-nav-sticky-sentinel"></div>
+    }
+
+    <header class="top-nav container-xl dotnet-platform-top-nav @(EnableStickyTopNav ? "top-nav-sticky" : "")">
+        <a class="brand" href="/">
+            <span class="brand-icon">&lt;/&gt;</span>
+            <span>
+                <strong>Zone55</strong>
+                <small>Software • Cloud • Platform</small>
+            </span>
+        </a>
+
+        <DotnetZoneTopNav Levels="@_levels" />
+    </header>
+
+    <main>
+        @Body
+    </main>
+</div>
+
+@code {
+    private readonly CancellationTokenSource _disposeCancellation = new();
+    private IReadOnlyCollection<LearningPathLevel> _levels = [];
+    private bool _navigationLoadStarted;
+
+    private bool EnableStickyTopNav =>
+        Configuration.GetValue<bool>("Features:EnableStickyTopNav");
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_navigationLoadStarted)
+        {
+            _navigationLoadStarted = true;
+            _ = LoadNavigationAsync(_disposeCancellation.Token);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task LoadNavigationAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var learningPath = await LearnKitApi.GetLearnKitLearningPathByKeyAsync(
+                "dotnet",
+                cancellationToken);
+
+            _levels = learningPath is null
+                ? []
+                : LearnKitRoadmapMapper.ToLearningPathLevels(learningPath);
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Layout was disposed while the API request was still retrying.
+        }
+        catch (Exception ex)
+        {
+            // Navigation is optional UI. A temporarily unavailable API must not crash the app.
+            Logger.LogError(
+                ex,
+                "APP navigation could not be loaded after startup retries. The page remains usable without roadmap navigation.");
+        }
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= HandleLocationChanged;
+        _disposeCancellation.Cancel();
+        _disposeCancellation.Dispose();
+    }
+}

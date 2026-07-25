@@ -120,7 +120,7 @@ resource "azurerm_linux_web_app" "api" {
     }
 
     always_on                         = true
-    app_command_line                  = "dotnet BlogPlatform.Api.dll"
+    app_command_line                  = "dotnet Zone55.Api.dll"
     health_check_path                 = "/health/live"
     health_check_eviction_time_in_min = 10
   }

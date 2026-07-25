@@ -18,7 +18,7 @@ env:
   DOTNET_VERSION: 10.0.x
   TERRAFORM_VERSION: 1.13.5
   CONFIGURATION: Release
-  SOLUTION_PATH: src/BlogPlatform/BlogPlatform.slnx
+  SOLUTION_PATH: Zone55.slnx
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -59,7 +59,7 @@ jobs:
       - name: Configure production API URL
         shell: bash
         run: |
-          cat > src/BlogPlatform/BlogPlatform.App/wwwroot/appsettings.Production.json <<JSON
+          cat > src/Zone55/Zone55.App/wwwroot/appsettings.Production.json <<JSON
           { "Api": { "BaseUrl": "${API_PUBLIC_URL}" } }
           JSON
       - uses: actions/setup-dotnet@v5
@@ -72,9 +72,9 @@ jobs:
           dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ env.CONFIGURATION }} --no-build
       - name: Publish API and clients
         run: |
-          dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/api
-          dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/app
-          dotnet publish src/BlogPlatform/Zone55.Management/Zone55.Management.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/management
+          dotnet publish src/Zone55/Zone55.Api/Zone55.Api.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/api
+          dotnet publish src/Zone55/Zone55.App/Zone55.App.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/app
+          dotnet publish src/Zone55/Zone55.Management/Zone55.Management.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output artifacts/management
       - name: Deploy API
         uses: azure/webapps-deploy@v3
         with:

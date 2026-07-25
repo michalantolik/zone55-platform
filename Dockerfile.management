@@ -6,16 +6,18 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 
-COPY src/BlogPlatform/Zone55.Management/Zone55.Management.csproj src/BlogPlatform/Zone55.Management/
+COPY src/LearnKit/LearnKit.Domain/LearnKit.Domain.csproj          src/LearnKit/LearnKit.Domain/
+COPY src/Zone55/Zone55.Management/Zone55.Management.csproj       src/Zone55/Zone55.Management/
 
-RUN dotnet restore src/BlogPlatform/Zone55.Management/Zone55.Management.csproj
+RUN dotnet restore src/Zone55/Zone55.Management/Zone55.Management.csproj
 
 FROM restore AS publish
 WORKDIR /src
 
-COPY src/BlogPlatform/Zone55.Management/ src/BlogPlatform/Zone55.Management/
+COPY src/LearnKit/LearnKit.Domain/  src/LearnKit/LearnKit.Domain/
+COPY src/Zone55/Zone55.Management/  src/Zone55/Zone55.Management/
 
-RUN dotnet publish src/BlogPlatform/Zone55.Management/Zone55.Management.csproj \
+RUN dotnet publish src/Zone55/Zone55.Management/Zone55.Management.csproj \
     --configuration Release \
     --no-restore \
     --output /app/publish
@@ -28,7 +30,7 @@ ARG MANAGEMENT_PORTAL_BASE_URL=http://localhost:8080/
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=publish /app/publish/wwwroot /usr/share/nginx/html
-COPY src/BlogPlatform/Zone55.Management/nginx.conf /etc/nginx/conf.d/default.conf
+COPY src/Zone55/Zone55.Management/nginx.conf /etc/nginx/conf.d/default.conf
 
 RUN sed -i "s#https://YOUR_API_APP_SERVICE_URL/#${MANAGEMENT_API_BASE_URL}#g" \
         /usr/share/nginx/html/appsettings.Production.json \

@@ -1,25 +1,25 @@
 # =============================================================================
-# BlogPlatform.Api — Multi-stage Dockerfile
+# Zone55.Api — Multi-stage Dockerfile
 # Build context: repo root
 # =============================================================================
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 
-COPY src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj                         src/BlogPlatform/BlogPlatform.Api/
-COPY src/BlogPlatform/BlogPlatform.Application/BlogPlatform.Application.csproj         src/BlogPlatform/BlogPlatform.Application/
-COPY src/BlogPlatform/BlogPlatform.Domain/BlogPlatform.Domain.csproj                   src/BlogPlatform/BlogPlatform.Domain/
-COPY src/BlogPlatform/BlogPlatform.Infrastructure/BlogPlatform.Infrastructure.csproj   src/BlogPlatform/BlogPlatform.Infrastructure/
-COPY src/BlogPlatform/BlogPlatform.Contracts/BlogPlatform.Contracts.csproj             src/BlogPlatform/BlogPlatform.Contracts/
+COPY src/LearnKit/LearnKit.Domain/LearnKit.Domain.csproj                         src/LearnKit/LearnKit.Domain/
+COPY src/LearnKit/LearnKit.Application/LearnKit.Application.csproj               src/LearnKit/LearnKit.Application/
+COPY src/LearnKit/LearnKit.Infrastructure/LearnKit.Infrastructure.csproj           src/LearnKit/LearnKit.Infrastructure/
+COPY src/Zone55/Zone55.Api/Zone55.Api.csproj                                      src/Zone55/Zone55.Api/
 
-RUN dotnet restore src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj
+RUN dotnet restore src/Zone55/Zone55.Api/Zone55.Api.csproj
 
 FROM restore AS publish
 WORKDIR /src
 
-COPY src/BlogPlatform/ src/BlogPlatform/
+COPY src/LearnKit/ src/LearnKit/
+COPY src/Zone55/Zone55.Api/ src/Zone55/Zone55.Api/
 
-RUN dotnet publish src/BlogPlatform/BlogPlatform.Api/BlogPlatform.Api.csproj \
+RUN dotnet publish src/Zone55/Zone55.Api/Zone55.Api.csproj \
     --configuration Release \
     --no-restore \
     --output /app/publish
@@ -44,4 +44,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
   CMD curl -f http://localhost:8080/health/live || exit 1
 
-ENTRYPOINT ["dotnet", "BlogPlatform.Api.dll"]
+ENTRYPOINT ["dotnet", "Zone55.Api.dll"]

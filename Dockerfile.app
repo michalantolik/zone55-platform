@@ -1,22 +1,23 @@
 # =============================================================================
-# BlogPlatform.App — Multi-stage Dockerfile  (Blazor WebAssembly + Nginx)
+# Zone55.App — Multi-stage Dockerfile (Blazor WebAssembly + Nginx)
 # Build context: repo root
 # =============================================================================
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 
-COPY src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj              src/BlogPlatform/BlogPlatform.App/
-COPY src/BlogPlatform/BlogPlatform.Contracts/BlogPlatform.Contracts.csproj  src/BlogPlatform/BlogPlatform.Contracts/
+COPY src/LearnKit/LearnKit.Domain/LearnKit.Domain.csproj src/LearnKit/LearnKit.Domain/
+COPY src/Zone55/Zone55.App/Zone55.App.csproj       src/Zone55/Zone55.App/
 
-RUN dotnet restore src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj
+RUN dotnet restore src/Zone55/Zone55.App/Zone55.App.csproj
 
 FROM restore AS publish
 WORKDIR /src
 
-COPY src/BlogPlatform/ src/BlogPlatform/
+COPY src/LearnKit/LearnKit.Domain/ src/LearnKit/LearnKit.Domain/
+COPY src/Zone55/Zone55.App/        src/Zone55/Zone55.App/
 
-RUN dotnet publish src/BlogPlatform/BlogPlatform.App/BlogPlatform.App.csproj \
+RUN dotnet publish src/Zone55/Zone55.App/Zone55.App.csproj \
     --configuration Release \
     --no-restore \
     --output /app/publish
@@ -28,7 +29,7 @@ ARG BLAZOR_API_BASE_URL=http://localhost:5000/
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=publish /app/publish/wwwroot /usr/share/nginx/html
-COPY src/BlogPlatform/BlogPlatform.App/nginx.conf /etc/nginx/conf.d/default.conf
+COPY src/Zone55/Zone55.App/nginx.conf /etc/nginx/conf.d/default.conf
 
 RUN sed -i "s#https://YOUR_API_APP_SERVICE_URL/#${BLAZOR_API_BASE_URL}#g" \
     /usr/share/nginx/html/appsettings.Production.json

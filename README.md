@@ -2,18 +2,28 @@
 
 Zone55 is a learning-content platform built with .NET 10. LearnKit owns the content model, persistence, public API, and editorial operations.
 
-## Applications
+## Solution structure
 
-| Application | Purpose |
+The physical source folders match the two top-level Visual Studio solution folders:
+
+```text
+src/
+├── LearnKit/
+└── Zone55/
+```
+
+| Project | Purpose |
 |---|---|
-| `BlogPlatform.Api` | LearnKit public and management HTTP API |
-| `BlogPlatform.App` | Public Blazor WebAssembly portal |
-| `Zone55.Management` | Blazor WebAssembly content management application |
 | `LearnKit.Domain` | Learning paths, zones, steps, articles, and blocks |
-| `LearnKit.Application` | Explicit commands, queries, and handlers |
+| `LearnKit.Application` | Commands, queries, handlers, and application contracts |
 | `LearnKit.Infrastructure` | EF Core persistence, initialization, seeding, and export |
+| `Zone55.Api` | LearnKit public and management HTTP API |
+| `Zone55.App` | Public Blazor WebAssembly portal |
+| `Zone55.Management` | Blazor WebAssembly content management application |
+| `Zone55.ArchitectureTests` | Architecture dependency tests |
+| `Zone55.Presentation.Tests` | Portal and management presentation tests |
 
-The former Umbraco application path has been removed after automated content comparison confirmed that all meaningful seed content is represented by LearnKit.
+Open `Zone55.slnx` from the repository root. Visual Studio displays two top-level solution folders: `LearnKit` and `Zone55`.
 
 ## Local development
 
@@ -28,20 +38,14 @@ docker compose up --build
 | API | http://localhost:5000 |
 | API readiness | http://localhost:5000/health/ready |
 
-The default stack contains SQL Server, API, Portal, and Management. No external CMS is required.
-
 ## Build and test
 
 ```bash
-dotnet restore src/BlogPlatform/BlogPlatform.slnx
-dotnet build src/BlogPlatform/BlogPlatform.slnx
-dotnet test src/BlogPlatform/BlogPlatform.slnx
+dotnet restore Zone55.slnx
+dotnet build Zone55.slnx
+dotnet test Zone55.slnx
 ```
 
-## Content migration evidence
+## Documentation archive
 
-The retained migration fixture is test data only. It is used by `LearnKit.Infrastructure.Tests` to compare the former seed with the active LearnKit seed. See:
-
-- `docs/learnkit/content-migration-verification.md`
-- `docs/architecture/umbraco-retirement-checklist.md`
-- `docs/management/editorial-smoke-test.md`
+Historical Markdown documentation and its diagrams are retained under [`docs/legacy`](docs/legacy/README.md). These files are marked as legacy and may refer to earlier project names or retired architecture.
