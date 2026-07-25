@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Domain.Articles;
+﻿namespace LearnKit.Domain.Articles.DomainModel;
 
 public enum ArticleBlockType
 {

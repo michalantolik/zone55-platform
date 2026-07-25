@@ -1,4 +1,7 @@
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Entities;
+using LearnKit.Domain.Articles.Exceptions;
 
 namespace LearnKit.Application.Tests.Articles.Validation;
 
@@ -34,7 +37,7 @@ public sealed class ArticleBlockContentValidatorTests
         string contentJson,
         string expectedErrorFragment)
     {
-        var exception = Assert.Throws<ArticleBlockContentValidationException>(
+        var exception = Assert.Throws<InvalidArticleBlockException>(
             () => ArticleBlockContentValidator.Validate(blockType, contentJson));
 
         Assert.Contains(
@@ -45,7 +48,7 @@ public sealed class ArticleBlockContentValidatorTests
     [Fact]
     public void Validate_ShouldRejectMalformedJson()
     {
-        var exception = Assert.Throws<ArticleBlockContentValidationException>(
+        var exception = Assert.Throws<InvalidArticleBlockException>(
             () => ArticleBlockContentValidator.Validate(
                 ArticleBlockType.Markdown,
                 "{\"markdown\":"));
@@ -61,7 +64,7 @@ public sealed class ArticleBlockContentValidatorTests
             1,
             "{\"markdown\":\"Original\"}");
 
-        Assert.Throws<ArticleBlockContentValidationException>(
+        Assert.Throws<InvalidArticleBlockException>(
             () => block.Update(ArticleBlockType.Code, "{}"));
 
         Assert.Equal(ArticleBlockType.Markdown, block.Type);

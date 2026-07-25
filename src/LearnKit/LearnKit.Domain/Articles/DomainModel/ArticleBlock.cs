@@ -1,4 +1,7 @@
-namespace LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
+
+namespace LearnKit.Domain.Articles.Entities;
 
 /// <summary>
 /// Represents a single block inside an article.

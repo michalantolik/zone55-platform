@@ -1,6 +1,8 @@
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Exceptions;
 using System.Text.Json;
 
-namespace LearnKit.Domain.Articles;
+namespace LearnKit.Domain.Articles.BusinessRules;
 
 /// <summary>
 /// Validates the JSON contract used by each LearnKit article block type.
@@ -13,7 +15,7 @@ public static class ArticleBlockContentValidator
     {
         if (string.IsNullOrWhiteSpace(contentJson))
         {
-            throw new ArticleBlockContentValidationException(
+            throw new InvalidArticleBlockException(
                 blockType,
                 ["Block content cannot be empty."]);
         }
@@ -26,7 +28,7 @@ public static class ArticleBlockContentValidator
         }
         catch (JsonException exception)
         {
-            throw new ArticleBlockContentValidationException(
+            throw new InvalidArticleBlockException(
                 blockType,
                 [$"Block content must be valid JSON: {exception.Message}"]);
         }
@@ -35,7 +37,7 @@ public static class ArticleBlockContentValidator
         {
             if (document.RootElement.ValueKind != JsonValueKind.Object)
             {
-                throw new ArticleBlockContentValidationException(
+                throw new InvalidArticleBlockException(
                     blockType,
                     ["Block content must be a JSON object."]);
             }
@@ -78,7 +80,7 @@ public static class ArticleBlockContentValidator
 
             if (errors.Count > 0)
             {
-                throw new ArticleBlockContentValidationException(blockType, errors);
+                throw new InvalidArticleBlockException(blockType, errors);
             }
         }
     }

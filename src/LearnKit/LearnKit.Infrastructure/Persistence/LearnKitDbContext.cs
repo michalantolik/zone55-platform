@@ -1,4 +1,5 @@
 using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.Entities;
 using LearnKit.Domain.Roadmaps;
 using LearnKit.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;

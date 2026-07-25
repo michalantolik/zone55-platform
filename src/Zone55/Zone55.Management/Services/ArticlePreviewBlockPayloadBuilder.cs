@@ -1,4 +1,5 @@
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
 using System.Text.Json;
 
 namespace Zone55.Management.Services;

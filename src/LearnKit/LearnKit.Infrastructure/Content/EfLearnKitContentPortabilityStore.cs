@@ -1,7 +1,9 @@
 using System.Text.Json;
 using LearnKit.Application.Content.Admin.Contracts;
 using LearnKit.Application.Content.Admin.Models;
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Exceptions;
 using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -97,7 +99,7 @@ internal sealed class EfLearnKitContentPortabilityStore(
                                 Enum.Parse<ArticleBlockType>(block.Type),
                                 block.Content.GetRawText());
                         }
-                        catch (Exception exception) when (exception is ArgumentException or JsonException or ArticleBlockContentValidationException)
+                        catch (Exception exception) when (exception is ArgumentException or JsonException or InvalidArticleBlockException)
                         {
                             issues.Add(new("Error", "block_content_invalid", $"article/{article.Slug}/block/{block.Id}", exception.Message));
                         }

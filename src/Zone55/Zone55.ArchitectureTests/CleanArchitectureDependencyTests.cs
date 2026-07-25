@@ -4,6 +4,7 @@ using LearnKit.Domain.Articles;
 using LearnKit.Infrastructure.Persistence;
 using NetArchTest.Rules;
 using System.Xml.Linq;
+using ArchitectureTestResult = NetArchTest.Rules.TestResult;
 
 namespace Zone55.ArchitectureTests;
 
@@ -125,7 +126,7 @@ public sealed class CleanArchitectureDependencyTests
         throw new DirectoryNotFoundException("Repository root was not found.");
     }
 
-    private static string BuildMessage(TestResult result) =>
+    private static string BuildMessage(ArchitectureTestResult result) =>
         result.IsSuccessful
             ? string.Empty
             : string.Join(Environment.NewLine, result.FailingTypeNames ?? []);

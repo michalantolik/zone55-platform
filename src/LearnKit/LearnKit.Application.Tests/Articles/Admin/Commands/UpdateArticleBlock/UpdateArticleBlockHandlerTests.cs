@@ -2,6 +2,9 @@ using LearnKit.Application.Articles.Admin.Commands.UpdateArticleBlock;
 using LearnKit.Application.Articles.Admin.Contracts;
 using LearnKit.Application.Articles.Admin.Models;
 using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Entities;
+using LearnKit.Domain.Articles.Exceptions;
 
 namespace LearnKit.Application.Tests.Articles.Admin.Commands.UpdateArticleBlock;
 
@@ -37,7 +40,7 @@ public sealed class UpdateArticleBlockHandlerTests
         var store = new ArticleManagementStoreStub(article);
         var handler = new UpdateArticleBlockHandler(store);
 
-        await Assert.ThrowsAsync<ArticleBlockContentValidationException>(
+        await Assert.ThrowsAsync<InvalidArticleBlockException>(
             () => handler.HandleAsync(new UpdateArticleBlockCommand(
                 article.Id,
                 block.Id,

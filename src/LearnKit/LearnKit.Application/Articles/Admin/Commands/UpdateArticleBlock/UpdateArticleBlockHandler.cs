@@ -1,5 +1,6 @@
 using LearnKit.Application.Articles.Admin.Contracts;
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
 
 namespace LearnKit.Application.Articles.Admin.Commands.UpdateArticleBlock;
 

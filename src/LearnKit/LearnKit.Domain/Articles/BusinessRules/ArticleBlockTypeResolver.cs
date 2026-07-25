@@ -1,4 +1,6 @@
-namespace LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
+
+namespace LearnKit.Domain.Articles.BusinessRules;
 
 public static class ArticleBlockTypeResolver
 {

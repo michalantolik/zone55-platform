@@ -1,11 +1,13 @@
-namespace LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
+
+namespace LearnKit.Domain.Articles.Exceptions;
 
 /// <summary>
 /// Describes content that does not match the selected article block type.
 /// </summary>
-public sealed class ArticleBlockContentValidationException : ArgumentException
+public sealed class InvalidArticleBlockException : ArgumentException
 {
-    public ArticleBlockContentValidationException(
+    public InvalidArticleBlockException(
         ArticleBlockType blockType,
         IReadOnlyCollection<string> errors)
         : base($"Content for the {blockType} article block is invalid.", "contentJson")

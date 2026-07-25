@@ -2,6 +2,8 @@ using LearnKit.Application.Articles.Admin.Commands.DeleteArticleBlock;
 using LearnKit.Application.Articles.Admin.Contracts;
 using LearnKit.Application.Articles.Admin.Models;
 using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Entities;
 
 namespace LearnKit.Application.Tests.Articles.Admin.Commands.DeleteArticleBlock;
 

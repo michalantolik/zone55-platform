@@ -1,5 +1,6 @@
 using System.Text.Json;
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
 using Xunit.Sdk;
 
 namespace LearnKit.Infrastructure.Tests.Migration;

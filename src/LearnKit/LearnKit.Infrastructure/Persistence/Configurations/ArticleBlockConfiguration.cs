@@ -1,4 +1,4 @@
-﻿using LearnKit.Domain.Articles;
+﻿using LearnKit.Domain.Articles.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,5 @@
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.DomainModel;
 using Zone55.App.Components.Articles.LearnKitRendering.Blocks;
 using Zone55.App.Models.LearnKit.Articles;
 

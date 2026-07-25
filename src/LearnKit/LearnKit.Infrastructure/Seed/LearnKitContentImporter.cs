@@ -1,4 +1,6 @@
 ﻿using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Entities;
 using LearnKit.Domain.Roadmaps;
 using LearnKit.Infrastructure.Persistence;
 using LearnKit.Infrastructure.Seed.Content.Models;

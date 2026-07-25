@@ -14,8 +14,8 @@ using LearnKit.Application.Articles.Admin.Commands.UpdateArticle;
 using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
-using LearnKit.Domain.Articles;
 using LearnKit.Application.Articles.Admin;
+using LearnKit.Domain.Articles.Exceptions;
 
 namespace Zone55.Api.Controllers.LearnKit.Admin;
 
@@ -258,7 +258,7 @@ public sealed class ArticlesManagementController : ControllerBase
                 command,
                 cancellationToken);
         }
-        catch (ArticleBlockContentValidationException exception)
+        catch (InvalidArticleBlockException exception)
         {
             return InvalidBlockContent(exception);
         }
@@ -300,7 +300,7 @@ public sealed class ArticlesManagementController : ControllerBase
                 command,
                 cancellationToken);
         }
-        catch (ArticleBlockContentValidationException exception)
+        catch (InvalidArticleBlockException exception)
         {
             return InvalidBlockContent(exception);
         }
@@ -417,7 +417,7 @@ public sealed class ArticlesManagementController : ControllerBase
 
 
     private ActionResult InvalidBlockContent(
-        ArticleBlockContentValidationException exception)
+        InvalidArticleBlockException exception)
     {
         ModelState.AddModelError("contentJson", exception.Message);
 

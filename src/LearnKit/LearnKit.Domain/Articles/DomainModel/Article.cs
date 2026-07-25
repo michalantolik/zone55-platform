@@ -1,3 +1,6 @@
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Entities;
+
 namespace LearnKit.Domain.Articles;
 
 /// <summary>

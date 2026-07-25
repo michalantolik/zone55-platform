@@ -2,6 +2,8 @@ using LearnKit.Application.Articles.Admin.Commands.CreateArticleBlock;
 using LearnKit.Application.Articles.Admin.Contracts;
 using LearnKit.Application.Articles.Admin.Models;
 using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
+using LearnKit.Domain.Articles.Exceptions;
 
 namespace LearnKit.Application.Tests.Articles.Admin.Commands.CreateArticleBlock;
 
@@ -34,7 +36,7 @@ public sealed class CreateArticleBlockHandlerTests
         var store = new ArticleManagementStoreStub(article);
         var handler = new CreateArticleBlockHandler(store);
 
-        await Assert.ThrowsAsync<ArticleBlockContentValidationException>(
+        await Assert.ThrowsAsync<InvalidArticleBlockException>(
             () => handler.HandleAsync(new CreateArticleBlockCommand(
                 article.Id,
                 "Code",

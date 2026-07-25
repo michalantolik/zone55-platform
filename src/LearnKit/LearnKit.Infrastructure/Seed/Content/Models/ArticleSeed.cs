@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.DomainModel;
 
 namespace LearnKit.Infrastructure.Seed.Content.Models;
 
