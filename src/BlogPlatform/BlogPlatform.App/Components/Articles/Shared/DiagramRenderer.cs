@@ -30,18 +30,10 @@ public static class DiagramRenderer
         builder.OpenElement(sequence++, "div");
         builder.AddAttribute(sequence++, "class", "diagram-render-surface");
 
-        builder.OpenElement(sequence++, "object");
-        builder.AddAttribute(sequence++, "class", "plantuml-diagram-object");
-        builder.AddAttribute(sequence++, "data", CreatePlantUmlUrl(diagram, theme));
-        builder.AddAttribute(sequence++, "type", "image/svg+xml");
-        builder.AddAttribute(sequence++, "aria-label", "PlantUML diagram");
-
-        builder.OpenElement(sequence++, "p");
-        builder.AddAttribute(sequence++, "class", "diagram-render-error");
-        builder.AddContent(sequence++, "PlantUML diagram could not be loaded. Check the diagram source and network access to the PlantUML server.");
-        builder.CloseElement();
-
-        builder.CloseElement();
+        builder.OpenComponent<PlantUmlDiagramImage>(sequence++);
+        builder.AddAttribute(sequence++, nameof(PlantUmlDiagramImage.Source), CreatePlantUmlUrl(diagram, theme));
+        builder.AddAttribute(sequence++, nameof(PlantUmlDiagramImage.AlternativeText), GetPlantUmlDiagramTitle(diagram, title));
+        builder.CloseComponent();
         builder.CloseElement();
         builder.CloseElement();
     };

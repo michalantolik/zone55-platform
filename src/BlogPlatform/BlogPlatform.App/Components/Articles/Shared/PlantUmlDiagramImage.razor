@@ -1,0 +1,40 @@
+@if (_loadFailed || string.IsNullOrWhiteSpace(Source))
+{
+    <p class="diagram-render-error" role="status">
+        PlantUML diagram could not be loaded. Check the diagram source and network access to the PlantUML server.
+    </p>
+}
+else
+{
+    <img class="plantuml-diagram-image"
+         src="@Source"
+         alt="@AlternativeText"
+         loading="lazy"
+         decoding="async"
+         @onerror="HandleLoadError" />
+}
+
+@code {
+    [Parameter]
+    public string Source { get; set; } = string.Empty;
+
+    [Parameter]
+    public string AlternativeText { get; set; } = "PlantUML diagram";
+
+    private bool _loadFailed;
+    private string? _previousSource;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.Equals(_previousSource, Source, StringComparison.Ordinal))
+        {
+            _loadFailed = false;
+            _previousSource = Source;
+        }
+    }
+
+    private void HandleLoadError()
+    {
+        _loadFailed = true;
+    }
+}
