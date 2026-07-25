@@ -44,3 +44,8 @@ Do not commit:
 * Local secrets
 * Local environment files
 * Terraform state files
+
+## LearnKit verification
+
+- [Content migration verification](learnkit/content-migration-verification.md)
+- [Editorial smoke test](management/editorial-smoke-test.md)

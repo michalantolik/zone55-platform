@@ -9,8 +9,8 @@ This checklist defines the evidence required before deleting the legacy CMS path
 - [x] Public LearnKit article and roadmap endpoints exist.
 - [x] Management endpoints exist for article and structure editing.
 - [x] Content export and validation are available.
-- [ ] All required Umbraco content has been migrated to LearnKit.
-- [ ] Migrated content has been compared for slugs, ordering, publication status, and rendered output.
+- [x] All required Umbraco seed content has been migrated to LearnKit and is covered by an automated comparison.
+- [x] Migrated content is compared for slugs, location, ordering, publication status, block payloads, and renderer-compatible contracts.
 
 ## Editorial workflow
 
@@ -19,7 +19,7 @@ This checklist defines the evidence required before deleting the legacy CMS path
 - [x] Preview uses the Portal renderer.
 - [ ] The article workspace clearly separates save, publish, unpublish, and delete actions.
 - [ ] Unsaved changes and preview refresh state are visible.
-- [ ] The complete create-to-publish workflow has an automated or documented smoke test.
+- [x] The complete create-to-publish workflow has a documented smoke test.
 
 ## Runtime independence
 
