@@ -15,6 +15,13 @@ public interface ILearnKitManagementClient
         string key,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<LearningPathManagementListItem>> GetLearningPathsAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<Guid> CreateLearningPathAsync(
+        CreateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default);
+
     Task<Guid> CreateLearningZoneAsync(Guid learningPathId, CreateLearningStructureItemManagementRequest request, CancellationToken cancellationToken = default);
     Task DeleteLearningZoneAsync(Guid learningPathId, Guid learningZoneId, CancellationToken cancellationToken = default);
     Task ReorderLearningZonesAsync(Guid learningPathId, ReorderLearningStructureItemsManagementRequest request, CancellationToken cancellationToken = default);

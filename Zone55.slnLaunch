@@ -1,6 +1,6 @@
 [
   {
-    "Name": "Zone55 Portal",
+    "Name": "Zone55 Debug",
     "Projects": [
       {
         "Path": "src/Zone55/Zone55.Api/Zone55.Api.csproj",
@@ -12,29 +12,12 @@
       },
       {
         "Path": "src/Zone55/Zone55.Management/Zone55.Management.csproj",
-        "Action": "StartWithoutDebugging"
+        "Action": "Start"
       }
     ]
   },
   {
-    "Name": "Zone55 No Debug",
-    "Projects": [
-      {
-        "Path": "src/Zone55/Zone55.Api/Zone55.Api.csproj",
-        "Action": "StartWithoutDebugging"
-      },
-      {
-        "Path": "src/Zone55/Zone55.Portal/Zone55.Portal.csproj",
-        "Action": "StartWithoutDebugging"
-      },
-      {
-        "Path": "src/Zone55/Zone55.Management/Zone55.Management.csproj",
-        "Action": "StartWithoutDebugging"
-      }
-    ]
-  },
-  {
-    "Name": "Backend55 Portal",
+    "Name": "Backend55 Debug",
     "Projects": [
       {
         "Path": "src\\Backend55\\Backend55.Api\\Backend55.Api.csproj",
@@ -46,7 +29,7 @@
       },
       {
         "Path": "src\\Backend55\\Backend55.Management\\Backend55.Management.csproj",
-        "Action": "StartWithoutDebugging"
+        "Action": "Start"
       }
     ]
   }

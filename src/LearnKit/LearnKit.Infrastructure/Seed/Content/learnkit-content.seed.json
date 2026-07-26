@@ -3,7 +3,7 @@
   "content": {
     "learningPaths": [
       {
-        "key": "dotnet",
+        "key": "default",
         "title": ".NET Developer",
         "summary": "Complete roadmap for becoming a modern .NET developer.",
         "sortOrder": 1,

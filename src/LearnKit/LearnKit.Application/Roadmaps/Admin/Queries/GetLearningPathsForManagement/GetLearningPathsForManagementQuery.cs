@@ -1,0 +1,3 @@
+namespace LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathsForManagement;
+
+public sealed record GetLearningPathsForManagementQuery;

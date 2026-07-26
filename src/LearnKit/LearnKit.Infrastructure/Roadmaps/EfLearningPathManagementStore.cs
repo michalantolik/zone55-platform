@@ -15,6 +15,21 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
         _dbContext = dbContext;
     }
 
+    public async Task<IReadOnlyCollection<LearningPathManagementListItem>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.LearningPaths
+            .AsNoTracking()
+            .OrderBy(path => path.Title)
+            .ThenBy(path => path.Key)
+            .Select(path => new LearningPathManagementListItem(
+                path.Id,
+                path.Key,
+                path.Title,
+                path.Summary))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<LearningPathManagementDetails?> GetByKeyAsync(
         string key,
         CancellationToken cancellationToken = default)
@@ -58,6 +73,16 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
             .SingleOrDefaultAsync(path => path.Id == learningPathId, cancellationToken);
     }
 
+    public Task<bool> PathKeyExistsAsync(
+        string key,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedKey = key.Trim();
+        return _dbContext.LearningPaths.AnyAsync(
+            path => path.Key == normalizedKey,
+            cancellationToken);
+    }
+
     public Task<LearningZone?> GetTrackedZoneByIdAsync(
         Guid learningZoneId,
         CancellationToken cancellationToken = default)
@@ -95,6 +120,12 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
         return _dbContext.LearningSteps.AnyAsync(
             step => step.Key == normalizedKey,
             cancellationToken);
+    }
+
+    public void Add(LearningPath learningPath)
+    {
+        ArgumentNullException.ThrowIfNull(learningPath);
+        _dbContext.LearningPaths.Add(learningPath);
     }
 
     public Task SaveChangesAsync(

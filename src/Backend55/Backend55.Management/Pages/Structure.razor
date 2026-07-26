@@ -12,8 +12,21 @@
         <p>Organize zones and steps without cluttering the article workspace.</p>
     </div>
     <div class="button-row page-header-actions">
+        @if (_learningPaths.Count > 0)
+        {
+            <label class="structure-path-picker">
+                <span>Learning path</span>
+                <select value="@_selectedLearningPathKey" @onchange="SelectLearningPathAsync" disabled="@(_isLoading || _isChangingStructure)">
+                    @foreach (var path in _learningPaths)
+                    {
+                        <option value="@path.Key">@path.Title</option>
+                    }
+                </select>
+            </label>
+        }
         <NavLink class="secondary-button button-link" href="/" Match="NavLinkMatch.All">Back to articles</NavLink>
-        <button class="primary-button" type="button" @onclick="BeginCreateZone" disabled="@(_isLoading || _learningPath is null)">Add zone</button>
+        <button class="secondary-button" type="button" @onclick="BeginCreatePath" disabled="@(_isLoading || _isChangingStructure)">Add learning path</button>
+        <button class="primary-button" type="button" @onclick="BeginCreateZone" disabled="@(_isLoading || _isChangingStructure || _learningPath is null)">Add zone</button>
     </div>
 </header>
 
@@ -35,8 +48,9 @@ else if (_errorMessage is not null)
 else if (_learningPath is null)
 {
     <div class="state-card">
-        <strong>Learning path not found</strong>
-        <p>The configured LearnKit learning path could not be loaded.</p>
+        <strong>No learning paths yet</strong>
+        <p>Add the first learning path, then organize it into zones and learning steps.</p>
+        <button class="primary-button" type="button" @onclick="BeginCreatePath">Add learning path</button>
     </div>
 }
 else
@@ -199,6 +213,7 @@ else
 }
 
 @code {
+    private IReadOnlyCollection<LearningPathManagementListItem> _learningPaths = [];
     private LearningPathManagementDetails? _learningPath;
     private IReadOnlyCollection<ArticleManagementListItem> _articles = [];
     private bool _isLoading = true;
@@ -206,6 +221,7 @@ else
     private string? _errorMessage;
     private string? _structureMessage;
     private bool _structureMessageIsError;
+    private string? _selectedLearningPathKey;
     private StructureCreateTarget? _createTarget;
     private StructureEditTarget? _editTarget;
     private StructureDeleteTarget? _deleteTarget;
@@ -229,11 +245,27 @@ else
         _errorMessage = null;
         try
         {
-            var pathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
+            var pathsTask = ManagementClient.GetLearningPathsAsync();
             var articlesTask = ManagementClient.GetArticlesAsync();
-            await Task.WhenAll(pathTask, articlesTask);
-            _learningPath = await pathTask;
+            await Task.WhenAll(pathsTask, articlesTask);
+
+            _learningPaths = await pathsTask;
             _articles = await articlesTask;
+
+            if (_selectedLearningPathKey is null
+                || _learningPaths.All(path => path.Key != _selectedLearningPathKey))
+            {
+                _selectedLearningPathKey = _learningPaths
+                    .FirstOrDefault(path =>
+                        path.Key == ManagementOptions.Value.DefaultLearningPathKey)
+                    ?.Key
+                    ?? _learningPaths.FirstOrDefault()?.Key;
+            }
+
+            _learningPath = _selectedLearningPathKey is null
+                ? null
+                : await ManagementClient.GetLearningPathAsync(
+                    _selectedLearningPathKey);
         }
         catch (Exception exception)
         {
@@ -259,6 +291,29 @@ else
     private bool IsMenuOpen(Guid id, StructureItemKind kind) => _openMenuId == id && _openMenuKind == kind;
     private void CloseMenu() { _openMenuId = null; _openMenuKind = null; }
 
+    private async Task SelectLearningPathAsync(ChangeEventArgs args)
+    {
+        var key = args.Value?.ToString();
+
+        if (string.IsNullOrWhiteSpace(key)
+            || key == _selectedLearningPathKey
+            || _isChangingStructure)
+        {
+            return;
+        }
+
+        _selectedLearningPathKey = key;
+        CloseMenu();
+        await LoadAsync();
+    }
+
+    private void BeginCreatePath() =>
+        BeginCreate(
+            new StructureCreateTarget(
+                Guid.Empty,
+                StructureItemKind.Path,
+                "Learning path"));
+
     private void BeginCreateZone()
     {
         if (_learningPath is null) return;
@@ -276,9 +331,23 @@ else
         _isChangingStructure = true;
         try
         {
-            var request = new CreateLearningStructureItemManagementRequest(_createKey.Trim(), _createTitle.Trim(), _createSummary);
-            if (_createTarget.Kind == StructureItemKind.Zone) await ManagementClient.CreateLearningZoneAsync(_createTarget.ParentId, request);
-            else await ManagementClient.CreateLearningStepAsync(_createTarget.ParentId, request);
+            var key = _createKey.Trim();
+            var request = new CreateLearningStructureItemManagementRequest(key, _createTitle.Trim(), _createSummary);
+
+            switch (_createTarget.Kind)
+            {
+                case StructureItemKind.Path:
+                    await ManagementClient.CreateLearningPathAsync(request);
+                    _selectedLearningPathKey = key;
+                    break;
+                case StructureItemKind.Zone:
+                    await ManagementClient.CreateLearningZoneAsync(_createTarget.ParentId, request);
+                    break;
+                case StructureItemKind.Step:
+                    await ManagementClient.CreateLearningStepAsync(_createTarget.ParentId, request);
+                    break;
+            }
+
             var label = _createTarget.Label;
             _createTarget = null;
             await LoadAsync();

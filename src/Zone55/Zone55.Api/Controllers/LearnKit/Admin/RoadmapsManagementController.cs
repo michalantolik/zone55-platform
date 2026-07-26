@@ -1,5 +1,6 @@
 using Zone55.Api.Authentication;
 using Zone55.Api.Controllers.LearnKit.Admin.Models;
+using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningPath;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningStep;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningZone;
 using LearnKit.Application.Roadmaps.Admin.Commands.DeleteLearningStep;
@@ -12,6 +13,7 @@ using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningZone;
 using LearnKit.Application.Roadmaps.Admin.Models;
 using LearnKit.Application.Roadmaps.Admin;
 using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathForManagement;
+using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathsForManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +26,9 @@ namespace Zone55.Api.Controllers.LearnKit.Admin;
 [Authorize(Policy = LearnKitManagementAuthOptions.PolicyName)]
 [Route("api/learnkit/admin/roadmaps")]
 public sealed class RoadmapsManagementController(
+    GetLearningPathsForManagementHandler getPaths,
     GetLearningPathForManagementHandler getPath,
+    CreateLearningPathHandler createPath,
     UpdateLearningPathHandler updatePath,
     UpdateLearningZoneHandler updateZone,
     UpdateLearningStepHandler updateStep,
@@ -35,6 +39,17 @@ public sealed class RoadmapsManagementController(
     DeleteLearningStepHandler deleteStep,
     ReorderLearningStepsHandler reorderSteps) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        CancellationToken cancellationToken)
+    {
+        var paths = await getPaths.HandleAsync(
+            new GetLearningPathsForManagementQuery(),
+            cancellationToken);
+
+        return Ok(paths);
+    }
+
     [HttpGet("{key}")]
     public async Task<IActionResult> GetByKey(
         string key,
@@ -49,6 +64,30 @@ public sealed class RoadmapsManagementController(
                 "learning_path_not_found",
                 "The requested learning path does not exist.")
             : Ok(path);
+    }
+
+    [HttpPost("paths")]
+    public async Task<IActionResult> CreatePath(
+        CreateLearningStructureItemRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var id = await createPath.HandleAsync(
+                new CreateLearningPathCommand(
+                    request.Key,
+                    request.Title,
+                    request.Summary),
+                cancellationToken);
+
+            return Created(string.Empty, new { id });
+        }
+        catch (LearningStructureKeyConflictException)
+        {
+            return ManagementErrors.Conflict(
+                "learning_path_key_conflict",
+                "Another learning path already uses this key.");
+        }
     }
 
     [HttpPut("paths/{id:guid}")]

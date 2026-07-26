@@ -60,7 +60,7 @@
         try
         {
             var learningPath = await LearnKitApi.GetLearnKitLearningPathByKeyAsync(
-                "dotnet",
+                "default",
                 cancellationToken);
 
             _levels = learningPath is null

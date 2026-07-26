@@ -12,7 +12,7 @@ public sealed class UpdateLearningStructureHandlersTests
     [Fact]
     public async Task UpdateLearningPath_ShouldUpdateMetadataAndSave_WhenPathExists()
     {
-        var path = new LearningPath("dotnet", "Old path", "Old summary");
+        var path = new LearningPath("default", "Old path", "Old summary");
         var store = new LearningPathManagementStoreStub(path: path);
         var handler = new UpdateLearningPathHandler(store);
 
@@ -73,7 +73,7 @@ public sealed class UpdateLearningStructureHandlersTests
     [Fact]
     public async Task UpdateLearningPath_ShouldNotSave_WhenTitleIsInvalid()
     {
-        var path = new LearningPath("dotnet", "Path", "Summary");
+        var path = new LearningPath("default", "Path", "Summary");
         var store = new LearningPathManagementStoreStub(path: path);
         var handler = new UpdateLearningPathHandler(store);
 
@@ -92,7 +92,16 @@ public sealed class UpdateLearningStructureHandlersTests
     {
         public int SaveChangesCallCount { get; private set; }
 
+        public Task<IReadOnlyCollection<LearningPathManagementListItem>> GetAllAsync(
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
         public Task<LearningPathManagementDetails?> GetByKeyAsync(
+            string key,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<bool> PathKeyExistsAsync(
             string key,
             CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
@@ -111,6 +120,9 @@ public sealed class UpdateLearningStructureHandlersTests
             Guid learningStepId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult(step?.Id == learningStepId ? step : null);
+
+        public void Add(LearningPath learningPath) =>
+            throw new NotSupportedException();
 
         public Task SaveChangesAsync(
             CancellationToken cancellationToken = default)

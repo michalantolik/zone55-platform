@@ -680,6 +680,33 @@ td code { margin-top: 5px; color: var(--ui-text-muted); font-family: ui-monospac
     background: var(--ui-surface);
 }
 
+.structure-path-picker {
+    display: grid;
+    gap: 4px;
+    min-width: 220px;
+}
+
+.structure-path-picker span {
+    color: var(--ui-text-muted);
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.structure-path-picker select {
+    min-height: 40px;
+    padding: 7px 34px 7px 11px;
+    border: 1px solid var(--ui-border-strong);
+    border-radius: 8px;
+    background: var(--ui-input);
+    color: var(--ui-text);
+}
+
+.structure-path-picker select:focus {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 1px;
+    border-color: var(--ui-accent);
+}
+
 .structure-editor-path-card {
     display: flex;
     align-items: center;
@@ -974,6 +1001,10 @@ td code { margin-top: 5px; color: var(--ui-text-muted); font-family: ui-monospac
 }
 
 @media (max-width: 760px) {
+    .structure-path-picker {
+        width: 100%;
+    }
+
     .structure-editor-path-card,
     .structure-editor-toolbar,
     .structure-editor-empty {

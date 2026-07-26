@@ -1,3 +1,5 @@
+using LearnKit.Application.Roadmaps.Admin;
+using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningPath;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningStep;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningZone;
 using LearnKit.Application.Roadmaps.Admin.Commands.DeleteLearningStep;
@@ -14,9 +16,42 @@ namespace LearnKit.Application.Tests.Roadmaps.Admin.Commands;
 public sealed class ManageLearningStructureHandlersTests
 {
     [Fact]
+    public async Task CreateLearningPath_ShouldAddPathAndSave()
+    {
+        var store = new StoreStub();
+
+        var id = await new CreateLearningPathHandler(store).HandleAsync(
+            new CreateLearningPathCommand(
+                "backend",
+                "Backend development",
+                "Backend learning path"));
+
+        var path = Assert.Single(store.AddedPaths);
+        Assert.Equal(id, path.Id);
+        Assert.Equal("backend", path.Key);
+        Assert.Equal(1, store.SaveChangesCallCount);
+    }
+
+    [Fact]
+    public async Task CreateLearningPath_ShouldRejectDuplicateKey()
+    {
+        var store = new StoreStub(existingPathKey: "backend");
+
+        await Assert.ThrowsAsync<LearningStructureKeyConflictException>(
+            () => new CreateLearningPathHandler(store).HandleAsync(
+                new CreateLearningPathCommand(
+                    "backend",
+                    "Backend development",
+                    null)));
+
+        Assert.Empty(store.AddedPaths);
+        Assert.Equal(0, store.SaveChangesCallCount);
+    }
+
+    [Fact]
     public async Task CreateLearningZone_ShouldAppendZoneAndSave()
     {
-        var path = new LearningPath("dotnet", ".NET", null);
+        var path = new LearningPath("default", ".NET", null);
         var store = new StoreStub(path: path);
 
         var id = await new CreateLearningZoneHandler(store).HandleAsync(
@@ -46,7 +81,7 @@ public sealed class ManageLearningStructureHandlersTests
     [Fact]
     public async Task ReorderLearningZones_ShouldApplyCompleteOrder()
     {
-        var path = new LearningPath("dotnet", ".NET", null);
+        var path = new LearningPath("default", ".NET", null);
         var first = new LearningZone("first", "First", null, 1);
         var second = new LearningZone("second", "Second", null, 2);
         path.AddZone(first);
@@ -98,7 +133,7 @@ public sealed class ManageLearningStructureHandlersTests
     [Fact]
     public async Task DeleteLearningZone_ShouldReturnConflict_WhenZoneContainsSteps()
     {
-        var path = new LearningPath("dotnet", ".NET", null);
+        var path = new LearningPath("default", ".NET", null);
         var zone = new LearningZone("zone", "Zone", null, 1);
         zone.AddStep(new LearningStep("step", "Step", null, 1));
         path.AddZone(zone);
@@ -133,13 +168,18 @@ public sealed class ManageLearningStructureHandlersTests
     private sealed class StoreStub(
         LearningPath? path = null,
         LearningZone? zone = null,
-        LearningStep? step = null) : ILearningPathManagementStore
+        LearningStep? step = null,
+        string? existingPathKey = null) : ILearningPathManagementStore
     {
+        public List<LearningPath> AddedPaths { get; } = [];
         public int SaveChangesCallCount { get; private set; }
+        public Task<IReadOnlyCollection<LearningPathManagementListItem>> GetAllAsync(CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<LearningPathManagementDetails?> GetByKeyAsync(string key, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> PathKeyExistsAsync(string key, CancellationToken cancellationToken = default) => Task.FromResult(key == existingPathKey);
         public Task<LearningPath?> GetTrackedPathByIdAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult(path?.Id == id ? path : null);
         public Task<LearningZone?> GetTrackedZoneByIdAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult(zone?.Id == id ? zone : null);
         public Task<LearningStep?> GetTrackedStepByIdAsync(Guid id, CancellationToken cancellationToken = default) => Task.FromResult(step?.Id == id ? step : null);
+        public void Add(LearningPath learningPath) => AddedPaths.Add(learningPath);
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) { SaveChangesCallCount++; return Task.CompletedTask; }
     }
 }

@@ -1,6 +1,14 @@
 {
   "schemaVersion": 1,
   "content": {
-    "learningPaths": []
+    "learningPaths": [
+      {
+        "key": "default",
+        "title": "Default",
+        "summary": "Default learning path.",
+        "sortOrder": 1,
+        "zones": []
+      }
+    ]
   }
 }

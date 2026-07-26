@@ -59,6 +59,37 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
             cancellationToken: cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<LearningPathManagementListItem>> GetLearningPathsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await GetWithStartupRetryAsync(
+            "api/learnkit/admin/roadmaps",
+            cancellationToken);
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<LearningPathManagementListItem[]>(
+                cancellationToken: cancellationToken)
+            ?? [];
+    }
+
+    public async Task<Guid> CreateLearningPathAsync(
+        CreateLearningStructureItemManagementRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PostAsJsonAsync(
+            "api/learnkit/admin/roadmaps/paths",
+            request,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        return (await response.Content.ReadFromJsonAsync<CreatedLearningStructureItemResponse>(
+                cancellationToken: cancellationToken))?.Id
+            ?? throw new HttpRequestException(
+                "The API did not return the created learning path identifier.");
+    }
+
     public async Task<Guid> CreateLearningZoneAsync(Guid pathId, CreateLearningStructureItemManagementRequest request, CancellationToken cancellationToken = default) { using var response=await httpClient.PostAsJsonAsync($"api/learnkit/admin/roadmaps/paths/{pathId}/zones",request,cancellationToken); await EnsureSuccessAsync(response,cancellationToken); return (await response.Content.ReadFromJsonAsync<CreatedLearningStructureItemResponse>(cancellationToken:cancellationToken))?.Id ?? throw new HttpRequestException("The API did not return the created zone identifier."); }
     public async Task DeleteLearningZoneAsync(Guid pathId,Guid zoneId,CancellationToken cancellationToken=default){using var response=await httpClient.DeleteAsync($"api/learnkit/admin/roadmaps/paths/{pathId}/zones/{zoneId}",cancellationToken);await EnsureSuccessAsync(response,cancellationToken);}
     public async Task ReorderLearningZonesAsync(Guid pathId,ReorderLearningStructureItemsManagementRequest request,CancellationToken cancellationToken=default){using var response=await httpClient.PutAsJsonAsync($"api/learnkit/admin/roadmaps/paths/{pathId}/zones/order",request,cancellationToken);await EnsureSuccessAsync(response,cancellationToken);}

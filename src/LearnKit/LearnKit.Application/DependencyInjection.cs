@@ -1,3 +1,4 @@
+using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningPath;
 using LearnKit.Application.Roadmaps.Admin.Commands.CreateLearningZone;
 using LearnKit.Application.Roadmaps.Admin.Commands.DeleteLearningZone;
 using LearnKit.Application.Roadmaps.Admin.Commands.ReorderLearningZones;
@@ -10,6 +11,7 @@ using LearnKit.Application.Articles.Admin.Commands.DeleteArticleBlock;
 using LearnKit.Application.Articles.Admin.Commands.DeleteArticle;
 using LearnKit.Application.Articles.Admin.Commands.ReorderArticles;
 using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathForManagement;
+using LearnKit.Application.Roadmaps.Admin.Queries.GetLearningPathsForManagement;
 using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningPath;
 using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningStep;
 using LearnKit.Application.Roadmaps.Admin.Commands.UpdateLearningZone;
@@ -53,6 +55,8 @@ public static class DependencyInjection
         services.AddScoped<DeleteArticleHandler>();
         services.AddScoped<ReorderArticlesHandler>();
         services.AddScoped<GetLearningPathForManagementHandler>();
+        services.AddScoped<GetLearningPathsForManagementHandler>();
+        services.AddScoped<CreateLearningPathHandler>();
         services.AddScoped<UpdateLearningPathHandler>();
         services.AddScoped<UpdateLearningZoneHandler>();
         services.AddScoped<UpdateLearningStepHandler>();

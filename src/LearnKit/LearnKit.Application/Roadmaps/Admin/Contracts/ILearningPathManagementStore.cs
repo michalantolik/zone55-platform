@@ -5,7 +5,14 @@ using LearnKit.Domain.Roadmaps;
 
 public interface ILearningPathManagementStore
 {
+    Task<IReadOnlyCollection<LearningPathManagementListItem>> GetAllAsync(
+        CancellationToken cancellationToken = default);
+
     Task<LearningPathManagementDetails?> GetByKeyAsync(
+        string key,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> PathKeyExistsAsync(
         string key,
         CancellationToken cancellationToken = default);
 
@@ -30,6 +37,8 @@ public interface ILearningPathManagementStore
         string key,
         CancellationToken cancellationToken = default) =>
         Task.FromResult(false);
+
+    void Add(LearningPath learningPath);
 
     Task SaveChangesAsync(
         CancellationToken cancellationToken = default);
