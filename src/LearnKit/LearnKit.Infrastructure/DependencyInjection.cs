@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<LearnKitContentImporter>();
         services.AddScoped<LearnKitDatabaseSeeder>();
         services.AddScoped<LearnKitDatabaseInitializer>();
+        services.AddSingleton<DevelopmentSeedFileWriter>();
         services.AddSingleton<TimeProvider>(TimeProvider.System);
 
         return services;

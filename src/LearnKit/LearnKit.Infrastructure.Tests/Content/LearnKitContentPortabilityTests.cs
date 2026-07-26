@@ -1,13 +1,16 @@
 using LearnKit.Application.Content.Admin.Contracts;
+using LearnKit.Application.Content.Admin.Queries.ExportSeed;
 using LearnKit.Domain.Articles;
 using LearnKit.Domain.Articles.DomainModel;
 using LearnKit.Domain.Articles.Entities;
 using LearnKit.Domain.Roadmaps;
 using LearnKit.Infrastructure;
 using LearnKit.Infrastructure.Persistence;
+using LearnKit.Infrastructure.Seed.Content;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
 namespace LearnKit.Infrastructure.Tests.Content;
 
@@ -27,9 +30,51 @@ public sealed class LearnKitContentPortabilityTests
         var exportedPath = Assert.Single(export.Paths);
         Assert.Equal(path.Id, exportedPath.Id);
         Assert.Equal(1, export.SchemaVersion);
+        Assert.Equal(1, exportedPath.SortOrder);
         Assert.Equal(new[] { 1, 2 }, exportedPath.Zones.Select(zone => zone.SortOrder));
         Assert.Equal("foundation", exportedPath.Zones.First().Key);
         Assert.Equal("Markdown", exportedPath.Zones.First().Steps.Single().Articles.Single().Blocks.Single().Type);
+    }
+
+    [Fact]
+    public async Task ExportSeedAsync_ShouldCreateASeedLoaderCompatibleDocumentWithoutDatabaseIds()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        database.Context.LearningPaths.Add(CreateContentGraph());
+        await database.Context.SaveChangesAsync();
+
+        var store = database.Services.GetRequiredService<ILearnKitContentPortabilityStore>();
+        var seedExport = await new ExportLearnKitSeedHandler(store).HandleAsync(
+            new ExportLearnKitSeedQuery());
+        var serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
+        var json = JsonSerializer.SerializeToUtf8Bytes(seedExport, serializerOptions);
+
+        await using var stream = new MemoryStream(json);
+        var seed = await new LearnKitContentSeedLoader().LoadAsync(stream);
+
+        var path = Assert.Single(seed.Content.LearningPaths);
+        var zone = Assert.Single(path.Zones.Where(candidate => candidate.Key == "foundation"));
+        var step = Assert.Single(zone.Steps);
+        var article = Assert.Single(step.Articles);
+        var block = Assert.Single(article.Blocks);
+
+        Assert.Equal("backend-cloud", path.Key);
+        Assert.Equal(1, path.SortOrder);
+        Assert.Equal("value-types", article.Slug);
+        Assert.Equal(ArticleStatus.Draft, article.Status);
+        Assert.Equal(ArticleBlockType.Markdown, block.Type);
+
+        using var document = JsonDocument.Parse(json);
+        Assert.False(document.RootElement.TryGetProperty("exportedAtUtc", out _));
+        Assert.False(
+            document.RootElement
+                .GetProperty("content")
+                .GetProperty("learningPaths")[0]
+                .TryGetProperty("id", out _));
     }
 
     [Fact]

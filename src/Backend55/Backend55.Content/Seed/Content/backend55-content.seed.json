@@ -7,7 +7,47 @@
         "title": "Backend55",
         "summary": "",
         "sortOrder": 1,
-        "zones": []
+        "zones": [
+          {
+            "key": "backend",
+            "title": "Backend",
+            "summary": "",
+            "sortOrder": 1,
+            "steps": [
+              {
+                "key": "step-1",
+                "title": "Step 1",
+                "summary": "",
+                "sortOrder": 1,
+                "articles": [
+                  {
+                    "slug": "test",
+                    "title": "Test",
+                    "summary": "test",
+                    "status": 0,
+                    "sortOrder": 1,
+                    "blocks": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "frontend",
+            "title": "Frontend",
+            "summary": "",
+            "sortOrder": 2,
+            "steps": [
+              {
+                "key": "step-2",
+                "title": "Step 2",
+                "summary": "",
+                "sortOrder": 1,
+                "articles": []
+              }
+            ]
+          }
+        ]
       }
     ]
   }

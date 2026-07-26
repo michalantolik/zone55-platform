@@ -1,6 +1,8 @@
 @page "/"
 @attribute [Authorize]
 @inject ILearnKitManagementClient ManagementClient
+@inject IJSRuntime JS
+@inject Microsoft.AspNetCore.Components.WebAssembly.Hosting.IWebAssemblyHostEnvironment HostEnvironment
 
 <PageTitle>Articles | Backend55 Management</PageTitle>
 
@@ -12,10 +14,26 @@
     </div>
     <div class="button-row page-header-actions">
         <NavLink class="secondary-button button-link" href="/structure">Manage structure</NavLink>
+        @if (IsDevelopment)
+        {
+            <button class="secondary-button" type="button" @onclick="UpdateSeedFileAsync" disabled="@(_isLoading || _isExporting)">
+                @(_isExporting ? "Exporting…" : "Update seed file")
+            </button>
+        }
+        <button class="secondary-button" type="button" @onclick="DownloadSeedAsync" disabled="@(_isLoading || _isExporting)">
+            @(_isExporting ? "Exporting…" : "Download seed")
+        </button>
         <button class="secondary-button" type="button" @onclick="LoadAsync" disabled="@_isLoading">Refresh</button>
         <NavLink class="primary-button button-link" href="/articles/new">New article</NavLink>
     </div>
 </header>
+
+@if (_seedMessage is not null)
+{
+    <div class="structure-notice @(_seedMessageIsError ? "structure-notice--error" : null)" role="status">
+        @_seedMessage
+    </div>
+}
 
 @if (_isLoading)
 {
@@ -175,6 +193,14 @@ else
     private Guid? _selectedStepId;
     private bool _isLoading = true;
     private string? _errorMessage;
+    private bool _isExporting;
+    private string? _seedMessage;
+    private bool _seedMessageIsError;
+    private bool IsDevelopment =>
+        string.Equals(
+            HostEnvironment.Environment,
+            "Development",
+            StringComparison.OrdinalIgnoreCase);
 
     private IReadOnlyList<ArticleManagementListItem> FilteredArticles => _articles
         .Where(article => _selectedStepId is null || article.LearningStepId == _selectedStepId)
@@ -222,6 +248,87 @@ else
 
     private void SelectAllArticles() => _selectedStepId = null;
     private void SelectStep(Guid stepId) => _selectedStepId = stepId;
+
+    private async Task DownloadSeedAsync()
+    {
+        if (_isExporting)
+        {
+            return;
+        }
+
+        var pickerToken = await JS.InvokeAsync<string?>(
+            "learnKitSeedFiles.choose",
+            "backend55-content.seed.json",
+            "backend55-content-seed");
+
+        if (pickerToken is null)
+        {
+            return;
+        }
+
+        _isExporting = true;
+        _seedMessage = null;
+
+        try
+        {
+            var seed = await ManagementClient.DownloadSeedAsync();
+            await JS.InvokeVoidAsync(
+                "learnKitSeedFiles.write",
+                pickerToken,
+                seed.FileName,
+                seed.Content);
+            ShowSeedMessage($"{seed.FileName} exported.");
+        }
+        catch (Exception exception)
+        {
+            await JS.InvokeVoidAsync("learnKitSeedFiles.cancel", pickerToken);
+            ShowSeedMessage($"Seed export failed: {exception.Message}", error: true);
+        }
+        finally
+        {
+            _isExporting = false;
+        }
+    }
+
+    private async Task UpdateSeedFileAsync()
+    {
+        if (_isExporting || !IsDevelopment)
+        {
+            return;
+        }
+
+        var confirmed = await JS.InvokeAsync<bool>(
+            "confirm",
+            "Replace the Backend55 seed file in this repository checkout?\n\nsrc/Backend55/Backend55.Content/Seed/Content/backend55-content.seed.json");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        _isExporting = true;
+        _seedMessage = null;
+
+        try
+        {
+            var result = await ManagementClient.UpdateDevelopmentSeedFileAsync();
+            ShowSeedMessage($"Seed file updated: {result.RelativePath}");
+        }
+        catch (Exception exception)
+        {
+            ShowSeedMessage($"Seed file update failed: {exception.Message}", error: true);
+        }
+        finally
+        {
+            _isExporting = false;
+        }
+    }
+
+    private void ShowSeedMessage(string message, bool error = false)
+    {
+        _seedMessage = message;
+        _seedMessageIsError = error;
+    }
 
     private IReadOnlyList<ArticleManagementListItem> GetArticlesForStep(Guid stepId) => _articles
         .Where(article => article.LearningStepId == stepId)

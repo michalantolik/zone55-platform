@@ -21,7 +21,8 @@ internal sealed class EfLearnKitContentPortabilityStore(
                 .ThenInclude(zone => zone.Steps)
                     .ThenInclude(step => step.Articles)
                         .ThenInclude(article => article.Blocks)
-            .OrderBy(path => path.Key)
+            .OrderBy(path => path.SortOrder)
+            .ThenBy(path => path.Key)
             .ToListAsync(cancellationToken);
 
         return new LearnKitContentExport(
@@ -32,6 +33,7 @@ internal sealed class EfLearnKitContentPortabilityStore(
                 path.Key,
                 path.Title,
                 path.Summary,
+                path.SortOrder,
                 path.Zones.OrderBy(zone => zone.SortOrder).ThenBy(zone => zone.Key)
                     .Select(zone => new LearningZoneExport(
                         zone.Id,

@@ -12,6 +12,7 @@ public sealed record LearningPathExport(
     string Key,
     string Title,
     string Summary,
+    int SortOrder,
     IReadOnlyCollection<LearningZoneExport> Zones);
 
 public sealed record LearningZoneExport(

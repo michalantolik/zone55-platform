@@ -87,6 +87,40 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
             ?? [];
     }
 
+    public async Task<SeedFileDownload> DownloadSeedAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync(
+            "api/learnkit/admin/content/seed",
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+            ?? response.Content.Headers.ContentDisposition?.FileName
+            ?? "backend55-content.seed.json";
+
+        return new SeedFileDownload(
+            fileName.Trim('"'),
+            await response.Content.ReadAsByteArrayAsync(cancellationToken));
+    }
+
+    public async Task<SeedFileUpdateResult> UpdateDevelopmentSeedFileAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PostAsync(
+            "api/learnkit/admin/content/seed/write",
+            content: null,
+            cancellationToken);
+
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        return await response.Content.ReadFromJsonAsync<SeedFileUpdateResult>(
+                cancellationToken: cancellationToken)
+            ?? throw new HttpRequestException(
+                "Backend55.Api did not return the updated seed file path.");
+    }
+
     public async Task<Guid> CreateLearningPathAsync(
         CreateLearningStructureItemManagementRequest request,
         CancellationToken cancellationToken = default)

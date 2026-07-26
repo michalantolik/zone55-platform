@@ -21,6 +21,12 @@ public interface ILearnKitManagementClient
     Task<IReadOnlyCollection<LearningPathManagementListItem>> GetLearningPathsAsync(
         CancellationToken cancellationToken = default);
 
+    Task<SeedFileDownload> DownloadSeedAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<SeedFileUpdateResult> UpdateDevelopmentSeedFileAsync(
+        CancellationToken cancellationToken = default);
+
     Task<Guid> CreateLearningPathAsync(
         CreateLearningStructureItemManagementRequest request,
         CancellationToken cancellationToken = default);
