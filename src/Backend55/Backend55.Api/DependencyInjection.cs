@@ -130,7 +130,7 @@ public static class DependencyInjection
 
         services.AddLearnKitInfrastructure(options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("Zone55Connection")));
+                configuration.GetConnectionString("Backend55Connection")));
 
         return services;
     }
