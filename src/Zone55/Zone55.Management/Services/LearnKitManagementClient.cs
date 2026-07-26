@@ -23,10 +23,11 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
 
     public async Task<ArticleManagementDetails?> GetArticleAsync(
         Guid articleId,
+        string languageCode = "en",
         CancellationToken cancellationToken = default)
     {
         using var response = await GetWithStartupRetryAsync(
-            $"api/learnkit/admin/articles/{articleId}",
+            $"api/learnkit/admin/articles/{articleId}?language={Uri.EscapeDataString(languageCode)}",
             cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -286,10 +287,11 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
 
     public async Task PublishArticleAsync(
         Guid articleId,
+        string languageCode = "en",
         CancellationToken cancellationToken = default)
     {
         using var response = await httpClient.PostAsync(
-            $"api/learnkit/admin/articles/{articleId}/publish",
+            $"api/learnkit/admin/articles/{articleId}/publish?language={Uri.EscapeDataString(languageCode)}",
             content: null,
             cancellationToken);
 
@@ -298,10 +300,11 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
 
     public async Task UnpublishArticleAsync(
         Guid articleId,
+        string languageCode = "en",
         CancellationToken cancellationToken = default)
     {
         using var response = await httpClient.PostAsync(
-            $"api/learnkit/admin/articles/{articleId}/unpublish",
+            $"api/learnkit/admin/articles/{articleId}/unpublish?language={Uri.EscapeDataString(languageCode)}",
             content: null,
             cancellationToken);
 

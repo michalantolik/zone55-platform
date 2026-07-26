@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @inject ILearnKitManagementClient ManagementClient
 @inject NavigationManager Navigation
+@inject ManagementLocalizer Localizer
 
 <PageTitle>New article | Zone55 Management</PageTitle>
 
@@ -156,7 +157,8 @@ else
                     _slug.Trim(),
                     _title.Trim(),
                     string.IsNullOrWhiteSpace(_summary) ? null : _summary.Trim(),
-                    _sortOrder));
+                    _sortOrder,
+                    Localizer.CurrentLanguage));
 
             Navigation.NavigateTo($"/articles/{articleId}");
         }

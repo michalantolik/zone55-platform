@@ -20,13 +20,18 @@ internal sealed class EfLearnKitContentPortabilityStore(
             .Include(path => path.Zones)
                 .ThenInclude(zone => zone.Steps)
                     .ThenInclude(step => step.Articles)
+                        .ThenInclude(article => article.Translations)
+            .Include(path => path.Zones)
+                .ThenInclude(zone => zone.Steps)
+                    .ThenInclude(step => step.Articles)
                         .ThenInclude(article => article.Blocks)
+                            .ThenInclude(block => block.Translations)
             .OrderBy(path => path.SortOrder)
             .ThenBy(path => path.Key)
             .ToListAsync(cancellationToken);
 
         return new LearnKitContentExport(
-            1,
+            2,
             timeProvider.GetUtcNow(),
             paths.Select(path => new LearningPathExport(
                 path.Id,
@@ -61,7 +66,21 @@ internal sealed class EfLearnKitContentPortabilityStore(
                                                 block.Id,
                                                 block.Type.ToString(),
                                                 block.SortOrder,
-                                                ParseContent(block.ContentJson)))
+                                                ParseContent(block.ContentJson),
+                                                block.Translations
+                                                    .OrderBy(translation => translation.LanguageCode)
+                                                    .Select(translation => new ArticleBlockTranslationExport(
+                                                        translation.LanguageCode,
+                                                        ParseContent(translation.ContentJson)))
+                                                    .ToList()))
+                                            .ToList(),
+                                        article.Translations
+                                            .OrderBy(translation => translation.LanguageCode)
+                                            .Select(translation => new ArticleTranslationExport(
+                                                translation.LanguageCode,
+                                                translation.Title,
+                                                translation.Summary,
+                                                translation.Status.ToString()))
                                             .ToList()))
                                     .ToList()))
                             .ToList()))
@@ -95,15 +114,22 @@ internal sealed class EfLearnKitContentPortabilityStore(
 
                     foreach (var block in article.Blocks)
                     {
-                        try
+                        foreach (var translation in block.Translations)
                         {
-                            ArticleBlockContentValidator.Validate(
-                                Enum.Parse<ArticleBlockType>(block.Type),
-                                block.Content.GetRawText());
-                        }
-                        catch (Exception exception) when (exception is ArgumentException or JsonException or InvalidArticleBlockException)
-                        {
-                            issues.Add(new("Error", "block_content_invalid", $"article/{article.Slug}/block/{block.Id}", exception.Message));
+                            try
+                            {
+                                ArticleBlockContentValidator.Validate(
+                                    Enum.Parse<ArticleBlockType>(block.Type),
+                                    translation.Content.GetRawText());
+                            }
+                            catch (Exception exception) when (exception is ArgumentException or JsonException or InvalidArticleBlockException)
+                            {
+                                issues.Add(new(
+                                    "Error",
+                                    "block_content_invalid",
+                                    $"article/{article.Slug}/block/{block.Id}/{translation.LanguageCode}",
+                                    exception.Message));
+                            }
                         }
                     }
                 }

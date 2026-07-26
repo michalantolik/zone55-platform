@@ -1,3 +1,5 @@
+using LearnKit.Domain.Articles.BusinessRules;
+
 namespace LearnKit.Application.Articles.Admin.Commands.CreateArticle;
 
 /// <summary>
@@ -23,4 +25,5 @@ public sealed record CreateArticleCommand(
     string Slug,
     string Title,
     string? Summary,
-    int SortOrder);
+    int SortOrder,
+    string LanguageCode = SupportedArticleLanguages.Default);

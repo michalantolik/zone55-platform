@@ -45,6 +45,17 @@ else
 
     <section class="editor-command-bar">
         <div class="editor-command-bar__context">
+            <div class="workspace-switcher" role="group" aria-label="Content language">
+                @foreach (var language in ContentLanguages)
+                {
+                    <button type="button"
+                            class="@(_contentLanguage == language ? "active" : null)"
+                            disabled="@IsBusy"
+                            @onclick="() => ChangeContentLanguageAsync(language)">
+                        @language.ToUpperInvariant()
+                    </button>
+                }
+            </div>
             <div class="save-state @(HasUnsavedChanges ? "save-state--dirty" : "save-state--saved")">
                 <span></span>
                 <strong>@Localizer[HasUnsavedChanges ? "Article.Unsaved" : "Article.Saved"]</strong>
@@ -85,6 +96,12 @@ else
 
     @if (_operationMessage is not null) { <div class="operation-message operation-message--success" role="status">@_operationMessage</div> }
     @if (_errorMessage is not null) { <div class="operation-message operation-message--error" role="alert">@_errorMessage</div> }
+    @if (_article.IsFallback)
+    {
+        <div class="operation-message" role="status">
+            @(_contentLanguage.ToUpperInvariant()) does not have a complete translation yet. The English content is shown as a starting point; saving creates the @(_contentLanguage.ToUpperInvariant()) version.
+        </div>
+    }
 
     <div class="article-workspace article-workspace--@_workspaceMode.ToLowerInvariant()">
         <div class="article-workspace__editor">
@@ -195,6 +212,8 @@ else
     private string _summary = string.Empty;
     private int _sortOrder;
     private string _savedEditorSnapshot = string.Empty;
+    private string _contentLanguage = "en";
+    private static readonly string[] ContentLanguages = ["pl", "en", "de"];
     private static readonly string[] WorkspaceModes = ["Editor", "Split", "Preview"];
     private static readonly string[] ArticleBlockTypes = ["Markdown", "Code", "Diagram", "Table", "Callout", "Summary"];
     private static readonly BlockChoice[] BlockChoices =
@@ -230,7 +249,15 @@ else
     private bool HasUnsavedArticleDetails => _article is not null && !string.Equals(_savedEditorSnapshot, BuildEditorSnapshot(), StringComparison.Ordinal);
     private bool HasUnsavedChanges => HasUnsavedArticleDetails || _isCreatingBlock || _editingBlockId is not null;
 
-    protected override void OnInitialized() => Localizer.Changed += RefreshLocalization;
+    protected override void OnInitialized()
+    {
+        Localizer.Changed += RefreshLocalization;
+        _contentLanguage = ContentLanguages.Contains(
+            Localizer.CurrentLanguage,
+            StringComparer.OrdinalIgnoreCase)
+                ? Localizer.CurrentLanguage.ToLowerInvariant()
+                : "en";
+    }
 
     private void RefreshLocalization() => _ = InvokeAsync(StateHasChanged);
 
@@ -258,7 +285,9 @@ else
         _isLoading = true; _errorMessage = null; _operationMessage = null;
         try
         {
-            var articleTask = ManagementClient.GetArticleAsync(ArticleId);
+            var articleTask = ManagementClient.GetArticleAsync(
+                ArticleId,
+                _contentLanguage);
             var learningPathTask = ManagementClient.GetFirstLearningPathAsync();
             await Task.WhenAll(articleTask, learningPathTask);
             _article = await articleTask;
@@ -279,7 +308,17 @@ else
         _isSaving = true;
         try
         {
-            await ManagementClient.UpdateArticleAsync(ArticleId, new UpdateArticleManagementRequest(_learningStepId, _slug.Trim(), _title.Trim(), string.IsNullOrWhiteSpace(_summary) ? null : _summary.Trim(), _sortOrder));
+            await ManagementClient.UpdateArticleAsync(ArticleId, new UpdateArticleManagementRequest(_learningStepId, _slug.Trim(), _title.Trim(), string.IsNullOrWhiteSpace(_summary) ? null : _summary.Trim(), _sortOrder, _contentLanguage));
+            foreach (var block in _article.Blocks)
+            {
+                await ManagementClient.UpdateArticleBlockAsync(
+                    ArticleId,
+                    block.Id,
+                    new UpdateArticleBlockManagementRequest(
+                        block.Type,
+                        block.ContentJson,
+                        _contentLanguage));
+            }
             await ReloadArticleAsync();
             _operationMessage = "Article draft was saved.";
         }
@@ -321,7 +360,7 @@ else
         _isSavingBlock = true;
         try
         {
-            await ManagementClient.CreateArticleBlockAsync(ArticleId, new CreateArticleBlockManagementRequest(_newBlockType, _newBlockSortOrder, _newBlockContentJson.Trim()));
+            await ManagementClient.CreateArticleBlockAsync(ArticleId, new CreateArticleBlockManagementRequest(_newBlockType, _newBlockSortOrder, _newBlockContentJson.Trim(), _contentLanguage));
             await ReloadArticleAsync(); _isCreatingBlock = false; _operationMessage = "Article block was added.";
         }
         catch (Exception exception) { _blockErrorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; }
@@ -344,7 +383,7 @@ else
         _isSavingBlock = true;
         try
         {
-            await ManagementClient.UpdateArticleBlockAsync(ArticleId, _editingBlockId.Value, new UpdateArticleBlockManagementRequest(_editingBlockType, _editingBlockContentJson.Trim()));
+            await ManagementClient.UpdateArticleBlockAsync(ArticleId, _editingBlockId.Value, new UpdateArticleBlockManagementRequest(_editingBlockType, _editingBlockContentJson.Trim(), _contentLanguage));
             await ReloadArticleAsync(); ClearBlockEditor(); _operationMessage = "Article block was saved.";
         }
         catch (HttpRequestException exception) { _blockErrorMessage = exception.Message; }
@@ -358,7 +397,7 @@ else
         _isSavingBlock = true; _errorMessage = null; _operationMessage = null;
         try
         {
-            await ManagementClient.CreateArticleBlockAsync(ArticleId, new CreateArticleBlockManagementRequest(block.Type, _article.Blocks.Count + 1, block.ContentJson));
+            await ManagementClient.CreateArticleBlockAsync(ArticleId, new CreateArticleBlockManagementRequest(block.Type, _article.Blocks.Count + 1, block.ContentJson, _contentLanguage));
             await ReloadArticleAsync(); _operationMessage = "Article block was duplicated.";
         }
         catch (Exception exception) { _errorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; }
@@ -411,12 +450,13 @@ else
         catch (Exception exception) { _errorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; _isDeletingArticle = false; }
     }
 
-    private Task PublishAsync() => ChangePublicationStatusAsync(() => ManagementClient.PublishArticleAsync(ArticleId), "Article was published.");
-    private Task UnpublishAsync() => ChangePublicationStatusAsync(() => ManagementClient.UnpublishArticleAsync(ArticleId), "Article was moved to draft.");
+    private Task PublishAsync() => ChangePublicationStatusAsync(() => ManagementClient.PublishArticleAsync(ArticleId, _contentLanguage), "Article translation was published.");
+    private Task UnpublishAsync() => ChangePublicationStatusAsync(() => ManagementClient.UnpublishArticleAsync(ArticleId, _contentLanguage), "Article translation was moved to draft.");
 
     private async Task ChangePublicationStatusAsync(Func<Task> operation, string successMessage)
     {
         if (_article is null || IsBusy) return;
+        if (_article.IsFallback) { _errorMessage = "Save this language version before changing its publication status."; return; }
         if (HasUnsavedArticleDetails) { _errorMessage = "Save the article draft before changing publication status."; return; }
         _isSaving = true; _errorMessage = null; _operationMessage = null;
         try { await operation(); await ReloadArticleAsync(); _operationMessage = successMessage; }
@@ -427,8 +467,29 @@ else
 
     private async Task ReloadArticleAsync()
     {
-        _article = await ManagementClient.GetArticleAsync(ArticleId) ?? throw new HttpRequestException("The article could not be reloaded after the operation.");
+        _article = await ManagementClient.GetArticleAsync(ArticleId, _contentLanguage) ?? throw new HttpRequestException("The article could not be reloaded after the operation.");
         ApplyArticleToEditor();
+    }
+
+    private async Task ChangeContentLanguageAsync(string language)
+    {
+        if (string.Equals(_contentLanguage, language, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (HasUnsavedChanges
+            && !await JavaScript.InvokeAsync<bool>(
+                "confirm",
+                "You have unsaved changes. Switch the content language and discard them?"))
+        {
+            return;
+        }
+
+        _contentLanguage = language;
+        ClearBlockEditor();
+        _isCreatingBlock = false;
+        await LoadAsync();
     }
 
     private void ApplyArticleToEditor()

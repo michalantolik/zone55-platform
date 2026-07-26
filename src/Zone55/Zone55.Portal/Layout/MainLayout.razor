@@ -5,6 +5,7 @@
 @inject IConfiguration Configuration
 @inject ILearnKitApiClient LearnKitApi
 @inject ILogger<MainLayout> Logger
+@inject ContentLanguageState ContentLanguage
 
 @using Zone55.Portal.Services.LearnKit
 
@@ -24,6 +25,17 @@
         </a>
 
         <DotnetZoneTopNav Levels="@_levels" />
+
+        <div class="portal-language-switch" role="group" aria-label="Content language">
+            @foreach (var language in ContentLanguage.All)
+            {
+                <button type="button"
+                        class="@(ContentLanguage.Current == language ? "active" : null)"
+                        @onclick="() => ChangeContentLanguageAsync(language)">
+                    @language.ToUpperInvariant()
+                </button>
+            }
+        </div>
     </header>
 
     <main>
@@ -42,6 +54,25 @@
     protected override void OnInitialized()
     {
         Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ContentLanguage.InitializeAsync();
+    }
+
+    private async Task ChangeContentLanguageAsync(string language)
+    {
+        if (string.Equals(
+                ContentLanguage.Current,
+                language,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        await ContentLanguage.SetAsync(language);
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)

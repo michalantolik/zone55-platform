@@ -1,29 +1,45 @@
 @page "/articles/{Slug}"
+
+@using System.Globalization
 @using System.Text.Json
 @using System.Text.Encodings.Web
+
 @inject LearnKitApiClient Api
 
 <PageTitle>Backend55 — @(_article?.Title ?? "Article")</PageTitle>
 
-<div class="article-page" lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<div class="article-page" lang="@ResolvedLanguage">
     @if (_loading)
     {
-        <section class="card reading-status">Loading article…</section>
+        <section class="card reading-status">
+            Loading article…
+        </section>
     }
     else if (_article is null)
     {
-        <section class="card reading-status">The article was not found.</section>
+        <section class="card reading-status">
+            The article was not found.
+        </section>
     }
     else
     {
         <article class="reading-surface">
             <header class="article-header">
                 <span class="eyebrow">BACKEND55</span>
+
                 <h1>@_article.Title</h1>
-                @if (!string.IsNullOrWhiteSpace(_article.Summary)) { <p class="article-lead">@_article.Summary</p> }
+
+                @if (!string.IsNullOrWhiteSpace(_article.Summary))
+                {
+                    <p class="article-lead">
+                        @_article.Summary
+                    </p>
+                }
             </header>
+
             <div class="article-content">
-                @foreach (var block in _article.Blocks.OrderBy(x => x.SortOrder))
+                @foreach (var block in _article.Blocks
+                    .OrderBy(x => x.SortOrder))
                 {
                     @RenderBlock(block)
                 }
@@ -33,35 +49,67 @@
 </div>
 
 @code {
-    [Parameter] public string Slug { get; set; } = string.Empty;
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
     private ArticleDetails? _article;
     private bool _loading = true;
+
+    private string CurrentLanguage =>
+        CultureInfo.CurrentUICulture
+            .TwoLetterISOLanguageName
+            .ToLowerInvariant();
+
+    private string ResolvedLanguage =>
+        _article?.LanguageCode ?? CurrentLanguage;
 
     protected override async Task OnParametersSetAsync()
     {
         _loading = true;
-        _article = await Api.GetArticleAsync(Slug);
+
+        _article = await Api.GetArticleAsync(
+            Slug,
+            CurrentLanguage);
+
         _loading = false;
     }
 
-    private RenderFragment RenderBlock(ArticleBlockDetails block) => builder =>
+    private RenderFragment RenderBlock(
+        ArticleBlockDetails block) => builder =>
     {
         var text = ExtractText(block.ContentJson);
         var type = block.Type.ToLowerInvariant();
+
         if (type.Contains("code"))
         {
-            builder.OpenElement(0, "pre"); builder.AddAttribute(1, "class", "article-code");
-            builder.OpenElement(2, "code"); builder.AddContent(3, text); builder.CloseElement(); builder.CloseElement();
+            builder.OpenElement(0, "pre");
+            builder.AddAttribute(1, "class", "article-code");
+            builder.OpenElement(2, "code");
+            builder.AddContent(3, text);
+            builder.CloseElement();
+            builder.CloseElement();
+
             return;
         }
-        if (type.Contains("summary") || type.Contains("callout"))
+
+        if (type.Contains("summary")
+            || type.Contains("callout"))
         {
-            builder.OpenElement(0, "aside"); builder.AddAttribute(1, "class", "article-callout"); builder.AddContent(2, text); builder.CloseElement();
+            builder.OpenElement(0, "aside");
+            builder.AddAttribute(1, "class", "article-callout");
+            builder.AddContent(2, text);
+            builder.CloseElement();
+
             return;
         }
-        foreach (var paragraph in text.Split(["\r\n\r\n", "\n\n"], StringSplitOptions.RemoveEmptyEntries))
+
+        foreach (var paragraph in text.Split(
+                     ["\r\n\r\n", "\n\n"],
+                     StringSplitOptions.RemoveEmptyEntries))
         {
-            builder.OpenElement(0, "p"); builder.AddContent(1, paragraph.Trim()); builder.CloseElement();
+            builder.OpenElement(0, "p");
+            builder.AddContent(1, paragraph.Trim());
+            builder.CloseElement();
         }
     };
 
@@ -70,22 +118,64 @@
         try
         {
             using var document = JsonDocument.Parse(json);
+
             return FindText(document.RootElement) ?? json;
         }
-        catch (JsonException) { return json; }
+        catch (JsonException)
+        {
+            return json;
+        }
     }
 
     private static string? FindText(JsonElement element)
     {
-        if (element.ValueKind == JsonValueKind.String) return element.GetString();
+        if (element.ValueKind == JsonValueKind.String)
+        {
+            return element.GetString();
+        }
+
         if (element.ValueKind == JsonValueKind.Object)
         {
-            foreach (var name in new[] { "markdown", "text", "content", "code", "body", "summary", "html" })
-                if (element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String) return value.GetString();
-            foreach (var property in element.EnumerateObject()) { var found = FindText(property.Value); if (!string.IsNullOrWhiteSpace(found)) return found; }
+            foreach (var name in new[]
+                     {
+                         "markdown",
+                         "text",
+                         "content",
+                         "code",
+                         "body",
+                         "summary",
+                         "html"
+                     })
+            {
+                if (element.TryGetProperty(name, out var value)
+                    && value.ValueKind == JsonValueKind.String)
+                {
+                    return value.GetString();
+                }
+            }
+
+            foreach (var property in element.EnumerateObject())
+            {
+                var found = FindText(property.Value);
+
+                if (!string.IsNullOrWhiteSpace(found))
+                {
+                    return found;
+                }
+            }
         }
+
         if (element.ValueKind == JsonValueKind.Array)
-            return string.Join("\n", element.EnumerateArray().Select(FindText).Where(x => !string.IsNullOrWhiteSpace(x)));
+        {
+            return string.Join(
+                "\n",
+                element
+                    .EnumerateArray()
+                    .Select(FindText)
+                    .Where(value =>
+                        !string.IsNullOrWhiteSpace(value)));
+        }
+
         return null;
     }
 }

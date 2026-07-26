@@ -31,7 +31,11 @@ public sealed class UpdateArticleBlockHandler
 
         var type = ParseType(command.Type);
 
-        if (!article.UpdateBlock(command.BlockId, type, command.ContentJson))
+        if (!article.UpdateBlock(
+                command.BlockId,
+                type,
+                command.ContentJson,
+                command.LanguageCode))
         {
             return false;
         }

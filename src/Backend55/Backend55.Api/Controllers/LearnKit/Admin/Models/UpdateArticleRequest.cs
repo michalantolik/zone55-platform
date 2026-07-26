@@ -20,4 +20,5 @@ public sealed record UpdateArticleRequest(
     string Slug,
     string Title,
     string? Summary,
-    int SortOrder);
+    int SortOrder,
+    string LanguageCode = "en");

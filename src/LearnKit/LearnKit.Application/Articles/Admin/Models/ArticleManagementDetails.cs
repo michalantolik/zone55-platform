@@ -9,25 +9,38 @@ namespace LearnKit.Application.Articles.Admin.Models;
 /// Unique article identifier.
 /// </param>
 /// <param name="LearningStepId">
-/// Identifier of the learning step that owns the article.
+/// Identifier of the learning step owning the article.
 /// </param>
 /// <param name="Slug">
-/// URL-friendly article identifier.
+/// Slug shared by every language version.
 /// </param>
 /// <param name="Title">
-/// Article title.
+/// Title in the selected language.
 /// </param>
 /// <param name="Summary">
-/// Short article description.
+/// Summary in the selected language.
 /// </param>
 /// <param name="SortOrder">
 /// Article position inside its learning step.
 /// </param>
 /// <param name="Status">
-/// Current article publishing state.
+/// Publishing state of the selected language.
 /// </param>
 /// <param name="Blocks">
-/// Content blocks belonging to the article.
+/// Blocks prepared in the selected language.
+/// </param>
+/// <param name="LanguageCode">
+/// Language selected for editing.
+/// </param>
+/// <param name="TranslationExists">
+/// Indicates whether the selected translation already exists.
+/// </param>
+/// <param name="IsFallback">
+/// Indicates that default-language content is shown
+/// because the selected translation does not exist.
+/// </param>
+/// <param name="AvailableLanguages">
+/// Languages currently available for this article.
 /// </param>
 public sealed record ArticleManagementDetails(
     Guid Id,
@@ -37,4 +50,8 @@ public sealed record ArticleManagementDetails(
     string Summary,
     int SortOrder,
     string Status,
-    IReadOnlyCollection<ArticleBlockDetails> Blocks);
+    IReadOnlyCollection<ArticleBlockDetails> Blocks,
+    string LanguageCode = "en",
+    bool TranslationExists = true,
+    bool IsFallback = false,
+    IReadOnlyCollection<string>? AvailableLanguages = null);

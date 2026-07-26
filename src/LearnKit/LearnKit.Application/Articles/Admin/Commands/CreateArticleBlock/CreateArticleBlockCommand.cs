@@ -1,3 +1,5 @@
+using LearnKit.Domain.Articles.BusinessRules;
+
 namespace LearnKit.Application.Articles.Admin.Commands.CreateArticleBlock;
 
 /// <summary>
@@ -7,4 +9,5 @@ public sealed record CreateArticleBlockCommand(
     Guid ArticleId,
     string Type,
     int SortOrder,
-    string ContentJson);
+    string ContentJson,
+    string LanguageCode = SupportedArticleLanguages.Default);

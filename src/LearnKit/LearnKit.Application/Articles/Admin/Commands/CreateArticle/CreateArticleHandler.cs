@@ -42,7 +42,8 @@ public sealed class CreateArticleHandler
             command.Slug,
             command.Title,
             command.SortOrder,
-            command.Summary);
+            command.Summary,
+            command.LanguageCode);
 
         await _articleManagementStore.AddAsync(
             article,

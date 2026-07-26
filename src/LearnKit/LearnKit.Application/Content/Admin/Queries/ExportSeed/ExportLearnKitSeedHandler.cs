@@ -16,7 +16,7 @@ public sealed class ExportLearnKitSeedHandler(
         var export = await store.ExportAsync(cancellationToken);
 
         return new LearnKitSeedExport(
-            export.SchemaVersion,
+            2,
             new LearnKitSeedContent(
                 export.Paths
                     .OrderBy(path => path.SortOrder)
@@ -74,13 +74,31 @@ public sealed class ExportLearnKitSeedHandler(
                 .OrderBy(block => block.SortOrder)
                 .ThenBy(block => block.Id)
                 .Select(MapBlock)
-                .ToList());
+                .ToList(),
+            article.Translations
+                .OrderBy(translation => translation.LanguageCode)
+                .ToDictionary(
+                    translation => translation.LanguageCode,
+                    translation => new ArticleTranslationSeedExport(
+                        translation.Title,
+                        translation.Summary,
+                        (int)Enum.Parse<ArticleStatus>(
+                            translation.Status,
+                            ignoreCase: true)),
+                    StringComparer.Ordinal));
 
     private static ArticleBlockSeedExport MapBlock(ArticleBlockExport block) =>
         new(
             (int)Enum.Parse<ArticleBlockType>(
-                block.Type,
+            block.Type,
                 ignoreCase: true),
             block.SortOrder,
-            block.Content);
+            block.Content,
+            block.Translations
+                .OrderBy(translation => translation.LanguageCode)
+                .ToDictionary(
+                    translation => translation.LanguageCode,
+                    translation => new ArticleBlockTranslationSeedExport(
+                        translation.Content),
+                    StringComparer.Ordinal));
 }

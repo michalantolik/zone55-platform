@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "content": {
     "learningPaths": [
       {
@@ -26,7 +26,14 @@
                     "summary": "test",
                     "status": 0,
                     "sortOrder": 1,
-                    "blocks": []
+                    "blocks": [],
+                    "translations": {
+                      "en": {
+                        "title": "Test",
+                        "summary": "test",
+                        "status": 0
+                      }
+                    }
                   }
                 ]
               }

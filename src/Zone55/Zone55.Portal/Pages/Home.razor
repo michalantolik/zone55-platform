@@ -11,6 +11,7 @@
 @inject ILearnKitApiClient LearnKitApi
 @inject IConfiguration Configuration
 @inject ILogger<Home> Logger
+@inject ContentLanguageState ContentLanguage
 
 <PageTitle>@PageTitleText</PageTitle>
 
@@ -609,7 +610,10 @@ else
 
         if (articleBelongsToSelectedStep)
         {
-            _selectedLearnKitArticle = await LearnKitApi.GetLearnKitArticleBySlugAsync(EffectiveArticleSlug);
+            _selectedLearnKitArticle =
+                await LearnKitApi.GetLearnKitArticleBySlugAsync(
+                    EffectiveArticleSlug,
+                    ContentLanguage.Current);
         }
     }
 

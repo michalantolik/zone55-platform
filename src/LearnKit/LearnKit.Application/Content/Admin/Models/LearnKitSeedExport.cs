@@ -39,9 +39,19 @@ public sealed record ArticleSeedExport(
     string Summary,
     int Status,
     int SortOrder,
-    IReadOnlyCollection<ArticleBlockSeedExport> Blocks);
+    IReadOnlyCollection<ArticleBlockSeedExport> Blocks,
+    IReadOnlyDictionary<string, ArticleTranslationSeedExport> Translations);
+
+public sealed record ArticleTranslationSeedExport(
+    string Title,
+    string Summary,
+    int Status);
 
 public sealed record ArticleBlockSeedExport(
     int Type,
     int SortOrder,
+    JsonElement Content,
+    IReadOnlyDictionary<string, ArticleBlockTranslationSeedExport> Translations);
+
+public sealed record ArticleBlockTranslationSeedExport(
     JsonElement Content);

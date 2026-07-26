@@ -31,7 +31,11 @@ public sealed class CreateArticleBlockHandler
         }
 
         var type = ParseType(command.Type);
-        var block = new ArticleBlock(type, command.SortOrder, command.ContentJson);
+        var block = new ArticleBlock(
+            type,
+            command.SortOrder,
+            command.ContentJson,
+            command.LanguageCode);
 
         article.AddBlock(block);
         await _articleManagementStore.SaveChangesAsync(cancellationToken);

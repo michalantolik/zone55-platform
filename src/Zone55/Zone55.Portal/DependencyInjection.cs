@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<ILearnKitApiClient, LearnKitApiClient>();
         services.AddScoped<IPreviewDiagnosticsClient, PreviewDiagnosticsClient>();
         services.AddScoped<LearnKitBlockComponentTypeProvider>();
+        services.AddScoped<ContentLanguageState>();
 
         return services;
     }

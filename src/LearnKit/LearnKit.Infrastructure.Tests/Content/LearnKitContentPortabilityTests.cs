@@ -29,7 +29,7 @@ public sealed class LearnKitContentPortabilityTests
 
         var exportedPath = Assert.Single(export.Paths);
         Assert.Equal(path.Id, exportedPath.Id);
-        Assert.Equal(1, export.SchemaVersion);
+        Assert.Equal(2, export.SchemaVersion);
         Assert.Equal(1, exportedPath.SortOrder);
         Assert.Equal(new[] { 1, 2 }, exportedPath.Zones.Select(zone => zone.SortOrder));
         Assert.Equal("foundation", exportedPath.Zones.First().Key);
@@ -67,6 +67,11 @@ public sealed class LearnKitContentPortabilityTests
         Assert.Equal("value-types", article.Slug);
         Assert.Equal(ArticleStatus.Draft, article.Status);
         Assert.Equal(ArticleBlockType.Markdown, block.Type);
+        Assert.Equal(2, seedExport.SchemaVersion);
+        Assert.Equal("Value types", article.Translations["en"].Title);
+        Assert.Equal(
+            "Content",
+            block.Translations["en"].Content.GetProperty("markdown").GetString());
 
         using var document = JsonDocument.Parse(json);
         Assert.False(document.RootElement.TryGetProperty("exportedAtUtc", out _));

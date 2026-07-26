@@ -7,19 +7,26 @@
 /// Unique article identifier.
 /// </param>
 /// <param name="Slug">
-/// URL-friendly article identifier.
+/// URL-friendly identifier shared by every language.
 /// </param>
 /// <param name="Title">
-/// Article title shown to the user.
+/// Article title in the resolved language.
 /// </param>
 /// <param name="Summary">
-/// Short article description.
+/// Article summary in the resolved language.
 /// </param>
 /// <param name="Status">
-/// Current article publishing state.
+/// Publishing state of the resolved language version.
 /// </param>
 /// <param name="Blocks">
-/// Ordered article blocks.
+/// Ordered blocks in the resolved language.
+/// </param>
+/// <param name="LanguageCode">
+/// Language actually returned by the API.
+/// </param>
+/// <param name="IsFallback">
+/// Indicates that the requested language was unavailable
+/// and the default language was returned.
 /// </param>
 public sealed record ArticleDetails(
     Guid Id,
@@ -27,4 +34,6 @@ public sealed record ArticleDetails(
     string Title,
     string Summary,
     string Status,
-    IReadOnlyCollection<ArticleBlockDetails> Blocks);
+    IReadOnlyCollection<ArticleBlockDetails> Blocks,
+    string LanguageCode = "en",
+    bool IsFallback = false);

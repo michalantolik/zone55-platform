@@ -38,7 +38,21 @@ public sealed class UnpublishArticleHandler
             return false;
         }
 
-        article.MoveToDraft();
+        var unpublished =
+            article.MoveTranslationToDraft(command.LanguageCode);
+
+        if (!unpublished)
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                command.LanguageCode,
+                LearnKit.Domain.Articles.BusinessRules.SupportedArticleLanguages.Default,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            article.MoveToDraft();
+        }
 
         await _articleManagementStore.SaveChangesAsync(cancellationToken);
 

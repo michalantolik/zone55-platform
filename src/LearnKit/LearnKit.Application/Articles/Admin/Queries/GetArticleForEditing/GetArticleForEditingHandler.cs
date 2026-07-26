@@ -28,6 +28,7 @@ public sealed class GetArticleForEditingHandler
     {
         return _articleManagementStore.GetByIdAsync(
             query.ArticleId,
+            query.LanguageCode,
             cancellationToken);
     }
 }

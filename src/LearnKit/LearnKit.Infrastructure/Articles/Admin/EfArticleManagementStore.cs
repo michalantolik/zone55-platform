@@ -2,15 +2,19 @@ using LearnKit.Application.Articles.Admin.Contracts;
 using LearnKit.Application.Articles.Admin.Models;
 using LearnKit.Application.Articles.Public.Models;
 using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles.BusinessRules;
+using LearnKit.Domain.Articles.Entities;
 using LearnKit.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearnKit.Infrastructure.Articles;
 
 /// <summary>
-/// Entity Framework implementation of <see cref="IArticleManagementStore"/>.
+/// Entity Framework implementation of
+/// <see cref="IArticleManagementStore"/>.
 /// </summary>
-internal sealed class EfArticleManagementStore : IArticleManagementStore
+internal sealed class EfArticleManagementStore
+    : IArticleManagementStore
 {
     private readonly LearnKitDbContext _dbContext;
 
@@ -24,8 +28,9 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyCollection<ArticleManagementListItem>> GetAllAsync(
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ArticleManagementListItem>>
+        GetAllAsync(
+            CancellationToken cancellationToken = default)
     {
         return await _dbContext.Articles
             .AsNoTracking()
@@ -44,30 +49,35 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
     }
 
     /// <inheritdoc />
-    public async Task<ArticleManagementDetails?> GetByIdAsync(
+    public Task<ArticleManagementDetails?> GetByIdAsync(
         Guid articleId,
         CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Articles
+        return GetByIdAsync(
+            articleId,
+            SupportedArticleLanguages.Default,
+            cancellationToken);
+    }
+
+    public async Task<ArticleManagementDetails?> GetByIdAsync(
+        Guid articleId,
+        string languageCode,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedLanguage =
+            SupportedArticleLanguages.Normalize(languageCode);
+
+        var article = await _dbContext.Articles
             .AsNoTracking()
-            .Where(article => article.Id == articleId)
-            .Select(article => new ArticleManagementDetails(
-                article.Id,
-                article.LearningStepId,
-                article.Slug,
-                article.Title,
-                article.Summary,
-                article.SortOrder,
-                article.Status.ToString(),
-                article.Blocks
-                    .OrderBy(block => block.SortOrder)
-                    .Select(block => new ArticleBlockDetails(
-                        block.Id,
-                        block.Type.ToString(),
-                        block.SortOrder,
-                        block.ContentJson))
-                    .ToList()))
+            .Include(item => item.Translations)
+            .Include(item => item.Blocks)
+                .ThenInclude(block => block.Translations)
+            .Where(item => item.Id == articleId)
             .FirstOrDefaultAsync(cancellationToken);
+
+        return article is null
+            ? null
+            : MapForEditing(article, normalizedLanguage);
     }
 
     /// <inheritdoc />
@@ -76,7 +86,9 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
         CancellationToken cancellationToken = default)
     {
         return _dbContext.Articles
+            .Include(article => article.Translations)
             .Include(article => article.Blocks)
+                .ThenInclude(block => block.Translations)
             .FirstOrDefaultAsync(
                 article => article.Id == articleId,
                 cancellationToken);
@@ -91,8 +103,10 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
         var normalizedSlug = slug.Trim();
 
         return _dbContext.Articles.AnyAsync(
-            article => article.Slug == normalizedSlug
-                && (!excludingArticleId.HasValue || article.Id != excludingArticleId.Value),
+            article =>
+                article.Slug == normalizedSlug
+                && (!excludingArticleId.HasValue
+                    || article.Id != excludingArticleId.Value),
             cancellationToken);
     }
 
@@ -106,12 +120,14 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
             cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Article>> GetTrackedByStepIdAsync(
-        Guid learningStepId,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<Article>>
+        GetTrackedByStepIdAsync(
+            Guid learningStepId,
+            CancellationToken cancellationToken = default)
     {
         return await _dbContext.Articles
-            .Where(article => article.LearningStepId == learningStepId)
+            .Where(article =>
+                article.LearningStepId == learningStepId)
             .ToListAsync(cancellationToken);
     }
 
@@ -124,6 +140,63 @@ internal sealed class EfArticleManagementStore : IArticleManagementStore
     public async Task SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(
+            cancellationToken);
+    }
+
+    private static ArticleManagementDetails MapForEditing(
+        Article article,
+        string requestedLanguage)
+    {
+        var requestedTranslation = article.GetTranslation(requestedLanguage);
+        var hasCompleteTranslation =
+            requestedTranslation is not null
+            && article.Blocks.All(
+                block => block.GetTranslation(requestedLanguage) is not null);
+
+        var contentLanguage = requestedTranslation is not null
+            ? requestedLanguage
+            : SupportedArticleLanguages.Default;
+
+        var selectedTranslation = article.GetTranslation(contentLanguage);
+
+        var blocks = article.Blocks
+            .Select(block => MapBlock(
+                block,
+                contentLanguage,
+                requestedLanguage))
+            .ToList();
+
+        return new ArticleManagementDetails(
+            article.Id,
+            article.LearningStepId,
+            article.Slug,
+            selectedTranslation?.Title ?? article.Title,
+            selectedTranslation?.Summary ?? article.Summary,
+            article.SortOrder,
+            selectedTranslation?.Status.ToString() ?? article.Status.ToString(),
+            blocks,
+            requestedLanguage,
+            requestedTranslation is not null,
+            !hasCompleteTranslation,
+            article.Translations
+                .Select(translation => translation.LanguageCode)
+                .OrderBy(language => language)
+                .ToList());
+    }
+
+    private static ArticleBlockDetails MapBlock(
+        ArticleBlock block,
+        string contentLanguage,
+        string requestedLanguage)
+    {
+        return new ArticleBlockDetails(
+            block.Id,
+            block.Type.ToString(),
+            block.SortOrder,
+            block.GetTranslation(requestedLanguage)?.ContentJson
+                ?? block.GetTranslation(contentLanguage)?.ContentJson
+                ?? block.GetTranslation(SupportedArticleLanguages.Default)?.ContentJson
+                ?? block.ContentJson);
     }
 }

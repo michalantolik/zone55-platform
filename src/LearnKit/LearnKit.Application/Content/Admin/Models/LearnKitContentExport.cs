@@ -38,10 +38,22 @@ public sealed record ArticleExport(
     string Summary,
     int SortOrder,
     string Status,
-    IReadOnlyCollection<ArticleBlockExport> Blocks);
+    IReadOnlyCollection<ArticleBlockExport> Blocks,
+    IReadOnlyCollection<ArticleTranslationExport> Translations);
+
+public sealed record ArticleTranslationExport(
+    string LanguageCode,
+    string Title,
+    string Summary,
+    string Status);
 
 public sealed record ArticleBlockExport(
     Guid Id,
     string Type,
     int SortOrder,
+    JsonElement Content,
+    IReadOnlyCollection<ArticleBlockTranslationExport> Translations);
+
+public sealed record ArticleBlockTranslationExport(
+    string LanguageCode,
     JsonElement Content);

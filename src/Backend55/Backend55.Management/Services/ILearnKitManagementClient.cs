@@ -9,6 +9,7 @@ public interface ILearnKitManagementClient
 
     Task<ArticleManagementDetails?> GetArticleAsync(
         Guid articleId,
+        string languageCode = "en",
         CancellationToken cancellationToken = default);
 
     Task<LearningPathManagementDetails?> GetFirstLearningPathAsync(
@@ -89,9 +90,11 @@ public interface ILearnKitManagementClient
 
     Task PublishArticleAsync(
         Guid articleId,
+        string languageCode = "en",
         CancellationToken cancellationToken = default);
 
     Task UnpublishArticleAsync(
         Guid articleId,
+        string languageCode = "en",
         CancellationToken cancellationToken = default);
 }

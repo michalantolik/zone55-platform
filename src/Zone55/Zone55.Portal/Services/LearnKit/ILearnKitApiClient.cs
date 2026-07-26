@@ -7,6 +7,7 @@ public interface ILearnKitApiClient
 {
     Task<LearnKitArticleDetails?> GetLearnKitArticleBySlugAsync(
         string slug,
+        string languageCode = "en",
         CancellationToken cancellationToken = default);
 
     Task<LearnKitLearningPathDetails?> GetLearnKitLearningPathAsync(

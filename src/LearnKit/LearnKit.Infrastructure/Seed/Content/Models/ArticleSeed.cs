@@ -37,4 +37,10 @@ public sealed class ArticleSeed
     /// Blocks belonging to this article.
     /// </summary>
     public Collection<ArticleBlockSeed> Blocks { get; init; } = [];
+
+    /// <summary>
+    /// Language-specific article data. Empty for legacy schema v1 seeds.
+    /// </summary>
+    public Dictionary<string, ArticleTranslationSeed> Translations { get; init; } =
+        new(StringComparer.OrdinalIgnoreCase);
 }

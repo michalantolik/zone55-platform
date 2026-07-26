@@ -16,6 +16,7 @@ using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using Microsoft.AspNetCore.Mvc;
 using LearnKit.Application.Articles.Admin;
 using LearnKit.Domain.Articles.Exceptions;
+using LearnKit.Domain.Articles.BusinessRules;
 
 namespace Zone55.Api.Controllers.LearnKit.Admin;
 
@@ -93,9 +94,17 @@ public sealed class ArticlesManagementController : ControllerBase
     [HttpGet("{articleId:guid}")]
     public async Task<IActionResult> GetById(
         Guid articleId,
-        CancellationToken cancellationToken)
+        [FromQuery] string language = SupportedArticleLanguages.Default,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetArticleForEditingQuery(articleId);
+        if (!SupportedArticleLanguages.IsSupported(language))
+        {
+            return ManagementErrors.BadRequest(
+                "article_language_unsupported",
+                $"Unsupported article language '{language}'.");
+        }
+
+        var query = new GetArticleForEditingQuery(articleId, language);
 
         var article = await _getArticleForEditingHandler.HandleAsync(
             query,
@@ -119,12 +128,18 @@ public sealed class ArticlesManagementController : ControllerBase
         [FromBody] CreateArticleRequest request,
         CancellationToken cancellationToken)
     {
+        if (!SupportedArticleLanguages.IsSupported(request.LanguageCode))
+        {
+            return UnsupportedLanguage(request.LanguageCode);
+        }
+
         var command = new CreateArticleCommand(
             request.LearningStepId,
             request.Slug,
             request.Title,
             request.Summary,
-            request.SortOrder);
+            request.SortOrder,
+            request.LanguageCode);
 
         Guid articleId;
 
@@ -154,13 +169,19 @@ public sealed class ArticlesManagementController : ControllerBase
         [FromBody] UpdateArticleRequest request,
         CancellationToken cancellationToken)
     {
+        if (!SupportedArticleLanguages.IsSupported(request.LanguageCode))
+        {
+            return UnsupportedLanguage(request.LanguageCode);
+        }
+
         var command = new UpdateArticleCommand(
             articleId,
             request.LearningStepId,
             request.Slug,
             request.Title,
             request.Summary,
-            request.SortOrder);
+            request.SortOrder,
+            request.LanguageCode);
 
         bool updated;
 
@@ -244,11 +265,17 @@ public sealed class ArticlesManagementController : ControllerBase
         [FromBody] CreateArticleBlockRequest request,
         CancellationToken cancellationToken)
     {
+        if (!SupportedArticleLanguages.IsSupported(request.LanguageCode))
+        {
+            return UnsupportedLanguage(request.LanguageCode);
+        }
+
         var command = new CreateArticleBlockCommand(
             articleId,
             request.Type,
             request.SortOrder,
-            request.ContentJson);
+            request.ContentJson,
+            request.LanguageCode);
 
         Guid? blockId;
 
@@ -286,11 +313,17 @@ public sealed class ArticlesManagementController : ControllerBase
         [FromBody] UpdateArticleBlockRequest request,
         CancellationToken cancellationToken)
     {
+        if (!SupportedArticleLanguages.IsSupported(request.LanguageCode))
+        {
+            return UnsupportedLanguage(request.LanguageCode);
+        }
+
         var command = new UpdateArticleBlockCommand(
             articleId,
             blockId,
             request.Type,
-            request.ContentJson);
+            request.ContentJson,
+            request.LanguageCode);
 
         bool updated;
 
@@ -373,9 +406,17 @@ public sealed class ArticlesManagementController : ControllerBase
     [HttpPost("{articleId:guid}/publish")]
     public async Task<IActionResult> Publish(
         Guid articleId,
-        CancellationToken cancellationToken)
+        [FromQuery] string language = SupportedArticleLanguages.Default,
+        CancellationToken cancellationToken = default)
     {
-        var command = new PublishArticleCommand(articleId);
+        if (!SupportedArticleLanguages.IsSupported(language))
+        {
+            return ManagementErrors.BadRequest(
+                "article_language_unsupported",
+                $"Unsupported article language '{language}'.");
+        }
+
+        var command = new PublishArticleCommand(articleId, language);
 
         var published = await _publishArticleHandler.HandleAsync(
             command,
@@ -397,9 +438,17 @@ public sealed class ArticlesManagementController : ControllerBase
     [HttpPost("{articleId:guid}/unpublish")]
     public async Task<IActionResult> Unpublish(
         Guid articleId,
-        CancellationToken cancellationToken)
+        [FromQuery] string language = SupportedArticleLanguages.Default,
+        CancellationToken cancellationToken = default)
     {
-        var command = new UnpublishArticleCommand(articleId);
+        if (!SupportedArticleLanguages.IsSupported(language))
+        {
+            return ManagementErrors.BadRequest(
+                "article_language_unsupported",
+                $"Unsupported article language '{language}'.");
+        }
+
+        var command = new UnpublishArticleCommand(articleId, language);
 
         var unpublished = await _unpublishArticleHandler.HandleAsync(
             command,
@@ -415,6 +464,13 @@ public sealed class ArticlesManagementController : ControllerBase
         return NoContent();
     }
 
+
+    private ActionResult UnsupportedLanguage(string languageCode)
+    {
+        return ManagementErrors.BadRequest(
+            "article_language_unsupported",
+            $"Unsupported article language '{languageCode}'.");
+    }
 
     private ActionResult InvalidBlockContent(
         InvalidArticleBlockException exception)

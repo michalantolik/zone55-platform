@@ -12,6 +12,10 @@ public sealed class LearnKitArticleDetails
 
     public string? Status { get; init; }
 
+    public string LanguageCode { get; init; } = "en";
+
+    public bool IsFallback { get; init; }
+
     public required IReadOnlyList<LearnKitArticleBlockDetails> Blocks { get; init; }
 }
 

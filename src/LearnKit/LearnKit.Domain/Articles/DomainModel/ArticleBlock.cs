@@ -6,10 +6,17 @@ namespace LearnKit.Domain.Articles.Entities;
 /// <summary>
 /// Represents a single block inside an article.
 ///
-/// Each block has a type, order, and JSON content.
+/// Each block has a type, order, and language-specific content.
 /// </summary>
 public sealed class ArticleBlock
 {
+    private readonly List<ArticleBlockTranslation> _translations = [];
+
+    private ArticleBlock()
+    {
+        ContentJson = string.Empty;
+    }
+
     /// <summary>
     /// Creates a new article block.
     /// </summary>
@@ -17,6 +24,19 @@ public sealed class ArticleBlock
         ArticleBlockType type,
         int sortOrder,
         string contentJson)
+        : this(
+            type,
+            sortOrder,
+            contentJson,
+            SupportedArticleLanguages.Default)
+    {
+    }
+
+    public ArticleBlock(
+        ArticleBlockType type,
+        int sortOrder,
+        string contentJson,
+        string languageCode)
     {
         ValidateSortOrder(sortOrder);
         ArticleBlockContentValidator.Validate(type, contentJson);
@@ -24,6 +44,12 @@ public sealed class ArticleBlock
         Type = type;
         SortOrder = sortOrder;
         ContentJson = NormalizeContent(contentJson);
+
+        _translations.Add(
+            new ArticleBlockTranslation(
+                languageCode,
+                type,
+                contentJson));
     }
 
     /// <summary>
@@ -42,19 +68,88 @@ public sealed class ArticleBlock
     public int SortOrder { get; private set; }
 
     /// <summary>
-    /// Block content stored as JSON.
+    /// Legacy block content retained during the localization migration.
     /// </summary>
     public string ContentJson { get; private set; }
 
     /// <summary>
-    /// Changes the block type.
+    /// Language-specific versions of the block content.
     /// </summary>
-    public void Update(ArticleBlockType type, string contentJson)
+    public IReadOnlyCollection<ArticleBlockTranslation> Translations =>
+        _translations.ToList();
+
+    /// <summary>
+    /// Changes the block type and its legacy content.
+    /// </summary>
+    public void Update(
+        ArticleBlockType type,
+        string contentJson)
     {
         ArticleBlockContentValidator.Validate(type, contentJson);
 
+        foreach (var translation in _translations)
+        {
+            ArticleBlockContentValidator.Validate(
+                type,
+                translation.ContentJson);
+        }
+
         Type = type;
         ContentJson = NormalizeContent(contentJson);
+    }
+
+    public void ChangeType(ArticleBlockType type)
+    {
+        ArticleBlockContentValidator.Validate(type, ContentJson);
+
+        foreach (var translation in _translations)
+        {
+            ArticleBlockContentValidator.Validate(type, translation.ContentJson);
+        }
+
+        Type = type;
+    }
+
+    /// <summary>
+    /// Creates or updates content for the selected language.
+    /// </summary>
+    public ArticleBlockTranslation SetTranslation(
+        string languageCode,
+        string contentJson)
+    {
+        var normalizedLanguage =
+            SupportedArticleLanguages.Normalize(languageCode);
+
+        var translation = _translations.SingleOrDefault(
+            item => item.LanguageCode == normalizedLanguage);
+
+        if (translation is null)
+        {
+            translation = new ArticleBlockTranslation(
+                normalizedLanguage,
+                Type,
+                contentJson);
+
+            _translations.Add(translation);
+        }
+        else
+        {
+            translation.Update(Type, contentJson);
+        }
+
+        return translation;
+    }
+
+    /// <summary>
+    /// Returns content for the selected language.
+    /// </summary>
+    public ArticleBlockTranslation? GetTranslation(string languageCode)
+    {
+        var normalizedLanguage =
+            SupportedArticleLanguages.Normalize(languageCode);
+
+        return _translations.SingleOrDefault(
+            translation => translation.LanguageCode == normalizedLanguage);
     }
 
     /// <summary>
@@ -78,6 +173,8 @@ public sealed class ArticleBlock
 
     private static string NormalizeContent(string contentJson)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentJson);
+
         return contentJson.Trim();
     }
 }

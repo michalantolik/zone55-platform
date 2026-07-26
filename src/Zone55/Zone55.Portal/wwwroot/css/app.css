@@ -8,6 +8,28 @@
     box-sizing: border-box;
 }
 
+.portal-language-switch {
+    display: inline-flex;
+    gap: 0.25rem;
+    margin-left: auto;
+}
+
+.portal-language-switch button {
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.3rem 0.55rem;
+    font: inherit;
+    font-size: 0.75rem;
+}
+
+.portal-language-switch button.active {
+    background: rgb(127 127 127 / 20%);
+    font-weight: 700;
+}
+
 html {
     scroll-behavior: smooth;
     scrollbar-gutter: stable;

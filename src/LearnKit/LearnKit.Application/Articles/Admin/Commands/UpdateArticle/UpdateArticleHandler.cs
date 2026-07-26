@@ -49,9 +49,20 @@ public sealed class UpdateArticleHandler
 
         article.MoveToStep(command.LearningStepId);
         article.ChangeSlug(command.Slug);
-        article.Rename(command.Title);
-        article.UpdateSummary(command.Summary);
         article.ChangeSortOrder(command.SortOrder);
+        article.SetTranslation(
+            command.LanguageCode,
+            command.Title,
+            command.Summary);
+
+        if (string.Equals(
+                command.LanguageCode,
+                LearnKit.Domain.Articles.BusinessRules.SupportedArticleLanguages.Default,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            article.Rename(command.Title);
+            article.UpdateSummary(command.Summary);
+        }
 
         await _articleManagementStore.SaveChangesAsync(cancellationToken);
 

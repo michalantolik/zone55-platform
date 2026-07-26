@@ -21,15 +21,16 @@ internal sealed class EfArticleStore : IArticleStore
         Article article,
         CancellationToken cancellationToken = default)
     {
-        return _dbContext.Articles.AddAsync(article, cancellationToken).AsTask();
+        return _dbContext.Articles
+            .AddAsync(article, cancellationToken)
+            .AsTask();
     }
 
     public Task<Article?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        return _dbContext.Articles
-            .Include(article => article.Blocks)
+        return ArticleQuery()
             .FirstOrDefaultAsync(
                 article => article.Id == id,
                 cancellationToken);
@@ -39,8 +40,7 @@ internal sealed class EfArticleStore : IArticleStore
         string slug,
         CancellationToken cancellationToken = default)
     {
-        return _dbContext.Articles
-            .Include(article => article.Blocks)
+        return ArticleQuery()
             .FirstOrDefaultAsync(
                 article => article.Slug == slug,
                 cancellationToken);
@@ -69,5 +69,13 @@ internal sealed class EfArticleStore : IArticleStore
             .AnyAsync(
                 article => article.Slug == slug,
                 cancellationToken);
+    }
+
+    private IQueryable<Article> ArticleQuery()
+    {
+        return _dbContext.Articles
+            .Include(article => article.Translations)
+            .Include(article => article.Blocks)
+                .ThenInclude(block => block.Translations);
     }
 }

@@ -5,4 +5,5 @@ namespace Backend55.Api.Controllers.LearnKit.Admin.Models;
 /// </summary>
 public sealed record UpdateArticleBlockRequest(
     string Type,
-    string ContentJson);
+    string ContentJson,
+    string LanguageCode = "en");

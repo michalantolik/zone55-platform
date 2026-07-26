@@ -22,4 +22,10 @@ public sealed class ArticleBlockSeed
     /// Type-specific block content.
     /// </summary>
     public JsonElement Content { get; init; }
+
+    /// <summary>
+    /// Language-specific block data. Empty for legacy schema v1 seeds.
+    /// </summary>
+    public Dictionary<string, ArticleBlockTranslationSeed> Translations { get; init; } =
+        new(StringComparer.OrdinalIgnoreCase);
 }

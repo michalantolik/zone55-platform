@@ -1,3 +1,5 @@
+using LearnKit.Domain.Articles.BusinessRules;
+
 namespace LearnKit.Application.Articles.Admin.Commands.PublishArticle;
 
 /// <summary>
@@ -7,4 +9,5 @@ namespace LearnKit.Application.Articles.Admin.Commands.PublishArticle;
 /// Unique article identifier.
 /// </param>
 public sealed record PublishArticleCommand(
-    Guid ArticleId);
+    Guid ArticleId,
+    string LanguageCode = SupportedArticleLanguages.Default);

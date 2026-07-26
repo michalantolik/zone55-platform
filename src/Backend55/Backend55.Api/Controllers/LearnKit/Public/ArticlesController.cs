@@ -1,34 +1,56 @@
 using LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
+using LearnKit.Domain.Articles.BusinessRules;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend55.Api.Controllers.LearnKit.Public
+namespace Backend55.Api.Controllers.LearnKit.Public;
+
+/// <summary>
+/// Exposes public LearnKit article endpoints.
+/// </summary>
+[ApiController]
+[Route("api/learnkit/articles")]
+public sealed class ArticlesController : ControllerBase
 {
-    /// <summary>
-    /// Exposes LearnKit article endpoints.
-    /// </summary>
-    [ApiController]
-    [Route("api/learnkit/articles")]
-    public class ArticlesController : ControllerBase
+    private readonly GetArticleBySlugHandler _getArticleBySlugHandler;
+
+    public ArticlesController(
+        GetArticleBySlugHandler getArticleBySlugHandler)
     {
-        private readonly GetArticleBySlugHandler _getArticleBySlugHandler;
+        _getArticleBySlugHandler = getArticleBySlugHandler;
+    }
 
-        public ArticlesController(GetArticleBySlugHandler getArticleBySlugHandler)
+    /// <summary>
+    /// Returns an article in the requested language.
+    /// </summary>
+    [HttpGet("{slug}")]
+    public async Task<IActionResult> GetBySlug(
+        string slug,
+        [FromQuery] string language = SupportedArticleLanguages.Default,
+        CancellationToken cancellationToken = default)
+    {
+        if (!SupportedArticleLanguages.IsSupported(language))
         {
-            _getArticleBySlugHandler = getArticleBySlugHandler;
+            return BadRequest(
+                new
+                {
+                    Error = $"Unsupported content language '{language}'.",
+                    SupportedLanguages = SupportedArticleLanguages.All
+                });
         }
 
-        [HttpGet("{slug}")]
-        public async Task<IActionResult> GetBySlug(string slug, CancellationToken cancellationToken)
+        var query = new GetArticleBySlugQuery(
+            slug,
+            language);
+
+        var article = await _getArticleBySlugHandler.HandleAsync(
+            query,
+            cancellationToken);
+
+        if (article is null)
         {
-            var query = new GetArticleBySlugQuery(slug);
-            var article = await _getArticleBySlugHandler.HandleAsync(query, cancellationToken);
-
-            if (article is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(article);
+            return NotFound();
         }
+
+        return Ok(article);
     }
 }

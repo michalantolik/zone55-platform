@@ -1,3 +1,4 @@
+using LearnKit.Domain.Articles.BusinessRules;
 using LearnKit.Domain.Articles.DomainModel;
 using LearnKit.Domain.Articles.Entities;
 
@@ -6,11 +7,12 @@ namespace LearnKit.Domain.Articles;
 /// <summary>
 /// Represents one article in a learning step.
 ///
-/// An article owns its blocks and controls its publishing state.
+/// An article owns its blocks and language versions.
 /// </summary>
 public sealed class Article
 {
     private readonly List<ArticleBlock> _blocks = [];
+    private readonly List<ArticleTranslation> _translations = [];
 
     /// <summary>
     /// Required by Entity Framework to materialize articles from the database.
@@ -30,7 +32,8 @@ public sealed class Article
         string slug,
         string title,
         int sortOrder,
-        string? summary = null)
+        string? summary = null,
+        string languageCode = SupportedArticleLanguages.Default)
     {
         ValidateId(learningStepId, nameof(learningStepId));
         ValidateRequired(slug, nameof(slug), "Article slug is required.");
@@ -49,6 +52,12 @@ public sealed class Article
         SortOrder = sortOrder;
         Summary = NormalizeOptional(summary);
         Status = ArticleStatus.Draft;
+
+        _translations.Add(
+            new ArticleTranslation(
+                languageCode,
+                title,
+                summary));
     }
 
     /// <summary>
@@ -62,12 +71,12 @@ public sealed class Article
     public Guid LearningStepId { get; private set; }
 
     /// <summary>
-    /// URL-friendly article identifier.
+    /// URL-friendly article identifier shared by every language.
     /// </summary>
     public string Slug { get; private set; }
 
     /// <summary>
-    /// Article title shown to the user.
+    /// Legacy article title retained during the localization migration.
     /// </summary>
     public string Title { get; private set; }
 
@@ -77,14 +86,20 @@ public sealed class Article
     public int SortOrder { get; private set; }
 
     /// <summary>
-    /// Short article description.
+    /// Legacy article summary retained during the localization migration.
     /// </summary>
     public string Summary { get; private set; }
 
     /// <summary>
-    /// Current article publishing state.
+    /// Legacy publishing state retained during the localization migration.
     /// </summary>
     public ArticleStatus Status { get; private set; }
+
+    /// <summary>
+    /// Language-specific versions of the article.
+    /// </summary>
+    public IReadOnlyCollection<ArticleTranslation> Translations =>
+        _translations.ToList();
 
     /// <summary>
     /// Ordered article blocks.
@@ -93,7 +108,7 @@ public sealed class Article
         _blocks.OrderBy(block => block.SortOrder).ToList();
 
     /// <summary>
-    /// Indicates whether the article is published.
+    /// Indicates whether the legacy article version is published.
     /// </summary>
     public bool IsPublished => Status == ArticleStatus.Published;
 
@@ -108,7 +123,7 @@ public sealed class Article
     }
 
     /// <summary>
-    /// Changes the article slug.
+    /// Changes the slug shared by every language version.
     /// </summary>
     public void ChangeSlug(string slug)
     {
@@ -118,13 +133,18 @@ public sealed class Article
     }
 
     /// <summary>
-    /// Renames the article.
+    /// Renames the legacy and default language versions.
     /// </summary>
     public void Rename(string title)
     {
         ValidateRequired(title, nameof(title), "Article title is required.");
 
         Title = title.Trim();
+
+        SetTranslation(
+            SupportedArticleLanguages.Default,
+            Title,
+            Summary);
     }
 
     /// <summary>
@@ -143,35 +163,137 @@ public sealed class Article
     }
 
     /// <summary>
-    /// Updates the article summary.
+    /// Updates the legacy and default language summaries.
     /// </summary>
     public void UpdateSummary(string? summary)
     {
         Summary = NormalizeOptional(summary);
+
+        SetTranslation(
+            SupportedArticleLanguages.Default,
+            Title,
+            Summary);
     }
 
     /// <summary>
-    /// Publishes the article.
+    /// Creates or updates an article language version.
+    /// </summary>
+    public ArticleTranslation SetTranslation(
+        string languageCode,
+        string title,
+        string? summary)
+    {
+        var normalizedLanguage =
+            SupportedArticleLanguages.Normalize(languageCode);
+
+        var translation = _translations.SingleOrDefault(
+            item => item.LanguageCode == normalizedLanguage);
+
+        if (translation is null)
+        {
+            translation = new ArticleTranslation(
+                normalizedLanguage,
+                title,
+                summary);
+
+            _translations.Add(translation);
+        }
+        else
+        {
+            translation.Update(title, summary);
+        }
+
+        return translation;
+    }
+
+    /// <summary>
+    /// Returns the selected article language version.
+    /// </summary>
+    public ArticleTranslation? GetTranslation(string languageCode)
+    {
+        var normalizedLanguage =
+            SupportedArticleLanguages.Normalize(languageCode);
+
+        return _translations.SingleOrDefault(
+            translation => translation.LanguageCode == normalizedLanguage);
+    }
+
+    /// <summary>
+    /// Publishes the legacy and default language versions.
     /// </summary>
     public void Publish()
     {
         Status = ArticleStatus.Published;
+
+        GetTranslation(SupportedArticleLanguages.Default)?.Publish();
     }
 
     /// <summary>
-    /// Moves the article back to draft.
+    /// Publishes the selected language version.
+    /// </summary>
+    public bool PublishTranslation(string languageCode)
+    {
+        var translation = GetTranslation(languageCode);
+
+        if (translation is null)
+        {
+            return false;
+        }
+
+        translation.Publish();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Moves the legacy and default language versions back to draft.
     /// </summary>
     public void MoveToDraft()
     {
         Status = ArticleStatus.Draft;
+
+        GetTranslation(SupportedArticleLanguages.Default)?.MoveToDraft();
     }
 
     /// <summary>
-    /// Archives the article.
+    /// Moves the selected language version back to draft.
+    /// </summary>
+    public bool MoveTranslationToDraft(string languageCode)
+    {
+        var translation = GetTranslation(languageCode);
+
+        if (translation is null)
+        {
+            return false;
+        }
+
+        translation.MoveToDraft();
+
+        return true;
+    }
+
+    public bool ArchiveTranslation(string languageCode)
+    {
+        var translation = GetTranslation(languageCode);
+
+        if (translation is null)
+        {
+            return false;
+        }
+
+        translation.Archive();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Archives the legacy and default language versions.
     /// </summary>
     public void Archive()
     {
         Status = ArticleStatus.Archived;
+
+        GetTranslation(SupportedArticleLanguages.Default)?.Archive();
     }
 
     /// <summary>
@@ -192,31 +314,70 @@ public sealed class Article
     }
 
     /// <summary>
-    /// Updates an existing block.
+    /// Updates an existing legacy block.
     /// </summary>
     public bool UpdateBlock(
         Guid blockId,
         ArticleBlockType type,
-        string contentJson)
+        string contentJson,
+        string languageCode = SupportedArticleLanguages.Default)
     {
-        var block = _blocks.FirstOrDefault(block => block.Id == blockId);
+        var block = _blocks.FirstOrDefault(
+            block => block.Id == blockId);
 
         if (block is null)
         {
             return false;
         }
 
-        block.Update(type, contentJson);
+        var normalizedLanguage =
+            SupportedArticleLanguages.Normalize(languageCode);
+
+        if (string.Equals(
+                normalizedLanguage,
+                SupportedArticleLanguages.Default,
+                StringComparison.Ordinal))
+        {
+            block.Update(type, contentJson);
+        }
+        else
+        {
+            block.ChangeType(type);
+        }
+
+        block.SetTranslation(normalizedLanguage, contentJson);
 
         return true;
     }
 
     /// <summary>
-    /// Removes an existing block.
+    /// Creates or updates a translated version of an existing block.
+    /// </summary>
+    public bool SetBlockTranslation(
+        Guid blockId,
+        string languageCode,
+        string contentJson)
+    {
+        var block = _blocks.FirstOrDefault(
+            block => block.Id == blockId);
+
+        if (block is null)
+        {
+            return false;
+        }
+
+        block.SetTranslation(languageCode, contentJson);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Removes an existing block and all its translations.
     /// </summary>
     public bool RemoveBlock(Guid blockId)
     {
-        var block = _blocks.FirstOrDefault(block => block.Id == blockId);
+        var block = _blocks.FirstOrDefault(
+            block => block.Id == blockId);
 
         if (block is null)
         {
@@ -232,13 +393,15 @@ public sealed class Article
     /// <summary>
     /// Applies a complete order to the article blocks.
     /// </summary>
-    public void ReorderBlocks(IReadOnlyCollection<Guid> orderedBlockIds)
+    public void ReorderBlocks(
+        IReadOnlyCollection<Guid> orderedBlockIds)
     {
         ArgumentNullException.ThrowIfNull(orderedBlockIds);
 
         if (orderedBlockIds.Count != _blocks.Count
             || orderedBlockIds.Distinct().Count() != orderedBlockIds.Count
-            || orderedBlockIds.Any(blockId => _blocks.All(block => block.Id != blockId)))
+            || orderedBlockIds.Any(
+                blockId => _blocks.All(block => block.Id != blockId)))
         {
             throw new ArgumentException(
                 "Block order must contain every article block exactly once.",
@@ -249,7 +412,9 @@ public sealed class Article
 
         foreach (var blockId in orderedBlockIds)
         {
-            var block = _blocks.Single(block => block.Id == blockId);
+            var block = _blocks.Single(
+                block => block.Id == blockId);
+
             block.MoveTo(sortOrder++);
         }
     }
@@ -258,13 +423,16 @@ public sealed class Article
     {
         var sortOrder = 1;
 
-        foreach (var block in _blocks.OrderBy(block => block.SortOrder))
+        foreach (var block in _blocks.OrderBy(
+                     block => block.SortOrder))
         {
             block.MoveTo(sortOrder++);
         }
     }
 
-    private static void ValidateId(Guid id, string parameterName)
+    private static void ValidateId(
+        Guid id,
+        string parameterName)
     {
         if (id == Guid.Empty)
         {
@@ -281,7 +449,9 @@ public sealed class Article
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException(message, parameterName);
+            throw new ArgumentException(
+                message,
+                parameterName);
         }
     }
 

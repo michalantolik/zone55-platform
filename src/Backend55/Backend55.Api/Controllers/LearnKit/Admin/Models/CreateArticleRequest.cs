@@ -23,4 +23,5 @@ public sealed record CreateArticleRequest(
     string Slug,
     string Title,
     string? Summary,
-    int SortOrder);
+    int SortOrder,
+    string LanguageCode = "en");

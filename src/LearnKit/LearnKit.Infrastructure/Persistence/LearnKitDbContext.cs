@@ -11,24 +11,41 @@ namespace LearnKit.Infrastructure.Persistence;
 /// </summary>
 public sealed class LearnKitDbContext : DbContext
 {
-    public LearnKitDbContext(DbContextOptions<LearnKitDbContext> options) : base(options) { }
+    public LearnKitDbContext(
+        DbContextOptions<LearnKitDbContext> options)
+        : base(options)
+    {
+    }
 
-    public DbSet<LearningPath> LearningPaths => Set<LearningPath>();
+    public DbSet<LearningPath> LearningPaths =>
+        Set<LearningPath>();
 
-    public DbSet<LearningZone> LearningZones => Set<LearningZone>();
+    public DbSet<LearningZone> LearningZones =>
+        Set<LearningZone>();
 
-    public DbSet<LearningStep> LearningSteps => Set<LearningStep>();
+    public DbSet<LearningStep> LearningSteps =>
+        Set<LearningStep>();
 
-    public DbSet<Article> Articles => Set<Article>();
+    public DbSet<Article> Articles =>
+        Set<Article>();
 
-    public DbSet<ArticleBlock> ArticleBlocks => Set<ArticleBlock>();
+    public DbSet<ArticleTranslation> ArticleTranslations =>
+        Set<ArticleTranslation>();
 
-    public DbSet<LearnKitInitializationRecord> LearnKitInitializations => Set<LearnKitInitializationRecord>();
+    public DbSet<ArticleBlock> ArticleBlocks =>
+        Set<ArticleBlock>();
+
+    public DbSet<ArticleBlockTranslation> ArticleBlockTranslations =>
+        Set<ArticleBlockTranslation>();
+
+    public DbSet<LearnKitInitializationRecord> LearnKitInitializations =>
+        Set<LearnKitInitializationRecord>();
 
     /// <summary>
     /// Applies entity configurations from this assembly.
     /// </summary>
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(
+        ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(LearnKitDbContext).Assembly);

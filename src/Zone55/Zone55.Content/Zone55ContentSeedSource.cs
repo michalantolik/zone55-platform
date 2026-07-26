@@ -13,5 +13,5 @@ internal sealed class Zone55ContentSeedSource : ILearnKitContentSeedSource
         ?? throw new InvalidOperationException(
             $"Embedded content seed '{ResourceName}' was not found.");
 
-    public string SourceVersion => "zone55-content.seed.v2";
+    public string SourceVersion => "zone55-content.seed.v3";
 }

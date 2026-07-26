@@ -38,7 +38,20 @@ public sealed class PublishArticleHandler
             return false;
         }
 
-        article.Publish();
+        var published = article.PublishTranslation(command.LanguageCode);
+
+        if (!published)
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                command.LanguageCode,
+                LearnKit.Domain.Articles.BusinessRules.SupportedArticleLanguages.Default,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            article.Publish();
+        }
 
         await _articleManagementStore.SaveChangesAsync(cancellationToken);
 

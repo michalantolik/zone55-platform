@@ -1,3 +1,5 @@
+using LearnKit.Domain.Articles.BusinessRules;
+
 namespace LearnKit.Application.Articles.Admin.Commands.UpdateArticleBlock;
 
 /// <summary>
@@ -7,4 +9,5 @@ public sealed record UpdateArticleBlockCommand(
     Guid ArticleId,
     Guid BlockId,
     string Type,
-    string ContentJson);
+    string ContentJson,
+    string LanguageCode = SupportedArticleLanguages.Default);

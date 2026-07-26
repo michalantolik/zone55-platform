@@ -6,4 +6,5 @@ namespace Zone55.Api.Controllers.LearnKit.Admin.Models;
 public sealed record CreateArticleBlockRequest(
     string Type,
     int SortOrder,
-    string ContentJson);
+    string ContentJson,
+    string LanguageCode = "en");

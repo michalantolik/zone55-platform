@@ -89,6 +89,67 @@ namespace LearnKit.Infrastructure.Migrations
                     b.ToTable("ArticleBlocks", (string)null);
                 });
 
+            modelBuilder.Entity("LearnKit.Domain.Articles.Entities.ArticleBlockTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArticleBlockId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleBlockId", "LanguageCode")
+                        .IsUnique();
+
+                    b.ToTable("ArticleBlockTranslations", (string)null);
+                });
+
+            modelBuilder.Entity("LearnKit.Domain.Articles.Entities.ArticleTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId", "LanguageCode")
+                        .IsUnique();
+
+                    b.ToTable("ArticleTranslations", (string)null);
+                });
+
             modelBuilder.Entity("LearnKit.Domain.Roadmaps.LearningPath", b =>
                 {
                     b.Property<Guid>("Id")
@@ -228,6 +289,24 @@ namespace LearnKit.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("LearnKit.Domain.Articles.Entities.ArticleBlockTranslation", b =>
+                {
+                    b.HasOne("LearnKit.Domain.Articles.Entities.ArticleBlock", null)
+                        .WithMany("Translations")
+                        .HasForeignKey("ArticleBlockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LearnKit.Domain.Articles.Entities.ArticleTranslation", b =>
+                {
+                    b.HasOne("LearnKit.Domain.Articles.Article", null)
+                        .WithMany("Translations")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("LearnKit.Domain.Roadmaps.LearningStep", b =>
                 {
                     b.HasOne("LearnKit.Domain.Roadmaps.LearningZone", null)
@@ -247,6 +326,13 @@ namespace LearnKit.Infrastructure.Migrations
             modelBuilder.Entity("LearnKit.Domain.Articles.Article", b =>
                 {
                     b.Navigation("Blocks");
+
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("LearnKit.Domain.Articles.Entities.ArticleBlock", b =>
+                {
+                    b.Navigation("Translations");
                 });
 
             modelBuilder.Entity("LearnKit.Domain.Roadmaps.LearningPath", b =>
