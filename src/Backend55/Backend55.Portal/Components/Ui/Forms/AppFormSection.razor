@@ -1,0 +1,27 @@
+<section class="@CssClass">
+    @if (!string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(Description))
+    {
+        <header class="ui-form-section-header">
+            @if (!string.IsNullOrWhiteSpace(Title))
+            {
+                <h3 class="ui-form-section-title">@Title</h3>
+            }
+            @if (!string.IsNullOrWhiteSpace(Description))
+            {
+                <p class="ui-form-section-description">@Description</p>
+            }
+        </header>
+    }
+    @ChildContent
+</section>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass => string.IsNullOrWhiteSpace(Class)
+        ? "ui-form-section"
+        : $"ui-form-section {Class}";
+}

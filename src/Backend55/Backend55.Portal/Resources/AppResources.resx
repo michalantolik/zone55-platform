@@ -1,0 +1,1181 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:schema id="root">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xs:element name="root" ns1:IsDataSet="true">
+      <xs:complexType>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="metadata">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" />
+              </xs:sequence>
+              <xs:attribute name="name" use="required" type="xsd:string" />
+              <xs:attribute name="type" type="xsd:string" />
+              <xs:attribute name="mimetype" type="xsd:string" />
+              <xs:attribute ref="xml:space" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="assembly">
+            <xs:complexType>
+              <xs:attribute name="alias" type="xsd:string" />
+              <xs:attribute name="name" type="xsd:string" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" />
+                <xs:element name="comment" type="xsd:string" minOccurs="0" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
+              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
+              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
+              <xs:attribute ref="xml:space" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="resheader">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xsd:string" use="required" />
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Navigation.Dashboard" xml:space="preserve">
+    <value>Pulpit</value>
+  </data>
+  <data name="Navigation.Accounts" xml:space="preserve">
+    <value>Konta</value>
+  </data>
+  <data name="Navigation.Transactions" xml:space="preserve">
+    <value>Transakcje</value>
+  </data>
+  <data name="Navigation.Budget" xml:space="preserve">
+    <value>Budżet</value>
+  </data>
+  <data name="Navigation.Properties" xml:space="preserve">
+    <value>Nieruchomości</value>
+  </data>
+  <data name="Navigation.Loans" xml:space="preserve">
+    <value>Kredyty</value>
+  </data>
+  <data name="Navigation.Wealth" xml:space="preserve">
+    <value>Majątek</value>
+  </data>
+  <data name="Navigation.Goals" xml:space="preserve">
+    <value>Cele</value>
+  </data>
+  <data name="Navigation.Reports" xml:space="preserve">
+    <value>Raporty</value>
+  </data>
+  <data name="Navigation.Analysis" xml:space="preserve">
+    <value>Analizy</value>
+  </data>
+  <data name="Navigation.Settings" xml:space="preserve">
+    <value>Ustawienia</value>
+  </data>
+  <data name="Shared.Actions.Add" xml:space="preserve">
+    <value>Dodaj</value>
+  </data>
+  <data name="Shared.Actions.ViewAll" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
+  <data name="Shared.Actions.ViewReport" xml:space="preserve">
+    <value>Zobacz raport</value>
+  </data>
+  <data name="Shared.Actions.Reload" xml:space="preserve">
+    <value>Załaduj ponownie</value>
+  </data>
+  <data name="Shared.Actions.Retry" xml:space="preserve">
+    <value>Spróbuj ponownie</value>
+  </data>
+  <data name="Shared.Actions.Resume" xml:space="preserve">
+    <value>Wznów</value>
+  </data>
+  <data name="Shared.Currency.Symbol" xml:space="preserve">
+    <value>zł</value>
+  </data>
+  <data name="Shared.Date.Today" xml:space="preserve">
+    <value>Dzisiaj</value>
+  </data>
+  <data name="Shared.Date.Yesterday" xml:space="preserve">
+    <value>Wczoraj</value>
+  </data>
+  <data name="Shared.Sections.Overview" xml:space="preserve">
+    <value>Przegląd</value>
+  </data>
+  <data name="Shared.Sections.QuickActions" xml:space="preserve">
+    <value>Szybkie działania</value>
+  </data>
+  <data name="Shared.Months.January.Short" xml:space="preserve">
+    <value>Sty</value>
+  </data>
+  <data name="Shared.Months.February.Short" xml:space="preserve">
+    <value>Lut</value>
+  </data>
+  <data name="Shared.Months.March.Short" xml:space="preserve">
+    <value>Mar</value>
+  </data>
+  <data name="Shared.Months.April.Short" xml:space="preserve">
+    <value>Kwi</value>
+  </data>
+  <data name="Shared.Months.May.Short" xml:space="preserve">
+    <value>Maj</value>
+  </data>
+  <data name="Shared.Months.June.Short" xml:space="preserve">
+    <value>Cze</value>
+  </data>
+  <data name="Shared.Months.July.Short" xml:space="preserve">
+    <value>Lip</value>
+  </data>
+  <data name="Shared.Months.August.Short" xml:space="preserve">
+    <value>Sie</value>
+  </data>
+  <data name="Shared.Errors.Unhandled" xml:space="preserve">
+    <value>Wystąpił nieoczekiwany błąd.</value>
+  </data>
+  <data name="Layout.Navigation.MainAriaLabel" xml:space="preserve">
+    <value>Główna nawigacja</value>
+  </data>
+  <data name="Layout.Navigation.CloseMenu" xml:space="preserve">
+    <value>Zamknij menu</value>
+  </data>
+  <data name="Layout.Navigation.CollapseMenu" xml:space="preserve">
+    <value>Zwiń menu</value>
+  </data>
+  <data name="Layout.Navigation.ExpandMenu" xml:space="preserve">
+    <value>Rozwiń menu</value>
+  </data>
+  <data name="Layout.TopBar.Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Layout.TopBar.SearchPlaceholder" xml:space="preserve">
+    <value>Szukaj...</value>
+  </data>
+  <data name="Layout.TopBar.Language" xml:space="preserve">
+    <value>Język</value>
+  </data>
+  <data name="Layout.TopBar.Language.Polish" xml:space="preserve">
+    <value>Polski</value>
+  </data>
+  <data name="Layout.TopBar.Language.English" xml:space="preserve">
+    <value>Angielski</value>
+  </data>
+  <data name="Layout.TopBar.Language.German" xml:space="preserve">
+    <value>Niemiecki</value>
+  </data>
+  <data name="Layout.TopBar.Theme" xml:space="preserve">
+    <value>Motyw</value>
+  </data>
+  <data name="Layout.TopBar.Theme.Light" xml:space="preserve">
+    <value>Poranna Biel</value>
+  </data>
+  <data name="Layout.TopBar.Theme.Dark" xml:space="preserve">
+    <value>Nocny Grafit</value>
+  </data>
+  <data name="Layout.TopBar.Notifications" xml:space="preserve">
+    <value>Powiadomienia</value>
+  </data>
+  <data name="Layout.TopBar.SignedInAs" xml:space="preserve">
+    <value>Zalogowany jako {0}</value>
+  </data>
+  <data name="Layout.TopBar.Account.Premium" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="Mock.User.DisplayName" xml:space="preserve">
+    <value>Michał</value>
+  </data>
+  <data name="Dashboard.Header.Overview" xml:space="preserve">
+    <value>Przegląd</value>
+  </data>
+  <data name="Dashboard.Header.CustomizeView" xml:space="preserve">
+    <value>Dostosuj widok</value>
+  </data>
+  <data name="Dashboard.Metrics.NetWorth" xml:space="preserve">
+    <value>Wartość netto</value>
+  </data>
+  <data name="Dashboard.Metrics.MonthlyCashFlow" xml:space="preserve">
+    <value>Miesięczny cashflow</value>
+  </data>
+  <data name="Dashboard.Metrics.Assets" xml:space="preserve">
+    <value>Aktywa</value>
+  </data>
+  <data name="Dashboard.Metrics.Liabilities" xml:space="preserve">
+    <value>Zobowiązania</value>
+  </data>
+  <data name="Dashboard.Metrics.LastMonth" xml:space="preserve">
+    <value>w ostatnim miesiącu</value>
+  </data>
+  <data name="Dashboard.Metrics.PositiveCashFlow" xml:space="preserve">
+    <value>Cashflow dodatni</value>
+  </data>
+  <data name="Dashboard.CashFlow.Title" xml:space="preserve">
+    <value>Przepływy pieniężne</value>
+  </data>
+  <data name="Dashboard.CashFlow.Income" xml:space="preserve">
+    <value>Przychody</value>
+  </data>
+  <data name="Dashboard.CashFlow.Expenses" xml:space="preserve">
+    <value>Wydatki</value>
+  </data>
+  <data name="Dashboard.CashFlow.CashFlow" xml:space="preserve">
+    <value>Cashflow</value>
+  </data>
+  <data name="Dashboard.CashFlow.Period.Month" xml:space="preserve">
+    <value>Miesiąc</value>
+  </data>
+  <data name="Dashboard.CashFlow.AriaLabel" xml:space="preserve">
+    <value>Wykres przepływów pieniężnych</value>
+  </data>
+  <data name="Dashboard.CashFlow.Axis.20K" xml:space="preserve">
+    <value>20 tys.</value>
+  </data>
+  <data name="Dashboard.CashFlow.Axis.15K" xml:space="preserve">
+    <value>15 tys.</value>
+  </data>
+  <data name="Dashboard.CashFlow.Axis.10K" xml:space="preserve">
+    <value>10 tys.</value>
+  </data>
+  <data name="Dashboard.CashFlow.Axis.5K" xml:space="preserve">
+    <value>5 tys.</value>
+  </data>
+  <data name="Dashboard.Properties.Title" xml:space="preserve">
+    <value>Nieruchomości</value>
+  </data>
+  <data name="Dashboard.Properties.Mock.Warsaw.Name" xml:space="preserve">
+    <value>Mieszkanie – Warszawa</value>
+  </data>
+  <data name="Dashboard.Properties.Mock.Warsaw.Details" xml:space="preserve">
+    <value>Mokotów</value>
+  </data>
+  <data name="Dashboard.Properties.Mock.Konstancin.Name" xml:space="preserve">
+    <value>Dom – Konstancin</value>
+  </data>
+  <data name="Dashboard.Properties.Mock.Konstancin.Details" xml:space="preserve">
+    <value>Dom jednorodzinny</value>
+  </data>
+  <data name="Dashboard.Properties.Mock.Gdansk.Name" xml:space="preserve">
+    <value>Mieszkanie – Gdańsk</value>
+  </data>
+  <data name="Dashboard.Properties.Mock.Gdansk.Details" xml:space="preserve">
+    <value>Wrzeszcz</value>
+  </data>
+  <data name="Dashboard.Transactions.Title" xml:space="preserve">
+    <value>Ostatnie transakcje</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.Salary.Name" xml:space="preserve">
+    <value>Wynagrodzenie</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.ElectricityBill.Name" xml:space="preserve">
+    <value>Rachunek za prąd</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.GroceryStore.Name" xml:space="preserve">
+    <value>Biedronka</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.Rent.Name" xml:space="preserve">
+    <value>Czynsz</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.MainAccount" xml:space="preserve">
+    <value>Konto główne</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.WarsawProperty" xml:space="preserve">
+    <value>Mieszkanie Warszawa</value>
+  </data>
+  <data name="Dashboard.Transactions.Mock.Date.June12" xml:space="preserve">
+    <value>12.06</value>
+  </data>
+  <data name="Dashboard.QuickActions.Title" xml:space="preserve">
+    <value>Szybkie działania</value>
+  </data>
+  <data name="Dashboard.QuickActions.NewTransaction" xml:space="preserve">
+    <value>Nowa transakcja</value>
+  </data>
+  <data name="Dashboard.QuickActions.NewProperty" xml:space="preserve">
+    <value>Dodaj nieruchomość</value>
+  </data>
+  <data name="Dashboard.QuickActions.NewGoal" xml:space="preserve">
+    <value>Nowy cel</value>
+  </data>
+  <data name="Section.Placeholder.Intro" xml:space="preserve">
+    <value>Wszystkie najważniejsze informacje będą dostępne w jednym, uporządkowanym miejscu.</value>
+  </data>
+  <data name="Section.Placeholder.ComingSoon" xml:space="preserve">
+    <value>Ta sekcja jest przygotowana do dalszej implementacji.</value>
+  </data>
+  <data name="Pages.NotFound.Title" xml:space="preserve">
+    <value>Nie znaleziono strony</value>
+  </data>
+  <data name="Pages.NotFound.Message" xml:space="preserve">
+    <value>Przepraszamy, szukana treść nie istnieje.</value>
+  </data>
+  <data name="Pages.Error.Title" xml:space="preserve">
+    <value>Błąd</value>
+  </data>
+  <data name="Pages.Error.Heading" xml:space="preserve">
+    <value>Wystąpił błąd podczas przetwarzania żądania.</value>
+  </data>
+  <data name="Pages.Error.RequestId" xml:space="preserve">
+    <value>Identyfikator żądania</value>
+  </data>
+  <data name="Pages.Error.DevelopmentMode.Title" xml:space="preserve">
+    <value>Tryb deweloperski</value>
+  </data>
+  <data name="Pages.Error.DevelopmentMode.Description" xml:space="preserve">
+    <value>Uruchomienie środowiska Development pokaże bardziej szczegółowe informacje o błędzie.</value>
+  </data>
+  <data name="Pages.Error.DevelopmentMode.Warning" xml:space="preserve">
+    <value>Środowisko Development nie powinno być włączone we wdrożonej aplikacji, ponieważ może ujawnić użytkownikom poufne informacje o wyjątkach. Do lokalnego debugowania ustaw zmienną ASPNETCORE_ENVIRONMENT na Development i uruchom aplikację ponownie.</value>
+  </data>
+  <data name="Reconnect.RejoiningServer" xml:space="preserve">
+    <value>Ponowne łączenie z serwerem...</value>
+  </data>
+  <data name="Reconnect.RejoinFailedPrefix" xml:space="preserve">
+    <value>Nie udało się połączyć. Kolejna próba za</value>
+  </data>
+  <data name="Reconnect.SecondsSuffix" xml:space="preserve">
+    <value>sekund.</value>
+  </data>
+  <data name="Reconnect.FailedToRejoin" xml:space="preserve">
+    <value>Nie udało się ponownie połączyć. Spróbuj ponownie lub odśwież stronę.</value>
+  </data>
+  <data name="Reconnect.SessionPaused" xml:space="preserve">
+    <value>Sesja została wstrzymana przez serwer.</value>
+  </data>
+  <data name="Reconnect.FailedToResume" xml:space="preserve">
+    <value>Nie udało się wznowić sesji. Spróbuj ponownie lub odśwież stronę.</value>
+  </data>
+  <data name="Navigation.Subscriptions" xml:space="preserve">
+    <value>Subskrypcje</value>
+  </data>
+  <data name="Subscriptions.Header.Eyebrow" xml:space="preserve">
+    <value>Kontrola cyklicznych wydatków</value>
+  </data>
+  <data name="Subscriptions.Header.Description" xml:space="preserve">
+    <value>Wszystkie subskrypcje, koszty i terminy płatności w jednym miejscu. Zobacz, ile naprawdę kosztują Cię usługi cyfrowe.</value>
+  </data>
+  <data name="Subscriptions.Actions.Add" xml:space="preserve">
+    <value>Dodaj subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Actions.Manage" xml:space="preserve">
+    <value>Zarządzaj subskrypcją</value>
+  </data>
+  <data name="Subscriptions.Metrics.Active" xml:space="preserve">
+    <value>Aktywne subskrypcje</value>
+  </data>
+  <data name="Subscriptions.Metrics.ActiveHint" xml:space="preserve">
+    <value>z {0} wszystkich</value>
+  </data>
+  <data name="Subscriptions.Metrics.Monthly" xml:space="preserve">
+    <value>Koszt miesięczny</value>
+  </data>
+  <data name="Subscriptions.Metrics.MonthlyHint" xml:space="preserve">
+    <value>Średnio {0} za usługę</value>
+  </data>
+  <data name="Subscriptions.Metrics.Yearly" xml:space="preserve">
+    <value>Koszt roczny</value>
+  </data>
+  <data name="Subscriptions.Metrics.YearlyHint" xml:space="preserve">
+    <value>Średnio {0} za usługę rocznie</value>
+  </data>
+  <data name="Subscriptions.Metrics.MostExpensive" xml:space="preserve">
+    <value>Najdroższa subskrypcja</value>
+  </data>
+  <data name="Subscriptions.List.Title" xml:space="preserve">
+    <value>Twoje subskrypcje</value>
+  </data>
+  <data name="Subscriptions.List.Description" xml:space="preserve">
+    <value>Aktywne usługi i najbliższe płatności</value>
+  </data>
+  <data name="Subscriptions.Search.Placeholder" xml:space="preserve">
+    <value>Szukaj subskrypcji...</value>
+  </data>
+  <data name="Subscriptions.List.NextPayment" xml:space="preserve">
+    <value>Następna płatność</value>
+  </data>
+  <data name="Subscriptions.List.StartDate" xml:space="preserve">
+    <value>Data rozpoczęcia</value>
+  </data>
+  <data name="Subscriptions.List.EndDate" xml:space="preserve">
+    <value>Data zakończenia</value>
+  </data>
+  <data name="Subscriptions.Filter.All" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
+  <data name="Subscriptions.Filter.Streaming" xml:space="preserve">
+    <value>Streaming</value>
+  </data>
+  <data name="Subscriptions.Filter.AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Subscriptions.Filter.Education" xml:space="preserve">
+    <value>Edukacja</value>
+  </data>
+  <data name="Subscriptions.Filter.Software" xml:space="preserve">
+    <value>Oprogramowanie</value>
+  </data>
+  <data name="Subscriptions.Category.Streaming" xml:space="preserve">
+    <value>Streaming</value>
+  </data>
+  <data name="Subscriptions.Category.AI" xml:space="preserve">
+    <value>Narzędzia AI</value>
+  </data>
+  <data name="Subscriptions.Category.Education" xml:space="preserve">
+    <value>Edukacja</value>
+  </data>
+  <data name="Subscriptions.Category.Software" xml:space="preserve">
+    <value>Oprogramowanie</value>
+  </data>
+  <data name="Subscriptions.Billing.Monthly" xml:space="preserve">
+    <value>co miesiąc</value>
+  </data>
+  <data name="Subscriptions.Billing.Yearly" xml:space="preserve">
+    <value>co rok</value>
+  </data>
+  <data name="Subscriptions.Billing.Short.Monthly" xml:space="preserve">
+    <value>mies.</value>
+  </data>
+  <data name="Subscriptions.Billing.Short.Yearly" xml:space="preserve">
+    <value>rok</value>
+  </data>
+  <data name="Subscriptions.Date.July18" xml:space="preserve">
+    <value>18 lipca</value>
+  </data>
+  <data name="Subscriptions.Date.July21" xml:space="preserve">
+    <value>21 lipca</value>
+  </data>
+  <data name="Subscriptions.Date.July24" xml:space="preserve">
+    <value>24 lipca</value>
+  </data>
+  <data name="Subscriptions.Date.July28" xml:space="preserve">
+    <value>28 lipca</value>
+  </data>
+  <data name="Subscriptions.Date.August2" xml:space="preserve">
+    <value>2 sierpnia</value>
+  </data>
+  <data name="Subscriptions.Date.August5" xml:space="preserve">
+    <value>5 sierpnia</value>
+  </data>
+  <data name="Subscriptions.Date.August8" xml:space="preserve">
+    <value>8 sierpnia</value>
+  </data>
+  <data name="Subscriptions.Date.September12" xml:space="preserve">
+    <value>12 września</value>
+  </data>
+  <data name="Subscriptions.Empty.Title" xml:space="preserve">
+    <value>Brak pasujących subskrypcji</value>
+  </data>
+  <data name="Subscriptions.Empty.Description" xml:space="preserve">
+    <value>Zmień wyszukiwaną frazę lub wybierz inną kategorię.</value>
+  </data>
+  <data name="Subscriptions.Categories.Title" xml:space="preserve">
+    <value>Koszt według kategorii</value>
+  </data>
+  <data name="Common.Actions.Cancel" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="Common.Actions.Close" xml:space="preserve">
+    <value>Zamknij</value>
+  </data>
+  <data name="Subscriptions.Create.Dialog.Title" xml:space="preserve">
+    <value>Dodaj subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Create.Dialog.Description" xml:space="preserve">
+    <value>Wprowadź podstawowe dane usługi. Po zapisaniu subskrypcja od razu pojawi się na liście.</value>
+  </data>
+  <data name="Subscriptions.Create.Fields.Name" xml:space="preserve">
+    <value>Nazwa usługi</value>
+  </data>
+  <data name="Subscriptions.Create.Fields.Category" xml:space="preserve">
+    <value>Kategoria</value>
+  </data>
+  <data name="Subscriptions.Create.Fields.Amount" xml:space="preserve">
+    <value>Kwota</value>
+  </data>
+  <data name="Subscriptions.Create.Fields.Currency" xml:space="preserve">
+    <value>Waluta</value>
+  </data>
+  <data name="Subscriptions.Create.Fields.BillingPeriod" xml:space="preserve">
+    <value>Okres rozliczeniowy</value>
+  </data>
+  <data name="Subscriptions.Create.Fields.Notes" xml:space="preserve">
+    <value>Notatki</value>
+  </data>
+  <data name="Subscriptions.Create.Placeholders.Name" xml:space="preserve">
+    <value>np. Netflix</value>
+  </data>
+  <data name="Subscriptions.Create.Placeholders.Category" xml:space="preserve">
+    <value>np. Streaming</value>
+  </data>
+  <data name="Subscriptions.Create.Actions.Create" xml:space="preserve">
+    <value>Dodaj subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Create.Actions.Creating" xml:space="preserve">
+    <value>Dodawanie...</value>
+  </data>
+  <data name="Subscriptions.Create.Error" xml:space="preserve">
+    <value>Nie udało się dodać subskrypcji. Spróbuj ponownie.</value>
+  </data>
+  <data name="Subscriptions.Delete.Deleting" xml:space="preserve">
+    <value>Usuwanie...</value>
+  </data>
+  <data name="Subscriptions.Delete.Error" xml:space="preserve">
+    <value>Nie udało się usunąć subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Actions.Delete" xml:space="preserve">
+    <value>Usuń subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Billing.Quarterly" xml:space="preserve">
+    <value>co kwartał</value>
+  </data>
+  <data name="Subscriptions.Billing.Short.Quarterly" xml:space="preserve">
+    <value>kw.</value>
+  </data>
+  <data name="Subscriptions.Billing.SemiAnnual" xml:space="preserve">
+    <value>co pół roku</value>
+  </data>
+  <data name="Subscriptions.Billing.Short.SemiAnnual" xml:space="preserve">
+    <value>pół roku</value>
+  </data>
+  <data name="Subscriptions.Billing.MonthlyEquivalent" xml:space="preserve">
+    <value>≈ {0} / mies.</value>
+  </data>
+  <data name="Subscriptions.Delete.Dialog.Confirmation" xml:space="preserve">
+    <value>Czy na pewno chcesz usunąć subskrypcję:</value>
+  </data>
+  <data name="Subscriptions.Delete.Dialog.Description" xml:space="preserve">
+    <value>Tej operacji nie można cofnąć.</value>
+  </data>
+  <data name="Subscriptions.Delete.Dialog.Title" xml:space="preserve">
+    <value>Usuń subskrypcję</value>
+  </data>
+  <data name="Common.Actions.Save" xml:space="preserve">
+    <value>Zapisz</value>
+  </data>
+  <data name="Subscriptions.Actions.Edit" xml:space="preserve">
+    <value>Edytuj subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Edit.Dialog.Title" xml:space="preserve">
+    <value>Edytuj subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Edit.Dialog.Description" xml:space="preserve">
+    <value>Zmień szczegóły istniejącej subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Edit.Loading" xml:space="preserve">
+    <value>Ładowanie subskrypcji...</value>
+  </data>
+  <data name="Subscriptions.Edit.NotFound" xml:space="preserve">
+    <value>Nie znaleziono subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Edit.LoadError" xml:space="preserve">
+    <value>Nie udało się pobrać danych subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Edit.Saving" xml:space="preserve">
+    <value>Zapisywanie...</value>
+  </data>
+  <data name="Subscriptions.Edit.SaveError" xml:space="preserve">
+    <value>Nie udało się zapisać zmian subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.End.Error" xml:space="preserve">
+    <value>Nie udało się zakończyć subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.End.Dialog.Title" xml:space="preserve">
+    <value>Zakończ subskrypcję</value>
+  </data>
+  <data name="Subscriptions.End.Dialog.Description" xml:space="preserve">
+    <value>Subskrypcja zostanie oznaczona jako nieaktywna, ale jej historia pozostanie zachowana.</value>
+  </data>
+  <data name="Subscriptions.End.Dialog.Confirmation" xml:space="preserve">
+    <value>Czy na pewno chcesz zakończyć subskrypcję</value>
+  </data>
+  <data name="Subscriptions.End.Ending" xml:space="preserve">
+    <value>Kończenie...</value>
+  </data>
+  <data name="Subscriptions.Actions.End" xml:space="preserve">
+    <value>Zakończ</value>
+  </data>
+  <data name="Subscriptions.Filter.Active" xml:space="preserve">
+    <value>Aktywne</value>
+  </data>
+  <data name="Subscriptions.Filter.AllStatuses" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
+  <data name="Subscriptions.Filter.Ended" xml:space="preserve">
+    <value>Zakończone</value>
+  </data>
+  <data name="Subscriptions.Reactivate.Error" xml:space="preserve">
+    <value>Nie udało się ponownie aktywować subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Reactivate.Dialog.Title" xml:space="preserve">
+    <value>Aktywuj ponownie subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Reactivate.Dialog.Description" xml:space="preserve">
+    <value>Subskrypcja zostanie ponownie oznaczona jako aktywna, a data zakończenia zostanie usunięta.</value>
+  </data>
+  <data name="Subscriptions.Reactivate.Dialog.Confirmation" xml:space="preserve">
+    <value>Czy na pewno chcesz ponownie aktywować subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Reactivate.Reactivating" xml:space="preserve">
+    <value>Aktywowanie...</value>
+  </data>
+  <data name="Subscriptions.Actions.Reactivate" xml:space="preserve">
+    <value>Aktywuj ponownie</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Dialog.Title" xml:space="preserve">
+    <value>Wybierz subskrypcję</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Dialog.Description" xml:space="preserve">
+    <value>Wybierz popularną usługę lub dodaj własną subskrypcję.</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Search.Placeholder" xml:space="preserve">
+    <value>Szukaj subskrypcji</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Results" xml:space="preserve">
+    <value>Dostępne usługi: {0}</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Hint" xml:space="preserve">
+    <value>Wybierz jeden kafelek, aby przejść dalej</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Grid.Label" xml:space="preserve">
+    <value>Katalog subskrypcji</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Empty.Title" xml:space="preserve">
+    <value>Nie znaleziono subskrypcji</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Empty.Description" xml:space="preserve">
+    <value>Spróbuj innej nazwy lub wybierz własną subskrypcję.</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Actions.Continue" xml:space="preserve">
+    <value>Dalej</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Custom.Name" xml:space="preserve">
+    <value>Własna subskrypcja</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Custom.Category" xml:space="preserve">
+    <value>Dodaj dowolną usługę</value>
+  </data>
+  <data name="Subscriptions.Create.Actions.BackToCatalog" xml:space="preserve">
+    <value>Wróć do katalogu</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Streaming" xml:space="preserve">
+    <value>Streaming</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Music" xml:space="preserve">
+    <value>Muzyka</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Shopping" xml:space="preserve">
+    <value>Zakupy</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Cloud" xml:space="preserve">
+    <value>Chmura</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Software" xml:space="preserve">
+    <value>Oprogramowanie</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Design" xml:space="preserve">
+    <value>Projektowanie</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.AI" xml:space="preserve">
+    <value>Sztuczna inteligencja</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Productivity" xml:space="preserve">
+    <value>Produktywność</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Education" xml:space="preserve">
+    <value>Edukacja</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Career" xml:space="preserve">
+    <value>Kariera</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Gaming" xml:space="preserve">
+    <value>Gry</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Fitness" xml:space="preserve">
+    <value>Fitness</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Books" xml:space="preserve">
+    <value>Książki</value>
+  </data>
+  <data name="Subscriptions.Load.Error" xml:space="preserve">
+    <value>Nie udało się załadować subskrypcji. Sprawdź, czy API jest uruchomione, i spróbuj ponownie.</value>
+  </data>
+  <data name="Subscriptions.Actions.More" xml:space="preserve">
+    <value>Więcej akcji</value>
+  </data>
+  <data name="Subscriptions.Actions.DeleteAll" xml:space="preserve">
+    <value>Usuń wszystkie</value>
+  </data>
+  <data name="Subscriptions.DeleteAll.Dialog.Title" xml:space="preserve">
+    <value>Usunąć wszystkie subskrypcje?</value>
+  </data>
+  <data name="Subscriptions.DeleteAll.Dialog.Description" xml:space="preserve">
+    <value>Ta akcja trwale wyczyści całą listę subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.DeleteAll.Dialog.Warning" xml:space="preserve">
+    <value>Tej operacji nie można cofnąć.</value>
+  </data>
+  <data name="Subscriptions.DeleteAll.Dialog.Confirmation" xml:space="preserve">
+    <value>Zostanie usuniętych subskrypcji: {0}.</value>
+  </data>
+  <data name="Subscriptions.DeleteAll.Deleting" xml:space="preserve">
+    <value>Usuwanie...</value>
+  </data>
+  <data name="Subscriptions.DeleteAll.Error" xml:space="preserve">
+    <value>Nie udało się usunąć wszystkich subskrypcji. Spróbuj ponownie.</value>
+  </data>
+  <data name="Common.Actions.Retry" xml:space="preserve">
+    <value>Spróbuj ponownie</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Loading" xml:space="preserve">
+    <value>Ładowanie katalogu usług...</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Load.Error" xml:space="preserve">
+    <value>Nie udało się załadować katalogu usług. Sprawdź, czy API jest uruchomione, i spróbuj ponownie.</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Other" xml:space="preserve">
+    <value>Inne</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.netflix" xml:space="preserve">
+    <value>Netflix</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.spotify" xml:space="preserve">
+    <value>Spotify</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.youtube-premium" xml:space="preserve">
+    <value>YouTube Premium</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.disney-plus" xml:space="preserve">
+    <value>Disney+</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.max" xml:space="preserve">
+    <value>Max</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.amazon-prime" xml:space="preserve">
+    <value>Amazon Prime</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.apple-one" xml:space="preserve">
+    <value>Apple One</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.icloud-plus" xml:space="preserve">
+    <value>iCloud+</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.google-one" xml:space="preserve">
+    <value>Google One</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.microsoft-365" xml:space="preserve">
+    <value>Microsoft 365</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.adobe-creative-cloud" xml:space="preserve">
+    <value>Adobe Creative Cloud</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.canva-pro" xml:space="preserve">
+    <value>Canva Pro</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.chatgpt-plus" xml:space="preserve">
+    <value>ChatGPT Plus</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.github-copilot" xml:space="preserve">
+    <value>GitHub Copilot</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.notion" xml:space="preserve">
+    <value>Notion</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.dropbox" xml:space="preserve">
+    <value>Dropbox</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.duolingo" xml:space="preserve">
+    <value>Duolingo</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.linkedin-premium" xml:space="preserve">
+    <value>LinkedIn Premium</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.playstation-plus" xml:space="preserve">
+    <value>PlayStation Plus</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.xbox-game-pass" xml:space="preserve">
+    <value>Xbox Game Pass</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.nintendo-switch-online" xml:space="preserve">
+    <value>Nintendo Switch Online</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.strava" xml:space="preserve">
+    <value>Strava</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.storytel" xml:space="preserve">
+    <value>Storytel</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.empik-go" xml:space="preserve">
+    <value>Empik Go</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.allegro-smart" xml:space="preserve">
+    <value>Allegro Smart!</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.coursera" xml:space="preserve">
+    <value>Coursera</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.eraser-io" xml:space="preserve">
+    <value>Eraser.io</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.pluralsight" xml:space="preserve">
+    <value>Pluralsight</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.udemy" xml:space="preserve">
+    <value>Udemy</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.tinder" xml:space="preserve">
+    <value>Tinder</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.badoo" xml:space="preserve">
+    <value>Badoo</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Service.sympatia" xml:space="preserve">
+    <value>Sympatia</value>
+  </data>
+  <data name="Subscriptions.Create.Catalog.Category.Finance" xml:space="preserve">
+    <value>Finanse</value>
+  </data>
+  <data name="Subscriptions.List.Loading" xml:space="preserve">
+    <value>Ładowanie subskrypcji...</value>
+  </data>
+  <data name="Subscriptions.List.Empty" xml:space="preserve">
+    <value>Brak subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.ReadOnlyHelp" xml:space="preserve">
+    <value>Kategoria jest przypisana do tej usługi i nie może być zmieniona.</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.SearchPlaceholder" xml:space="preserve">
+    <value>Szukaj kategorii...</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.SearchLabel" xml:space="preserve">
+    <value>Wyszukaj kategorię</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.ClearSearch" xml:space="preserve">
+    <value>Wyczyść wyszukiwanie</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.AvailableCategories" xml:space="preserve">
+    <value>Dostępne kategorie</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.NoResults" xml:space="preserve">
+    <value>Brak kategorii pasujących do wyszukiwania.</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.UseCustom" xml:space="preserve">
+    <value>Użyj własnej kategorii</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.CustomLabel" xml:space="preserve">
+    <value>Własna kategoria</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.CustomPlaceholder" xml:space="preserve">
+    <value>Wpisz nazwę własnej kategorii</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.ChoosePredefined" xml:space="preserve">
+    <value>Wybierz z listy</value>
+  </data>
+  <data name="Subscriptions.Edit.Category.SelectPlaceholder" xml:space="preserve">
+    <value>Wybierz kategorię</value>
+  </data>
+  <data name="Common.Actions.Clear" xml:space="preserve">
+    <value>Wyczyść</value>
+  </data>
+  <data name="Common.Actions.Change" xml:space="preserve">
+    <value>Zmień</value>
+  </data>
+  <data name="Subscriptions.Actions.Export" xml:space="preserve">
+    <value>Eksportuj subskrypcje</value>
+  </data>
+  <data name="Subscriptions.Actions.Import" xml:space="preserve">
+    <value>Importuj subskrypcje</value>
+  </data>
+  <data name="Subscriptions.Export.Exporting" xml:space="preserve">
+    <value>Eksportowanie…</value>
+  </data>
+  <data name="Subscriptions.Export.Error" xml:space="preserve">
+    <value>Nie udało się wyeksportować subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Import.Dialog.Title" xml:space="preserve">
+    <value>Import subskrypcji</value>
+  </data>
+  <data name="Subscriptions.Import.Dialog.Description" xml:space="preserve">
+    <value>Wybierz plik kopii zapasowej Backend55, sprawdź go i potwierdź import.</value>
+  </data>
+  <data name="Subscriptions.Import.Select.Title" xml:space="preserve">
+    <value>Wybierz plik JSON</value>
+  </data>
+  <data name="Subscriptions.Import.Select.Description" xml:space="preserve">
+    <value>Plik zostanie najpierw zweryfikowany. Subskrypcje zostaną dodane dopiero po Twoim potwierdzeniu.</value>
+  </data>
+  <data name="Subscriptions.Import.Select.Action" xml:space="preserve">
+    <value>Wybierz plik</value>
+  </data>
+  <data name="Subscriptions.Import.Validating" xml:space="preserve">
+    <value>Sprawdzanie pliku…</value>
+  </data>
+  <data name="Subscriptions.Import.Valid" xml:space="preserve">
+    <value>Plik jest prawidłowy. Do importu: {0} subskrypcji.</value>
+  </data>
+  <data name="Subscriptions.Import.Invalid" xml:space="preserve">
+    <value>Nie można zaimportować tego pliku.</value>
+  </data>
+  <data name="Subscriptions.Import.FileTooLarge" xml:space="preserve">
+    <value>Plik jest zbyt duży. Maksymalny rozmiar to 5 MB.</value>
+  </data>
+  <data name="Subscriptions.Import.Error" xml:space="preserve">
+    <value>Nie udało się sprawdzić lub zaimportować pliku.</value>
+  </data>
+  <data name="Subscriptions.Import.Confirm" xml:space="preserve">
+    <value>Potwierdź import</value>
+  </data>
+  <data name="Subscriptions.Import.Importing" xml:space="preserve">
+    <value>Importowanie…</value>
+  </data>
+  <data name="Subscriptions.Import.Success" xml:space="preserve">
+    <value>Zaimportowano {0} subskrypcji.</value>
+  </data>
+  <data name="Navigation.Vehicles" xml:space="preserve">
+    <value>Pojazdy</value>
+  </data>
+  <data name="Vehicles.Header.Eyebrow" xml:space="preserve">
+    <value>Majątek ruchomy</value>
+  </data>
+  <data name="Vehicles.Header.Description" xml:space="preserve">
+    <value>Zarządzaj pojazdami przypisanymi do bieżącego użytkownika.</value>
+  </data>
+  <data name="Vehicles.Actions.Add" xml:space="preserve">
+    <value>Dodaj pojazd</value>
+  </data>
+  <data name="Vehicles.Create.Dialog.Title" xml:space="preserve">
+    <value>Dodaj pojazd</value>
+  </data>
+  <data name="Vehicles.Create.Dialog.Description" xml:space="preserve">
+    <value>Wprowadź podstawowe dane pojazdu.</value>
+  </data>
+  <data name="Vehicles.Create.Action" xml:space="preserve">
+    <value>Dodaj pojazd</value>
+  </data>
+  <data name="Vehicles.Create.Creating" xml:space="preserve">
+    <value>Dodawanie…</value>
+  </data>
+  <data name="Vehicles.Create.Error" xml:space="preserve">
+    <value>Nie udało się dodać pojazdu. Spróbuj ponownie.</value>
+  </data>
+  <data name="Vehicles.Create.Success" xml:space="preserve">
+    <value>Pojazd został dodany.</value>
+  </data>
+  <data name="Vehicles.Fields.Name" xml:space="preserve">
+    <value>Nazwa</value>
+  </data>
+  <data name="Vehicles.Fields.Type" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="Vehicles.Fields.Make" xml:space="preserve">
+    <value>Marka</value>
+  </data>
+  <data name="Vehicles.Fields.Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="Vehicles.Fields.ProductionYear" xml:space="preserve">
+    <value>Rok produkcji</value>
+  </data>
+  <data name="Vehicles.Placeholders.Name" xml:space="preserve">
+    <value>np. Samochód rodzinny</value>
+  </data>
+  <data name="Vehicles.Placeholders.Make" xml:space="preserve">
+    <value>Wybierz markę...</value>
+  </data>
+  <data name="Vehicles.Placeholders.Model" xml:space="preserve">
+    <value>Wybierz model...</value>
+  </data>
+  <data name="Vehicles.Placeholders.ProductionYear" xml:space="preserve">
+    <value>np. 2020</value>
+  </data>
+  <data name="Vehicles.Metrics.Total" xml:space="preserve">
+    <value>Wszystkie pojazdy</value>
+  </data>
+  <data name="Vehicles.Metrics.TotalHint" xml:space="preserve">
+    <value>Liczba zapisanych pojazdów</value>
+  </data>
+  <data name="Vehicles.Metrics.PassengerCars" xml:space="preserve">
+    <value>Samochody osobowe</value>
+  </data>
+  <data name="Vehicles.Metrics.PassengerCarsHint" xml:space="preserve">
+    <value>Pojazdy typu samochód osobowy</value>
+  </data>
+  <data name="Vehicles.Metrics.Newest" xml:space="preserve">
+    <value>Najnowszy rocznik</value>
+  </data>
+  <data name="Vehicles.Metrics.NewestHint" xml:space="preserve">
+    <value>Najwyższy zapisany rok produkcji</value>
+  </data>
+  <data name="Vehicles.List.Title" xml:space="preserve">
+    <value>Twoje pojazdy</value>
+  </data>
+  <data name="Vehicles.List.Description" xml:space="preserve">
+    <value>Podstawowe informacje o zapisanych pojazdach.</value>
+  </data>
+  <data name="Vehicles.List.Loading" xml:space="preserve">
+    <value>Ładowanie pojazdów…</value>
+  </data>
+  <data name="Vehicles.List.Empty.Title" xml:space="preserve">
+    <value>Nie masz jeszcze pojazdów</value>
+  </data>
+  <data name="Vehicles.List.Empty.Description" xml:space="preserve">
+    <value>Dodaj pierwszy pojazd, aby pojawił się na tej liście.</value>
+  </data>
+  <data name="Vehicles.List.NoResults" xml:space="preserve">
+    <value>Brak pojazdów pasujących do wyszukiwania</value>
+  </data>
+  <data name="Vehicles.Search.Placeholder" xml:space="preserve">
+    <value>Szukaj po nazwie, marce lub modelu</value>
+  </data>
+  <data name="Vehicles.Load.Error" xml:space="preserve">
+    <value>Nie udało się pobrać pojazdów.</value>
+  </data>
+  <data name="Vehicles.Types.Other" xml:space="preserve">
+    <value>Inny</value>
+  </data>
+  <data name="Vehicles.Types.PassengerCar" xml:space="preserve">
+    <value>Samochód osobowy</value>
+  </data>
+  <data name="Vehicles.Types.Motorcycle" xml:space="preserve">
+    <value>Motocykl</value>
+  </data>
+  <data name="Vehicles.Types.ScooterOrMoped" xml:space="preserve">
+    <value>Skuter lub motorower</value>
+  </data>
+  <data name="Vehicles.Types.LightCommercialVehicle" xml:space="preserve">
+    <value>Samochód dostawczy</value>
+  </data>
+  <data name="Vehicles.Types.Motorhome" xml:space="preserve">
+    <value>Kamper</value>
+  </data>
+  <data name="Vehicles.Types.Trailer" xml:space="preserve">
+    <value>Przyczepa</value>
+  </data>
+  <data name="Vehicles.Types.CaravanTrailer" xml:space="preserve">
+    <value>Przyczepa kempingowa</value>
+  </data>
+  <data name="Vehicles.Types.Quad" xml:space="preserve">
+    <value>Quad</value>
+  </data>
+
+  <data name="Vehicles.Metrics.Owned" xml:space="preserve">
+    <value>Posiadane pojazdy</value>
+  </data>
+  <data name="Vehicles.Metrics.OwnedHint" xml:space="preserve">
+    <value>z {0} wszystkich</value>
+  </data>
+  <data name="Vehicles.Metrics.MonthlyCost" xml:space="preserve">
+    <value>Koszt miesięczny</value>
+  </data>
+  <data name="Vehicles.Metrics.YearlyCost" xml:space="preserve">
+    <value>Koszt roczny</value>
+  </data>
+  <data name="Vehicles.Metrics.MostExpensive" xml:space="preserve">
+    <value>Najdroższy w utrzymaniu</value>
+  </data>
+  <data name="Vehicles.Metrics.CostUnavailable" xml:space="preserve">
+    <value>Dane kosztowe nie są jeszcze dostępne</value>
+  </data>
+  <data name="Vehicles.Actions.More" xml:space="preserve">
+    <value>Więcej działań</value>
+  </data>
+  <data name="Vehicles.Actions.Export" xml:space="preserve">
+    <value>Eksportuj pojazdy</value>
+  </data>
+  <data name="Vehicles.Actions.Import" xml:space="preserve">
+    <value>Importuj pojazdy</value>
+  </data>
+  <data name="Vehicles.Actions.DeleteAll" xml:space="preserve">
+    <value>Usuń wszystkie pojazdy</value>
+  </data>
+  <data name="Vehicles.Actions.Details" xml:space="preserve">
+    <value>Szczegóły pojazdu</value>
+  </data>
+  <data name="Vehicles.Actions.MarkSold" xml:space="preserve">
+    <value>Oznacz jako sprzedany</value>
+  </data>
+  <data name="Vehicles.Actions.Edit" xml:space="preserve">
+    <value>Edytuj pojazd</value>
+  </data>
+  <data name="Vehicles.Actions.Delete" xml:space="preserve">
+    <value>Usuń pojazd</value>
+  </data>
+  <data name="Vehicles.Filter.Owned" xml:space="preserve">
+    <value>Posiadane</value>
+  </data>
+  <data name="Vehicles.Filter.AllStatuses" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
+  <data name="Vehicles.Filter.Sold" xml:space="preserve">
+    <value>Sprzedane</value>
+  </data>
+  <data name="Vehicles.Filter.AllTypes" xml:space="preserve">
+    <value>Wszystkie typy</value>
+  </data>
+  <data name="Vehicles.List.MonthlyCost" xml:space="preserve">
+    <value>/ mies.</value>
+  </data>
+  <data name="Vehicles.List.NoSoldVehicles" xml:space="preserve">
+    <value>Brak sprzedanych pojazdów</value>
+  </data>
+  <data name="Vehicles.CostCategories.Title" xml:space="preserve">
+    <value>Koszty według kategorii</value>
+  </data>
+  <data name="Vehicles.CostCategories.Fuel" xml:space="preserve">
+    <value>Paliwo</value>
+  </data>
+  <data name="Vehicles.CostCategories.Insurance" xml:space="preserve">
+    <value>Ubezpieczenie</value>
+  </data>
+  <data name="Vehicles.CostCategories.Service" xml:space="preserve">
+    <value>Serwis i naprawy</value>
+  </data>
+  <data name="Vehicles.CostCategories.Financing" xml:space="preserve">
+    <value>Finansowanie</value>
+  </data>
+  <data name="Vehicles.CostCategories.Other" xml:space="preserve">
+    <value>Pozostałe</value>
+  </data>
+  <data name="Vehicles.Fields.ModelGeneration" xml:space="preserve">
+    <value>Model / generacja</value>
+  </data>
+  <data name="Vehicles.Placeholders.ModelGeneration" xml:space="preserve">
+    <value>Wybierz model i generację</value>
+  </data>
+  <data name="Vehicles.ModelGeneration.SearchPlaceholder" xml:space="preserve">
+    <value>Szukaj modelu lub generacji...</value>
+  </data>
+  <data name="Vehicles.ModelGeneration.NoResults" xml:space="preserve">
+    <value>Nie znaleziono modeli ani generacji.</value>
+  </data>
+  <data name="Vehicles.ModelGeneration.AvailableOptions" xml:space="preserve">
+    <value>Dostępne modele i generacje</value>
+  </data>
+  <data name="Vehicles.Validation.ProductionYearOutsideGeneration" xml:space="preserve">
+    <value>Rok produkcji nie mieści się w zakresie wybranej generacji.</value>
+  </data>
+  <data name="Vehicles.Validation.ProductionYearRange" xml:space="preserve">
+    <value>Zakres produkcji wybranej generacji: {0}–{1}.</value>
+  </data>
+  <data name="Vehicles.Validation.ProductionYearFrom" xml:space="preserve">
+    <value>Produkcja wybranej generacji rozpoczęła się w {0} roku.</value>
+  </data>
+  <data name="Vehicles.Validation.ProductionYearTo" xml:space="preserve">
+    <value>Produkcja wybranej generacji zakończyła się w {0} roku.</value>
+  </data>
+</root>

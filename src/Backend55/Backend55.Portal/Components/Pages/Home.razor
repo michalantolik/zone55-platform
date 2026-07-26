@@ -1,0 +1,40 @@
+@page "/"
+@inject LearningNavigationState NavigationState
+
+<PageTitle>Backend55 — Learning</PageTitle>
+
+<div class="learning-page-shell">
+    <header class="learning-hero">
+        <span class="eyebrow">LEARNING PATH</span>
+        <h1>@(NavigationState.Path?.Title ?? "Backend55")</h1>
+        <p>@(NavigationState.Path?.Summary ?? "A focused place for backend engineering knowledge.")</p>
+    </header>
+
+    @if (NavigationState.Path is null)
+    {
+        <section class="card reading-status">Loading learning path…</section>
+    }
+    else
+    {
+        <div class="zone-grid">
+            @foreach (var zone in NavigationState.Path.Zones.OrderBy(x => x.SortOrder))
+            {
+                <section class="card zone-card">
+                    <span class="zone-index">ZONE @zone.SortOrder</span>
+                    <h2>@zone.Title</h2>
+                    <p>@zone.Summary</p>
+                    <div class="zone-steps">
+                        @foreach (var step in zone.Steps.OrderBy(x => x.SortOrder))
+                        {
+                            <a href="@($"/steps/{step.Key}")"><span>@step.Title</span><small>@step.Articles.Count article(s)</small></a>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    protected override Task OnInitializedAsync() => NavigationState.EnsureLoadedAsync();
+}

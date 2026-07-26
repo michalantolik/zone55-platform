@@ -1,0 +1,70 @@
+@using Backend55.Portal.Components.Common
+
+@if (IsOpen)
+{
+    <div class="ui-dialog-backdrop" role="presentation">
+        <section class="@PanelClass"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="@_titleId"
+                 aria-describedby="@DescriptionId"
+                 tabindex="-1"
+                 autofocus>
+            <header class="ui-dialog-header">
+                <div class="ui-dialog-heading">
+                    @if (!string.IsNullOrWhiteSpace(Icon))
+                    {
+                        <span class="ui-dialog-mark" aria-hidden="true">
+                            <AppIcon Name="@Icon" />
+                        </span>
+                    }
+                    <div>
+                        <h2 id="@_titleId" class="ui-dialog-title">@Title</h2>
+                        @if (!string.IsNullOrWhiteSpace(Description))
+                        {
+                            <p id="@DescriptionId" class="ui-dialog-description">@Description</p>
+                        }
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="ui-dialog-close"
+                        title="@CloseLabel"
+                        aria-label="@CloseLabel"
+                        @onclick="OnClose">
+                    <AppIcon Name="close" />
+                </button>
+            </header>
+
+            <div class="ui-dialog-body">@ChildContent</div>
+
+            @if (Footer is not null)
+            {
+                <footer class="ui-dialog-footer">@Footer</footer>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private readonly string _titleId = $"dialog-title-{Guid.NewGuid():N}";
+    private string? DescriptionId => string.IsNullOrWhiteSpace(Description) ? null : $"{_titleId}-description";
+
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public DialogSize Size { get; set; } = DialogSize.Medium;
+    [Parameter, EditorRequired] public string CloseLabel { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    private string PanelClass => Size switch
+    {
+        DialogSize.Small => "ui-dialog ui-dialog-small",
+        DialogSize.Large => "ui-dialog ui-dialog-large",
+        DialogSize.ExtraLarge => "ui-dialog ui-dialog-extra-large",
+        _ => "ui-dialog ui-dialog-medium"
+    };
+}

@@ -1,0 +1,1 @@
+namespace Backend55.Management.Models; public sealed record ReorderLearningStructureItemsManagementRequest(IReadOnlyCollection<Guid> OrderedIds);

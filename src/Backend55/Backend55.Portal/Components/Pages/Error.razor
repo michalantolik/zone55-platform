@@ -1,0 +1,30 @@
+@page "/Error"
+@using System.Diagnostics
+@inject Localizer T
+
+<PageTitle>Backend55 — @T["Pages.Error.Title"]</PageTitle>
+
+<h1 class="text-danger">@T["Pages.Error.Title"]</h1>
+<h2 class="text-danger">@T["Pages.Error.Heading"]</h2>
+
+@if (ShowRequestId)
+{
+    <p>
+        <strong>@T["Pages.Error.RequestId"]:</strong> <code>@RequestId</code>
+    </p>
+}
+
+<h3>@T["Pages.Error.DevelopmentMode.Title"]</h3>
+<p>@T["Pages.Error.DevelopmentMode.Description"]</p>
+<p><strong>@T["Pages.Error.DevelopmentMode.Warning"]</strong></p>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

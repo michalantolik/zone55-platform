@@ -1,0 +1,41 @@
+@using Microsoft.AspNetCore.Components.Forms
+
+<EditForm Model="@Model"
+          OnValidSubmit="HandleValidSubmitAsync"
+          class="@CssClass">
+    <div class="ui-dialog-structure-body">
+        @ChildContent
+    </div>
+
+    @if (Footer is not null)
+    {
+        <footer class="ui-dialog-structure-footer">
+            @Footer
+        </footer>
+    }
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public object Model { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private Task HandleValidSubmitAsync(EditContext _) =>
+        OnValidSubmit.InvokeAsync();
+
+    private string CssClass =>
+        string.IsNullOrWhiteSpace(Class)
+            ? "ui-dialog-structure ui-dialog-form"
+            : $"ui-dialog-structure ui-dialog-form {Class}";
+}

@@ -1,0 +1,32 @@
+<button type="@Type"
+        class="@CssClass"
+        disabled="@Disabled"
+        title="@Title"
+        aria-label="@AriaLabel"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter] public string Type { get; set; } = "button";
+    [Parameter] public string Variant { get; set; } = "secondary";
+    [Parameter] public string Size { get; set; } = "medium";
+    [Parameter] public bool IconOnly { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? AriaLabel { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string CssClass => string.Join(" ", new[]
+    {
+        "ui-button",
+        $"ui-button-{Variant}",
+        Size == "small" ? "ui-button-sm" : Size == "large" ? "ui-button-lg" : null,
+        IconOnly ? "ui-button-icon" : null,
+        Class
+    }.Where(value => !string.IsNullOrWhiteSpace(value)));
+}

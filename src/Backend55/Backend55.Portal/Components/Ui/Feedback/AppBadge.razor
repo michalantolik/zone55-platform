@@ -1,0 +1,7 @@
+<span class="ui-badge ui-badge-@Variant @Class">@ChildContent</span>
+
+@code {
+    [Parameter] public string Variant { get; set; } = "neutral";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

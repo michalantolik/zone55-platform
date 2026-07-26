@@ -1,0 +1,41 @@
+@page "/steps/{Key}"
+@inject LearningNavigationState NavigationState
+
+<PageTitle>Backend55 — @(_step?.Title ?? "Step")</PageTitle>
+
+<div class="learning-page-shell">
+    @if (_step is null)
+    {
+        <section class="card reading-status">The selected step was not found.</section>
+    }
+    else
+    {
+        <header class="learning-hero compact">
+            <span class="eyebrow">@_zone?.Title</span>
+            <h1>@_step.Title</h1>
+            <p>@_step.Summary</p>
+        </header>
+        <div class="article-list">
+            @foreach (var article in _step.Articles.OrderBy(x => x.SortOrder))
+            {
+                <a class="card article-list-item" href="@($"/articles/{article.Slug}")">
+                    <div><span class="article-number">@article.SortOrder.ToString("00")</span></div>
+                    <div><h2>@article.Title</h2><p>@article.Summary</p></div>
+                    <span class="article-arrow">→</span>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Key { get; set; } = string.Empty;
+    private LearningZoneDetails? _zone;
+    private LearningStepDetails? _step;
+    protected override async Task OnParametersSetAsync()
+    {
+        await NavigationState.EnsureLoadedAsync();
+        _zone = NavigationState.Path?.Zones.FirstOrDefault(z => z.Steps.Any(s => s.Key == Key));
+        _step = _zone?.Steps.FirstOrDefault(s => s.Key == Key);
+    }
+}

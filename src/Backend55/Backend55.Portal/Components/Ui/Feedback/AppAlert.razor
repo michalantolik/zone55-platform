@@ -1,0 +1,10 @@
+<div class="ui-alert @(Variant == "error" ? "ui-alert-error" : Variant == "success" ? "ui-alert-success" : null) @Class"
+     role="@(Variant == "error" ? "alert" : "status")">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public string Variant { get; set; } = "neutral";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

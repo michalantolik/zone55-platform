@@ -1,0 +1,19 @@
+<section class="ds-card @(Interactive ? "ds-card-interactive" : null) @Class">
+    @if (Header is not null)
+    {
+        <header class="ds-card-header">@Header</header>
+    }
+    @ChildContent
+    @if (Footer is not null)
+    {
+        <footer class="ds-card-footer">@Footer</footer>
+    }
+</section>
+
+@code {
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public bool Interactive { get; set; }
+    [Parameter] public RenderFragment? Header { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+}

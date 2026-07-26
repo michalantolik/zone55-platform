@@ -1,0 +1,539 @@
+@page "/articles/{ArticleId:guid}"
+@attribute [Authorize]
+@implements IDisposable
+@using System.Text.Json
+@inject ILearnKitManagementClient ManagementClient
+@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
+@inject NavigationManager Navigation
+@inject IJSRuntime JavaScript
+@inject ClientCrashDiagnostics CrashDiagnostics
+@inject ArticlePreviewSession PreviewSession
+@inject ManagementLocalizer Localizer
+
+<PageTitle>@(_article?.Title ?? "Article") | Backend55 Management</PageTitle>
+<NavigationLock ConfirmExternalNavigation="@HasUnsavedChanges" OnBeforeInternalNavigation="ConfirmInternalNavigationAsync" />
+
+@if (_isLoading)
+{
+    <div class="state-card" role="status"><strong>Loading article…</strong><p>Reading article details from Backend55.Api.</p></div>
+}
+else if (_errorMessage is not null && _article is null)
+{
+    <div class="state-card state-card--error" role="alert">
+        <strong>Could not load article</strong><p>@_errorMessage</p>
+        <div class="button-row"><button class="primary-button" type="button" @onclick="LoadAsync">Try again</button><NavLink class="secondary-button button-link" href="/">Back to articles</NavLink></div>
+    </div>
+}
+else if (_article is null)
+{
+    <div class="state-card"><strong>Article not found</strong><p>No LearnKit article exists with this identifier.</p></div>
+}
+else
+{
+    <header class="editor-page-header">
+        <div class="editor-page-header__identity">
+            <NavLink class="back-link" href="/">← @Localizer["Article.Back"]</NavLink>
+            <div class="article-title-row">
+                <div>
+                    <p class="eyebrow">@Localizer["Article.Eyebrow"]</p>
+                    <h1>@_article.Title</h1>
+                    <code class="article-slug">@_article.Slug</code>
+                </div>
+                <span class="status-badge @(IsPublished(_article.Status) ? "status-badge--published" : "status-badge--draft")">@_article.Status</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="editor-command-bar">
+        <div class="editor-command-bar__context">
+            <div class="save-state @(HasUnsavedChanges ? "save-state--dirty" : "save-state--saved")">
+                <span></span>
+                <strong>@Localizer[HasUnsavedChanges ? "Article.Unsaved" : "Article.Saved"]</strong>
+            </div>
+            <div>
+                <strong>@Localizer["Article.Workspace"]</strong>
+                <small>@Localizer["Article.WorkspaceHint"]</small>
+            </div>
+        </div>
+
+        <div class="editor-command-bar__actions">
+            <div class="workspace-switcher" role="group" aria-label="Article workspace mode">
+                @foreach (var mode in WorkspaceModes)
+                {
+                    <button type="button" class="@(_workspaceMode == mode ? "active" : null)" @onclick="() => SetWorkspaceMode(mode)">@Localizer[$"Article.{mode}"]</button>
+                }
+            </div>
+
+            @if (IsPublished(_article.Status))
+            {
+                <button class="secondary-button" type="button" @onclick="UnpublishAsync" disabled="@IsBusy">@Localizer["Article.Unpublish"]</button>
+            }
+            else
+            {
+                <button class="secondary-button" type="button" @onclick="PublishAsync" disabled="@IsBusy">@Localizer["Article.Publish"]</button>
+            }
+
+            <button class="primary-button" type="button" @onclick="SaveAsync" disabled="@(IsBusy || !HasUnsavedArticleDetails)">
+                @Localizer[_isSaving ? "Article.Saving" : "Article.SaveDraft"]
+            </button>
+
+            <details class="more-menu">
+                <summary>@Localizer["Article.More"]</summary>
+                <div><button class="danger-text-button" type="button" @onclick="DeleteArticleAsync" disabled="@IsBusy">@Localizer["Article.Delete"]</button></div>
+            </details>
+        </div>
+    </section>
+
+    @if (_operationMessage is not null) { <div class="operation-message operation-message--success" role="status">@_operationMessage</div> }
+    @if (_errorMessage is not null) { <div class="operation-message operation-message--error" role="alert">@_errorMessage</div> }
+
+    <div class="article-workspace article-workspace--@_workspaceMode.ToLowerInvariant()">
+        <div class="article-workspace__editor">
+            <section class="editor-section">
+                <header class="editor-section__header">
+                    <div><p class="eyebrow">@Localizer["Article.Details"]</p><h2>@Localizer["Article.Details"]</h2></div>
+                    <span class="section-meta">@_learningStepTitle · @_article.Blocks.Count @Localizer["Article.Blocks"].ToLowerInvariant()</span>
+                </header>
+
+                <div class="editor-card form-grid">
+                    <label class="form-field form-field--wide"><span>@Localizer["Article.Title"]</span><input @bind="_title" @bind:event="oninput" maxlength="300" disabled="@_isSaving" /></label>
+                    <label class="form-field"><span>@Localizer["Article.Slug"]</span><input @bind="_slug" @bind:event="oninput" disabled="@_isSaving" /></label>
+                    <label class="form-field"><span>@Localizer["Article.Order"]</span><input type="number" min="1" @bind="_sortOrder" disabled="@_isSaving" /></label>
+                    <label class="form-field form-field--wide"><span>@Localizer["Article.Step"]</span><select @bind="_learningStepId" disabled="@_isSaving">@foreach (var step in _learningSteps) { <option value="@step.Id">@step.Title</option> }</select></label>
+                    <label class="form-field form-field--full"><span>@Localizer["Article.Summary"]</span><textarea rows="5" @bind="_summary" @bind:event="oninput" disabled="@_isSaving"></textarea><small>@_summary.Length / 2000</small></label>
+                </div>
+            </section>
+
+            <section class="editor-section blocks-section">
+                <header class="editor-section__header">
+                    <div><p class="eyebrow">@Localizer["Article.Content"]</p><h2>@Localizer["Article.Blocks"]</h2></div>
+                    <button class="primary-button" type="button" @onclick="BeginBlockCreate" disabled="@IsBusy">＋ @Localizer["Article.AddBlock"]</button>
+                </header>
+
+                @if (_isCreatingBlock)
+                {
+                    <article class="block-composer">
+                        <header><div><span class="block-order">+</span><div><strong>@Localizer["Article.ChooseBlock"]</strong><small>Choose the content structure that best communicates this part.</small></div></div><button class="icon-button" type="button" @onclick="CancelBlockCreate">×</button></header>
+                        <div class="block-type-gallery">
+                            @foreach (var choice in BlockChoices)
+                            {
+                                <button type="button" class="block-type-card @(_newBlockChoiceKey == choice.Key ? "active" : null)" @onclick="() => SelectNewBlockChoice(choice)">
+                                    <span class="block-type-card__icon">@choice.Icon</span><span><strong>@choice.Label</strong><small>@choice.Description</small></span>
+                                </button>
+                            }
+                        </div>
+                        <div class="block-editor block-editor--composer">
+                            <TypedArticleBlockEditor @key="_newBlockType" Type="@_newBlockType" @bind-Value="_newBlockContentJson" />
+                            @if (_blockErrorMessage is not null) { <div class="inline-error" role="alert">@_blockErrorMessage</div> }
+                            <div class="button-row block-editor-actions"><button class="secondary-button" type="button" @onclick="CancelBlockCreate" disabled="@_isSavingBlock">@Localizer["Article.Cancel"]</button><button class="primary-button" type="button" @onclick="CreateBlockAsync" disabled="@_isSavingBlock">@(_isSavingBlock ? Localizer["Article.Saving"] : Localizer["Article.Add"])</button></div>
+                        </div>
+                    </article>
+                }
+
+                @if (_article.Blocks.Count == 0 && !_isCreatingBlock)
+                {
+                    <div class="empty-content-state"><span>＋</span><strong>@Localizer["Article.NoBlocks"]</strong><button class="secondary-button" type="button" @onclick="BeginBlockCreate">@Localizer["Article.AddBlock"]</button></div>
+                }
+                else
+                {
+                    <div class="blocks-list">
+                        @foreach (var block in _article.Blocks.OrderBy(x => x.SortOrder))
+                        {
+                            var isEditing = _editingBlockId == block.Id;
+                            var isCollapsed = _collapsedBlockIds.Contains(block.Id);
+                            var orderedBlocks = _article.Blocks.OrderBy(x => x.SortOrder).ToArray();
+                            var blockIndex = Array.FindIndex(orderedBlocks, x => x.Id == block.Id);
+
+                            <article class="block-card @(isEditing ? "block-card--editing" : null)">
+                                <header>
+                                    <div class="block-card__identity"><button class="block-drag-handle" type="button" title="Block order">⋮⋮</button><span class="block-order">@block.SortOrder</span><span class="block-type-card__icon">@GetBlockTypeIcon(block.Type)</span><div><strong>@block.Type</strong><small>@GetBlockTypeDescription(block.Type)</small></div></div>
+                                    <div class="block-header-actions">
+                                        @if (!isEditing)
+                                        {
+                                            <button class="icon-button" title="Move up" type="button" @onclick="() => MoveBlockAsync(block.Id, -1)" disabled="@(IsBusy || blockIndex <= 0)">↑</button>
+                                            <button class="icon-button" title="Move down" type="button" @onclick="() => MoveBlockAsync(block.Id, 1)" disabled="@(IsBusy || blockIndex >= orderedBlocks.Length - 1)">↓</button>
+                                            <button class="icon-button" title="@(isCollapsed ? "Expand" : "Collapse")" type="button" @onclick="() => ToggleBlockCollapsed(block.Id)">@(isCollapsed ? "⌄" : "⌃")</button>
+                                            <button class="secondary-button secondary-button--compact" type="button" @onclick="() => BeginBlockEdit(block)" disabled="@IsBusy">@Localizer["Article.Edit"]</button>
+                                            <details class="block-more-menu"><summary>•••</summary><div><button type="button" @onclick="() => DuplicateBlockAsync(block)" disabled="@IsBusy">@Localizer["Article.Duplicate"]</button><button class="danger-text-button" type="button" @onclick="() => DeleteBlockAsync(block)" disabled="@IsBusy">@Localizer["Article.DeleteBlock"]</button></div></details>
+                                        }
+                                    </div>
+                                </header>
+
+                                @if (isEditing)
+                                {
+                                    <div class="block-editor"><TypedArticleBlockEditor @key="_editingBlockType" Type="@_editingBlockType" @bind-Value="_editingBlockContentJson" />
+                                        @if (_blockErrorMessage is not null) { <div class="inline-error" role="alert">@_blockErrorMessage</div> }
+                                        <div class="button-row block-editor-actions"><button class="secondary-button" type="button" @onclick="CancelBlockEdit" disabled="@_isSavingBlock">@Localizer["Article.Cancel"]</button><button class="primary-button" type="button" @onclick="SaveBlockAsync" disabled="@_isSavingBlock">@(_isSavingBlock ? Localizer["Article.Saving"] : Localizer["Article.SaveBlock"])</button></div>
+                                    </div>
+                                }
+                                else if (!isCollapsed)
+                                {
+                                    <div class="block-card__preview"><pre><code>@FormatJson(block.ContentJson)</code></pre></div>
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+
+        <aside class="article-workspace__preview" aria-hidden="@(!IsPreviewVisible)">
+            <div id="persistent-article-preview-slot" class="persistent-preview-slot" aria-label="Portal article preview"></div>
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid ArticleId { get; set; }
+
+    private ArticleManagementDetails? _article;
+    private IReadOnlyCollection<LearningStepManagementDetails> _learningSteps = [];
+    private readonly HashSet<Guid> _collapsedBlockIds = [];
+    private string _learningStepTitle = string.Empty;
+    private Guid _learningStepId;
+    private string _slug = string.Empty;
+    private string _title = string.Empty;
+    private string _summary = string.Empty;
+    private int _sortOrder;
+    private string _savedEditorSnapshot = string.Empty;
+    private static readonly string[] WorkspaceModes = ["Editor", "Split", "Preview"];
+    private static readonly string[] ArticleBlockTypes = ["Markdown", "Code", "Diagram", "Table", "Callout", "Summary"];
+    private static readonly BlockChoice[] BlockChoices =
+    [
+        new("Markdown", "Markdown", "Markdown", "Narrative text and headings", "¶"),
+        new("Code", "Code", "Code", "Source code with syntax", "</>"),
+        new("PlantUml", "Diagram", "PlantUML", "PlantUML diagram source", "◇"),
+        new("Mermaid", "Diagram", "Mermaid", "Mermaid diagram source", "◇"),
+        new("Table", "Table", "Table", "Visual table editor", "▦"),
+        new("Callout", "Callout", "Callout", "Important note or warning", "!"),
+        new("Summary", "Summary", "Summary", "Closing key points", "≡")
+    ];
+
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private bool _isSavingBlock;
+    private bool _isDeletingArticle;
+    private bool _isCreatingBlock;
+    private string _newBlockChoiceKey = BlockChoices[0].Key;
+    private string _newBlockType = BlockChoices[0].Type;
+    private int _newBlockSortOrder = 1;
+    private string _newBlockContentJson = CreateDefaultBlockJson(BlockChoices[0].Key);
+    private string _workspaceMode = "Editor";
+    private Guid? _editingBlockId;
+    private string _editingBlockType = string.Empty;
+    private string _editingBlockContentJson = string.Empty;
+    private string? _blockErrorMessage;
+    private string? _errorMessage;
+    private string? _operationMessage;
+
+    private bool IsPreviewVisible => _workspaceMode is "Split" or "Preview";
+    private bool IsBusy => _isSaving || _isSavingBlock || _isDeletingArticle;
+    private bool HasUnsavedArticleDetails => _article is not null && !string.Equals(_savedEditorSnapshot, BuildEditorSnapshot(), StringComparison.Ordinal);
+    private bool HasUnsavedChanges => HasUnsavedArticleDetails || _isCreatingBlock || _editingBlockId is not null;
+
+    protected override void OnInitialized() => Localizer.Changed += RefreshLocalization;
+
+    private void RefreshLocalization() => _ = InvokeAsync(StateHasChanged);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CrashDiagnostics.SetContextAsync(new { page = "ArticleDetails", articleId = ArticleId, workspaceMode = _workspaceMode, phase = "ParametersSet" });
+        await LoadAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_article is not null) PreviewSession.UpdateArticle(_workspaceMode, _slug, _title, _summary, BuildPreviewBodyContent());
+        await CrashDiagnostics.SetContextAsync(new { page = "ArticleDetails", articleId = ArticleId, workspaceMode = _workspaceMode, phase = "AfterRender", firstRender, isLoading = _isLoading, hasArticle = _article is not null, blockCount = _article?.Blocks.Count ?? 0 });
+    }
+
+    private async Task ConfirmInternalNavigationAsync(LocationChangingContext context)
+    {
+        if (!HasUnsavedChanges) return;
+        var confirmed = await JavaScript.InvokeAsync<bool>("confirm", "You have unsaved changes. Leave this article without saving them?");
+        if (!confirmed) context.PreventNavigation();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true; _errorMessage = null; _operationMessage = null;
+        try
+        {
+            var articleTask = ManagementClient.GetArticleAsync(ArticleId);
+            var learningPathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
+            await Task.WhenAll(articleTask, learningPathTask);
+            _article = await articleTask;
+            var learningPath = await learningPathTask;
+            _learningSteps = learningPath?.Zones.OrderBy(zone => zone.SortOrder).SelectMany(zone => zone.Steps.OrderBy(step => step.SortOrder)).ToArray() ?? [];
+            ApplyArticleToEditor();
+        }
+        catch (HttpRequestException exception) { _errorMessage = exception.Message; }
+        catch (Exception exception) { _errorMessage = $"Unexpected error: {exception.Message}"; }
+        finally { _isLoading = false; }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_article is null || _isSaving) return;
+        _errorMessage = ValidateEditor(); _operationMessage = null;
+        if (_errorMessage is not null) return;
+        _isSaving = true;
+        try
+        {
+            await ManagementClient.UpdateArticleAsync(ArticleId, new UpdateArticleManagementRequest(_learningStepId, _slug.Trim(), _title.Trim(), string.IsNullOrWhiteSpace(_summary) ? null : _summary.Trim(), _sortOrder));
+            await ReloadArticleAsync();
+            _operationMessage = "Article draft was saved.";
+        }
+        catch (HttpRequestException exception) { _errorMessage = exception.Message; }
+        catch (Exception exception) { _errorMessage = $"Unexpected error: {exception.Message}"; }
+        finally { _isSaving = false; }
+    }
+
+    private void BeginBlockCreate()
+    {
+        if (IsBusy || _article is null) return;
+        ClearBlockEditor();
+        _isCreatingBlock = true;
+        var defaultChoice = BlockChoices[0];
+        _newBlockChoiceKey = defaultChoice.Key;
+        _newBlockType = defaultChoice.Type;
+        _newBlockSortOrder = _article.Blocks.Count + 1;
+        _newBlockContentJson = CreateDefaultBlockJson(defaultChoice.Key);
+        _blockErrorMessage = null;
+        _errorMessage = null;
+        _operationMessage = null;
+    }
+
+    private void SelectNewBlockChoice(BlockChoice choice)
+    {
+        _newBlockChoiceKey = choice.Key;
+        _newBlockType = choice.Type;
+        _newBlockContentJson = CreateDefaultBlockJson(choice.Key);
+        _blockErrorMessage = null;
+    }
+
+    private void CancelBlockCreate() { if (!_isSavingBlock) { _isCreatingBlock = false; _blockErrorMessage = null; } }
+
+    private async Task CreateBlockAsync()
+    {
+        if (_article is null || !_isCreatingBlock || _isSavingBlock) return;
+        _blockErrorMessage = ValidateBlock(_newBlockType, _newBlockContentJson, _newBlockSortOrder);
+        if (_blockErrorMessage is not null) return;
+        _isSavingBlock = true;
+        try
+        {
+            await ManagementClient.CreateArticleBlockAsync(ArticleId, new CreateArticleBlockManagementRequest(_newBlockType, _newBlockSortOrder, _newBlockContentJson.Trim()));
+            await ReloadArticleAsync(); _isCreatingBlock = false; _operationMessage = "Article block was added.";
+        }
+        catch (Exception exception) { _blockErrorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; }
+        finally { _isSavingBlock = false; }
+    }
+
+    private void BeginBlockEdit(ArticleBlockDetails block)
+    {
+        if (_isSavingBlock) return;
+        _isCreatingBlock = false; _editingBlockId = block.Id; _editingBlockType = block.Type; _editingBlockContentJson = FormatJson(block.ContentJson); _blockErrorMessage = null; _errorMessage = null; _operationMessage = null;
+    }
+
+    private void CancelBlockEdit() { if (!_isSavingBlock) ClearBlockEditor(); }
+
+    private async Task SaveBlockAsync()
+    {
+        if (_article is null || _editingBlockId is null || _isSavingBlock) return;
+        _blockErrorMessage = ValidateBlock(_editingBlockType, _editingBlockContentJson, 1); _errorMessage = null; _operationMessage = null;
+        if (_blockErrorMessage is not null) return;
+        _isSavingBlock = true;
+        try
+        {
+            await ManagementClient.UpdateArticleBlockAsync(ArticleId, _editingBlockId.Value, new UpdateArticleBlockManagementRequest(_editingBlockType, _editingBlockContentJson.Trim()));
+            await ReloadArticleAsync(); ClearBlockEditor(); _operationMessage = "Article block was saved.";
+        }
+        catch (HttpRequestException exception) { _blockErrorMessage = exception.Message; }
+        catch (Exception exception) { _blockErrorMessage = $"Unexpected error: {exception.Message}"; }
+        finally { _isSavingBlock = false; }
+    }
+
+    private async Task DuplicateBlockAsync(ArticleBlockDetails block)
+    {
+        if (_article is null || IsBusy) return;
+        _isSavingBlock = true; _errorMessage = null; _operationMessage = null;
+        try
+        {
+            await ManagementClient.CreateArticleBlockAsync(ArticleId, new CreateArticleBlockManagementRequest(block.Type, _article.Blocks.Count + 1, block.ContentJson));
+            await ReloadArticleAsync(); _operationMessage = "Article block was duplicated.";
+        }
+        catch (Exception exception) { _errorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; }
+        finally { _isSavingBlock = false; }
+    }
+
+    private void ToggleBlockCollapsed(Guid blockId) { if (!_collapsedBlockIds.Add(blockId)) _collapsedBlockIds.Remove(blockId); }
+
+    private static string? ValidateBlock(string type, string contentJson, int sortOrder)
+    {
+        if (!ArticleBlockTypes.Contains(type, StringComparer.Ordinal)) return "Block type is invalid.";
+        if (sortOrder < 1) return "Block position must be greater than zero.";
+        if (string.IsNullOrWhiteSpace(contentJson)) return "Content JSON is required.";
+        try { using var document = JsonDocument.Parse(contentJson); }
+        catch (JsonException exception) { return $"Content JSON is invalid: {exception.Message}"; }
+        return null;
+    }
+
+    private void ClearBlockEditor() { _editingBlockId = null; _editingBlockType = string.Empty; _editingBlockContentJson = string.Empty; _blockErrorMessage = null; }
+
+    private async Task DeleteBlockAsync(ArticleBlockDetails block)
+    {
+        if (_article is null || IsBusy) return;
+        if (!await JavaScript.InvokeAsync<bool>("confirm", $"Delete the {block.Type} block at position {block.SortOrder}? This cannot be undone.")) return;
+        _isSavingBlock = true; _errorMessage = null; _operationMessage = null;
+        try { await ManagementClient.DeleteArticleBlockAsync(ArticleId, block.Id); await ReloadArticleAsync(); _operationMessage = "Article block was deleted."; }
+        catch (Exception exception) { _errorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; }
+        finally { _isSavingBlock = false; }
+    }
+
+    private async Task MoveBlockAsync(Guid blockId, int direction)
+    {
+        if (_article is null || IsBusy) return;
+        var orderedIds = _article.Blocks.OrderBy(block => block.SortOrder).Select(block => block.Id).ToList();
+        var currentIndex = orderedIds.IndexOf(blockId); var targetIndex = currentIndex + direction;
+        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= orderedIds.Count) return;
+        (orderedIds[currentIndex], orderedIds[targetIndex]) = (orderedIds[targetIndex], orderedIds[currentIndex]);
+        _isSavingBlock = true; _errorMessage = null; _operationMessage = null;
+        try { await ManagementClient.ReorderArticleBlocksAsync(ArticleId, new ReorderArticleBlocksManagementRequest(orderedIds)); await ReloadArticleAsync(); _operationMessage = "Article block order was updated."; }
+        catch (Exception exception) { _errorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; }
+        finally { _isSavingBlock = false; }
+    }
+
+    private async Task DeleteArticleAsync()
+    {
+        if (_article is null || IsBusy) return;
+        if (!await JavaScript.InvokeAsync<bool>("confirm", $"Delete '{_article.Title}' and all of its blocks? This cannot be undone.")) return;
+        _isDeletingArticle = true; _errorMessage = null;
+        try { await ManagementClient.DeleteArticleAsync(ArticleId); _savedEditorSnapshot = BuildEditorSnapshot(); Navigation.NavigateTo("/"); }
+        catch (Exception exception) { _errorMessage = exception is HttpRequestException ? exception.Message : $"Unexpected error: {exception.Message}"; _isDeletingArticle = false; }
+    }
+
+    private Task PublishAsync() => ChangePublicationStatusAsync(() => ManagementClient.PublishArticleAsync(ArticleId), "Article was published.");
+    private Task UnpublishAsync() => ChangePublicationStatusAsync(() => ManagementClient.UnpublishArticleAsync(ArticleId), "Article was moved to draft.");
+
+    private async Task ChangePublicationStatusAsync(Func<Task> operation, string successMessage)
+    {
+        if (_article is null || IsBusy) return;
+        if (HasUnsavedArticleDetails) { _errorMessage = "Save the article draft before changing publication status."; return; }
+        _isSaving = true; _errorMessage = null; _operationMessage = null;
+        try { await operation(); await ReloadArticleAsync(); _operationMessage = successMessage; }
+        catch (HttpRequestException exception) { _errorMessage = exception.Message; }
+        catch (Exception exception) { _errorMessage = $"Unexpected error: {exception.Message}"; }
+        finally { _isSaving = false; }
+    }
+
+    private async Task ReloadArticleAsync()
+    {
+        _article = await ManagementClient.GetArticleAsync(ArticleId) ?? throw new HttpRequestException("The article could not be reloaded after the operation.");
+        ApplyArticleToEditor();
+    }
+
+    private void ApplyArticleToEditor()
+    {
+        if (_article is null) { _learningStepTitle = string.Empty; return; }
+        _learningStepId = _article.LearningStepId; _slug = _article.Slug; _title = _article.Title; _summary = _article.Summary; _sortOrder = _article.SortOrder;
+        _learningStepTitle = _learningSteps.FirstOrDefault(step => step.Id == _article.LearningStepId)?.Title ?? _article.LearningStepId.ToString();
+        _savedEditorSnapshot = BuildEditorSnapshot();
+    }
+
+    private string BuildEditorSnapshot() => string.Join("\u001f", _learningStepId, _slug.Trim(), _title.Trim(), _summary.Trim(), _sortOrder);
+
+    private string? ValidateEditor()
+    {
+        if (string.IsNullOrWhiteSpace(_title)) return "Title is required.";
+        if (string.IsNullOrWhiteSpace(_slug)) return "Slug is required.";
+        if (_learningStepId == Guid.Empty) return "Learning step is required.";
+        if (_sortOrder < 1) return "Sort order must be greater than zero.";
+        return null;
+    }
+
+    private static string FormatJson(string contentJson)
+    {
+        if (string.IsNullOrWhiteSpace(contentJson)) return string.Empty;
+        try { using var document = JsonDocument.Parse(contentJson); return JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions { WriteIndented = true }); }
+        catch (JsonException) { return contentJson; }
+    }
+
+    private void SetWorkspaceMode(string mode)
+    {
+        if (!WorkspaceModes.Contains(mode, StringComparer.Ordinal) || string.Equals(_workspaceMode, mode, StringComparison.Ordinal)) return;
+        _workspaceMode = mode;
+        CrashDiagnostics.RecordCritical("Management.ArticleDetails.WorkspaceModeChanged", $"Current={mode}; PreviewVisible={IsPreviewVisible}; ArticleId={ArticleId}");
+    }
+
+    private string BuildPreviewBodyContent()
+    {
+        if (_article is null) return "[]";
+
+        var blocks = _article.Blocks
+            .OrderBy(block => block.SortOrder)
+            .Select(block => new PreviewBlock(
+                block.Id.ToString(),
+                block.Type,
+                block.ContentJson,
+                block.SortOrder))
+            .ToList();
+
+        if (_editingBlockId is not null)
+        {
+            var existing = _article.Blocks.FirstOrDefault(block => block.Id == _editingBlockId.Value);
+            if (existing is not null)
+            {
+                var index = blocks.FindIndex(block => block.Id == existing.Id.ToString());
+                if (index >= 0)
+                {
+                    blocks[index] = new PreviewBlock(
+                        existing.Id.ToString(),
+                        _editingBlockType,
+                        _editingBlockContentJson,
+                        existing.SortOrder);
+                }
+            }
+        }
+
+        if (_isCreatingBlock)
+        {
+            blocks.Add(new PreviewBlock(
+                "preview-new-block",
+                _newBlockType,
+                _newBlockContentJson,
+                _newBlockSortOrder));
+        }
+
+        return ArticlePreviewBlockPayloadBuilder.Build(
+            blocks.Select(block => new ArticlePreviewBlockPayload(
+                block.Id,
+                block.Type,
+                block.ContentJson,
+                block.SortOrder)));
+    }
+
+    private static string CreateDefaultBlockJson(string choiceKey) => choiceKey switch
+    {
+        "Code" => """{"code":"","language":"csharp","showCodeTitleBar":true}""",
+        "PlantUml" or "Diagram" => """{"diagram":"@startuml\nAlice -> Bob: Example\n@enduml","diagramType":"plantuml","showDiagramTitleBar":true}""",
+        "Mermaid" => """{"diagram":"flowchart LR\n    A[Start] --> B[End]","diagramType":"mermaid","showDiagramTitleBar":true}""",
+        "Table" => """{"hasHeaderRow":true,"hasHeaderColumn":false,"autoNumberRows":false,"tableStyle":"dense-engineering","defaultHorizontalAlignment":"left","defaultVerticalAlignment":"middle","rows":[[{"text":"Header 1"},{"text":"Header 2"},{"text":"Header 3"}],[{"text":""},{"text":""},{"text":""}],[{"text":""},{"text":""},{"text":""}]]}""",
+        "Callout" => """{"kind":"info","text":""}""",
+        "Summary" => """{"summary":""}""",
+        _ => """{"markdown":""}"""
+    };
+
+    private static string GetBlockTypeIcon(string type) => type switch { "Markdown" => "¶", "Code" => "</>", "Diagram" => "◇", "Table" => "▦", "Callout" => "!", "Summary" => "≡", _ => "•" };
+    private static string GetBlockTypeDescription(string type) => type switch { "Markdown" => "Narrative text and headings", "Code" => "Source code with syntax", "Diagram" => "PlantUML visualization", "Table" => "Structured comparison", "Callout" => "Important note or warning", "Summary" => "Closing key points", _ => "Content block" };
+
+    private sealed record BlockChoice(string Key, string Type, string Label, string Description, string Icon);
+    private sealed record PreviewBlock(string Id, string Type, string ContentJson, int SortOrder);
+    private static bool IsPublished(string status) => string.Equals(status, "Published", StringComparison.OrdinalIgnoreCase);
+
+    public void Dispose()
+    {
+        PreviewSession.HideArticle();
+        Localizer.Changed -= RefreshLocalization;
+        CrashDiagnostics.RecordCritical("Management.ArticleDetails.Dispose", $"ArticleId={ArticleId}; Mode={_workspaceMode}; PreviewVisible={IsPreviewVisible}");
+    }
+}

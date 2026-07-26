@@ -1,0 +1,97 @@
+@if (IsOpen)
+{
+    <div class="modal-backdrop"
+         role="presentation">
+        <section class="modal-panel @SizeClass"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="@_titleId"
+                 aria-describedby="@DescriptionId"
+                 tabindex="-1"
+                 autofocus>
+            <header class="modal-header">
+                <div class="modal-heading">
+                    @if (!string.IsNullOrWhiteSpace(Icon))
+                    {
+                        <span class="modal-mark" aria-hidden="true">
+                            <AppIcon Name="@Icon" />
+                        </span>
+                    }
+
+                    <div>
+                        <h2 id="@_titleId">@Title</h2>
+
+                        @if (!string.IsNullOrWhiteSpace(Description))
+                        {
+                            <p id="@DescriptionId">@Description</p>
+                        }
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="modal-close"
+                        title="@CloseLabel"
+                        aria-label="@CloseLabel"
+                        @onclick="HandleCloseAsync">
+                    <AppIcon Name="close" />
+                </button>
+            </header>
+
+            <div class="modal-body">
+                @ChildContent
+            </div>
+
+            @if (Footer is not null)
+            {
+                <footer class="modal-footer">
+                    @Footer
+                </footer>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private readonly string _titleId = $"modal-title-{Guid.NewGuid():N}";
+
+    private string? DescriptionId =>
+        string.IsNullOrWhiteSpace(Description)
+            ? null
+            : $"{_titleId}-description";
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public string Size { get; set; } = "default";
+
+    private string SizeClass => Size switch
+    {
+        "large" => "modal-panel-large",
+        _ => string.Empty
+    };
+
+    [Parameter, EditorRequired]
+    public string CloseLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    private Task HandleCloseAsync() => OnClose.InvokeAsync();
+
+}

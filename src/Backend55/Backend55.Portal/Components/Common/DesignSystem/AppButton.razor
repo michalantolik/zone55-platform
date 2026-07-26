@@ -1,0 +1,28 @@
+<button type="@Type"
+        class="@CssClass"
+        disabled="@Disabled"
+        title="@Title"
+        @onclick="OnClick">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter] public string Type { get; set; } = "button";
+    [Parameter] public string Variant { get; set; } = "secondary";
+    [Parameter] public string Size { get; set; } = "medium";
+    [Parameter] public bool IconOnly { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass => string.Join(" ", new[]
+    {
+        "ds-button",
+        $"ds-button-{Variant}",
+        Size == "small" ? "ds-button-sm" : Size == "large" ? "ds-button-lg" : null,
+        IconOnly ? "ds-button-icon" : null,
+        Class
+    }.Where(value => !string.IsNullOrWhiteSpace(value)));
+}

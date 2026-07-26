@@ -1,0 +1,24 @@
+<div class="@CssClass">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public int Columns { get; set; } = 2;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass
+    {
+        get
+        {
+            var columnsClass = Columns switch
+            {
+                1 => " ui-form-grid-single",
+                3 => " ui-form-grid-three",
+                _ => string.Empty
+            };
+
+            return $"ui-form-grid{columnsClass}{(string.IsNullOrWhiteSpace(Class) ? string.Empty : $" {Class}")}";
+        }
+    }
+}

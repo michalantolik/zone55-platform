@@ -1,0 +1,28 @@
+<div class="@CssClass">
+    <div class="ui-dialog-structure-body">
+        @ChildContent
+    </div>
+
+    @if (Footer is not null)
+    {
+        <footer class="ui-dialog-structure-footer">
+            @Footer
+        </footer>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string CssClass =>
+        string.IsNullOrWhiteSpace(Class)
+            ? "ui-dialog-structure"
+            : $"ui-dialog-structure {Class}";
+}

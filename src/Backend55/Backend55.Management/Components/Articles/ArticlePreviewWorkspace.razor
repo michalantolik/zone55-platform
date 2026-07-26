@@ -1,0 +1,155 @@
+@implements IDisposable
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@inject IConfiguration Configuration
+@inject IJSRuntime JS
+
+<div class="preview-workspace">
+    <div class="preview-workspace__toolbar">
+        <div>
+            <strong>Portal article preview</strong>
+            <span>Rendered by Backend55.Portal from the current unsaved draft.</span>
+            <code>@PreviewUrl</code>
+        </div>
+        <div class="preview-workspace__actions">
+            <span class="preview-status preview-status--ready">Preview active</span>
+            <a class="preview-open-link" href="@PreviewUrl" target="_blank" rel="noopener noreferrer">
+                Open preview page
+            </a>
+        </div>
+    </div>
+
+    <div class="preview-frame-shell">
+        <iframe @ref="_previewFrame"
+                src="@PreviewUrl"
+                title="Article preview"
+                loading="eager"
+                sandbox="allow-scripts allow-same-origin"
+                referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
+    </div>
+
+    <p class="preview-runtime-note">
+        The preview iframe stays mounted while this article is open. Editor, Split, and Preview modes only change
+        the workspace layout, so the portal renderer is not restarted when switching modes.
+    </p>
+</div>
+
+@code {
+    [Parameter] public string Slug { get; set; } = "preview";
+    [Parameter] public string Title { get; set; } = "Untitled article";
+    [Parameter] public string? Summary { get; set; }
+    [Parameter] public string BodyContent { get; set; } = "[]";
+
+    private const string PreviewSlugFallback = "preview";
+    private string _portalOrigin = string.Empty;
+    private string _previewUrl = string.Empty;
+    private ElementReference _previewFrame;
+    private IJSObjectReference? _module;
+    private string? _lastPayloadSignature;
+    private bool _connected;
+    private bool _disposed;
+
+    private string PreviewUrl => _previewUrl;
+
+    protected override void OnInitialized()
+    {
+        var configuredBaseUrl = Configuration["Portal:BaseUrl"];
+        if (string.IsNullOrWhiteSpace(configuredBaseUrl))
+        {
+            throw new InvalidOperationException("Portal:BaseUrl is missing.");
+        }
+
+        var portalBaseUri = new Uri(configuredBaseUrl, UriKind.Absolute);
+        _portalOrigin = portalBaseUri.GetLeftPart(UriPartial.Authority);
+        _previewUrl = new Uri(portalBaseUri, "preview/article").AbsoluteUri;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        try
+        {
+            if (firstRender)
+            {
+                _module = await JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./js/article-preview-workspace.js");
+
+                if (_disposed)
+                {
+                    return;
+                }
+
+                await _module.InvokeVoidAsync(
+                    "connectArticlePreview",
+                    _previewFrame,
+                    _portalOrigin);
+
+                _connected = true;
+            }
+
+            if (!_connected || _module is null)
+            {
+                return;
+            }
+
+            var signature = BuildPayloadSignature();
+            if (string.Equals(signature, _lastPayloadSignature, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastPayloadSignature = signature;
+
+            var payload = new PreviewArticlePayload(
+                Normalize(Slug, PreviewSlugFallback),
+                Normalize(Title, "Untitled article"),
+                Summary,
+                BodyContent ?? "[]");
+
+            await _module.InvokeVoidAsync(
+                "sendArticlePreview",
+                _previewFrame,
+                payload);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The page is being closed or navigated away from. Preview must not block navigation.
+        }
+        catch (ObjectDisposedException)
+        {
+            // The component was removed while JavaScript interop was completing.
+        }
+        catch (JSException)
+        {
+            // Preview transport is best effort and must never crash the article editor.
+        }
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        _connected = false;
+        _module = null;
+    }
+
+    private string BuildPayloadSignature() => string.Concat(
+        Normalize(Slug, PreviewSlugFallback), "\n",
+        Normalize(Title, "Untitled article"), "\n",
+        Summary ?? string.Empty, "\n",
+        BodyContent ?? string.Empty);
+
+    private static string Normalize(string? value, string fallback) =>
+        string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+    private sealed record PreviewArticlePayload(
+        string Slug,
+        string Title,
+        string? Summary,
+        string BodyHtml);
+}

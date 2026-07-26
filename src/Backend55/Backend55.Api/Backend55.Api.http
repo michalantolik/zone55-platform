@@ -1,0 +1,16 @@
+﻿@Backend55.Api_HostAddress = https://localhost:7255
+
+GET {{Backend55.Api_HostAddress}}/health/ready
+Accept: application/json
+
+###
+
+GET {{Backend55.Api_HostAddress}}/api/learnkit/roadmaps/dotnet
+Accept: application/json
+
+###
+
+GET {{Backend55.Api_HostAddress}}/api/learnkit/articles/components-of-the-dotnet-framework
+Accept: application/json
+
+###

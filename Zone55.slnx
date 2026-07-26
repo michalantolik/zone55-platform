@@ -11,4 +11,9 @@
     <Project Path="src/Zone55/Zone55.Portal/Zone55.Portal.csproj" Id="c06c1de6-2f0e-488f-8be9-a43faefd2448" />
     <Project Path="src/Zone55/Zone55.Management/Zone55.Management.csproj" />
   </Folder>
+  <Folder Name="/Backend55/">
+    <Project Path="src/Backend55/Backend55.Api/Backend55.Api.csproj" />
+    <Project Path="src/Backend55/Backend55.Portal/Backend55.Portal.csproj" />
+    <Project Path="src/Backend55/Backend55.Management/Backend55.Management.csproj" />
+  </Folder>
 </Solution>

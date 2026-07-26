@@ -1,0 +1,32 @@
+@using System.Globalization
+@inject AppState State
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<header class="topbar">
+    <button class="icon-button mobile-menu-button" type="button" title="Menu" @onclick="State.ToggleMobileMenu"><AppIcon Name="menu" /></button>
+    <div class="search-box"><AppIcon Name="search" /><input aria-label="Search" placeholder="Search articles…" /></div>
+    <div class="topbar-actions">
+        <div class="language-switch" aria-label="Language">
+            @foreach (var language in Languages)
+            {
+                <button class="language-button @(CurrentLanguage == language.Code ? "active" : null)" type="button" lang="@language.Code" @onclick="() => ChangeLanguage(language.Culture)">@language.Code.ToUpperInvariant()</button>
+            }
+        </div>
+        <button class="icon-button" type="button" title="Theme" @onclick="ToggleThemeAsync"><AppIcon Name="@(State.Theme == AppState.LightTheme ? "moon" : "sun")" /></button>
+        <button class="icon-button notification-button" type="button" title="Notifications"><AppIcon Name="bell" /><span></span></button>
+        <div class="user-menu"><span class="user-copy"><strong>Michał</strong><small>Learning</small></span><span class="avatar">M</span></div>
+    </div>
+</header>
+
+@code {
+    private static readonly (string Code, string Culture)[] Languages = [("pl", "pl-PL"), ("en", "en-US"), ("de", "de-DE")];
+    private string CurrentLanguage => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    private async Task ToggleThemeAsync() { State.ToggleTheme(); await JS.InvokeVoidAsync("backend55Theme.set", State.Theme, AppState.ThemeCookieName); }
+    private void ChangeLanguage(string culture)
+    {
+        var currentPath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var redirect = string.IsNullOrWhiteSpace(currentPath) ? "/" : $"/{currentPath}";
+        Navigation.NavigateTo($"/culture/set?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(redirect)}", true);
+    }
+}

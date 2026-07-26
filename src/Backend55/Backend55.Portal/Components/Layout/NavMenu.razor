@@ -1,0 +1,58 @@
+@implements IDisposable
+@inject AppState State
+@inject LearningNavigationState NavigationState
+
+<nav class="side-nav learning-nav" aria-label="Learning navigation">
+    <NavLink href="/" Match="NavLinkMatch.All" class="nav-item" @onclick="State.CloseMobileMenu">
+        <span class="nav-icon"><AppIcon Name="home" /></span>
+        <span class="nav-label">Start</span>
+    </NavLink>
+
+    @if (NavigationState.Path is null)
+    {
+        <div class="nav-loading">Loading content…</div>
+    }
+    else
+    {
+        @foreach (var zone in NavigationState.Path.Zones.OrderBy(x => x.SortOrder))
+        {
+            <section class="zone-nav-section">
+                <button type="button" class="zone-nav-button" @onclick="() => Toggle(zone.Key)">
+                    <span class="nav-icon"><AppIcon Name="report" /></span>
+                    <span class="nav-label">@zone.Title</span>
+                    <span class="zone-chevron @(_expanded.Contains(zone.Key) ? "expanded" : null)"><AppIcon Name="chevron" /></span>
+                </button>
+                @if (_expanded.Contains(zone.Key))
+                {
+                    <div class="zone-step-list">
+                        @foreach (var step in zone.Steps.OrderBy(x => x.SortOrder))
+                        {
+                            <NavLink href="@($"/steps/{step.Key}")" class="step-nav-link" @onclick="State.CloseMobileMenu">
+                                <span class="step-dot"></span><span class="nav-label">@step.Title</span>
+                            </NavLink>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    }
+</nav>
+
+<button class="sidebar-collapse" type="button" @onclick="State.ToggleSidebar">
+    <span class="collapse-icon @(State.IsSidebarCollapsed ? "is-collapsed" : null)"><AppIcon Name="chevron" /></span>
+    <span>@(State.IsSidebarCollapsed ? "Expand menu" : "Collapse menu")</span>
+</button>
+
+@code {
+    private readonly HashSet<string> _expanded = [];
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationState.Changed += OnChanged;
+        await NavigationState.EnsureLoadedAsync();
+        var first = NavigationState.Path?.Zones.OrderBy(x => x.SortOrder).FirstOrDefault();
+        if (first is not null) _expanded.Add(first.Key);
+    }
+    private void Toggle(string key) { if (!_expanded.Add(key)) _expanded.Remove(key); }
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => NavigationState.Changed -= OnChanged;
+}

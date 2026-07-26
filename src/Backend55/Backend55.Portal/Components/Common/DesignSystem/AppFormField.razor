@@ -1,0 +1,17 @@
+<div class="ds-field @(Wide ? "ds-field-wide" : null) @Class">
+    <label class="ds-label" for="@For">@Label</label>
+    @ChildContent
+    @if (!string.IsNullOrWhiteSpace(HelpText))
+    {
+        <p class="ds-help">@HelpText</p>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? For { get; set; }
+    [Parameter] public string? HelpText { get; set; }
+    [Parameter] public bool Wide { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
