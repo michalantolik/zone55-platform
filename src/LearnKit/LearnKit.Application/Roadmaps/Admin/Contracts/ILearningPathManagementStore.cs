@@ -12,6 +12,10 @@ public interface ILearningPathManagementStore
         string key,
         CancellationToken cancellationToken = default);
 
+    Task<int> GetNextPathSortOrderAsync(
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(1);
+
     Task<bool> PathKeyExistsAsync(
         string key,
         CancellationToken cancellationToken = default);

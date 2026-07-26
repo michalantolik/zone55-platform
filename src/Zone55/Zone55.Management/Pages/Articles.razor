@@ -1,7 +1,6 @@
 @page "/"
 @attribute [Authorize]
 @inject ILearnKitManagementClient ManagementClient
-@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 
 <PageTitle>Articles | Zone55 Management</PageTitle>
 
@@ -194,7 +193,7 @@ else
         try
         {
             var articlesTask = ManagementClient.GetArticlesAsync();
-            var learningPathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
+            var learningPathTask = ManagementClient.GetFirstLearningPathAsync();
             await Task.WhenAll(articlesTask, learningPathTask);
 
             _articles = await articlesTask;

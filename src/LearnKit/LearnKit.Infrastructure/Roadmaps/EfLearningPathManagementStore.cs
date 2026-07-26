@@ -20,13 +20,14 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
     {
         return await _dbContext.LearningPaths
             .AsNoTracking()
-            .OrderBy(path => path.Title)
+            .OrderBy(path => path.SortOrder)
             .ThenBy(path => path.Key)
             .Select(path => new LearningPathManagementListItem(
                 path.Id,
                 path.Key,
                 path.Title,
-                path.Summary))
+                path.Summary,
+                path.SortOrder))
             .ToListAsync(cancellationToken);
     }
 
@@ -42,6 +43,7 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
                 path.Key,
                 path.Title,
                 path.Summary,
+                path.SortOrder,
                 path.Zones
                     .OrderBy(zone => zone.SortOrder)
                     .Select(zone => new LearningZoneManagementDetails(
@@ -71,6 +73,12 @@ internal sealed class EfLearningPathManagementStore : ILearningPathManagementSto
             .Include(path => path.Zones)
                 .ThenInclude(zone => zone.Steps)
             .SingleOrDefaultAsync(path => path.Id == learningPathId, cancellationToken);
+    }
+
+    public async Task<int> GetNextPathSortOrderAsync(CancellationToken cancellationToken = default)
+    {
+        var highest = await _dbContext.LearningPaths.MaxAsync(path => (int?)path.SortOrder, cancellationToken);
+        return (highest ?? 0) + 1;
     }
 
     public Task<bool> PathKeyExistsAsync(

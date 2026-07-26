@@ -22,10 +22,12 @@ public sealed class CreateLearningPathHandler(
                 key);
         }
 
+        var sortOrder = await store.GetNextPathSortOrderAsync(cancellationToken);
         var learningPath = new LearningPath(
             key,
             command.Title,
-            command.Summary);
+            command.Summary,
+            sortOrder);
 
         store.Add(learningPath);
         await store.SaveChangesAsync(cancellationToken);

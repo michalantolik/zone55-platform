@@ -40,6 +40,20 @@ public sealed class LearnKitManagementClient(HttpClient httpClient)
             cancellationToken: cancellationToken);
     }
 
+    public async Task<LearningPathManagementDetails?> GetFirstLearningPathAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var paths = await GetLearningPathsAsync(cancellationToken);
+        var firstPath = paths
+            .OrderBy(path => path.SortOrder)
+            .ThenBy(path => path.Key, StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        return firstPath is null
+            ? null
+            : await GetLearningPathAsync(firstPath.Key, cancellationToken);
+    }
+
     public async Task<LearningPathManagementDetails?> GetLearningPathAsync(
         string key,
         CancellationToken cancellationToken = default)

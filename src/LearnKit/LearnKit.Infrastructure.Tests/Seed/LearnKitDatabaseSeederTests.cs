@@ -27,7 +27,7 @@ public sealed class LearnKitDatabaseSeederTests
     {
         await using var database = await TestDatabase.CreateAsync();
         database.Context.LearningPaths.Add(
-            new LearningPath("custom", "Custom path", "Managed in Zone55"));
+            new LearningPath("custom", "Custom path", "Managed in Zone55", 1));
         await database.Context.SaveChangesAsync();
         var seeder = CreateSeeder(database.Context);
 

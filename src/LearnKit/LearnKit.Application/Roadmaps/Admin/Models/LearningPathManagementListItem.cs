@@ -4,4 +4,5 @@ public sealed record LearningPathManagementListItem(
     Guid Id,
     string Key,
     string Title,
-    string Summary);
+    string Summary,
+    int SortOrder);

@@ -59,9 +59,7 @@
     {
         try
         {
-            var learningPath = await LearnKitApi.GetLearnKitLearningPathByKeyAsync(
-                "default",
-                cancellationToken);
+            var learningPath = await LearnKitApi.GetLearnKitLearningPathAsync(cancellationToken);
 
             _levels = learningPath is null
                 ? []

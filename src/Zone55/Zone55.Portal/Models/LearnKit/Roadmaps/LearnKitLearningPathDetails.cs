@@ -8,6 +8,8 @@ public sealed class LearnKitLearningPathDetails
 
     public required string Summary { get; init; }
 
+    public int SortOrder { get; init; }
+
     public IReadOnlyCollection<LearnKitLearningZoneDetails> Zones { get; init; } = [];
 }
 

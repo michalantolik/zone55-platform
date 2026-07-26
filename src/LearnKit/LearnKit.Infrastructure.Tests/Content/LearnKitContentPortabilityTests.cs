@@ -53,7 +53,7 @@ public sealed class LearnKitContentPortabilityTests
 
     private static LearningPath CreateContentGraph()
     {
-        var path = new LearningPath("backend-cloud", "Backend and cloud", "Path summary");
+        var path = new LearningPath("backend-cloud", "Backend and cloud", "Path summary", 1);
         var cloud = new LearningZone("cloud", "Cloud", null, 2);
         var foundation = new LearningZone("foundation", "Foundation", null, 1);
         var step = new LearningStep("csharp", "C#", null, 1);

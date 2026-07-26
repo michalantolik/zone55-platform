@@ -15,7 +15,8 @@ public sealed class LearningPath
     public LearningPath(
         string key,
         string title,
-        string? summary)
+        string? summary,
+        int sortOrder)
     {
         ValidateRequired(key, nameof(key), "Learning path key is required.");
         ValidateRequired(title, nameof(title), "Learning path title is required.");
@@ -23,6 +24,7 @@ public sealed class LearningPath
         Key = key.Trim();
         Title = title.Trim();
         Summary = NormalizeOptional(summary);
+        SortOrder = sortOrder;
     }
 
     /// <summary>
@@ -44,6 +46,11 @@ public sealed class LearningPath
     /// Short learning path description.
     /// </summary>
     public string Summary { get; private set; }
+
+    /// <summary>
+    /// Determines the display order among learning paths.
+    /// </summary>
+    public int SortOrder { get; private set; }
 
     /// <summary>
     /// Ordered zones inside the learning path.

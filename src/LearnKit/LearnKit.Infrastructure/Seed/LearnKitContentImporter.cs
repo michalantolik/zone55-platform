@@ -1,4 +1,4 @@
-﻿using LearnKit.Domain.Articles;
+using LearnKit.Domain.Articles;
 using LearnKit.Domain.Articles.DomainModel;
 using LearnKit.Domain.Articles.Entities;
 using LearnKit.Domain.Roadmaps;
@@ -69,7 +69,8 @@ public sealed class LearnKitContentImporter
         var learningPath = new LearningPath(
             seed.Key,
             seed.Title,
-            seed.Summary);
+            seed.Summary,
+            seed.SortOrder);
 
         foreach (var zoneSeed in seed.Zones)
         {

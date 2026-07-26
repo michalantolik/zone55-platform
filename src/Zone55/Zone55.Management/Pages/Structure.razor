@@ -1,7 +1,6 @@
 @page "/structure"
 @attribute [Authorize]
 @inject ILearnKitManagementClient ManagementClient
-@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 
 <PageTitle>Structure | Zone55 Management</PageTitle>
 
@@ -256,10 +255,10 @@ else
                 || _learningPaths.All(path => path.Key != _selectedLearningPathKey))
             {
                 _selectedLearningPathKey = _learningPaths
-                    .FirstOrDefault(path =>
-                        path.Key == ManagementOptions.Value.DefaultLearningPathKey)
-                    ?.Key
-                    ?? _learningPaths.FirstOrDefault()?.Key;
+                    .OrderBy(path => path.SortOrder)
+                    .ThenBy(path => path.Key, StringComparer.Ordinal)
+                    .FirstOrDefault()
+                    ?.Key;
             }
 
             _learningPath = _selectedLearningPathKey is null

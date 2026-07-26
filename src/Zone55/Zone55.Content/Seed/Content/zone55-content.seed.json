@@ -3,9 +3,9 @@
   "content": {
     "learningPaths": [
       {
-        "key": "default",
-        "title": "Default",
-        "summary": "Default learning path.",
+        "key": "zone55",
+        "title": "Zone55",
+        "summary": "",
         "sortOrder": 1,
         "zones": [
           {

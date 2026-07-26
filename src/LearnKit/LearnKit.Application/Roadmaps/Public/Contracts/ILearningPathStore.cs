@@ -1,4 +1,4 @@
-﻿using LearnKit.Application.Roadmaps.Public.Models;
+using LearnKit.Application.Roadmaps.Public.Models;
 
 namespace LearnKit.Application.Roadmaps.Public.Contracts;
 
@@ -7,6 +7,12 @@ namespace LearnKit.Application.Roadmaps.Public.Contracts;
 /// </summary>
 public interface ILearningPathStore
 {
+    /// <summary>
+    /// Gets the first learning path by display order.
+    /// </summary>
+    Task<LearningPathDetails?> GetFirstAsync(
+        CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Gets a learning path by its stable key.
     /// </summary>

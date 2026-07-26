@@ -5,6 +5,8 @@ public sealed class LearningPathDetails
     public required string Key { get; init; }
     public required string Title { get; init; }
     public string Summary { get; init; } = string.Empty;
+    public int SortOrder { get; init; }
+
     public IReadOnlyCollection<LearningZoneDetails> Zones { get; init; } = [];
 }
 

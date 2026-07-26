@@ -3,9 +3,9 @@
   "content": {
     "learningPaths": [
       {
-        "key": "default",
-        "title": "Default",
-        "summary": "Default learning path.",
+        "key": "backend55",
+        "title": "Backend55",
+        "summary": "",
         "sortOrder": 1,
         "zones": []
       }

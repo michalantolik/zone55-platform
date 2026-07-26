@@ -51,7 +51,7 @@ public sealed class ManageLearningStructureHandlersTests
     [Fact]
     public async Task CreateLearningZone_ShouldAppendZoneAndSave()
     {
-        var path = new LearningPath("default", ".NET", null);
+        var path = new LearningPath("default", ".NET", null, 1);
         var store = new StoreStub(path: path);
 
         var id = await new CreateLearningZoneHandler(store).HandleAsync(
@@ -81,7 +81,7 @@ public sealed class ManageLearningStructureHandlersTests
     [Fact]
     public async Task ReorderLearningZones_ShouldApplyCompleteOrder()
     {
-        var path = new LearningPath("default", ".NET", null);
+        var path = new LearningPath("default", ".NET", null, 1);
         var first = new LearningZone("first", "First", null, 1);
         var second = new LearningZone("second", "Second", null, 2);
         path.AddZone(first);
@@ -133,7 +133,7 @@ public sealed class ManageLearningStructureHandlersTests
     [Fact]
     public async Task DeleteLearningZone_ShouldReturnConflict_WhenZoneContainsSteps()
     {
-        var path = new LearningPath("default", ".NET", null);
+        var path = new LearningPath("default", ".NET", null, 1);
         var zone = new LearningZone("zone", "Zone", null, 1);
         zone.AddStep(new LearningStep("step", "Step", null, 1));
         path.AddZone(zone);

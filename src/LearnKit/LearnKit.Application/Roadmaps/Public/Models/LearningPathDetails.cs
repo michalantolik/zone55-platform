@@ -1,4 +1,4 @@
-﻿namespace LearnKit.Application.Roadmaps.Public.Models;
+namespace LearnKit.Application.Roadmaps.Public.Models;
 
 /// <summary>
 /// Details of a learning path with its zones.
@@ -10,6 +10,8 @@ public sealed class LearningPathDetails
     public required string Title { get; init; }
 
     public required string Summary { get; init; }
+
+    public int SortOrder { get; init; }
 
     public IReadOnlyCollection<LearningZoneDetails> Zones { get; init; } = [];
 }

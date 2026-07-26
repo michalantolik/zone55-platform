@@ -3,7 +3,6 @@
 @implements IDisposable
 @using System.Text.Json
 @inject ILearnKitManagementClient ManagementClient
-@inject Microsoft.Extensions.Options.IOptions<LearnKitManagementOptions> ManagementOptions
 @inject NavigationManager Navigation
 @inject IJSRuntime JavaScript
 @inject ClientCrashDiagnostics CrashDiagnostics
@@ -260,7 +259,7 @@ else
         try
         {
             var articleTask = ManagementClient.GetArticleAsync(ArticleId);
-            var learningPathTask = ManagementClient.GetLearningPathAsync(ManagementOptions.Value.DefaultLearningPathKey);
+            var learningPathTask = ManagementClient.GetFirstLearningPathAsync();
             await Task.WhenAll(articleTask, learningPathTask);
             _article = await articleTask;
             var learningPath = await learningPathTask;

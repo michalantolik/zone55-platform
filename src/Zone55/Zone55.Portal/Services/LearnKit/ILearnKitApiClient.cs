@@ -9,7 +9,6 @@ public interface ILearnKitApiClient
         string slug,
         CancellationToken cancellationToken = default);
 
-    Task<LearnKitLearningPathDetails?> GetLearnKitLearningPathByKeyAsync(
-        string key,
+    Task<LearnKitLearningPathDetails?> GetLearnKitLearningPathAsync(
         CancellationToken cancellationToken = default);
 }

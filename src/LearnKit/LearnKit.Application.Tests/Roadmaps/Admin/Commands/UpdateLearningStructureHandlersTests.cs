@@ -12,7 +12,7 @@ public sealed class UpdateLearningStructureHandlersTests
     [Fact]
     public async Task UpdateLearningPath_ShouldUpdateMetadataAndSave_WhenPathExists()
     {
-        var path = new LearningPath("default", "Old path", "Old summary");
+        var path = new LearningPath("default", "Old path", "Old summary", 1);
         var store = new LearningPathManagementStoreStub(path: path);
         var handler = new UpdateLearningPathHandler(store);
 
@@ -73,7 +73,7 @@ public sealed class UpdateLearningStructureHandlersTests
     [Fact]
     public async Task UpdateLearningPath_ShouldNotSave_WhenTitleIsInvalid()
     {
-        var path = new LearningPath("default", "Path", "Summary");
+        var path = new LearningPath("default", "Path", "Summary", 1);
         var store = new LearningPathManagementStoreStub(path: path);
         var handler = new UpdateLearningPathHandler(store);
 

@@ -38,7 +38,6 @@ builder.Services.AddHttpClient("ManagementApi", client =>
 .AddHttpMessageHandler<ManagementAuthorizationMessageHandler>();
 builder.Services.AddScoped(provider =>
     provider.GetRequiredService<IHttpClientFactory>().CreateClient("ManagementApi"));
-builder.Services.Configure<LearnKitManagementOptions>(builder.Configuration.GetSection("LearnKit"));
 builder.Services.AddScoped<ILearnKitManagementClient, LearnKitManagementClient>();
 builder.Services.AddScoped<PreviewDiagnosticsClient>();
 builder.Services.AddScoped<ClientCrashDiagnostics>();

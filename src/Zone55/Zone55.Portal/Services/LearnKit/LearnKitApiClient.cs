@@ -84,11 +84,10 @@ public sealed class LearnKitApiClient : ILearnKitApiClient
         }
     }
 
-    public async Task<LearnKitLearningPathDetails?> GetLearnKitLearningPathByKeyAsync(
-        string key,
+    public async Task<LearnKitLearningPathDetails?> GetLearnKitLearningPathAsync(
         CancellationToken cancellationToken = default)
     {
-        var url = $"api/learnkit/roadmaps/{Uri.EscapeDataString(key)}";
+        const string url = "api/learnkit/roadmaps";
         var retryDelays = new[]
         {
             TimeSpan.FromMilliseconds(300),

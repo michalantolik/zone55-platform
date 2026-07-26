@@ -1,4 +1,4 @@
-﻿using LearnKit.Domain.Roadmaps;
+using LearnKit.Domain.Roadmaps;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -31,6 +31,9 @@ internal sealed class LearningPathConfiguration : IEntityTypeConfiguration<Learn
 
         learningPath.Property(x => x.Summary)
             .HasMaxLength(2000);
+
+        learningPath.Property(x => x.SortOrder)
+            .IsRequired();
 
         learningPath.HasMany(x => x.Zones)
             .WithOne()

@@ -553,7 +553,7 @@ else
         _selectedLearnKitArticle = null;
 
         var learningPath =
-            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("default");
+            await LearnKitApi.GetLearnKitLearningPathAsync();
 
         _learningPathLevels = learningPath is null
             ? []
@@ -578,7 +578,7 @@ else
         StateHasChanged();
 
         var learningPath =
-            await LearnKitApi.GetLearnKitLearningPathByKeyAsync("default");
+            await LearnKitApi.GetLearnKitLearningPathAsync();
 
         _learningPathLevels = learningPath is null
             ? []

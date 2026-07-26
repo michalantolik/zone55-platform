@@ -11,7 +11,7 @@ public sealed class LearningNavigationState(LearnKitApiClient apiClient)
     public async Task EnsureLoadedAsync()
     {
         if (_path is not null) return;
-        _path = await apiClient.GetPathAsync("default");
+        _path = await apiClient.GetPathAsync();
         Changed?.Invoke();
     }
 }

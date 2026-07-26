@@ -24,6 +24,7 @@ using LearnKit.Application.Articles.Admin.Queries.GetArticleForEditing;
 using LearnKit.Application.Articles.Admin.Queries.GetArticlesForManagement;
 using LearnKit.Application.Articles.Public.Queries.GetArticleBySlug;
 using LearnKit.Application.Roadmaps.Public.Queries.GetLearningPath;
+using LearnKit.Application.Roadmaps.Public.Queries.GetFirstLearningPath;
 using LearnKit.Application.Content.Admin.Queries.ExportContent;
 using LearnKit.Application.Content.Admin.Queries.ValidateContent;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +44,7 @@ public static class DependencyInjection
     {
         services.AddScoped<GetArticleBySlugHandler>();
         services.AddScoped<GetLearningPathHandler>();
+        services.AddScoped<GetFirstLearningPathHandler>();
         services.AddScoped<ExportLearnKitContentHandler>();
         services.AddScoped<ValidateLearnKitContentHandler>();
 

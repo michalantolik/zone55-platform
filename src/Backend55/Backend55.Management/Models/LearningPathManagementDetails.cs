@@ -5,6 +5,7 @@ public sealed record LearningPathManagementDetails(
     string Key,
     string Title,
     string Summary,
+    int SortOrder,
     IReadOnlyCollection<LearningZoneManagementDetails> Zones);
 
 public sealed record LearningZoneManagementDetails(
