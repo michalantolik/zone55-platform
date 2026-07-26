@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
+using Backend55.Content;
 
 namespace Backend55.Api;
 
@@ -127,6 +128,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddLearnKitApplication();
+        services.AddBackend55Content();
 
         services.AddLearnKitInfrastructure(options =>
             options.UseSqlServer(

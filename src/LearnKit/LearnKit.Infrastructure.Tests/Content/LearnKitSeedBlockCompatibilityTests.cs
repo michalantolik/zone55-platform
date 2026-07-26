@@ -6,14 +6,17 @@ namespace LearnKit.Infrastructure.Tests.Content;
 
 public sealed class LearnKitSeedBlockCompatibilityTests
 {
-    [Fact]
-    public void Seed_ShouldContainOnlySupportedAndValidLearnKitBlocks()
+    [Theory]
+    [InlineData("zone55-content.seed.json")]
+    [InlineData("backend55-content.seed.json")]
+    public void Seed_ShouldContainOnlySupportedAndValidLearnKitBlocks(
+        string fileName)
     {
         var path = Path.Combine(
             AppContext.BaseDirectory,
             "Seed",
             "Content",
-            "learnkit-content.seed.json");
+            fileName);
 
         using var document = JsonDocument.Parse(File.ReadAllText(path));
         var blocks = FindProperties(document.RootElement, "blocks")

@@ -79,7 +79,21 @@ public sealed class LearnKitDatabaseSeederTests
         return new LearnKitDatabaseSeeder(
             dbContext,
             new LearnKitContentImporter(dbContext, new LearnKitContentSeedLoader()),
+            new TestContentSeedSource(),
             new FixedTimeProvider());
+    }
+
+    private sealed class TestContentSeedSource : ILearnKitContentSeedSource
+    {
+        public Stream OpenRead() =>
+            File.OpenRead(
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Seed",
+                    "Content",
+                    "zone55-content.seed.json"));
+
+        public string SourceVersion => "test-content.seed.v1";
     }
 
     private sealed class FixedTimeProvider : TimeProvider

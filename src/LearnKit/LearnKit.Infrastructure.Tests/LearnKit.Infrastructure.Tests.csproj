@@ -25,7 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LearnKit.Infrastructure\Seed\Content\learnkit-content.seed.json" Link="Seed\Content\learnkit-content.seed.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\Zone55\Zone55.Content\Seed\Content\zone55-content.seed.json" Link="Seed\Content\zone55-content.seed.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\Backend55\Backend55.Content\Seed\Content\backend55-content.seed.json" Link="Seed\Content\backend55-content.seed.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

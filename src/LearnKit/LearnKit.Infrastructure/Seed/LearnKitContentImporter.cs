@@ -32,6 +32,27 @@ public sealed class LearnKitContentImporter
             seedFilePath,
             cancellationToken);
 
+        await ImportAsync(seed, cancellationToken);
+    }
+
+    /// <summary>
+    /// Imports LearnKit content from a seed stream into the database.
+    /// </summary>
+    public async Task ImportAsync(
+        Stream stream,
+        CancellationToken cancellationToken = default)
+    {
+        var seed = await _seedLoader.LoadAsync(
+            stream,
+            cancellationToken);
+
+        await ImportAsync(seed, cancellationToken);
+    }
+
+    private async Task ImportAsync(
+        LearnKitContentSeed seed,
+        CancellationToken cancellationToken)
+    {
         foreach (var pathSeed in seed.Content.LearningPaths)
         {
             var learningPath = CreateLearningPath(pathSeed);

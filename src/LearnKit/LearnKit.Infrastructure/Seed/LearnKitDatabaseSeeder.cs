@@ -11,26 +11,21 @@ namespace LearnKit.Infrastructure.Seed;
 public sealed class LearnKitDatabaseSeeder
 {
     internal const string InitializationKey = "initial-content";
-    internal const string SourceVersion = "learnkit-content.seed.v1";
-
-    private static readonly string SeedFilePath =
-        Path.Combine(
-            AppContext.BaseDirectory,
-            "Seed",
-            "Content",
-            "learnkit-content.seed.json");
 
     private readonly LearnKitDbContext _dbContext;
     private readonly LearnKitContentImporter _contentImporter;
+    private readonly ILearnKitContentSeedSource _seedSource;
     private readonly TimeProvider _timeProvider;
 
     public LearnKitDatabaseSeeder(
         LearnKitDbContext dbContext,
         LearnKitContentImporter contentImporter,
+        ILearnKitContentSeedSource seedSource,
         TimeProvider timeProvider)
     {
         _dbContext = dbContext;
         _contentImporter = contentImporter;
+        _seedSource = seedSource;
         _timeProvider = timeProvider;
     }
 
@@ -56,8 +51,10 @@ public sealed class LearnKitDatabaseSeeder
 
         if (!hasExistingContent)
         {
+            await using var seedStream = _seedSource.OpenRead();
+
             await _contentImporter.ImportAsync(
-                SeedFilePath,
+                seedStream,
                 cancellationToken);
         }
 
@@ -65,7 +62,7 @@ public sealed class LearnKitDatabaseSeeder
             new LearnKitInitializationRecord(
                 InitializationKey,
                 _timeProvider.GetUtcNow(),
-                SourceVersion));
+                _seedSource.SourceVersion));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

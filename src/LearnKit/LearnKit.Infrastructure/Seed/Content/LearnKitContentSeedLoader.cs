@@ -30,6 +30,18 @@ public sealed class LearnKitContentSeedLoader
 
         await using var stream = File.OpenRead(path);
 
+        return await LoadAsync(stream, cancellationToken);
+    }
+
+    /// <summary>
+    /// Loads the content seed from the specified stream.
+    /// </summary>
+    public async Task<LearnKitContentSeed> LoadAsync(
+        Stream stream,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
         var seed = await JsonSerializer.DeserializeAsync<LearnKitContentSeed>(
             stream,
             SerializerOptions,

@@ -23,6 +23,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\LearnKit\LearnKit.Application\LearnKit.Application.csproj" />
 		<ProjectReference Include="..\..\LearnKit\LearnKit.Infrastructure\LearnKit.Infrastructure.csproj" />
+		<ProjectReference Include="..\Zone55.Content\Zone55.Content.csproj" />
 	</ItemGroup>
 
 </Project>
